@@ -10,6 +10,7 @@ import '../../providers/background_providers.dart';
 import '../../providers/settings_providers.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/chat/chat_background_widget.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for managing chat backgrounds
 class BackgroundSettingsScreen extends ConsumerStatefulWidget {
@@ -128,8 +129,7 @@ class _BackgroundSettingsScreenState
             ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
           // Character Avatar Background Setting (only for global settings)
           if (!isCharacterSpecific) ...[
@@ -179,12 +179,9 @@ class _BackgroundSettingsScreenState
   }
 
   Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppTheme.accentColor,
-            fontWeight: FontWeight.bold,
-          ),
+    return SettingsCategoryHeader(
+      icon: Icons.palette_outlined,
+      title: title,
     );
   }
 
@@ -197,98 +194,50 @@ class _BackgroundSettingsScreenState
         ref.watch(appSettingsProvider.select((s) => s.backgroundOpacity));
     final l10n = AppLocalizations.of(context);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.wallpaper, color: AppTheme.accentColor),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    l10n.imageBackgroundSettings,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Use character avatar toggle
-            SwitchListTile(
-              title: Text(l10n.useCharacterImageAsBackground),
-              subtitle: Text(l10n.useCharacterImageAsBackgroundHint),
-              value: useCharacterAvatar,
-              onChanged: (value) {
-                ref
-                    .read(appSettingsProvider.notifier)
-                    .updateUseCharacterAvatarAsBackground(value);
-              },
-              contentPadding: EdgeInsets.zero,
-            ),
-
-            const Divider(height: 24),
-
-            // Background opacity slider
-            Row(
-              children: [
-                const Icon(Icons.opacity, size: 20),
-                const SizedBox(width: 12),
-                Text(l10n.backgroundOpacity),
-                const Spacer(),
-                Text('${(backgroundOpacity * 100).round()}%'),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Slider(
-              value: backgroundOpacity,
-              min: 0.1,
-              max: 1.0,
-              divisions: 18,
-              onChanged: (value) {
-                ref
-                    .read(appSettingsProvider.notifier)
-                    .updateBackgroundOpacity(value);
-              },
-            ),
-            Text(
-              l10n.backgroundOpacityHint,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textMuted,
-                  ),
-            ),
-
-            const Divider(height: 24),
-
-            // Background blur toggle
-            SwitchListTile(
-              title: Text(l10n.enableBackgroundBlur),
-              subtitle: Text(l10n.enableBackgroundBlurHint),
-              value: enableBlur,
-              onChanged: (value) {
-                ref
-                    .read(appSettingsProvider.notifier)
-                    .updateEnableBackgroundBlur(value);
-              },
-              contentPadding: EdgeInsets.zero,
-            ),
-
-            const SizedBox(height: 8),
-            Text(
-              l10n.backgroundPriorityHint,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textMuted,
-                    fontStyle: FontStyle.italic,
-                  ),
-            ),
-          ],
+    return SettingsSection(
+      icon: Icons.wallpaper,
+      title: l10n.imageBackgroundSettings,
+      footer: l10n.backgroundPriorityHint,
+      children: [
+        SettingsSwitchTile(
+          icon: Icons.person_outline,
+          title: l10n.useCharacterImageAsBackground,
+          subtitle: l10n.useCharacterImageAsBackgroundHint,
+          value: useCharacterAvatar,
+          onChanged: (value) {
+            ref
+                .read(appSettingsProvider.notifier)
+                .updateUseCharacterAvatarAsBackground(value);
+          },
         ),
-      ),
+        SettingsSliderTile(
+          icon: Icons.opacity,
+          title: l10n.backgroundOpacity,
+          subtitle: l10n.backgroundOpacityHint,
+          value: backgroundOpacity,
+          min: 0.1,
+          max: 1.0,
+          divisions: 18,
+          valueLabel: '${(backgroundOpacity * 100).round()}%',
+          onChanged: (value) {
+            ref
+                .read(appSettingsProvider.notifier)
+                .updateBackgroundOpacity(value);
+          },
+        ),
+        SettingsSwitchTile(
+          icon: Icons.blur_on,
+          title: l10n.enableBackgroundBlur,
+          subtitle: l10n.enableBackgroundBlurHint,
+          value: enableBlur,
+          showDivider: false,
+          onChanged: (value) {
+            ref
+                .read(appSettingsProvider.notifier)
+                .updateEnableBackgroundBlur(value);
+          },
+        ),
+      ],
     );
   }
 

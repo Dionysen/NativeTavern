@@ -12020,6 +12020,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark'**
   String get themeSlotDark;
+
+  /// Multimedia settings section
+  ///
+  /// In en, this message translates to:
+  /// **'Multimedia'**
+  String get multimedia;
 }
 
 class _AppLocalizationsDelegate

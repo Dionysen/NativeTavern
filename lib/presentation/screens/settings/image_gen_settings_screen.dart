@@ -5,6 +5,7 @@ import 'package:native_tavern/domain/services/image_generation_service.dart';
 import 'package:native_tavern/presentation/providers/image_gen_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for image generation settings
 class ImageGenSettingsScreen extends ConsumerWidget {
@@ -32,20 +33,18 @@ class ImageGenSettingsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
-          // Enable/Disable toggle
-          _buildSection(
-            context: context,
+          SettingsSection(
+            icon: Icons.toggle_on_outlined,
             title: AppLocalizations.of(context)!.general,
             children: [
-              SwitchListTile(
-                title:
-                    Text(AppLocalizations.of(context)!.enableImageGeneration),
-                subtitle:
-                    Text(AppLocalizations.of(context)!.generateImagesUsingAi),
+              SettingsSwitchTile(
+                icon: Icons.image,
+                title: AppLocalizations.of(context)!.enableImageGeneration,
+                subtitle: AppLocalizations.of(context)!.generateImagesUsingAi,
                 value: settings.enabled,
+                showDivider: false,
                 onChanged: (value) {
                   ref.read(imageGenSettingsProvider.notifier).setEnabled(value);
                 },
@@ -53,62 +52,52 @@ class ImageGenSettingsScreen extends ConsumerWidget {
             ],
           ),
 
-          const SizedBox(height: 16),
-
-          // Provider selection
-          _buildSection(
-            context: context,
+          SettingsSection(
+            icon: Icons.cloud_outlined,
             title: AppLocalizations.of(context)!.provider,
             children: [
-              ListTile(
-                title:
-                    Text(AppLocalizations.of(context)!.imageGenerationProvider),
-                subtitle: Text(settings.provider.displayName),
-                trailing: DropdownButton<ImageGenProvider>(
-                  value: settings.provider,
-                  onChanged: settings.enabled
-                      ? (value) {
-                          if (value != null) {
-                            ref
-                                .read(imageGenSettingsProvider.notifier)
-                                .setProvider(value);
-                          }
-                        }
-                      : null,
-                  items: ImageGenProvider.values.map((provider) {
-                    return DropdownMenuItem(
+              SettingsChoiceTile<ImageGenProvider>(
+                icon: Icons.image_search,
+                title: AppLocalizations.of(context)!.imageGenerationProvider,
+                selected: settings.provider,
+                enabled: settings.enabled,
+                choices: [
+                  for (final provider in ImageGenProvider.values)
+                    SettingsChoice(
                       value: provider,
-                      child: Text(provider.displayName),
-                    );
-                  }).toList(),
-                ),
+                      label: provider.displayName,
+                    ),
+                ],
+                valueLabel: settings.provider.displayName,
+                onSelected: (value) {
+                  ref.read(imageGenSettingsProvider.notifier).setProvider(value);
+                },
               ),
-              ListTile(
-                title: Text(AppLocalizations.of(context)!.apiEndpoint),
-                subtitle: Text(
-                  settings.apiEndpoint?.isNotEmpty == true
-                      ? settings.apiEndpoint!
-                      : AppLocalizations.of(context)!.notConfigured,
-                ),
-                trailing: const Icon(Icons.edit),
+              SettingsListTile(
+                icon: Icons.link,
+                title: AppLocalizations.of(context)!.apiEndpoint,
+                subtitle: settings.apiEndpoint?.isNotEmpty == true
+                    ? settings.apiEndpoint!
+                    : AppLocalizations.of(context)!.notConfigured,
+                trailing: Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+                enabled: settings.enabled,
                 onTap: settings.enabled
                     ? () => _showEndpointDialog(context, ref, settings)
                     : null,
               ),
               if (settings.provider.requiresApiKey)
-                ListTile(
-                  title: Text(AppLocalizations.of(context)!.apiKey),
-                  subtitle: Text(
-                    settings.apiKey?.isNotEmpty == true
-                        ? '••••••••${settings.apiKey!.substring(settings.apiKey!.length - 4)}'
-                        : AppLocalizations.of(context)!.notConfigured,
-                  ),
-                  trailing: const Icon(Icons.edit),
+                SettingsListTile(
+                  icon: Icons.key_outlined,
+                  title: AppLocalizations.of(context)!.apiKey,
+                  subtitle: settings.apiKey?.isNotEmpty == true
+                      ? '••••••••${settings.apiKey!.substring(settings.apiKey!.length - 4)}'
+                      : AppLocalizations.of(context)!.notConfigured,
+                  trailing: Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+                  enabled: settings.enabled,
                   onTap: settings.enabled
                       ? () => _showApiKeyDialog(context, ref, settings)
                       : null,
                 ),
-              // Model selection
               _buildModelSelector(context, ref, settings),
             ],
           ),
@@ -116,8 +105,8 @@ class ImageGenSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Default parameters
-          _buildSection(
-            context: context,
+          SettingsSection(
+            icon: Icons.settings_outlined,
             title: AppLocalizations.of(context)!.defaultParameters,
             children: [
               // Size presets
@@ -235,8 +224,8 @@ class ImageGenSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Negative prompt
-          _buildSection(
-            context: context,
+          SettingsSection(
+            icon: Icons.settings_outlined,
             title: AppLocalizations.of(context)!.negativePrompt,
             children: [
               Padding(
@@ -263,17 +252,15 @@ class ImageGenSettingsScreen extends ConsumerWidget {
           ),
 
           // NovelAI specific settings
-          if (settings.provider == ImageGenProvider.novelai) ...[
-            const SizedBox(height: 16),
-            _buildSection(
-              context: context,
-              title: AppLocalizations.of(context).novelAiSettings,
-              children: [
-                SwitchListTile(
-                  title: Text(AppLocalizations.of(context).anlasGuard),
-                  subtitle: Text(
-                    AppLocalizations.of(context).anlasGuardDescription,
-                  ),
+          if (settings.provider == ImageGenProvider.novelai)
+            SettingsSection(
+            icon: Icons.settings_outlined,
+            title: AppLocalizations.of(context).novelAiSettings,
+            children: [
+                SettingsSwitchTile(
+                  icon: Icons.shield_outlined,
+                  title: AppLocalizations.of(context).anlasGuard,
+                  subtitle: AppLocalizations.of(context).anlasGuardDescription,
                   value: settings.novelaiAnlasGuard,
                   onChanged: settings.enabled
                       ? (value) {
@@ -283,9 +270,10 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                         }
                       : null,
                 ),
-                SwitchListTile(
-                  title: Text(AppLocalizations.of(context).smea),
-                  subtitle: Text(AppLocalizations.of(context).smeaDescription),
+                SettingsSwitchTile(
+                  icon: Icons.blur_on,
+                  title: AppLocalizations.of(context).smea,
+                  subtitle: AppLocalizations.of(context).smeaDescription,
                   value: settings.novelaiSm,
                   onChanged: settings.enabled
                       ? (value) {
@@ -296,11 +284,10 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                       : null,
                 ),
                 if (settings.novelaiSm)
-                  SwitchListTile(
-                    title: Text(AppLocalizations.of(context).smeaDynamic),
-                    subtitle: Text(
-                      AppLocalizations.of(context).smeaDynamicDescription,
-                    ),
+                  SettingsSwitchTile(
+                    icon: Icons.auto_fix_high,
+                    title: AppLocalizations.of(context).smeaDynamic,
+                    subtitle: AppLocalizations.of(context).smeaDynamicDescription,
                     value: settings.novelaiSmDyn,
                     onChanged: settings.enabled
                         ? (value) {
@@ -310,11 +297,10 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                           }
                         : null,
                   ),
-                SwitchListTile(
-                  title: Text(AppLocalizations.of(context).decrisper),
-                  subtitle: Text(
-                    AppLocalizations.of(context).decrisperDescription,
-                  ),
+                SettingsSwitchTile(
+                  icon: Icons.high_quality,
+                  title: AppLocalizations.of(context).decrisper,
+                  subtitle: AppLocalizations.of(context).decrisperDescription,
                   value: settings.novelaiDecrisper,
                   onChanged: settings.enabled
                       ? (value) {
@@ -324,12 +310,12 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                         }
                       : null,
                 ),
-                SwitchListTile(
-                  title: Text(AppLocalizations.of(context).varietyPlus),
-                  subtitle: Text(
-                    AppLocalizations.of(context).varietyPlusDescription,
-                  ),
+                SettingsSwitchTile(
+                  icon: Icons.shuffle,
+                  title: AppLocalizations.of(context).varietyPlus,
+                  subtitle: AppLocalizations.of(context).varietyPlusDescription,
                   value: settings.novelaiVarietyBoost,
+                  showDivider: false,
                   onChanged: settings.enabled
                       ? (value) {
                           ref
@@ -340,131 +326,96 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                 ),
               ],
             ),
-          ],
 
           // OpenAI (gpt-image) specific settings
-          if (settings.provider == ImageGenProvider.openai) ...[
-            const SizedBox(height: 16),
-            _buildSection(
-              context: context,
-              title: AppLocalizations.of(context)!.gptImageSettings,
-              children: [
-                ListTile(
-                  title: Text(AppLocalizations.of(context)!.qualityLabel),
-                  subtitle: Text(settings.openaiQuality == 'hd'
+          if (settings.provider == ImageGenProvider.openai)
+            SettingsSection(
+            icon: Icons.settings_outlined,
+            title: AppLocalizations.of(context)!.gptImageSettings,
+            children: [
+                SettingsChoiceTile<String>(
+                  icon: Icons.high_quality,
+                  title: AppLocalizations.of(context)!.qualityLabel,
+                  subtitle: settings.openaiQuality == 'hd'
                       ? AppLocalizations.of(context)!.qualityHighDescription
-                      : AppLocalizations.of(context)!.qualityAutoDescription),
-                  trailing: DropdownButton<String>(
-                    value: settings.openaiQuality,
-                    onChanged: settings.enabled
-                        ? (value) {
-                            if (value != null) {
-                              ref
-                                  .read(imageGenSettingsProvider.notifier)
-                                  .setOpenaiQuality(value);
-                            }
-                          }
-                        : null,
-                    items: [
-                      DropdownMenuItem(
-                          value: 'standard',
-                          child:
-                              Text(AppLocalizations.of(context)!.effortAuto)),
-                      DropdownMenuItem(
-                          value: 'hd',
-                          child:
-                              Text(AppLocalizations.of(context)!.effortHigh)),
-                    ],
-                  ),
+                      : AppLocalizations.of(context)!.qualityAutoDescription,
+                  selected: settings.openaiQuality,
+                  enabled: settings.enabled,
+                  choices: [
+                    SettingsChoice(
+                      value: 'standard',
+                      label: AppLocalizations.of(context)!.effortAuto,
+                    ),
+                    SettingsChoice(
+                      value: 'hd',
+                      label: AppLocalizations.of(context)!.effortHigh,
+                    ),
+                  ],
+                  valueLabel: settings.openaiQuality == 'hd'
+                      ? AppLocalizations.of(context)!.effortHigh
+                      : AppLocalizations.of(context)!.effortAuto,
+                  showDivider: false,
+                  onSelected: (value) {
+                    ref
+                        .read(imageGenSettingsProvider.notifier)
+                        .setOpenaiQuality(value);
+                  },
                 ),
               ],
             ),
-          ],
-
-          const SizedBox(height: 16),
 
           // Test section
-          _buildSection(
-            context: context,
+          SettingsSection(
+            icon: Icons.play_arrow_outlined,
             title: AppLocalizations.of(context)!.test,
             children: [
               _ImageGenTestWidget(enabled: settings.enabled),
             ],
           ),
 
-          const SizedBox(height: 16),
-
-          // Info section
-          _buildSection(
-            context: context,
+          SettingsSection(
+            icon: Icons.info_outline,
             title: AppLocalizations.of(context)!.information,
             children: [
-              ListTile(
-                leading:
-                    const Icon(Icons.info_outline, color: AppTheme.accentColor),
-                title: Text(AppLocalizations.of(context)!.aboutImageGeneration),
-                subtitle: Text(AppLocalizations.of(context)!
-                    .aboutImageGenerationDescription),
+              SettingsListTile(
+                icon: Icons.info_outline,
+                title: AppLocalizations.of(context)!.aboutImageGeneration,
+                subtitle: AppLocalizations.of(context)!
+                    .aboutImageGenerationDescription,
               ),
-              ListTile(
-                leading: const Icon(Icons.terminal, color: AppTheme.textMuted),
-                title: Text(AppLocalizations.of(context)!.imagineCommand),
-                subtitle:
-                    Text(AppLocalizations.of(context)!.imagineCommandUsage),
+              SettingsListTile(
+                icon: Icons.terminal,
+                title: AppLocalizations.of(context)!.imagineCommand,
+                subtitle: AppLocalizations.of(context)!.imagineCommandUsage,
+                showDivider: settings.provider == ImageGenProvider.automatic1111 ||
+                    settings.provider == ImageGenProvider.openai ||
+                    settings.provider == ImageGenProvider.openaiChat,
               ),
               if (settings.provider == ImageGenProvider.automatic1111)
-                ListTile(
-                  leading:
-                      const Icon(Icons.computer, color: AppTheme.textMuted),
-                  title: Text(AppLocalizations.of(context)!.stableDiffusion),
-                  subtitle: Text(
-                      AppLocalizations.of(context)!.stableDiffusionDescription),
+                SettingsListTile(
+                  icon: Icons.computer,
+                  title: AppLocalizations.of(context)!.stableDiffusion,
+                  subtitle:
+                      AppLocalizations.of(context)!.stableDiffusionDescription,
+                  showDivider: false,
                 ),
               if (settings.provider == ImageGenProvider.openai)
-                ListTile(
-                  leading: const Icon(Icons.cloud, color: AppTheme.textMuted),
-                  title: const Text('GPT-Image'),
-                  subtitle: Text(
-                    AppLocalizations.of(context).gptImageApiDescription,
-                  ),
+                SettingsListTile(
+                  icon: Icons.cloud,
+                  title: 'GPT-Image',
+                  subtitle: AppLocalizations.of(context).gptImageApiDescription,
+                  showDivider: false,
                 ),
               if (settings.provider == ImageGenProvider.openaiChat)
-                ListTile(
-                  leading: const Icon(Icons.chat, color: AppTheme.textMuted),
-                  title: Text(AppLocalizations.of(context).oaiCompatibleChat),
-                  subtitle: Text(
-                    AppLocalizations.of(context).oaiCompatibleChatDescription,
-                  ),
+                SettingsListTile(
+                  icon: Icons.chat,
+                  title: AppLocalizations.of(context).oaiCompatibleChat,
+                  subtitle: AppLocalizations.of(context)
+                      .oaiCompatibleChatDescription,
+                  showDivider: false,
                 ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSection({
-    required BuildContext context,
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Card(
-      color: AppTheme.darkCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.accentColor,
-              ),
-            ),
-          ),
-          ...children,
         ],
       ),
     );

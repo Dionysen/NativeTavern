@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/storage_governance_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/storage_governance_providers.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:path/path.dart' as path;
 
 class StorageManagementScreen extends ConsumerStatefulWidget {
@@ -59,80 +60,90 @@ class _StorageManagementScreenState
         _selectedPaths.length == candidatePaths.length;
     final service = ref.watch(storageGovernanceServiceProvider).valueOrNull;
 
-    return ListView(
+    final categories = StorageCategory.values.toList();
+    return SettingsPageBody(
       key: const Key('storage-management-list'),
       children: [
-        Container(
-          color: Theme.of(context).colorScheme.surfaceContainerLow,
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+        SettingsSection(
+          icon: Icons.storage_outlined,
+          title: l10n.storageManagement,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    snapshot.exceedsQuota
-                        ? Icons.warning_amber_rounded
-                        : Icons.storage_outlined,
+                  Row(
+                    children: [
+                      Icon(
+                        snapshot.exceedsQuota
+                            ? Icons.warning_amber_rounded
+                            : Icons.storage_outlined,
+                        color: snapshot.exceedsQuota
+                            ? Theme.of(context).colorScheme.error
+                            : Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          l10n.storageUsedOfQuota(
+                            _formatBytes(snapshot.totalBytes),
+                            _formatBytes(snapshot.quotaBytes),
+                          ),
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  LinearProgressIndicator(
+                    key: const Key('storage-quota-progress'),
+                    value: snapshot.quotaFraction,
                     color: snapshot.exceedsQuota
                         ? Theme.of(context).colorScheme.error
-                        : Theme.of(context).colorScheme.primary,
+                        : null,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      l10n.storageUsedOfQuota(
-                        _formatBytes(snapshot.totalBytes),
-                        _formatBytes(snapshot.quotaBytes),
-                      ),
-                      style: Theme.of(context).textTheme.titleMedium,
+                  const SizedBox(height: 8),
+                  Text(
+                    snapshot.exceedsQuota
+                        ? l10n.storageQuotaWarning
+                        : l10n.storageWithinQuota,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  if (snapshot.unreadablePaths.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.storageScanIncomplete(
+                          snapshot.unreadablePaths.length),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.error),
                     ),
-                  ),
+                  ],
                 ],
               ),
-              const SizedBox(height: 12),
-              LinearProgressIndicator(
-                key: const Key('storage-quota-progress'),
-                value: snapshot.quotaFraction,
-                color: snapshot.exceedsQuota
-                    ? Theme.of(context).colorScheme.error
-                    : null,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                snapshot.exceedsQuota
-                    ? l10n.storageQuotaWarning
-                    : l10n.storageWithinQuota,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              if (snapshot.unreadablePaths.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  l10n.storageScanIncomplete(snapshot.unreadablePaths.length),
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ],
-            ],
-          ),
+            ),
+          ],
         ),
-        for (final category in StorageCategory.values)
-          _CategoryTile(
-            usage: snapshot.categories[category]!,
-            title: _categoryLabel(l10n, category),
-          ),
-        const Divider(height: 32),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.storageCleanupCandidates,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+        SettingsSection(
+          icon: Icons.folder_outlined,
+          title: l10n.storageManagement,
+          children: [
+            for (var i = 0; i < categories.length; i++)
+              _CategoryTile(
+                usage: snapshot.categories[categories[i]]!,
+                title: _categoryLabel(l10n, categories[i]),
+                showDivider: i != categories.length - 1,
               ),
-              if (candidatePaths.isNotEmpty)
-                TextButton(
+          ],
+        ),
+        SettingsSection(
+          icon: Icons.cleaning_services_outlined,
+          title: l10n.storageCleanupCandidates,
+          children: [
+            if (candidatePaths.isNotEmpty)
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
                   onPressed: _working
                       ? null
                       : () => setState(() {
@@ -148,67 +159,68 @@ class _StorageManagementScreenState
                         : l10n.storageSelectAll,
                   ),
                 ),
-            ],
-          ),
-        ),
-        if (snapshot.cleanupCandidates.isEmpty)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.check_circle_outline,
-                  color: Theme.of(context).colorScheme.primary,
+              ),
+            if (snapshot.cleanupCandidates.isEmpty)
+              SettingsListTile(
+                icon: Icons.check_circle_outline,
+                title: l10n.storageNoCleanupCandidates,
+                showDivider: false,
+              )
+            else ...[
+              for (var i = 0; i < snapshot.cleanupCandidates.length; i++)
+                SettingsListTile(
+                  key: ValueKey(
+                      'storage-candidate-${snapshot.cleanupCandidates[i].path}'),
+                  icon: _categoryIcon(snapshot.cleanupCandidates[i].category),
+                  title: path.basename(snapshot.cleanupCandidates[i].path),
+                  subtitle:
+                      '${_cleanupReason(l10n, snapshot.cleanupCandidates[i].reason)}\n'
+                      '${_displayPath(snapshot.cleanupCandidates[i].path, service?.dataRoot.path)}',
+                  showDivider: true,
+                  onTap: _working
+                      ? null
+                      : () => setState(() {
+                            final p = snapshot.cleanupCandidates[i].path;
+                            if (_selectedPaths.contains(p)) {
+                              _selectedPaths.remove(p);
+                            } else {
+                              _selectedPaths.add(p);
+                            }
+                          }),
+                  trailing: Checkbox(
+                    value: _selectedPaths
+                        .contains(snapshot.cleanupCandidates[i].path),
+                    onChanged: _working
+                        ? null
+                        : (selected) => setState(() {
+                              final p = snapshot.cleanupCandidates[i].path;
+                              if (selected ?? false) {
+                                _selectedPaths.add(p);
+                              } else {
+                                _selectedPaths.remove(p);
+                              }
+                            }),
+                  ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(child: Text(l10n.storageNoCleanupCandidates)),
-              ],
-            ),
-          )
-        else ...[
-          for (final candidate in snapshot.cleanupCandidates)
-            CheckboxListTile(
-              key: ValueKey('storage-candidate-${candidate.path}'),
-              value: _selectedPaths.contains(candidate.path),
-              onChanged: _working
-                  ? null
-                  : (selected) => setState(() {
-                        if (selected ?? false) {
-                          _selectedPaths.add(candidate.path);
-                        } else {
-                          _selectedPaths.remove(candidate.path);
-                        }
-                      }),
-              secondary: Icon(_categoryIcon(candidate.category)),
-              title: Text(
-                path.basename(candidate.path),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                child: FilledButton.icon(
+                  key: const Key('storage-clean-selected'),
+                  onPressed: _working || _selectedPaths.isEmpty
+                      ? null
+                      : () => _reviewCleanup(snapshot),
+                  icon: _working
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.cleaning_services_outlined),
+                  label: Text(l10n.storageCleanSelected),
+                ),
               ),
-              subtitle: Text(
-                '${_cleanupReason(l10n, candidate.reason)}\n'
-                '${_displayPath(candidate.path, service?.dataRoot.path)}',
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-            child: FilledButton.icon(
-              key: const Key('storage-clean-selected'),
-              onPressed: _working || _selectedPaths.isEmpty
-                  ? null
-                  : () => _reviewCleanup(snapshot),
-              icon: _working
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.cleaning_services_outlined),
-              label: Text(l10n.storageCleanSelected),
-            ),
-          ),
-        ],
+            ],
+          ],
+        ),
       ],
     );
   }
@@ -312,8 +324,13 @@ class _StorageManagementScreenState
 class _CategoryTile extends StatelessWidget {
   final StorageCategoryUsage usage;
   final String title;
+  final bool showDivider;
 
-  const _CategoryTile({required this.usage, required this.title});
+  const _CategoryTile({
+    required this.usage,
+    required this.title,
+    this.showDivider = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -323,10 +340,11 @@ class _CategoryTile extends StatelessWidget {
       if (usage.reclaimableCount > 0)
         l10n.storageReclaimable(_formatBytes(usage.reclaimableBytes)),
     ].join('  |  ');
-    return ListTile(
-      leading: Icon(_categoryIcon(usage.category)),
-      title: Text(title),
-      subtitle: Text(subtitle),
+    return SettingsListTile(
+      icon: _categoryIcon(usage.category),
+      title: title,
+      subtitle: subtitle,
+      showDivider: showDivider,
       trailing: Text(
         _formatBytes(usage.bytes),
         style: Theme.of(context).textTheme.labelLarge,

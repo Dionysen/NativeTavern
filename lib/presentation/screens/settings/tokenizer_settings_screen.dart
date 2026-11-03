@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/tokenizer.dart';
 import 'package:native_tavern/domain/services/tokenizer_service.dart';
 import 'package:native_tavern/presentation/providers/tokenizer_providers.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
 /// Settings and visualization screen for tokenizer
@@ -43,123 +43,105 @@ class _TokenizerSettingsScreenState
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
-          // Settings section
-          _buildSectionHeader(context, l10n.settings),
-          const SizedBox(height: 8),
-
-          // Tokenizer selector
-          DropdownButtonFormField<TokenizerType>(
-            value: settings.selectedTokenizer,
-            decoration: InputDecoration(
-              labelText: l10n.tokenizer,
-              border: const OutlineInputBorder(),
-            ),
-            items: TokenizerType.values.map((type) {
-              return DropdownMenuItem(
-                value: type,
-                child: Text(_tokenizerName(type, l10n)),
-              );
-            }).toList(),
-            onChanged: (type) {
-              if (type != null) {
-                ref
-                    .read(tokenizerSettingsProvider.notifier)
-                    .setSelectedTokenizer(type);
-              }
-            },
+          SettingsSection(
+            icon: Icons.token,
+            title: l10n.settings,
+            children: [
+              SettingsChoiceTile<TokenizerType>(
+                icon: Icons.token_outlined,
+                title: l10n.tokenizer,
+                subtitle: _tokenizerDescription(settings.selectedTokenizer, l10n),
+                selected: settings.selectedTokenizer,
+                choices: [
+                  for (final type in TokenizerType.values)
+                    SettingsChoice(
+                      value: type,
+                      label: _tokenizerName(type, l10n),
+                    ),
+                ],
+                valueLabel: _tokenizerName(settings.selectedTokenizer, l10n),
+                onSelected: (type) {
+                  ref
+                      .read(tokenizerSettingsProvider.notifier)
+                      .setSelectedTokenizer(type);
+                },
+              ),
+              SettingsSwitchTile(
+                icon: Icons.numbers,
+                title: l10n.showTokenCount,
+                subtitle: l10n.displayTokenCountInInput,
+                value: settings.showTokenCount,
+                onChanged: (value) {
+                  ref
+                      .read(tokenizerSettingsProvider.notifier)
+                      .setShowTokenCount(value);
+                },
+              ),
+              SettingsSwitchTile(
+                icon: Icons.highlight_alt,
+                title: l10n.showTokenVisualization,
+                subtitle: l10n.highlightIndividualTokens,
+                value: settings.showTokenVisualization,
+                onChanged: (value) {
+                  ref
+                      .read(tokenizerSettingsProvider.notifier)
+                      .setShowTokenVisualization(value);
+                },
+              ),
+              SettingsSwitchTile(
+                icon: Icons.cached,
+                title: l10n.cacheResults,
+                subtitle: l10n.cacheTokenizationForPerformance,
+                value: settings.cacheResults,
+                showDivider: false,
+                onChanged: (value) {
+                  ref
+                      .read(tokenizerSettingsProvider.notifier)
+                      .setCacheResults(value);
+                },
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            _tokenizerDescription(settings.selectedTokenizer, l10n),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.outline,
+          SettingsSection(
+            icon: Icons.visibility_outlined,
+            title: l10n.tokenVisualization,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: TextField(
+                  controller: _textController,
+                  decoration: InputDecoration(
+                    labelText: l10n.enterTextToTokenize,
+                    hintText: l10n.typePasteTextHere,
+                    border: const OutlineInputBorder(),
+                  ),
+                  maxLines: 5,
+                  onChanged: (value) {
+                    setState(() {
+                      _inputText = value;
+                    });
+                  },
                 ),
+              ),
+              if (_inputText.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: _QuickEstimate(text: _inputText),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: _TokenizationResultView(
+                    text: _inputText,
+                    tokenizer: settings.selectedTokenizer,
+                  ),
+                ),
+              ],
+            ],
           ),
-          const SizedBox(height: 16),
-
-          SwitchListTile(
-            title: Text(l10n.showTokenCount),
-            subtitle: Text(l10n.displayTokenCountInInput),
-            value: settings.showTokenCount,
-            onChanged: (value) {
-              ref
-                  .read(tokenizerSettingsProvider.notifier)
-                  .setShowTokenCount(value);
-            },
-          ),
-          SwitchListTile(
-            title: Text(l10n.showTokenVisualization),
-            subtitle: Text(l10n.highlightIndividualTokens),
-            value: settings.showTokenVisualization,
-            onChanged: (value) {
-              ref
-                  .read(tokenizerSettingsProvider.notifier)
-                  .setShowTokenVisualization(value);
-            },
-          ),
-          SwitchListTile(
-            title: Text(l10n.cacheResults),
-            subtitle: Text(l10n.cacheTokenizationForPerformance),
-            value: settings.cacheResults,
-            onChanged: (value) {
-              ref
-                  .read(tokenizerSettingsProvider.notifier)
-                  .setCacheResults(value);
-            },
-          ),
-
-          const Divider(height: 32),
-
-          // Visualization section
-          _buildSectionHeader(context, l10n.tokenVisualization),
-          const SizedBox(height: 16),
-
-          // Input text field
-          TextField(
-            controller: _textController,
-            decoration: InputDecoration(
-              labelText: l10n.enterTextToTokenize,
-              hintText: l10n.typePasteTextHere,
-              border: const OutlineInputBorder(),
-            ),
-            maxLines: 5,
-            onChanged: (value) {
-              setState(() {
-                _inputText = value;
-              });
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // Quick estimate
-          if (_inputText.isNotEmpty) ...[
-            _QuickEstimate(text: _inputText),
-            const SizedBox(height: 16),
-          ],
-
-          // Tokenization result
-          if (_inputText.isNotEmpty)
-            _TokenizationResultView(
-              text: _inputText,
-              tokenizer: settings.selectedTokenizer,
-            ),
-
-          const SizedBox(height: 32),
         ],
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppTheme.accentColor,
-            fontWeight: FontWeight.bold,
-          ),
     );
   }
 

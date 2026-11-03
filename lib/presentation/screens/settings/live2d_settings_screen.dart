@@ -16,6 +16,7 @@ import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/live2d/live2d_character_view.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 class Live2DSettingsScreen extends ConsumerWidget {
   final String characterId;
@@ -536,77 +537,89 @@ class _Live2DSettingsEditorState extends ConsumerState<_Live2DSettingsEditor> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.only(bottom: 32),
+      body: SettingsPageBody(
         children: [
-          SwitchListTile(
-            secondary: const Icon(Icons.animation),
-            title: const Text('Live2D'),
-            value: config?.enabled ?? false,
-            onChanged: config == null
-                ? null
-                : (value) => setState(() {
-                      _config = config.copyWith(enabled: value);
-                    }),
+          SettingsSection(
+            icon: Icons.animation,
+            title: 'Live2D',
+            children: [
+              SettingsSwitchTile(
+                icon: Icons.animation,
+                title: 'Live2D',
+                value: config?.enabled ?? false,
+                showDivider: false,
+                onChanged: config == null
+                    ? null
+                    : (value) => setState(() {
+                          _config = config.copyWith(enabled: value);
+                        }),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: DropdownButtonFormField<String>(
-              key: const Key('live2d-model-selector'),
-              initialValue: selectedModelId,
-              isExpanded: true,
-              menuMaxHeight: math.min(
-                MediaQuery.sizeOf(context).height * 0.6,
-                480,
-              ),
-              decoration: InputDecoration(
-                labelText: l10n.model,
-                border: const OutlineInputBorder(),
-              ),
-              items: [
-                DropdownMenuItem(value: _noneModel, child: Text(l10n.none)),
-                if (hasUnavailableModel)
-                  DropdownMenuItem(
-                    value: config.modelId,
-                    child: Text(
-                      l10n.live2dUnavailableLabel(config.displayName),
-                    ),
+          SettingsSection(
+            icon: Icons.view_in_ar,
+            title: l10n.model,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: DropdownButtonFormField<String>(
+                  key: const Key('live2d-model-selector'),
+                  initialValue: selectedModelId,
+                  isExpanded: true,
+                  menuMaxHeight: math.min(
+                    MediaQuery.sizeOf(context).height * 0.6,
+                    480,
                   ),
-                ..._availableModels.map(
-                  (model) => DropdownMenuItem(
-                    value: model.id,
-                    child: Text(
-                      model.source == Live2DModelSource.asset
-                          ? model.displayName
-                          : l10n.live2dImportedLabel(model.displayName),
-                      overflow: TextOverflow.ellipsis,
+                  decoration: InputDecoration(
+                    labelText: l10n.model,
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: [
+                    DropdownMenuItem(value: _noneModel, child: Text(l10n.none)),
+                    if (hasUnavailableModel)
+                      DropdownMenuItem(
+                        value: config.modelId,
+                        child: Text(
+                          l10n.live2dUnavailableLabel(config.displayName),
+                        ),
+                      ),
+                    ..._availableModels.map(
+                      (model) => DropdownMenuItem(
+                        value: model.id,
+                        child: Text(
+                          model.source == Live2DModelSource.asset
+                              ? model.displayName
+                              : l10n.live2dImportedLabel(model.displayName),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ),
+                  ],
+                  onChanged: _isLoadingModel || _isImporting || _isDeleting
+                      ? null
+                      : (value) {
+                          if (value != null) _selectModel(value);
+                        },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: OutlinedButton.icon(
+                    icon: _isImporting
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.archive_outlined),
+                    label: Text(l10n.live2dImportZip),
+                    onPressed: _isImporting || _isDeleting ? null : _importModel,
                   ),
                 ),
-              ],
-              onChanged: _isLoadingModel || _isImporting || _isDeleting
-                  ? null
-                  : (value) {
-                      if (value != null) _selectModel(value);
-                    },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: OutlinedButton.icon(
-                icon: _isImporting
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.archive_outlined),
-                label: Text(l10n.live2dImportZip),
-                onPressed: _isImporting || _isDeleting ? null : _importModel,
               ),
-            ),
+            ],
           ),
           if (_error != null)
             Padding(

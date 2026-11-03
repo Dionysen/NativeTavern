@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/ai_data_sharing_consent_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/ai_data_sharing_consent_providers.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const _privacyPolicyUrl = 'https://docs.nativetavern.com/legal/privacy.html';
@@ -209,7 +210,12 @@ class _DisclosureSection extends StatelessWidget {
 }
 
 class AiDataSharingSettingsTile extends ConsumerWidget {
-  const AiDataSharingSettingsTile({super.key});
+  const AiDataSharingSettingsTile({
+    super.key,
+    this.showDivider = true,
+  });
+
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -217,16 +223,15 @@ class AiDataSharingSettingsTile extends ConsumerWidget {
     final choice = ref.watch(aiDataSharingConsentProvider);
     final allowed = choice == AiDataSharingChoice.allowed;
 
-    return SwitchListTile(
+    return SettingsSwitchTile(
       key: const Key('ai-data-sharing-settings-tile'),
-      secondary: const Icon(Icons.privacy_tip_outlined),
-      title: Text(l10n.aiDataSharingSettingsTitle),
-      subtitle: Text(
-        allowed
-            ? l10n.aiDataSharingAllowedDescription
-            : l10n.aiDataSharingLocalOnlyDescription,
-      ),
+      icon: Icons.privacy_tip_outlined,
+      title: l10n.aiDataSharingSettingsTitle,
+      subtitle: allowed
+          ? l10n.aiDataSharingAllowedDescription
+          : l10n.aiDataSharingLocalOnlyDescription,
       value: allowed,
+      showDivider: showDivider,
       onChanged: (value) {
         final notifier = ref.read(aiDataSharingConsentProvider.notifier);
         if (value) {
@@ -240,15 +245,22 @@ class AiDataSharingSettingsTile extends ConsumerWidget {
 }
 
 class PrivacyPolicyTile extends StatelessWidget {
-  const PrivacyPolicyTile({super.key});
+  const PrivacyPolicyTile({
+    super.key,
+    this.showDivider = true,
+  });
+
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return ListTile(
-      leading: const Icon(Icons.policy_outlined),
-      title: Text(l10n.privacyPolicy),
-      trailing: const Icon(Icons.open_in_new),
+    final scheme = Theme.of(context).colorScheme;
+    return SettingsListTile(
+      icon: Icons.policy_outlined,
+      title: l10n.privacyPolicy,
+      showDivider: showDivider,
+      trailing: Icon(Icons.open_in_new, color: scheme.onSurfaceVariant, size: 20),
       onTap: () => launchUrl(
         Uri.parse(_privacyPolicyUrl),
         mode: LaunchMode.externalApplication,

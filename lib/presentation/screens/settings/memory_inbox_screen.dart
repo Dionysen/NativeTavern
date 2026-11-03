@@ -7,6 +7,7 @@ import 'package:native_tavern/domain/services/long_term_memory_governance_servic
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/memory_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 class MemoryInboxScreen extends ConsumerStatefulWidget {
   const MemoryInboxScreen({super.key});
@@ -51,15 +52,26 @@ class _MemoryInboxScreenState extends ConsumerState<MemoryInboxScreen> {
       ),
       body: Column(
         children: [
-          SwitchListTile(
-            key: const Key('memory-auto-extraction-switch'),
-            secondary: const Icon(Icons.auto_awesome_outlined),
-            title: Text(l10n.memoryAutomaticExtraction),
-            subtitle: Text(l10n.memoryAutomaticExtractionSubtitle),
-            value: settings.memoryAutoExtractionEnabled,
-            onChanged: (value) => ref
-                .read(appSettingsProvider.notifier)
-                .updateMemoryAutoExtraction(value),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: SettingsSection(
+              icon: Icons.memory,
+              title: l10n.memoryInbox,
+              margin: const EdgeInsets.only(bottom: 12),
+              children: [
+                SettingsSwitchTile(
+                  key: const Key('memory-auto-extraction-switch'),
+                  icon: Icons.auto_awesome_outlined,
+                  title: l10n.memoryAutomaticExtraction,
+                  subtitle: l10n.memoryAutomaticExtractionSubtitle,
+                  value: settings.memoryAutoExtractionEnabled,
+                  showDivider: false,
+                  onChanged: (value) => ref
+                      .read(appSettingsProvider.notifier)
+                      .updateMemoryAutoExtraction(value),
+                ),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),

@@ -7,6 +7,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/mcp_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:uuid/uuid.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 class McpSettingsScreen extends ConsumerWidget {
   const McpSettingsScreen({super.key});
@@ -42,18 +43,29 @@ class McpSettingsScreen extends ConsumerWidget {
         ),
         body: Column(
           children: [
-            SwitchListTile(
-              key: const Key('mcp-master-toggle'),
-              secondary: const Icon(Icons.extension_outlined),
-              title: Text(l10n.mcpProtocolName),
-              subtitle: Text(state.enabled ? l10n.enabled : l10n.disabled),
-              value: state.enabled,
-              onChanged: state.loading
-                  ? null
-                  : (value) => _guard(
-                        context,
-                        () => controller.setEnabled(value),
-                      ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: SettingsSection(
+                icon: Icons.extension_outlined,
+                title: l10n.mcpServers,
+                margin: EdgeInsets.zero,
+                children: [
+                  SettingsSwitchTile(
+                    key: const Key('mcp-master-toggle'),
+                    icon: Icons.extension_outlined,
+                    title: l10n.mcpProtocolName,
+                    subtitle: state.enabled ? l10n.enabled : l10n.disabled,
+                    value: state.enabled,
+                    showDivider: false,
+                    onChanged: state.loading
+                        ? null
+                        : (value) => _guard(
+                              context,
+                              () => controller.setEnabled(value),
+                            ),
+                  ),
+                ],
+              ),
             ),
             if (state.error != null)
               Container(

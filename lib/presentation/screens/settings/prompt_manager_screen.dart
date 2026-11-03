@@ -8,6 +8,7 @@ import 'package:native_tavern/data/models/prompt_manager.dart';
 import 'package:native_tavern/presentation/providers/prompt_manager_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -108,34 +109,27 @@ class PromptManagerScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // Info banner
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: AppTheme.primaryColor.withOpacity(0.1),
-            child: Row(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(
-                  Icons.info_outline,
-                  color: AppTheme.primaryColor,
-                  size: 20,
+                SettingsCategoryHeader(
+                  icon: Icons.reorder,
+                  title: AppLocalizations.of(context)!.promptManager,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    AppLocalizations.of(context)!.dragToReorder,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textSecondary,
-                        ),
-                  ),
+                Text(
+                  AppLocalizations.of(context)!.dragToReorder,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
               ],
             ),
           ),
-
-          // Reorderable list
           Expanded(
             child: ReorderableListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               itemCount: sortedSections.length,
               onReorder: (oldIndex, newIndex) {
                 ref
@@ -144,7 +138,6 @@ class PromptManagerScreen extends ConsumerWidget {
               },
               itemBuilder: (context, index) {
                 final section = sortedSections[index];
-                // Use a unique key that includes identifier for custom prompts
                 final key = section.identifier != null
                     ? ValueKey('${section.identifier}_$index')
                     : ValueKey('${section.type.name}_$index');
@@ -153,7 +146,6 @@ class PromptManagerScreen extends ConsumerWidget {
                   section: section,
                   index: index,
                   onToggle: () {
-                    // Use index-based toggle for custom prompts
                     if (section.isCustom) {
                       ref
                           .read(promptManagerProvider.notifier)

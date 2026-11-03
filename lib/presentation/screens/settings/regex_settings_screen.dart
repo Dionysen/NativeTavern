@@ -9,6 +9,7 @@ import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for managing regex scripts
 class RegexSettingsScreen extends ConsumerWidget {
@@ -69,37 +70,32 @@ class RegexSettingsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
-          // Enable/Disable toggle
-          _buildSection(
-            context: context,
+          SettingsSection(
+            icon: Icons.toggle_on_outlined,
             title: AppLocalizations.of(context)!.general,
             children: [
-              SwitchListTile(
-                title: Text(AppLocalizations.of(context)!.enableRegexScripts),
-                subtitle: Text(
-                    AppLocalizations.of(context)!.applyFindReplacePatterns),
+              SettingsSwitchTile(
+                icon: Icons.find_replace,
+                title: AppLocalizations.of(context)!.enableRegexScripts,
+                subtitle: AppLocalizations.of(context)!.applyFindReplacePatterns,
                 value: settings.enabled,
+                showDivider: false,
                 onChanged: (value) {
                   ref.read(regexSettingsProvider.notifier).setEnabled(value);
                 },
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Application settings
-          _buildSection(
-            context: context,
+          SettingsSection(
+            icon: Icons.filter_alt_outlined,
             title: AppLocalizations.of(context)!.applyTo,
             children: [
-              SwitchListTile(
-                title: Text(AppLocalizations.of(context)!.userInput),
-                subtitle:
-                    Text(AppLocalizations.of(context)!.applyBeforeSending),
+              SettingsSwitchTile(
+                icon: Icons.person_outline,
+                title: AppLocalizations.of(context)!.userInput,
+                subtitle: AppLocalizations.of(context)!.applyBeforeSending,
                 value: settings.applyToUserInput,
                 onChanged: settings.enabled
                     ? (value) {
@@ -109,10 +105,10 @@ class RegexSettingsScreen extends ConsumerWidget {
                       }
                     : null,
               ),
-              SwitchListTile(
-                title: Text(AppLocalizations.of(context)!.aiOutput),
-                subtitle:
-                    Text(AppLocalizations.of(context)!.applyToAiResponses),
+              SettingsSwitchTile(
+                icon: Icons.smart_toy_outlined,
+                title: AppLocalizations.of(context)!.aiOutput,
+                subtitle: AppLocalizations.of(context)!.applyToAiResponses,
                 value: settings.applyToAiOutput,
                 onChanged: settings.enabled
                     ? (value) {
@@ -122,10 +118,10 @@ class RegexSettingsScreen extends ConsumerWidget {
                       }
                     : null,
               ),
-              SwitchListTile(
-                title: Text(AppLocalizations.of(context)!.slashCommandsLabel),
-                subtitle: Text(
-                    AppLocalizations.of(context)!.applyDuringCommandProcessing),
+              SettingsSwitchTile(
+                icon: Icons.terminal,
+                title: AppLocalizations.of(context)!.slashCommandsLabel,
+                subtitle: AppLocalizations.of(context)!.applyDuringCommandProcessing,
                 value: settings.applyToSlashCommands,
                 onChanged: settings.enabled
                     ? (value) {
@@ -135,11 +131,12 @@ class RegexSettingsScreen extends ConsumerWidget {
                       }
                     : null,
               ),
-              SwitchListTile(
-                title: Text(AppLocalizations.of(context)!.worldInfoLabel),
-                subtitle:
-                    Text(AppLocalizations.of(context)!.applyToWorldInfoEntries),
+              SettingsSwitchTile(
+                icon: Icons.public,
+                title: AppLocalizations.of(context)!.worldInfoLabel,
+                subtitle: AppLocalizations.of(context)!.applyToWorldInfoEntries,
                 value: settings.applyToWorldInfo,
+                showDivider: false,
                 onChanged: settings.enabled
                     ? (value) {
                         ref
@@ -150,12 +147,8 @@ class RegexSettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Scripts list
-          _buildSection(
-            context: context,
+          SettingsSection(
+            icon: Icons.code,
             title: AppLocalizations.of(context)!.scriptsCount(scripts.length),
             children: [
               if (scripts.isEmpty)
@@ -214,8 +207,8 @@ class RegexSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Test section
-          _buildSection(
-            context: context,
+          SettingsSection(
+            icon: Icons.settings_outlined,
             title: AppLocalizations.of(context)!.test,
             children: [
               const _RegexTestWidget(),
@@ -224,55 +217,25 @@ class RegexSettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          // Info section
-          _buildSection(
-            context: context,
+          SettingsSection(
+            icon: Icons.info_outline,
             title: AppLocalizations.of(context).information,
             children: [
-              ListTile(
-                leading:
-                    const Icon(Icons.info_outline, color: AppTheme.accentColor),
-                title: Text(AppLocalizations.of(context).aboutRegexScripts),
-                subtitle: Text(
-                  AppLocalizations.of(context).aboutRegexScriptsDescription,
-                ),
+              SettingsListTile(
+                icon: Icons.info_outline,
+                title: AppLocalizations.of(context).aboutRegexScripts,
+                subtitle:
+                    AppLocalizations.of(context).aboutRegexScriptsDescription,
               ),
-              ListTile(
-                leading: const Icon(Icons.code, color: AppTheme.textMuted),
-                title: Text(AppLocalizations.of(context).patternFormat),
-                subtitle: Text(
-                  AppLocalizations.of(context).patternFormatDescription,
-                ),
+              SettingsListTile(
+                icon: Icons.code,
+                title: AppLocalizations.of(context).patternFormat,
+                subtitle:
+                    AppLocalizations.of(context).patternFormatDescription,
+                showDivider: false,
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSection({
-    required BuildContext context,
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Card(
-      color: AppTheme.darkCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.accentColor,
-              ),
-            ),
-          ),
-          ...children,
         ],
       ),
     );

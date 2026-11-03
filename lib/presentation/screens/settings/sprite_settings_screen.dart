@@ -7,6 +7,7 @@ import 'package:native_tavern/presentation/providers/sprite_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/chat/sprite_display.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for managing sprite settings
 class SpriteSettingsScreen extends ConsumerWidget {
@@ -33,111 +34,83 @@ class SpriteSettingsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
-          // Enable/Disable toggle
-          _buildSection(
+          SettingsSection(
+            icon: Icons.toggle_on_outlined,
             title: l10n.general,
             children: [
-              SwitchListTile(
-                title: Text(l10n.enableSprites),
-                subtitle: Text(l10n.showCharacterExpressions),
+              SettingsSwitchTile(
+                icon: Icons.emoji_emotions,
+                title: l10n.enableSprites,
+                subtitle: l10n.showCharacterExpressions,
                 value: settings.enabled,
+                showDivider: false,
                 onChanged: (value) {
                   ref.read(spriteSettingsProvider.notifier).setEnabled(value);
                 },
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Display settings
-          _buildSection(
+          SettingsSection(
+            icon: Icons.display_settings,
             title: l10n.display,
             children: [
-              // Size slider
-              ListTile(
-                title: Text(l10n.spriteSize),
-                subtitle: Slider(
-                  value: settings.size,
-                  min: 50,
-                  max: 400,
-                  divisions: 35,
-                  label: '${settings.size.round()}px',
-                  onChanged: settings.enabled
-                      ? (value) {
-                          ref
-                              .read(spriteSettingsProvider.notifier)
-                              .setSize(value);
-                        }
-                      : null,
-                ),
-                trailing: Text(
-                  '${settings.size.round()}px',
-                  style: const TextStyle(color: AppTheme.textSecondary),
-                ),
+              SettingsSliderTile(
+                icon: Icons.photo_size_select_large,
+                title: l10n.spriteSize,
+                value: settings.size,
+                min: 50,
+                max: 400,
+                divisions: 35,
+                valueLabel: '${settings.size.round()}px',
+                enabled: settings.enabled,
+                onChanged: (value) {
+                  ref.read(spriteSettingsProvider.notifier).setSize(value);
+                },
               ),
-
-              // Position dropdown
-              ListTile(
-                title: Text(l10n.position),
-                subtitle: Text(l10n.whereToDisplaySprites),
-                trailing: DropdownButton<SpritePosition>(
-                  value: settings.position,
-                  onChanged: settings.enabled
-                      ? (value) {
-                          if (value != null) {
-                            ref
-                                .read(spriteSettingsProvider.notifier)
-                                .setPosition(value);
-                          }
-                        }
-                      : null,
-                  items: SpritePosition.values.map((pos) {
-                    return DropdownMenuItem(
+              SettingsChoiceTile<SpritePosition>(
+                icon: Icons.picture_in_picture_alt,
+                title: l10n.position,
+                subtitle: l10n.whereToDisplaySprites,
+                selected: settings.position,
+                enabled: settings.enabled,
+                choices: [
+                  for (final pos in SpritePosition.values)
+                    SettingsChoice(
                       value: pos,
-                      child: Text(_getPositionName(pos, l10n)),
-                    );
-                  }).toList(),
-                ),
+                      label: _getPositionName(pos, l10n),
+                    ),
+                ],
+                valueLabel: _getPositionName(settings.position, l10n),
+                onSelected: (value) {
+                  ref.read(spriteSettingsProvider.notifier).setPosition(value);
+                },
               ),
-
-              // Opacity slider
-              ListTile(
-                title: Text(l10n.opacity),
-                subtitle: Slider(
-                  value: settings.opacity,
-                  min: 0.1,
-                  max: 1.0,
-                  divisions: 9,
-                  label: '${(settings.opacity * 100).round()}%',
-                  onChanged: settings.enabled
-                      ? (value) {
-                          ref
-                              .read(spriteSettingsProvider.notifier)
-                              .setOpacity(value);
-                        }
-                      : null,
-                ),
-                trailing: Text(
-                  '${(settings.opacity * 100).round()}%',
-                  style: const TextStyle(color: AppTheme.textSecondary),
-                ),
+              SettingsSliderTile(
+                icon: Icons.opacity,
+                title: l10n.opacity,
+                value: settings.opacity,
+                min: 0.1,
+                max: 1.0,
+                divisions: 9,
+                valueLabel: '${(settings.opacity * 100).round()}%',
+                enabled: settings.enabled,
+                showDivider: false,
+                onChanged: (value) {
+                  ref.read(spriteSettingsProvider.notifier).setOpacity(value);
+                },
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Animation settings
-          _buildSection(
+          SettingsSection(
+            icon: Icons.animation,
             title: l10n.animation,
             children: [
-              SwitchListTile(
-                title: Text(l10n.animateTransitions),
-                subtitle: Text(l10n.smoothFadeWhenSpriteChanges),
+              SettingsSwitchTile(
+                icon: Icons.animation,
+                title: l10n.animateTransitions,
+                subtitle: l10n.smoothFadeWhenSpriteChanges,
                 value: settings.animateTransitions,
                 onChanged: settings.enabled
                     ? (value) {
@@ -147,31 +120,27 @@ class SpriteSettingsScreen extends ConsumerWidget {
                       }
                     : null,
               ),
-              ListTile(
-                title: Text(l10n.transitionDuration),
-                subtitle: Slider(
-                  value: settings.transitionDurationMs.toDouble(),
-                  min: 0,
-                  max: 1000,
-                  divisions: 10,
-                  label: '${settings.transitionDurationMs}ms',
-                  onChanged: settings.enabled && settings.animateTransitions
-                      ? (value) {
-                          ref
-                              .read(spriteSettingsProvider.notifier)
-                              .setTransitionDuration(value.round());
-                        }
-                      : null,
-                ),
-                trailing: Text(
-                  '${settings.transitionDurationMs}ms',
-                  style: const TextStyle(color: AppTheme.textSecondary),
-                ),
+              SettingsSliderTile(
+                icon: Icons.timer_outlined,
+                title: l10n.transitionDuration,
+                value: settings.transitionDurationMs.toDouble(),
+                min: 0,
+                max: 1000,
+                divisions: 10,
+                valueLabel: '${settings.transitionDurationMs}ms',
+                enabled: settings.enabled && settings.animateTransitions,
+                onChanged: (value) {
+                  ref
+                      .read(spriteSettingsProvider.notifier)
+                      .setTransitionDuration(value.round());
+                },
               ),
-              SwitchListTile(
-                title: Text(l10n.showDuringStreaming),
-                subtitle: Text(l10n.displaySpritesWhileGenerating),
+              SettingsSwitchTile(
+                icon: Icons.stream,
+                title: l10n.showDuringStreaming,
+                subtitle: l10n.displaySpritesWhileGenerating,
                 value: settings.showDuringStreaming,
+                showDivider: false,
                 onChanged: settings.enabled
                     ? (value) {
                         ref
@@ -182,23 +151,17 @@ class SpriteSettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Emotion detection info
-          _buildSection(
+          SettingsSection(
+            icon: Icons.psychology_outlined,
             title: l10n.emotionDetection,
             children: [
-              ListTile(
-                leading:
-                    const Icon(Icons.info_outline, color: AppTheme.accentColor),
-                title: Text(l10n.howItWorks),
-                subtitle: Text(
-                  l10n.spriteEmotionDetectionDescription,
-                ),
+              SettingsListTile(
+                icon: Icons.info_outline,
+                title: l10n.howItWorks,
+                subtitle: l10n.spriteEmotionDetectionDescription,
               ),
-              const Divider(),
               ExpansionTile(
+                leading: const Icon(Icons.emoji_emotions_outlined),
                 title: Text(l10n.supportedEmotions),
                 children: SpriteEmotion.values.map((emotion) {
                   return ListTile(
@@ -207,42 +170,12 @@ class SpriteSettingsScreen extends ConsumerWidget {
                     subtitle: Text(
                       emotion.keywords.take(5).join(', ') +
                           (emotion.keywords.length > 5 ? '...' : ''),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textMuted,
-                      ),
                     ),
                   );
                 }).toList(),
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSection({
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Card(
-      color: AppTheme.darkCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.accentColor,
-              ),
-            ),
-          ),
-          ...children,
         ],
       ),
     );

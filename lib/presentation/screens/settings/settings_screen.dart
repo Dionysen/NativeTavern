@@ -8,8 +8,8 @@ import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/core/flags/rpg_product_ui.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/privacy/ai_data_sharing_consent_gate.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -25,15 +25,16 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final packageInfo = ref.watch(packageInfoProvider);
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.settings),
       ),
-      body: ListView(
+      body: SettingsPageBody(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            padding: const EdgeInsets.only(bottom: 12),
             child: Row(
               children: [
                 Expanded(
@@ -60,248 +61,275 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const Divider(height: 16),
-          _buildSectionHeader(context, l10n.user),
-          _PersonaTile(),
-          ListTile(
-            leading: const Icon(Icons.backup),
-            title: Text(l10n.cloudBackup),
-            subtitle: Text(l10n.cloudBackupSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.cloudBackupSettings),
-          ),
-          const Divider(height: 32),
-          _buildSectionHeader(context, l10n.chats),
-          ListTile(
-            leading: const Icon(Icons.quickreply),
-            title: Text(l10n.quickReplies),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.quickReplies),
-          ),
-          ListTile(
-            leading: const Icon(Icons.wallpaper),
-            title: Text(l10n.backgrounds),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.backgroundSettings),
-          ),
-          ListTile(
-            key: const Key('memory-inbox-settings-tile'),
-            leading: const Icon(Icons.memory),
-            title: Text(l10n.memoryInbox),
-            subtitle: Text(l10n.memoryInboxSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.memoryInbox),
-          ),
-          const Divider(height: 32),
-          _buildSectionHeader(context, l10n.playHub),
-          const _MomentsEnabledTile(),
-          const _StoryEnabledTile(),
-          if (kRpgProductUiEnabled)
-            ListTile(
-              key: const Key('rpg-scenario-editor-settings-tile'),
-              leading: const Icon(Icons.casino_outlined),
-              title: Text(l10n.rpgScenarioEditor),
-              subtitle: Text(l10n.rpgScenarioEditorSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(AppRoutes.rpgScenarioEditor),
-            ),
-          const Divider(height: 32),
-          _buildSectionHeader(context, 'Multimedia'),
-          ListTile(
-            leading: const Icon(Icons.record_voice_over),
-            title: Text(l10n.tts),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.ttsSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.mic),
-            title: Text(l10n.stt),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.sttSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.translate),
-            title: Text(l10n.translation),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.translationSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.image),
-            title: Text(l10n.imageGeneration),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.imageGenSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.emoji_emotions),
-            title: Text(l10n.sprites),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.spriteSettings),
-          ),
-          const Divider(height: 32),
-          _buildSectionHeader(context, l10n.advanced),
-          ListTile(
-            key: const Key('capability-diagnostics-settings-tile'),
-            leading: const Icon(Icons.health_and_safety_outlined),
-            title: Text(l10n.capabilityCheck),
-            subtitle: Text(l10n.capabilityCheckSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.capabilityDiagnostics),
-          ),
-          ListTile(
-            key: const Key('mcp-settings-tile'),
-            leading: const Icon(Icons.extension_outlined),
-            title: Text(l10n.mcpServers),
-            subtitle: Text(l10n.mcpServersSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.mcpSettings),
-          ),
-          ListTile(
-            key: const Key('tool-calling-settings-tile'),
-            leading: const Icon(Icons.build_outlined),
-            title: Text(l10n.toolCalling),
-            subtitle: Text(l10n.toolCallingSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.toolCallingSettings),
-          ),
-          ListTile(
-            key: const Key('storage-management-settings-tile'),
-            leading: const Icon(Icons.storage_outlined),
-            title: Text(l10n.storageManagement),
-            subtitle: Text(l10n.storageManagementSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.storageManagement),
-          ),
-          ListTile(
-            leading: const Icon(Icons.find_replace),
-            title: Text(l10n.regex),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.regexSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.data_object),
-            title: Text(l10n.variables),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.variablesSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.tune),
-            title: Text(l10n.logitBias),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.logitBiasSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.linear_scale),
-            title: Text(l10n.cfgScale),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.cfgScaleSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.token),
-            title: Text(l10n.tokenizer),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.tokenizerSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.storage),
-            title: Text(l10n.vectorStorage),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.vectorStorageSettings),
-          ),
-          const Divider(height: 32),
-          _buildSectionHeader(context, l10n.settings),
-          const _LanguageTile(),
-          ListTile(
-            leading: const Icon(Icons.palette),
-            title: Text(l10n.theme),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.themeSettings),
-          ),
-          const _ConfirmDeleteTile(),
-          const _AutoSaveTile(),
-          const AiDataSharingSettingsTile(),
-          const _DebugLogTile(),
-          ListTile(
-            leading: const Icon(Icons.analytics),
-            title: Text(l10n.statistics),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.statistics),
-          ),
-          const Divider(height: 32),
-          _buildSectionHeader(context, l10n.about),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: Text(l10n.version),
-            subtitle: Text(
-              packageInfo.when(
-                data: (info) => '${info.version}+${info.buildNumber}',
-                loading: () => l10n.loading,
-                error: (_, __) => l10n.error,
+          SettingsSection(
+            icon: Icons.person_outline,
+            title: l10n.user,
+            children: [
+              const _PersonaTile(showDivider: true),
+              SettingsValueTile(
+                icon: Icons.backup,
+                title: l10n.cloudBackup,
+                subtitle: l10n.cloudBackupSubtitle,
+                valueText: '',
+                showDivider: false,
+                onTap: () => context.push(AppRoutes.cloudBackupSettings),
               ),
-            ),
-            onLongPress: () {
-              final info = packageInfo.valueOrNull;
-              if (info == null) return;
-              final version = '${info.version}+${info.buildNumber}';
-              Clipboard.setData(ClipboardData(text: version));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${l10n.copiedToClipboard}: $version'),
-                  duration: const Duration(seconds: 2),
+            ],
+          ),
+          SettingsSection(
+            icon: Icons.chat_bubble_outline,
+            title: l10n.chats,
+            children: [
+              SettingsValueTile(
+                icon: Icons.quickreply,
+                title: l10n.quickReplies,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.quickReplies),
+              ),
+              SettingsValueTile(
+                icon: Icons.wallpaper,
+                title: l10n.backgrounds,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.backgroundSettings),
+              ),
+              SettingsValueTile(
+                key: const Key('memory-inbox-settings-tile'),
+                icon: Icons.memory,
+                title: l10n.memoryInbox,
+                subtitle: l10n.memoryInboxSubtitle,
+                valueText: '',
+                showDivider: false,
+                onTap: () => context.push(AppRoutes.memoryInbox),
+              ),
+            ],
+          ),
+          SettingsSection(
+            icon: Icons.sports_esports_outlined,
+            title: l10n.playHub,
+            children: [
+              const _MomentsEnabledTile(),
+              const _StoryEnabledTile(),
+              if (kRpgProductUiEnabled)
+                SettingsValueTile(
+                  key: const Key('rpg-scenario-editor-settings-tile'),
+                  icon: Icons.casino_outlined,
+                  title: l10n.rpgScenarioEditor,
+                  subtitle: l10n.rpgScenarioEditorSubtitle,
+                  valueText: '',
+                  showDivider: false,
+                  onTap: () => context.push(AppRoutes.rpgScenarioEditor),
                 ),
-              );
-            },
+            ],
           ),
-          ListTile(
-            leading: const Icon(Icons.description),
-            title: Text(l10n.licenses),
-            onTap: () {
-              showLicensePage(context: context);
-            },
+          SettingsSection(
+            icon: Icons.perm_media_outlined,
+            title: l10n.multimedia,
+            children: [
+              SettingsValueTile(
+                icon: Icons.record_voice_over,
+                title: l10n.tts,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.ttsSettings),
+              ),
+              SettingsValueTile(
+                icon: Icons.mic,
+                title: l10n.stt,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.sttSettings),
+              ),
+              SettingsValueTile(
+                icon: Icons.translate,
+                title: l10n.translation,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.translationSettings),
+              ),
+              SettingsValueTile(
+                icon: Icons.image,
+                title: l10n.imageGeneration,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.imageGenSettings),
+              ),
+              SettingsValueTile(
+                icon: Icons.emoji_emotions,
+                title: l10n.sprites,
+                valueText: '',
+                showDivider: false,
+                onTap: () => context.push(AppRoutes.spriteSettings),
+              ),
+            ],
           ),
-          const PrivacyPolicyTile(),
-          const SizedBox(height: 32),
+          SettingsSection(
+            icon: Icons.tune,
+            title: l10n.advanced,
+            children: [
+              SettingsValueTile(
+                key: const Key('capability-diagnostics-settings-tile'),
+                icon: Icons.health_and_safety_outlined,
+                title: l10n.capabilityCheck,
+                subtitle: l10n.capabilityCheckSubtitle,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.capabilityDiagnostics),
+              ),
+              SettingsValueTile(
+                key: const Key('mcp-settings-tile'),
+                icon: Icons.extension_outlined,
+                title: l10n.mcpServers,
+                subtitle: l10n.mcpServersSubtitle,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.mcpSettings),
+              ),
+              SettingsValueTile(
+                key: const Key('tool-calling-settings-tile'),
+                icon: Icons.build_outlined,
+                title: l10n.toolCalling,
+                subtitle: l10n.toolCallingSubtitle,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.toolCallingSettings),
+              ),
+              SettingsValueTile(
+                key: const Key('storage-management-settings-tile'),
+                icon: Icons.storage_outlined,
+                title: l10n.storageManagement,
+                subtitle: l10n.storageManagementSubtitle,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.storageManagement),
+              ),
+              SettingsValueTile(
+                icon: Icons.find_replace,
+                title: l10n.regex,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.regexSettings),
+              ),
+              SettingsValueTile(
+                icon: Icons.data_object,
+                title: l10n.variables,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.variablesSettings),
+              ),
+              SettingsValueTile(
+                icon: Icons.tune,
+                title: l10n.logitBias,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.logitBiasSettings),
+              ),
+              SettingsValueTile(
+                icon: Icons.linear_scale,
+                title: l10n.cfgScale,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.cfgScaleSettings),
+              ),
+              SettingsValueTile(
+                icon: Icons.token,
+                title: l10n.tokenizer,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.tokenizerSettings),
+              ),
+              SettingsValueTile(
+                icon: Icons.storage,
+                title: l10n.vectorStorage,
+                valueText: '',
+                showDivider: false,
+                onTap: () => context.push(AppRoutes.vectorStorageSettings),
+              ),
+            ],
+          ),
+          SettingsSection(
+            icon: Icons.settings_outlined,
+            title: l10n.settings,
+            children: [
+              const _LanguageTile(),
+              SettingsValueTile(
+                icon: Icons.palette,
+                title: l10n.theme,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.themeSettings),
+              ),
+              const _ConfirmDeleteTile(),
+              const _AutoSaveTile(),
+              const AiDataSharingSettingsTile(),
+              const _DebugLogTile(),
+              SettingsValueTile(
+                icon: Icons.analytics,
+                title: l10n.statistics,
+                valueText: '',
+                showDivider: false,
+                onTap: () => context.push(AppRoutes.statistics),
+              ),
+            ],
+          ),
+          SettingsSection(
+            icon: Icons.info_outline,
+            title: l10n.about,
+            children: [
+              SettingsListTile(
+                icon: Icons.info_outline,
+                title: l10n.version,
+                subtitle: packageInfo.when(
+                  data: (info) => '${info.version}+${info.buildNumber}',
+                  loading: () => l10n.loading,
+                  error: (_, __) => l10n.error,
+                ),
+                onLongPress: () {
+                  final info = packageInfo.valueOrNull;
+                  if (info == null) return;
+                  final version = '${info.version}+${info.buildNumber}';
+                  Clipboard.setData(ClipboardData(text: version));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${l10n.copiedToClipboard}: $version'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+              SettingsListTile(
+                icon: Icons.description,
+                title: l10n.licenses,
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: scheme.onSurfaceVariant,
+                  size: 20,
+                ),
+                onTap: () {
+                  showLicensePage(context: context);
+                },
+              ),
+              const PrivacyPolicyTile(showDivider: false),
+            ],
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: AppTheme.accentColor,
-              fontWeight: FontWeight.bold,
-            ),
       ),
     );
   }
 }
 
 class _PersonaTile extends ConsumerWidget {
+  const _PersonaTile({this.showDivider = true});
+
+  final bool showDivider;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final activePersonaAsync = ref.watch(activePersonaProvider);
+    final personaName = activePersonaAsync.when(
+      loading: () => l10n.loading,
+      error: (_, __) => l10n.error,
+      data: (persona) => persona?.name ?? l10n.default_,
+    );
 
-    return ListTile(
-      leading: const Icon(Icons.person),
-      title: Text(l10n.personas),
-      subtitle: activePersonaAsync.when(
-        loading: () => Text(l10n.loading),
-        error: (_, __) => Text(l10n.error),
-        data: (persona) => Text(persona?.name ?? l10n.default_),
-      ),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsValueTile(
+      icon: Icons.person,
+      title: l10n.personas,
+      valueText: personaName,
+      showDivider: showDivider,
       onTap: () => context.push(AppRoutes.personas),
       onLongPress: () {
-        final personaName =
-            activePersonaAsync.valueOrNull?.name ?? l10n.default_;
-        Clipboard.setData(ClipboardData(text: personaName));
+        final name = activePersonaAsync.valueOrNull?.name ?? l10n.default_;
+        Clipboard.setData(ClipboardData(text: name));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${l10n.copiedToClipboard}: $personaName'),
+            content: Text('${l10n.copiedToClipboard}: $name'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -318,9 +346,9 @@ class _ConfirmDeleteTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final settings = ref.watch(appSettingsProvider);
 
-    return SwitchListTile(
-      secondary: const Icon(Icons.delete_forever),
-      title: Text(l10n.delete),
+    return SettingsSwitchTile(
+      icon: Icons.delete_forever,
+      title: l10n.delete,
       value: settings.confirmBeforeDelete,
       onChanged: (value) {
         ref.read(appSettingsProvider.notifier).updateConfirmBeforeDelete(value);
@@ -336,11 +364,11 @@ class _MomentsEnabledTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final settings = ref.watch(appSettingsProvider);
-    return SwitchListTile(
+    return SettingsSwitchTile(
       key: const Key('moments-enabled-switch'),
-      secondary: const Icon(Icons.dynamic_feed_outlined),
-      title: Text(l10n.moments),
-      subtitle: Text(l10n.momentsEnabledSubtitle),
+      icon: Icons.dynamic_feed_outlined,
+      title: l10n.moments,
+      subtitle: l10n.momentsEnabledSubtitle,
       value: settings.momentsEnabled,
       onChanged: (value) {
         ref.read(appSettingsProvider.notifier).updateMomentsEnabled(value);
@@ -356,12 +384,14 @@ class _StoryEnabledTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final settings = ref.watch(appSettingsProvider);
-    return SwitchListTile(
+    const showDivider = kRpgProductUiEnabled;
+    return SettingsSwitchTile(
       key: const Key('story-enabled-switch'),
-      secondary: const Icon(Icons.menu_book_outlined),
-      title: Text(l10n.story),
-      subtitle: Text(l10n.storyEnabledSubtitle),
+      icon: Icons.menu_book_outlined,
+      title: l10n.story,
+      subtitle: l10n.storyEnabledSubtitle,
       value: settings.storyEnabled,
+      showDivider: showDivider,
       onChanged: (value) {
         ref.read(appSettingsProvider.notifier).updateStoryEnabled(value);
       },
@@ -377,9 +407,9 @@ class _AutoSaveTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final settings = ref.watch(appSettingsProvider);
 
-    return SwitchListTile(
-      secondary: const Icon(Icons.save),
-      title: Text(l10n.save),
+    return SettingsSwitchTile(
+      icon: Icons.save,
+      title: l10n.save,
       value: settings.autoSaveChats,
       onChanged: (value) {
         ref.read(appSettingsProvider.notifier).updateAutoSaveChats(value);
@@ -396,10 +426,10 @@ class _DebugLogTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final settings = ref.watch(appSettingsProvider);
 
-    return SwitchListTile(
-      secondary: const Icon(Icons.bug_report),
-      title: Text(l10n.debugLog),
-      subtitle: Text(l10n.debugLogDescription),
+    return SettingsSwitchTile(
+      icon: Icons.bug_report,
+      title: l10n.debugLog,
+      subtitle: l10n.debugLogDescription,
       value: settings.enableDebugLog,
       onChanged: (value) {
         ref.read(appSettingsProvider.notifier).updateDebugLog(value);
@@ -433,11 +463,10 @@ class _LanguageTile extends ConsumerWidget {
       }
     }
 
-    return ListTile(
-      leading: const Icon(Icons.language),
-      title: Text(l10n.language),
-      subtitle: Text(currentLanguage),
-      trailing: const Icon(Icons.chevron_right),
+    return SettingsValueTile(
+      icon: Icons.language,
+      title: l10n.language,
+      valueText: currentLanguage,
       onTap: () => _showLanguageSelector(context, ref),
       onLongPress: () {
         Clipboard.setData(ClipboardData(text: currentLanguage));

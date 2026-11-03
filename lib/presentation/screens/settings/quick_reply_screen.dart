@@ -5,6 +5,7 @@ import '../../../data/models/quick_reply.dart';
 import '../../providers/quick_reply_providers.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for managing quick replies
 class QuickReplyScreen extends ConsumerWidget {
@@ -29,15 +30,17 @@ class QuickReplyScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // Settings toggles
-          Card(
-            margin: const EdgeInsets.all(16),
-            child: Column(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: SettingsSection(
+              icon: Icons.quickreply,
+              title: AppLocalizations.of(context)!.quickReplies,
+              margin: const EdgeInsets.only(bottom: 12),
               children: [
-                SwitchListTile(
-                  title: Text(AppLocalizations.of(context)!.showQuickReplies),
-                  subtitle: Text(
-                      AppLocalizations.of(context)!.displayQuickReplyButtons),
+                SettingsSwitchTile(
+                  icon: Icons.visibility_outlined,
+                  title: AppLocalizations.of(context)!.showQuickReplies,
+                  subtitle: AppLocalizations.of(context)!.displayQuickReplyButtons,
                   value: config.showQuickReplies,
                   onChanged: (_) {
                     ref
@@ -45,13 +48,14 @@ class QuickReplyScreen extends ConsumerWidget {
                         .toggleShowQuickReplies();
                   },
                 ),
-                const Divider(height: 1),
-                SwitchListTile(
-                  title: Text(AppLocalizations.of(context)!.positionAboveInput),
-                  subtitle: Text(config.showAboveInput
+                SettingsSwitchTile(
+                  icon: Icons.vertical_align_top,
+                  title: AppLocalizations.of(context)!.positionAboveInput,
+                  subtitle: config.showAboveInput
                       ? AppLocalizations.of(context)!.quickRepliesAboveInput
-                      : AppLocalizations.of(context)!.quickRepliesBelowInput),
+                      : AppLocalizations.of(context)!.quickRepliesBelowInput,
                   value: config.showAboveInput,
+                  showDivider: false,
                   onChanged: config.showQuickReplies
                       ? (_) {
                           ref

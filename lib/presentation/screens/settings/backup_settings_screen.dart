@@ -12,6 +12,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/backup_providers.dart';
 import 'package:native_tavern/presentation/providers/cloud_backup_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for managing backups (local + cloud)
 class BackupSettingsScreen extends ConsumerStatefulWidget {
@@ -150,61 +151,55 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                 ],
               ),
             )
-          : ListView(
-              padding: const EdgeInsets.all(16),
+          : SettingsPageBody(
               children: [
                 // Auto-backup settings (affects both local and cloud)
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.schedule,
                   title: l10n.autoBackup,
                   children: [
-                    SwitchListTile(
-                      secondary: const Icon(Icons.backup_outlined),
-                      title: Text(l10n.enableAutoBackup),
-                      subtitle: Text(l10n.automaticallyBackupChats),
+                    SettingsSwitchTile(
+                      icon: Icons.backup_outlined,
+                      title: l10n.enableAutoBackup,
+                      subtitle: l10n.automaticallyBackupChats,
                       value: localSettings.autoBackupEnabled,
                       onChanged: (value) {
                         ref
                             .read(backupSettingsProvider.notifier)
                             .setAutoBackupEnabled(value);
-                        // Also sync to cloud settings
                         ref
                             .read(cloudBackupSettingsProvider.notifier)
                             .setAutoSyncEnabled(value);
                       },
                     ),
-                    ListTile(
-                      leading: const Icon(Icons.schedule),
-                      title: Text(l10n.backupInterval),
-                      subtitle: Text(_autoBackupIntervalName(
+                    SettingsChoiceTile<AutoBackupInterval>(
+                      icon: Icons.schedule,
+                      title: l10n.backupInterval,
+                      selected: localSettings.autoBackupInterval,
+                      enabled: localSettings.autoBackupEnabled,
+                      choices: [
+                        for (final interval in AutoBackupInterval.values)
+                          SettingsChoice(
+                            value: interval,
+                            label: _autoBackupIntervalName(interval, l10n),
+                          ),
+                      ],
+                      valueLabel: _autoBackupIntervalName(
                         localSettings.autoBackupInterval,
                         l10n,
-                      )),
-                      trailing: DropdownButton<AutoBackupInterval>(
-                        value: localSettings.autoBackupInterval,
-                        onChanged: localSettings.autoBackupEnabled
-                            ? (value) {
-                                if (value != null) {
-                                  ref
-                                      .read(backupSettingsProvider.notifier)
-                                      .setAutoBackupInterval(value);
-                                }
-                              }
-                            : null,
-                        items: AutoBackupInterval.values.map((interval) {
-                          return DropdownMenuItem(
-                            value: interval,
-                            child:
-                                Text(_autoBackupIntervalName(interval, l10n)),
-                          );
-                        }).toList(),
                       ),
+                      onSelected: (value) {
+                        ref
+                            .read(backupSettingsProvider.notifier)
+                            .setAutoBackupInterval(value);
+                      },
                     ),
-                    SwitchListTile(
-                      secondary: const Icon(Icons.exit_to_app),
-                      title: Text(l10n.backupOnExit),
-                      subtitle: Text(l10n.createBackupWhenClosingApp),
+                    SettingsSwitchTile(
+                      icon: Icons.exit_to_app,
+                      title: l10n.backupOnExit,
+                      subtitle: l10n.createBackupWhenClosingApp,
                       value: localSettings.backupOnExit,
+                      showDivider: localSettings.lastAutoBackup != null,
                       onChanged: (value) {
                         ref
                             .read(backupSettingsProvider.notifier)
@@ -212,12 +207,12 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                       },
                     ),
                     if (localSettings.lastAutoBackup != null)
-                      ListTile(
-                        leading: const Icon(Icons.access_time,
-                            color: AppTheme.textMuted),
-                        title: Text(l10n.lastAutoBackup),
-                        subtitle: Text(_formatDateTime(
-                            context, localSettings.lastAutoBackup!)),
+                      SettingsListTile(
+                        icon: Icons.access_time,
+                        title: l10n.lastAutoBackup,
+                        subtitle: _formatDateTime(
+                            context, localSettings.lastAutoBackup!),
+                        showDivider: false,
                       ),
                   ],
                 ),
@@ -225,8 +220,8 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                 const SizedBox(height: 16),
 
                 // Google Drive section
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.cloud,
                   title: 'Google Drive',
                   children: [
                     if (_isAutoLoggingIn)
@@ -336,10 +331,10 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
 
                 // iCloud section (iOS/macOS only)
                 if (Platform.isIOS || Platform.isMacOS)
-                  _buildSection(
-                    context: context,
-                    title: 'iCloud',
-                    children: [
+                  SettingsSection(
+                  icon: Icons.cloud_queue,
+                  title: 'iCloud',
+                  children: [
                       iCloudAvailable.when(
                         loading: () => ListTile(
                           leading: const SizedBox(
@@ -367,10 +362,10 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
 
                           return Column(
                             children: [
-                              SwitchListTile(
-                                title: Text(l10n.enableICloudBackup),
-                                subtitle:
-                                    Text(l10n.enableICloudBackupDescription),
+                              SettingsSwitchTile(
+                                icon: Icons.cloud_outlined,
+                                title: l10n.enableICloudBackup,
+                                subtitle: l10n.enableICloudBackupDescription,
                                 value: cloudSettings.iCloudEnabled,
                                 onChanged: (value) {
                                   ref
@@ -450,20 +445,20 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                   const SizedBox(height: 16),
 
                 // Local backup storage info
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.storage,
                   title: l10n.storage,
                   children: [
-                    ListTile(
-                      leading: const Icon(Icons.storage,
-                          color: AppTheme.accentColor),
-                      title: Text(l10n.totalBackupSize),
+                    SettingsListTile(
+                      icon: Icons.storage,
+                      title: l10n.totalBackupSize,
                       subtitle: totalSizeAsync.when(
-                        loading: () => Text(l10n.calculating),
-                        error: (_, __) => Text(l10n.error),
+                        loading: () => l10n.calculating,
+                        error: (_, __) => l10n.error,
                         data: (size) =>
-                            Text(BackupService.instance.formatFileSize(size)),
+                            BackupService.instance.formatFileSize(size),
                       ),
+                      showDivider: false,
                     ),
                   ],
                 ),
@@ -471,8 +466,8 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                 const SizedBox(height: 16),
 
                 // Retention settings
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.history,
                   title: l10n.retention,
                   children: [
                     ListTile(
@@ -529,10 +524,11 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                         ),
                       ),
                     ),
-                    ListTile(
-                      leading: const Icon(Icons.cleaning_services),
-                      title: Text(l10n.cleanupOldBackups),
-                      subtitle: Text(l10n.deleteBackupsExceedingLimits),
+                    SettingsListTile(
+                      icon: Icons.cleaning_services,
+                      title: l10n.cleanupOldBackups,
+                      subtitle: l10n.deleteBackupsExceedingLimits,
+                      showDivider: false,
                       trailing: ElevatedButton(
                         onPressed: () async {
                           final deleted = await ref
@@ -555,8 +551,8 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                 const SizedBox(height: 16),
 
                 // Local Chat backups
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.chat_bubble_outline,
                   title: l10n.chatBackups,
                   children: [
                     chatBackupsAsync.when(
@@ -619,8 +615,8 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                 const SizedBox(height: 16),
 
                 // Local Full backups
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.archive_outlined,
                   title: l10n.fullBackups,
                   children: [
                     fullBackupsAsync.when(
@@ -674,32 +670,36 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                 const SizedBox(height: 16),
 
                 // Restore settings
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.restore,
                   title: l10n.restoreSettings,
                   children: [
-                    ListTile(
-                      title: Text(l10n.defaultRestoreMode),
-                      subtitle: Text(_restoreModeDescription(
+                    SettingsChoiceTile<RestoreMode>(
+                      icon: Icons.restore,
+                      title: l10n.defaultRestoreMode,
+                      subtitle: _restoreModeDescription(
                         cloudSettings.defaultRestoreMode,
                         l10n,
-                      )),
-                      trailing: DropdownButton<RestoreMode>(
-                        value: cloudSettings.defaultRestoreMode,
-                        onChanged: (value) {
-                          if (value != null) {
-                            ref
-                                .read(cloudBackupSettingsProvider.notifier)
-                                .setDefaultRestoreMode(value);
-                          }
-                        },
-                        items: RestoreMode.values.map((mode) {
-                          return DropdownMenuItem(
-                            value: mode,
-                            child: Text(_restoreModeName(mode, l10n)),
-                          );
-                        }).toList(),
                       ),
+                      selected: cloudSettings.defaultRestoreMode,
+                      choices: [
+                        for (final mode in RestoreMode.values)
+                          SettingsChoice(
+                            value: mode,
+                            label: _restoreModeName(mode, l10n),
+                            subtitle: _restoreModeDescription(mode, l10n),
+                          ),
+                      ],
+                      valueLabel: _restoreModeName(
+                        cloudSettings.defaultRestoreMode,
+                        l10n,
+                      ),
+                      showDivider: false,
+                      onSelected: (value) {
+                        ref
+                            .read(cloudBackupSettingsProvider.notifier)
+                            .setDefaultRestoreMode(value);
+                      },
                     ),
                   ],
                 ),
@@ -707,21 +707,20 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                 const SizedBox(height: 16),
 
                 // Info section
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.info_outline,
                   title: l10n.information,
                   children: [
-                    ListTile(
-                      leading: const Icon(Icons.info_outline,
-                          color: AppTheme.accentColor),
-                      title: Text(l10n.aboutBackups),
-                      subtitle: Text(l10n.aboutBackupsDescription),
+                    SettingsListTile(
+                      icon: Icons.info_outline,
+                      title: l10n.aboutBackups,
+                      subtitle: l10n.aboutBackupsDescription,
                     ),
-                    ListTile(
-                      leading:
-                          const Icon(Icons.folder, color: AppTheme.textMuted),
-                      title: Text(l10n.backupLocation),
-                      subtitle: const Text('Documents/NativeTavern/backups/'),
+                    SettingsListTile(
+                      icon: Icons.folder,
+                      title: l10n.backupLocation,
+                      subtitle: 'Documents/NativeTavern/backups/',
+                      showDivider: false,
                     ),
                   ],
                 ),
@@ -765,33 +764,6 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                 ],
               ],
             ),
-    );
-  }
-
-  Widget _buildSection({
-    required BuildContext context,
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Card(
-      color: AppTheme.darkCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.accentColor,
-              ),
-            ),
-          ),
-          ...children,
-        ],
-      ),
     );
   }
 
@@ -983,11 +955,10 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
     // Get actual data from database
     final db = ref.read(databaseProvider);
     final dbBackupService = DatabaseBackupService(db);
-    final data = await dbBackupService.exportAllData();
 
     final result = await ref
         .read(cloudBackupOperationProvider.notifier)
-        .uploadToICloud(data);
+        .uploadToICloud(dbBackupService.exportAllData);
 
     if (result != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1104,11 +1075,10 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
     // Get actual data from database
     final db = ref.read(databaseProvider);
     final dbBackupService = DatabaseBackupService(db);
-    final data = await dbBackupService.exportAllData();
 
     final result = await ref
         .read(cloudBackupOperationProvider.notifier)
-        .uploadToGoogleDrive(data);
+        .uploadToGoogleDrive(dbBackupService.exportAllData);
 
     if (result != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

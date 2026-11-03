@@ -5,6 +5,7 @@ import 'package:native_tavern/domain/models/tool_generation.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/tool_calling_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 class ToolCallingSettingsScreen extends ConsumerWidget {
   const ToolCallingSettingsScreen({super.key});
@@ -17,114 +18,151 @@ class ToolCallingSettingsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.toolCalling)),
-      body: ListView(
+      body: SettingsPageBody(
         children: [
-          SwitchListTile(
-            key: const Key('tool-calling-master-toggle'),
-            secondary: const Icon(Icons.build_outlined),
-            title: Text(l10n.toolCallingAllow),
-            subtitle: Text(l10n.toolCallingAllowSubtitle),
-            value: settings.enabled,
-            onChanged: controller.setEnabled,
-          ),
-          const Divider(height: 24),
-          _SectionTitle(l10n.toolBuiltInTools),
-          for (final descriptor in descriptors)
-            CheckboxListTile(
-              key: Key('built-in-tool-${descriptor.definition.name}'),
-              secondary: Icon(_toolIcon(descriptor.definition.name)),
-              title: Text(descriptor.definition.name),
-              subtitle: Text(descriptor.definition.description),
-              value: settings.enabledBuiltInTools.contains(
-                descriptor.definition.name,
+          SettingsSection(
+            icon: Icons.build_outlined,
+            title: l10n.toolCalling,
+            children: [
+              SettingsSwitchTile(
+                key: const Key('tool-calling-master-toggle'),
+                icon: Icons.build_outlined,
+                title: l10n.toolCallingAllow,
+                subtitle: l10n.toolCallingAllowSubtitle,
+                value: settings.enabled,
+                showDivider: false,
+                onChanged: controller.setEnabled,
               ),
-              onChanged: settings.enabled
-                  ? (value) => controller.setBuiltInEnabled(
-                        descriptor.definition.name,
-                        value ?? false,
-                      )
-                  : null,
-            ),
-          ListTile(
-            key: const Key('tool-calling-mcp-link'),
-            leading: const Icon(Icons.extension_outlined),
-            title: Text(l10n.toolMcpTools),
-            subtitle: Text(l10n.toolMcpPermissionsSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.mcpSettings),
+            ],
           ),
-          const Divider(height: 24),
-          _SectionTitle(l10n.toolSafetyLimits),
-          _LimitStepper(
-            key: const Key('tool-round-limit'),
-            icon: Icons.repeat,
-            title: l10n.toolRounds,
-            value: settings.limits.maxToolRounds,
-            minimum: 1,
-            maximum: 16,
-            onChanged: (value) => controller.setLimits(
-              _limits(settings.limits, maxToolRounds: value),
-            ),
+          SettingsSection(
+            icon: Icons.extension_outlined,
+            title: l10n.toolBuiltInTools,
+            children: [
+              for (var i = 0; i < descriptors.length; i++)
+                _BuiltInToolTile(
+                  key: Key('built-in-tool-${descriptors[i].definition.name}'),
+                  icon: _toolIcon(descriptors[i].definition.name),
+                  title: descriptors[i].definition.name,
+                  subtitle: descriptors[i].definition.description,
+                  value: settings.enabledBuiltInTools.contains(
+                    descriptors[i].definition.name,
+                  ),
+                  enabled: settings.enabled,
+                  showDivider: true,
+                  onChanged: (value) => controller.setBuiltInEnabled(
+                    descriptors[i].definition.name,
+                    value,
+                  ),
+                ),
+              SettingsValueTile(
+                key: const Key('tool-calling-mcp-link'),
+                icon: Icons.extension_outlined,
+                title: l10n.toolMcpTools,
+                subtitle: l10n.toolMcpPermissionsSubtitle,
+                valueText: '',
+                showDivider: false,
+                onTap: () => context.push(AppRoutes.mcpSettings),
+              ),
+            ],
           ),
-          _LimitStepper(
-            key: const Key('tool-call-limit'),
-            icon: Icons.numbers,
-            title: l10n.toolCallsPerResponse,
-            value: settings.limits.maxCalls,
-            minimum: 1,
-            maximum: 64,
-            onChanged: (value) => controller.setLimits(
-              _limits(settings.limits, maxCalls: value),
-            ),
+          SettingsSection(
+            icon: Icons.shield_outlined,
+            title: l10n.toolSafetyLimits,
+            children: [
+              _LimitStepper(
+                key: const Key('tool-round-limit'),
+                icon: Icons.repeat,
+                title: l10n.toolRounds,
+                value: settings.limits.maxToolRounds,
+                minimum: 1,
+                maximum: 16,
+                showDivider: true,
+                onChanged: (value) => controller.setLimits(
+                  _limits(settings.limits, maxToolRounds: value),
+                ),
+              ),
+              _LimitStepper(
+                key: const Key('tool-call-limit'),
+                icon: Icons.numbers,
+                title: l10n.toolCallsPerResponse,
+                value: settings.limits.maxCalls,
+                minimum: 1,
+                maximum: 64,
+                showDivider: true,
+                onChanged: (value) => controller.setLimits(
+                  _limits(settings.limits, maxCalls: value),
+                ),
+              ),
+              _LimitStepper(
+                key: const Key('tool-time-limit'),
+                icon: Icons.timer_outlined,
+                title: l10n.toolTimeLimit,
+                suffix: l10n.toolSeconds,
+                value: settings.limits.maxElapsed.inSeconds,
+                minimum: 5,
+                maximum: 600,
+                step: 5,
+                showDivider: true,
+                onChanged: (value) => controller.setLimits(
+                  _limits(settings.limits, maxElapsedSeconds: value),
+                ),
+              ),
+              _LimitStepper(
+                key: const Key('tool-token-limit'),
+                icon: Icons.token_outlined,
+                title: l10n.toolTokenBudget,
+                suffix: l10n.toolTokens,
+                value: settings.limits.maxTokenBudget,
+                minimum: 256,
+                maximum: 65536,
+                step: 256,
+                showDivider: false,
+                onChanged: (value) => controller.setLimits(
+                  _limits(settings.limits, maxTokenBudget: value),
+                ),
+              ),
+            ],
           ),
-          _LimitStepper(
-            key: const Key('tool-time-limit'),
-            icon: Icons.timer_outlined,
-            title: l10n.toolTimeLimit,
-            suffix: l10n.toolSeconds,
-            value: settings.limits.maxElapsed.inSeconds,
-            minimum: 5,
-            maximum: 600,
-            step: 5,
-            onChanged: (value) => controller.setLimits(
-              _limits(settings.limits, maxElapsedSeconds: value),
-            ),
-          ),
-          _LimitStepper(
-            key: const Key('tool-token-limit'),
-            icon: Icons.token_outlined,
-            title: l10n.toolTokenBudget,
-            suffix: l10n.toolTokens,
-            value: settings.limits.maxTokenBudget,
-            minimum: 256,
-            maximum: 65536,
-            step: 256,
-            onChanged: (value) => controller.setLimits(
-              _limits(settings.limits, maxTokenBudget: value),
-            ),
-          ),
-          const SizedBox(height: 24),
         ],
       ),
     );
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.label);
+class _BuiltInToolTile extends StatelessWidget {
+  const _BuiltInToolTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.enabled,
+    required this.onChanged,
+    this.showDivider = true,
+  });
 
-  final String label;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool value;
+  final bool enabled;
+  final bool showDivider;
+  final ValueChanged<bool> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.w600,
-            ),
+    return SettingsListTile(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      showDivider: showDivider,
+      enabled: enabled,
+      onTap: enabled ? () => onChanged(!value) : null,
+      trailing: Checkbox(
+        value: value,
+        onChanged: enabled ? (v) => onChanged(v ?? false) : null,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
     );
   }
@@ -141,6 +179,7 @@ class _LimitStepper extends StatelessWidget {
     required this.onChanged,
     this.step = 1,
     this.suffix,
+    this.showDivider = true,
   });
 
   final IconData icon;
@@ -150,15 +189,17 @@ class _LimitStepper extends StatelessWidget {
   final int maximum;
   final int step;
   final String? suffix;
+  final bool showDivider;
   final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      subtitle: Text(suffix == null ? '$value' : '$value $suffix'),
+    return SettingsListTile(
+      icon: icon,
+      title: title,
+      subtitle: suffix == null ? '$value' : '$value $suffix',
+      showDivider: showDivider,
       trailing: SizedBox(
         width: 96,
         child: Row(

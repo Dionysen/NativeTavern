@@ -160,8 +160,9 @@ class SettingsListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final iconColor =
-        enabled ? theme.colorScheme.onSurface : theme.disabledColor;
+    final iconColor = enabled
+        ? theme.colorScheme.onSurfaceVariant
+        : theme.disabledColor;
     final titleStyle = theme.textTheme.titleSmall?.copyWith(
       color: enabled ? null : theme.disabledColor,
     );
@@ -297,6 +298,7 @@ class SettingsChoiceTile<T> extends StatelessWidget {
     required this.onSelected,
     this.subtitle,
     this.showDivider = true,
+    this.enabled = true,
   });
 
   final IconData icon;
@@ -307,6 +309,7 @@ class SettingsChoiceTile<T> extends StatelessWidget {
   final String valueLabel;
   final ValueChanged<T> onSelected;
   final bool showDivider;
+  final bool enabled;
 
   Future<void> _pick(BuildContext context) async {
     final next = await showModalBottomSheet<T>(
@@ -349,25 +352,218 @@ class SettingsChoiceTile<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final muted = enabled ? scheme.onSurfaceVariant : Theme.of(context).disabledColor;
     return SettingsListTile(
       icon: icon,
       title: title,
       subtitle: subtitle,
       showDivider: showDivider,
-      onTap: () => _pick(context),
+      enabled: enabled,
+      onTap: enabled ? () => _pick(context) : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             valueLabel,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
+                  color: muted,
                 ),
           ),
           const SizedBox(width: 4),
-          Icon(Icons.chevron_right, color: scheme.onSurfaceVariant, size: 20),
+          Icon(Icons.chevron_right, color: muted, size: 20),
         ],
       ),
+    );
+  }
+}
+
+/// Settings row showing a value string with a chevron (navigational / disclosure).
+class SettingsValueTile extends StatelessWidget {
+  const SettingsValueTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.valueText,
+    this.subtitle,
+    this.onTap,
+    this.onLongPress,
+    this.showDivider = true,
+    this.enabled = true,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final String valueText;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final bool showDivider;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return SettingsListTile(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      showDivider: showDivider,
+      enabled: enabled,
+      onTap: onTap,
+      onLongPress: onLongPress,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (valueText.isNotEmpty) ...[
+            Text(
+              valueText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: enabled
+                        ? scheme.onSurfaceVariant
+                        : Theme.of(context).disabledColor,
+                  ),
+            ),
+            const SizedBox(width: 4),
+          ],
+          Icon(
+            Icons.chevron_right,
+            color: enabled
+                ? scheme.onSurfaceVariant
+                : Theme.of(context).disabledColor,
+            size: 20,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Standard padded [ListView] body used by Zephyr-style settings pages.
+class SettingsPageBody extends StatelessWidget {
+  const SettingsPageBody({
+    super.key,
+    required this.children,
+    this.padding = const EdgeInsets.fromLTRB(16, 12, 16, 24),
+    this.controller,
+  });
+
+  final List<Widget> children;
+  final EdgeInsetsGeometry padding;
+  final ScrollController? controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      controller: controller,
+      padding: padding,
+      children: children,
+    );
+  }
+}
+
+/// Inline slider row for settings sections (kept inside [SettingsSection]).
+class SettingsSliderTile extends StatelessWidget {
+  const SettingsSliderTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.valueLabel,
+    required this.onChanged,
+    this.subtitle,
+    this.divisions,
+    this.enabled = true,
+    this.showDivider = true,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final double value;
+  final double min;
+  final double max;
+  final String valueLabel;
+  final int? divisions;
+  final bool enabled;
+  final bool showDivider;
+  final ValueChanged<double>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final iconColor = enabled
+        ? theme.colorScheme.onSurfaceVariant
+        : theme.disabledColor;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+          child: Row(
+            children: [
+              Icon(icon, size: SettingsListTile.iconSize, color: iconColor),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: enabled ? null : theme.disabledColor,
+                      ),
+                    ),
+                    if (subtitle != null && subtitle!.isNotEmpty) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle!,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontSize: 11,
+                          height: 1.3,
+                          color: enabled
+                              ? theme.colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.72)
+                              : theme.disabledColor,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                valueLabel,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: enabled
+                      ? theme.colorScheme.onSurfaceVariant
+                      : theme.disabledColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+          child: Slider(
+            value: value.clamp(min, max),
+            min: min,
+            max: max,
+            divisions: divisions,
+            label: valueLabel,
+            onChanged: enabled ? onChanged : null,
+          ),
+        ),
+        if (showDivider)
+          Divider(
+            height: 1,
+            indent: 16,
+            endIndent: 16,
+            color: theme.dividerColor.withValues(alpha: 0.5),
+          ),
+      ],
     );
   }
 }

@@ -6428,5 +6428,9 @@
     }
   },
   "themeSlotLight": "Light",
-  "themeSlotDark": "Dark"
+  "themeSlotDark": "Dark",
+  "multimedia": "Multimedia",
+  "@multimedia": {
+    "description": "Multimedia settings section"
+  }
 }

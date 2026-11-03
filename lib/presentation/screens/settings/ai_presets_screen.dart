@@ -9,8 +9,8 @@ import 'package:native_tavern/core/utils/share_utils.dart';
 import '../../../data/models/ai_preset.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../providers/ai_preset_providers.dart';
-import '../../theme/app_theme.dart';
 import '../../widgets/common/adaptive_popup_menu.dart';
+import '../../widgets/settings/settings_widgets.dart';
 
 /// Screen for managing AI presets
 class AIPresetsScreen extends ConsumerWidget {
@@ -30,76 +30,60 @@ class AIPresetsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.aiPresets),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
-          // Info banner
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline, color: AppTheme.primaryColor, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    l10n.aiPresetsDescription,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textSecondary,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Action buttons
-          Row(
+          SettingsSection(
+            icon: Icons.info_outline,
+            title: l10n.aiPresets,
+            footer: l10n.aiPresetsDescription,
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _importPreset(context, ref),
-                  icon: const Icon(Icons.file_download, size: 20),
-                  label: Text(l10n.importPreset),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _exportCurrentSettings(context, ref),
-                  icon: const Icon(Icons.file_upload, size: 20),
-                  label: Text(l10n.export),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: () => _saveCurrentAsPreset(context, ref),
-                  icon: const Icon(Icons.save, size: 20),
-                  label: Text(l10n.saveAs),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _importPreset(context, ref),
+                        icon: const Icon(Icons.file_download, size: 20),
+                        label: Text(l10n.importPreset),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _exportCurrentSettings(context, ref),
+                        icon: const Icon(Icons.file_upload, size: 20),
+                        label: Text(l10n.export),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () => _saveCurrentAsPreset(context, ref),
+                        icon: const Icon(Icons.save, size: 20),
+                        label: Text(l10n.saveAs),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
-
-          // Built-in presets
-          _buildSectionHeader(context, l10n.builtInPresets),
-          const SizedBox(height: 12),
+          SettingsCategoryHeader(
+            icon: Icons.auto_awesome,
+            title: l10n.builtInPresets,
+          ),
           ...builtInPresets.map((preset) => _PresetCard(
                 preset: preset,
                 isActive: preset.id == activePresetId,
                 onTap: () => _applyPreset(context, ref, preset),
               )),
-
           if (customPresets.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            _buildSectionHeader(context, l10n.customPresets),
             const SizedBox(height: 12),
+            SettingsCategoryHeader(
+              icon: Icons.bookmark_outline,
+              title: l10n.customPresets,
+            ),
             ...customPresets.map((preset) => _PresetCard(
                   preset: preset,
                   isActive: preset.id == activePresetId,
@@ -108,20 +92,8 @@ class AIPresetsScreen extends ConsumerWidget {
                   onDelete: () => _deletePreset(context, ref, preset),
                 )),
           ],
-
-          const SizedBox(height: 32),
         ],
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppTheme.accentColor,
-            fontWeight: FontWeight.bold,
-          ),
     );
   }
 
@@ -407,13 +379,14 @@ class _PresetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      color: isActive ? AppTheme.primaryColor.withValues(alpha: 0.15) : null,
+      color: isActive ? scheme.primary.withValues(alpha: 0.15) : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: isActive
-            ? const BorderSide(color: AppTheme.primaryColor, width: 2)
+            ? BorderSide(color: scheme.primary, width: 2)
             : BorderSide.none,
       ),
       child: InkWell(
@@ -429,13 +402,13 @@ class _PresetCard extends StatelessWidget {
                 height: 48,
                 decoration: BoxDecoration(
                   color: isActive
-                      ? AppTheme.primaryColor
-                      : AppTheme.primaryColor.withValues(alpha: 0.2),
+                      ? scheme.primary
+                      : scheme.primary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   _getPresetIcon(preset),
-                  color: isActive ? Colors.white : AppTheme.primaryColor,
+                  color: isActive ? scheme.onPrimary : scheme.primary,
                 ),
               ),
               const SizedBox(width: 16),
@@ -460,7 +433,7 @@ class _PresetCard extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryColor,
+                              color: scheme.primary,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Builder(
@@ -468,8 +441,8 @@ class _PresetCard extends StatelessWidget {
                                 final l10n = AppLocalizations.of(context);
                                 return Text(
                                   l10n.active,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: scheme.onPrimary,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -485,7 +458,7 @@ class _PresetCard extends StatelessWidget {
                       Text(
                         preset.description!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textSecondary,
+                              color: scheme.onSurfaceVariant,
                             ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -591,20 +564,21 @@ class _SettingChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard,
+        color: scheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: AppTheme.textMuted),
+          Icon(icon, size: 12, color: scheme.onSurfaceVariant),
           const SizedBox(width: 4),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+            style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
           ),
         ],
       ),

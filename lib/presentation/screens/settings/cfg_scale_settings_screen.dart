@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/cfg_scale.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/cfg_scale_providers.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Settings screen for CFG Scale configuration
 class CFGScaleSettingsScreen extends ConsumerWidget {
@@ -39,110 +39,95 @@ class CFGScaleSettingsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
-          // Enable toggle
-          SwitchListTile(
-            title: Text(l10n.enableCfgScale),
-            subtitle: Text(l10n.cfgScaleDescription),
-            value: settings.enabled,
-            onChanged: (value) {
-              ref.read(cfgScaleSettingsProvider.notifier).setEnabled(value);
-            },
+          SettingsSection(
+            icon: Icons.linear_scale,
+            title: l10n.cfgScale,
+            children: [
+              SettingsSwitchTile(
+                icon: Icons.tune,
+                title: l10n.enableCfgScale,
+                subtitle: l10n.cfgScaleDescription,
+                value: settings.enabled,
+                showDivider: false,
+                onChanged: (value) {
+                  ref.read(cfgScaleSettingsProvider.notifier).setEnabled(value);
+                },
+              ),
+            ],
           ),
-          const Divider(height: 32),
-
-          // Global settings
-          _buildSectionHeader(context, l10n.globalSettings),
-          const SizedBox(height: 16),
-          _GuidanceScaleSlider(
-            value: settings.globalGuidanceScale,
-            onChanged: settings.enabled
-                ? (value) {
-                    ref.read(cfgScaleSettingsProvider.notifier).setGlobalGuidanceScale(value);
-                  }
-                : null,
+          SettingsSection(
+            icon: Icons.public,
+            title: l10n.globalSettings,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: _GuidanceScaleSlider(
+                  value: settings.globalGuidanceScale,
+                  onChanged: settings.enabled
+                      ? (value) {
+                          ref
+                              .read(cfgScaleSettingsProvider.notifier)
+                              .setGlobalGuidanceScale(value);
+                        }
+                      : null,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: _PromptTextField(
+                  label: l10n.negativePrompt,
+                  hint: l10n.textToSteerAwayFrom,
+                  value: settings.globalNegativePrompt,
+                  enabled: settings.enabled,
+                  onChanged: (value) {
+                    ref
+                        .read(cfgScaleSettingsProvider.notifier)
+                        .setGlobalNegativePrompt(value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: _PromptTextField(
+                  label: l10n.positivePromptOptional,
+                  hint: l10n.textToEnhanceInOutput,
+                  value: settings.globalPositivePrompt,
+                  enabled: settings.enabled,
+                  onChanged: (value) {
+                    ref
+                        .read(cfgScaleSettingsProvider.notifier)
+                        .setGlobalPositivePrompt(value);
+                  },
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          _PromptTextField(
-            label: l10n.negativePrompt,
-            hint: l10n.textToSteerAwayFrom,
-            value: settings.globalNegativePrompt,
-            enabled: settings.enabled,
-            onChanged: (value) {
-              ref.read(cfgScaleSettingsProvider.notifier).setGlobalNegativePrompt(value);
-            },
-          ),
-          const SizedBox(height: 16),
-          _PromptTextField(
-            label: l10n.positivePromptOptional,
-            hint: l10n.textToEnhanceInOutput,
-            value: settings.globalPositivePrompt,
-            enabled: settings.enabled,
-            onChanged: (value) {
-              ref.read(cfgScaleSettingsProvider.notifier).setGlobalPositivePrompt(value);
-            },
-          ),
-
-          // Character-specific settings (if characterId provided)
-          if (characterId != null) ...[
-            const Divider(height: 32),
+          if (characterId != null)
             _CharacterCFGSection(
               characterId: characterId!,
               globalEnabled: settings.enabled,
             ),
-          ],
-
-          // Chat-specific settings (if chatId provided)
-          if (chatId != null) ...[
-            const Divider(height: 32),
+          if (chatId != null)
             _ChatCFGSection(
               chatId: chatId!,
               globalEnabled: settings.enabled,
             ),
-          ],
-
-          const SizedBox(height: 32),
-
-          // Info card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        l10n.aboutCfgScale,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(l10n.aboutCfgScaleDescription),
-                ],
+          SettingsSection(
+            icon: Icons.info_outline,
+            title: l10n.aboutCfgScale,
+            children: [
+              SettingsListTile(
+                icon: Icons.info_outline,
+                title: l10n.aboutCfgScale,
+                subtitle: l10n.aboutCfgScaleDescription,
+                showDivider: false,
               ),
-            ),
+            ],
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppTheme.accentColor,
-            fontWeight: FontWeight.bold,
-          ),
     );
   }
 
@@ -341,52 +326,58 @@ class _CharacterCFGSection extends ConsumerWidget {
       orElse: () => CharacterCFGSettings.empty(characterId),
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final l10n = AppLocalizations.of(context);
+    return SettingsSection(
+      icon: Icons.person_outline,
+      title: l10n.characterSettings,
       children: [
-        Text(
-          AppLocalizations.of(context).characterSettings,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppTheme.accentColor,
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        const SizedBox(height: 8),
-        SwitchListTile(
-          title: Text(AppLocalizations.of(context).useCharacterSpecificSettings),
-          subtitle: Text(AppLocalizations.of(context).overrideGlobalForCharacter),
+        SettingsSwitchTile(
+          icon: Icons.manage_accounts_outlined,
+          title: l10n.useCharacterSpecificSettings,
+          subtitle: l10n.overrideGlobalForCharacter,
           value: charSettings.useCharacterSettings,
+          showDivider: charSettings.useCharacterSettings,
           onChanged: globalEnabled
               ? (value) {
-                  ref.read(cfgScaleSettingsProvider.notifier).updateCharacterSettings(
+                  ref
+                      .read(cfgScaleSettingsProvider.notifier)
+                      .updateCharacterSettings(
                         charSettings.copyWith(useCharacterSettings: value),
                       );
                 }
               : null,
         ),
         if (charSettings.useCharacterSettings) ...[
-          const SizedBox(height: 16),
-          _GuidanceScaleSlider(
-            value: charSettings.guidanceScale ?? 1.0,
-            onChanged: globalEnabled
-                ? (value) {
-                    ref.read(cfgScaleSettingsProvider.notifier).updateCharacterSettings(
-                          charSettings.copyWith(guidanceScale: value),
-                        );
-                  }
-                : null,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: _GuidanceScaleSlider(
+              value: charSettings.guidanceScale ?? 1.0,
+              onChanged: globalEnabled
+                  ? (value) {
+                      ref
+                          .read(cfgScaleSettingsProvider.notifier)
+                          .updateCharacterSettings(
+                            charSettings.copyWith(guidanceScale: value),
+                          );
+                    }
+                  : null,
+            ),
           ),
-          const SizedBox(height: 16),
-          _PromptTextField(
-            label: AppLocalizations.of(context).characterNegativePrompt,
-            hint: AppLocalizations.of(context).overrideGlobalNegativePrompt,
-            value: charSettings.negativePrompt ?? '',
-            enabled: globalEnabled,
-            onChanged: (value) {
-              ref.read(cfgScaleSettingsProvider.notifier).updateCharacterSettings(
-                    charSettings.copyWith(negativePrompt: value),
-                  );
-            },
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: _PromptTextField(
+              label: l10n.characterNegativePrompt,
+              hint: l10n.overrideGlobalNegativePrompt,
+              value: charSettings.negativePrompt ?? '',
+              enabled: globalEnabled,
+              onChanged: (value) {
+                ref
+                    .read(cfgScaleSettingsProvider.notifier)
+                    .updateCharacterSettings(
+                      charSettings.copyWith(negativePrompt: value),
+                    );
+              },
+            ),
           ),
         ],
       ],
@@ -409,83 +400,87 @@ class _ChatCFGSection extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final chatSettings = ref.watch(chatCFGSettingsProvider(chatId));
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return SettingsSection(
+      icon: Icons.chat_bubble_outline,
+      title: l10n.chatSettings,
+      footer: l10n.chatSettingsDescription,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              l10n.chatSettings,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppTheme.accentColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            TextButton(
-              onPressed: globalEnabled
-                  ? () {
-                      ref.read(chatCFGSettingsProvider(chatId).notifier).clearSettings();
-                    }
-                  : null,
-              child: Text(l10n.clear),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          l10n.chatSettingsDescription,
-          style: const TextStyle(color: Colors.grey),
-        ),
-        const SizedBox(height: 16),
-        _GuidanceScaleSlider(
-          value: chatSettings.guidanceScale ?? 1.0,
-          onChanged: globalEnabled
-              ? (value) {
-                  ref.read(chatCFGSettingsProvider(chatId).notifier).setGuidanceScale(value);
-                }
-              : null,
-        ),
-        const SizedBox(height: 16),
-        _PromptTextField(
-          label: l10n.chatNegativePrompt,
-          hint: l10n.overrideForThisChat,
-          value: chatSettings.negativePrompt ?? '',
-          enabled: globalEnabled,
-          onChanged: (value) {
-            ref.read(chatCFGSettingsProvider(chatId).notifier).setNegativePrompt(value);
-          },
-        ),
-        const SizedBox(height: 16),
-        _PromptTextField(
-          label: l10n.chatPositivePrompt,
-          hint: l10n.enhancementForThisChat,
-          value: chatSettings.positivePrompt ?? '',
-          enabled: globalEnabled,
-          onChanged: (value) {
-            ref.read(chatCFGSettingsProvider(chatId).notifier).setPositivePrompt(value);
-          },
-        ),
-        const SizedBox(height: 16),
-        DropdownButtonFormField<PromptCombineMode>(
-          value: chatSettings.promptCombineMode,
-          decoration: InputDecoration(
-            labelText: l10n.promptCombineMode,
-            border: const OutlineInputBorder(),
-          ),
-          items: PromptCombineMode.values.map((mode) {
-            return DropdownMenuItem(
-              value: mode,
-              child: Text(_getCombineModeLabel(context, mode)),
-            );
-          }).toList(),
-          onChanged: globalEnabled
-              ? (mode) {
-                  if (mode != null) {
-                    ref.read(chatCFGSettingsProvider(chatId).notifier).setPromptCombineMode(mode);
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: globalEnabled
+                ? () {
+                    ref
+                        .read(chatCFGSettingsProvider(chatId).notifier)
+                        .clearSettings();
                   }
-                }
-              : null,
+                : null,
+            child: Text(l10n.clear),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: _GuidanceScaleSlider(
+            value: chatSettings.guidanceScale ?? 1.0,
+            onChanged: globalEnabled
+                ? (value) {
+                    ref
+                        .read(chatCFGSettingsProvider(chatId).notifier)
+                        .setGuidanceScale(value);
+                  }
+                : null,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: _PromptTextField(
+            label: l10n.chatNegativePrompt,
+            hint: l10n.overrideForThisChat,
+            value: chatSettings.negativePrompt ?? '',
+            enabled: globalEnabled,
+            onChanged: (value) {
+              ref
+                  .read(chatCFGSettingsProvider(chatId).notifier)
+                  .setNegativePrompt(value);
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: _PromptTextField(
+            label: l10n.chatPositivePrompt,
+            hint: l10n.enhancementForThisChat,
+            value: chatSettings.positivePrompt ?? '',
+            enabled: globalEnabled,
+            onChanged: (value) {
+              ref
+                  .read(chatCFGSettingsProvider(chatId).notifier)
+                  .setPositivePrompt(value);
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: SettingsChoiceTile<PromptCombineMode>(
+            icon: Icons.merge_type,
+            title: l10n.promptCombineMode,
+            selected: chatSettings.promptCombineMode,
+            enabled: globalEnabled,
+            choices: [
+              for (final mode in PromptCombineMode.values)
+                SettingsChoice(
+                  value: mode,
+                  label: _getCombineModeLabel(context, mode),
+                ),
+            ],
+            valueLabel: _getCombineModeLabel(context, chatSettings.promptCombineMode),
+            showDivider: false,
+            onSelected: (mode) {
+              ref
+                  .read(chatCFGSettingsProvider(chatId).notifier)
+                  .setPromptCombineMode(mode);
+            },
+          ),
         ),
       ],
     );

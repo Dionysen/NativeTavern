@@ -6,6 +6,7 @@ import 'package:native_tavern/presentation/providers/variables_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for managing variables
 class VariablesSettingsScreen extends ConsumerWidget {
@@ -54,36 +55,30 @@ class VariablesSettingsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
-          // Info section
-          _buildSection(
+          SettingsSection(
+            icon: Icons.info_outline,
             title: l10n.aboutVariables,
             children: [
-              ListTile(
-                leading:
-                    const Icon(Icons.info_outline, color: AppTheme.accentColor),
-                title: Text(l10n.variableSystem),
-                subtitle: Text(l10n.variableSystemDescription),
+              SettingsListTile(
+                icon: Icons.info_outline,
+                title: l10n.variableSystem,
+                subtitle: l10n.variableSystemDescription,
               ),
-              ListTile(
-                leading: const Icon(Icons.code, color: AppTheme.textMuted),
-                title: Text(l10n.macroUsage),
-                subtitle: Text(
-                  l10n.macroUsageDescription(
-                    '{{getvar::name}}',
-                    '{{getglobalvar::name}}',
-                  ),
+              SettingsListTile(
+                icon: Icons.code,
+                title: l10n.macroUsage,
+                subtitle: l10n.macroUsageDescription(
+                  '{{getvar::name}}',
+                  '{{getglobalvar::name}}',
                 ),
+                showDivider: false,
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Global variables
-          _buildSection(
+          SettingsSection(
+            icon: Icons.public,
             title: l10n.globalVariablesCount(globalVars.length),
             children: [
               if (globalVars.isEmpty)
@@ -122,11 +117,9 @@ class VariablesSettingsScreen extends ConsumerWidget {
             ],
           ),
 
-          if (chatId != null) ...[
-            const SizedBox(height: 16),
-
-            // Local variables
-            _buildSection(
+          if (chatId != null)
+            SettingsSection(
+              icon: Icons.chat_bubble_outline,
               title: l10n.localVariablesCount(localVars.length),
               children: [
                 if (localVars.isEmpty)
@@ -164,43 +157,14 @@ class VariablesSettingsScreen extends ConsumerWidget {
                       )),
               ],
             ),
-          ],
 
-          const SizedBox(height: 16),
-
-          // Test section
-          _buildSection(
+          SettingsSection(
+            icon: Icons.play_arrow_outlined,
             title: l10n.test,
             children: [
               _VariableTestWidget(chatId: chatId),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSection({
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Card(
-      color: AppTheme.darkCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.accentColor,
-              ),
-            ),
-          ),
-          ...children,
         ],
       ),
     );

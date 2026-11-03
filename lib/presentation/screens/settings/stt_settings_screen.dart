@@ -6,6 +6,7 @@ import 'package:native_tavern/domain/services/stt_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/stt_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 class STTSettingsScreen extends ConsumerWidget {
   const STTSettingsScreen({super.key});
@@ -16,6 +17,7 @@ class STTSettingsScreen extends ConsumerWidget {
     final session = ref.watch(sttSessionProvider);
     final available = ref.watch(sttAvailableProvider);
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -34,8 +36,7 @@ class STTSettingsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
           if (session.message != null && _isFailure(session.phase))
             _StatusPanel(
@@ -63,26 +64,30 @@ class STTSettingsScreen extends ConsumerWidget {
               loading: () => const SizedBox.shrink(),
               error: (_, __) => const SizedBox.shrink(),
             ),
-          _Section(
+          SettingsSection(
+            icon: Icons.toggle_on_outlined,
             title: l10n.general,
             children: [
-              SwitchListTile(
-                title: Text(l10n.enableStt),
-                subtitle: Text(l10n.useVoiceInputForMessages),
+              SettingsSwitchTile(
+                icon: Icons.mic,
+                title: l10n.enableStt,
+                subtitle: l10n.useVoiceInputForMessages,
                 value: settings.enabled,
                 onChanged: ref.read(sttSettingsProvider.notifier).setEnabled,
               ),
-              SwitchListTile(
-                title: Text(l10n.autoSendStt),
-                subtitle: Text(l10n.automaticallySendAfterSpeaking),
+              SettingsSwitchTile(
+                icon: Icons.send_outlined,
+                title: l10n.autoSendStt,
+                subtitle: l10n.automaticallySendAfterSpeaking,
                 value: settings.autoSend,
                 onChanged: settings.enabled
                     ? ref.read(sttSettingsProvider.notifier).setAutoSend
                     : null,
               ),
-              SwitchListTile(
-                title: Text(l10n.continuousListening),
-                subtitle: Text(l10n.keepListeningAfterPhrase),
+              SettingsSwitchTile(
+                icon: Icons.hearing,
+                title: l10n.continuousListening,
+                subtitle: l10n.keepListeningAfterPhrase,
                 value: settings.continuousListening,
                 onChanged:
                     settings.enabled && settings.provider == STTProvider.system
@@ -91,10 +96,12 @@ class STTSettingsScreen extends ConsumerWidget {
                             .setContinuousListening
                         : null,
               ),
-              SwitchListTile(
-                title: Text(l10n.showPartialResults),
-                subtitle: Text(l10n.displayTextAsYouSpeak),
+              SettingsSwitchTile(
+                icon: Icons.text_fields,
+                title: l10n.showPartialResults,
+                subtitle: l10n.displayTextAsYouSpeak,
                 value: settings.showPartialResults,
+                showDivider: false,
                 onChanged:
                     settings.enabled && settings.provider == STTProvider.system
                         ? ref
@@ -104,39 +111,36 @@ class STTSettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          _Section(
+          SettingsSection(
+            icon: Icons.cloud_outlined,
             title: l10n.provider,
             children: [
-              ListTile(
-                title: Text(l10n.sttProvider),
-                subtitle: Text(settings.provider.displayName),
-                trailing: DropdownButton<STTProvider>(
-                  value: settings.provider,
-                  onChanged: settings.enabled
-                      ? (provider) {
-                          if (provider != null) {
-                            ref
-                                .read(sttSettingsProvider.notifier)
-                                .setProvider(provider);
-                          }
-                        }
-                      : null,
-                  items: [
-                    for (final provider in STTProvider.values)
-                      DropdownMenuItem(
-                        value: provider,
-                        child: Text(provider.displayName),
-                      ),
-                  ],
-                ),
+              SettingsChoiceTile<STTProvider>(
+                icon: Icons.mic_external_on,
+                title: l10n.sttProvider,
+                selected: settings.provider,
+                enabled: settings.enabled,
+                choices: [
+                  for (final provider in STTProvider.values)
+                    SettingsChoice(
+                      value: provider,
+                      label: provider.displayName,
+                    ),
+                ],
+                valueLabel: settings.provider.displayName,
+                showDivider: settings.provider.isRemote,
+                onSelected: (provider) {
+                  ref.read(sttSettingsProvider.notifier).setProvider(provider);
+                },
               ),
               if (settings.provider.isRemote)
-                ListTile(
-                  leading: const Icon(Icons.tune),
-                  title: Text(l10n.apiEndpoint),
-                  subtitle: Text(_providerSummary(settings, l10n)),
-                  trailing: const Icon(Icons.edit),
+                SettingsListTile(
+                  icon: Icons.tune,
+                  title: l10n.apiEndpoint,
+                  subtitle: _providerSummary(settings, l10n),
+                  showDivider: false,
+                  trailing: Icon(Icons.edit,
+                      color: scheme.onSurfaceVariant, size: 20),
                   enabled: settings.enabled,
                   onTap: settings.enabled
                       ? () => _showProviderConfiguration(
@@ -148,51 +152,42 @@ class STTSettingsScreen extends ConsumerWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 16),
-          _Section(
+          SettingsSection(
+            icon: Icons.language,
             title: l10n.language,
             children: [
-              ListTile(
-                title: Text(l10n.recognitionLanguage),
-                subtitle: Text(
-                  STTLanguage.fromCode(settings.language)?.name ??
-                      settings.language,
-                ),
-                trailing: DropdownButton<String>(
-                  value: settings.language,
-                  onChanged: settings.enabled
-                      ? (language) {
-                          if (language != null) {
-                            ref
-                                .read(sttSettingsProvider.notifier)
-                                .setLanguage(language);
-                          }
-                        }
-                      : null,
-                  items: [
-                    for (final language in STTLanguage.supportedLanguages)
-                      DropdownMenuItem(
-                        value: language.code,
-                        child: Text(language.name),
-                      ),
-                  ],
-                ),
+              SettingsChoiceTile<String>(
+                icon: Icons.translate,
+                title: l10n.recognitionLanguage,
+                selected: settings.language,
+                enabled: settings.enabled,
+                choices: [
+                  for (final language in STTLanguage.supportedLanguages)
+                    SettingsChoice(
+                      value: language.code,
+                      label: language.name,
+                    ),
+                ],
+                valueLabel: STTLanguage.fromCode(settings.language)?.name ??
+                    settings.language,
+                showDivider: false,
+                onSelected: (language) {
+                  ref.read(sttSettingsProvider.notifier).setLanguage(language);
+                },
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          _Section(
+          SettingsSection(
+            icon: Icons.play_arrow_outlined,
             title: l10n.test,
             children: [
-              ListTile(
-                leading: Icon(
-                  session.isActive ? Icons.stop_circle : Icons.mic_none,
-                  color: session.isActive ? Colors.red : AppTheme.accentColor,
-                ),
-                title: Text(
-                  session.isActive ? l10n.stopListening : l10n.testVoiceInput,
-                ),
-                subtitle: Text(_sessionSubtitle(session, l10n)),
+              SettingsListTile(
+                icon: session.isActive ? Icons.stop_circle : Icons.mic_none,
+                title: session.isActive
+                    ? l10n.stopListening
+                    : l10n.testVoiceInput,
+                subtitle: _sessionSubtitle(session, l10n),
+                showDivider: session.result != null || session.isActive,
                 enabled: settings.enabled &&
                     (!settings.provider.isRemote || settings.isConfigured),
                 onTap: settings.enabled &&
@@ -202,12 +197,14 @@ class STTSettingsScreen extends ConsumerWidget {
               ),
               if (session.result != null)
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppTheme.darkBackground,
+                      color: Theme.of(context).colorScheme.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppTheme.darkDivider),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(12),
@@ -226,28 +223,23 @@ class STTSettingsScreen extends ConsumerWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 16),
-          _Section(
+          SettingsSection(
+            icon: Icons.info_outline,
             title: l10n.information,
             children: [
-              ListTile(
-                leading: const Icon(
-                  Icons.info_outline,
-                  color: AppTheme.accentColor,
-                ),
-                title: Text(l10n.aboutStt),
-                subtitle: Text(l10n.aboutSttDescription),
+              SettingsListTile(
+                icon: Icons.info_outline,
+                title: l10n.aboutStt,
+                subtitle: l10n.aboutSttDescription,
+                showDivider: settings.provider == STTProvider.system,
               ),
               if (settings.provider == STTProvider.system)
-                ListTile(
-                  leading: const Icon(
-                    Icons.offline_bolt_outlined,
-                    color: AppTheme.textMuted,
-                  ),
-                  title: Text(l10n.systemStt),
-                  subtitle: Text(
-                    '${l10n.systemSttDescription}\n${l10n.systemSttOfflineNote}',
-                  ),
+                SettingsListTile(
+                  icon: Icons.offline_bolt_outlined,
+                  title: l10n.systemStt,
+                  subtitle:
+                      '${l10n.systemSttDescription}\n${l10n.systemSttOfflineNote}',
+                  showDivider: false,
                 ),
             ],
           ),
@@ -348,37 +340,6 @@ class STTSettingsScreen extends ConsumerWidget {
     endpointController.dispose();
     keyController.dispose();
     modelController.dispose();
-  }
-}
-
-class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.children});
-
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: AppTheme.darkCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.accentColor,
-              ),
-            ),
-          ),
-          ...children,
-        ],
-      ),
-    );
   }
 }
 

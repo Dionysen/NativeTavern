@@ -8,6 +8,7 @@ import 'package:native_tavern/presentation/providers/logit_bias_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Settings screen for Logit Bias configuration
 class LogitBiasSettingsScreen extends ConsumerStatefulWidget {
@@ -47,24 +48,28 @@ class _LogitBiasSettingsScreenState
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
-          // Enable toggle
-          SwitchListTile(
-            title: Text(AppLocalizations.of(context)!.enableLogitBias),
-            subtitle:
-                Text(AppLocalizations.of(context)!.adjustTokenProbabilities),
-            value: settings.enabled,
-            onChanged: (value) {
-              ref.read(logitBiasSettingsProvider.notifier).setEnabled(value);
-            },
+          SettingsSection(
+            icon: Icons.tune,
+            title: AppLocalizations.of(context)!.logitBias,
+            children: [
+              SettingsSwitchTile(
+                icon: Icons.tune,
+                title: AppLocalizations.of(context)!.enableLogitBias,
+                subtitle: AppLocalizations.of(context)!.adjustTokenProbabilities,
+                value: settings.enabled,
+                showDivider: false,
+                onChanged: (value) {
+                  ref.read(logitBiasSettingsProvider.notifier).setEnabled(value);
+                },
+              ),
+            ],
           ),
-          const Divider(height: 32),
-
-          // Preset selector
-          _buildSectionHeader(context, AppLocalizations.of(context)!.presets),
-          const SizedBox(height: 8),
+          SettingsSection(
+            icon: Icons.bookmark_outline,
+            title: AppLocalizations.of(context)!.presets,
+            children: [
           _PresetSelector(
             presets: settings.presets,
             activePresetId: settings.activePresetId,
@@ -80,12 +85,14 @@ class _LogitBiasSettingsScreenState
             onExportPreset: (id) => _exportPreset(context, id),
             onImportPreset: () => _importPreset(context),
           ),
+            ],
+          ),
 
-          if (settings.activePreset != null) ...[
-            const Divider(height: 32),
-            _buildSectionHeader(
-                context, AppLocalizations.of(context)!.biasEntries),
-            const SizedBox(height: 8),
+          if (settings.activePreset != null)
+            SettingsSection(
+              icon: Icons.list_alt,
+              title: AppLocalizations.of(context)!.biasEntries,
+              children: [
             _BiasEntriesList(
               entries: settings.activePreset!.entries,
               onAddEntry: () {
@@ -107,21 +114,10 @@ class _LogitBiasSettingsScreenState
                     .reorderEntries(oldIndex, newIndex);
               },
             ),
-          ],
-
-          const SizedBox(height: 32),
+              ],
+            ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppTheme.accentColor,
-            fontWeight: FontWeight.bold,
-          ),
     );
   }
 

@@ -7,6 +7,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/capability_providers.dart';
 import 'package:native_tavern/presentation/providers/external_call_audit_providers.dart';
 import 'package:native_tavern/presentation/providers/stt_providers.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 class CapabilityDiagnosticsScreen extends ConsumerWidget {
   const CapabilityDiagnosticsScreen({super.key});
@@ -32,6 +33,7 @@ class CapabilityDiagnosticsScreen extends ConsumerWidget {
         onRefresh: () async => _refresh(ref),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           children: [
             diagnostics.when(
               loading: () => const Padding(
@@ -52,36 +54,38 @@ class CapabilityDiagnosticsScreen extends ConsumerWidget {
                 onAction: (result) => _runAction(context, ref, result),
               ),
             ),
-            const Divider(height: 32),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Text(
-                l10n.capabilityRecentExternalActivity,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
+            SettingsSection(
+              icon: Icons.history,
+              title: l10n.capabilityRecentExternalActivity,
+              children: [
             externalCalls.when(
               loading: () => const Padding(
                 padding: EdgeInsets.all(16),
                 child: LinearProgressIndicator(),
               ),
-              error: (_, __) => ListTile(
-                leading: const Icon(Icons.error_outline),
-                title: Text(l10n.capabilityAuditUnavailable),
+              error: (_, __) => SettingsListTile(
+                icon: Icons.error_outline,
+                title: l10n.capabilityAuditUnavailable,
+                showDivider: false,
               ),
               data: (records) => records.isEmpty
-                  ? ListTile(
-                      leading: const Icon(Icons.history),
-                      title: Text(l10n.capabilityNoExternalCalls),
+                  ? SettingsListTile(
+                      icon: Icons.history,
+                      title: l10n.capabilityNoExternalCalls,
+                      showDivider: false,
                     )
                   : Column(
                       children: [
-                        for (final record in records)
-                          _ExternalCallTile(record: record),
+                        for (var i = 0; i < records.length; i++)
+                          _ExternalCallTile(
+                            record: records[i],
+                            showDivider: i != records.length - 1,
+                          ),
                       ],
                     ),
             ),
-            const SizedBox(height: 24),
+              ],
+            ),
           ],
         ),
       ),
@@ -259,8 +263,12 @@ class _CapabilityTile extends StatelessWidget {
 
 class _ExternalCallTile extends StatelessWidget {
   final ExternalCallAuditRecord record;
+  final bool showDivider;
 
-  const _ExternalCallTile({required this.record});
+  const _ExternalCallTile({
+    required this.record,
+    this.showDivider = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -272,14 +280,11 @@ class _ExternalCallTile extends StatelessWidget {
     final localTime = record.timestamp.toLocal();
     final time = '${localTime.hour.toString().padLeft(2, '0')}:'
         '${localTime.minute.toString().padLeft(2, '0')}';
-    return ListTile(
-      dense: true,
-      leading: Icon(
-        succeeded ? Icons.check_circle_outline : Icons.error_outline,
-        color: succeeded ? Colors.green : Theme.of(context).colorScheme.error,
-      ),
-      title: Text(record.targetDomain),
-      subtitle: Text('${record.capabilityId} · $types'),
+    return SettingsListTile(
+      icon: succeeded ? Icons.check_circle_outline : Icons.error_outline,
+      title: record.targetDomain,
+      subtitle: '${record.capabilityId} · $types',
+      showDivider: showDivider,
       trailing: Text(time),
     );
   }

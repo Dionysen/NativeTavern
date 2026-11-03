@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/tts_service.dart';
 import 'package:native_tavern/presentation/providers/tts_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
 /// Screen for TTS settings
@@ -15,46 +16,43 @@ class TTSSettingsScreen extends ConsumerWidget {
     final isSpeaking = ref.watch(ttsSpeakingProvider);
     final voicesAsync = ref.watch(availableVoicesProvider);
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).textToSpeech),
+        title: Text(l10n.textToSpeech),
         actions: [
           IconButton(
             icon: const Icon(Icons.restore),
-            tooltip: AppLocalizations.of(context).resetToDefaults,
+            tooltip: l10n.resetToDefaults,
             onPressed: () {
               ref.read(ttsSettingsProvider.notifier).reset();
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(
-                        AppLocalizations.of(context).settingsResetToDefaults)),
+                SnackBar(content: Text(l10n.settingsResetToDefaults)),
               );
             },
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
-          // Enable/Disable toggle
-          _buildSection(
-            context,
-            title: AppLocalizations.of(context).general,
+          SettingsSection(
+            icon: Icons.toggle_on_outlined,
+            title: l10n.general,
             children: [
-              SwitchListTile(
-                title: Text(AppLocalizations.of(context).enableTts),
-                subtitle:
-                    Text(AppLocalizations.of(context).readAiResponsesAloud),
+              SettingsSwitchTile(
+                icon: Icons.record_voice_over,
+                title: l10n.enableTts,
+                subtitle: l10n.readAiResponsesAloud,
                 value: settings.enabled,
                 onChanged: (value) {
                   ref.read(ttsSettingsProvider.notifier).setEnabled(value);
                 },
               ),
-              SwitchListTile(
-                title: Text(AppLocalizations.of(context).autoPlay),
-                subtitle: Text(
-                    AppLocalizations.of(context).automaticallyPlayResponses),
+              SettingsSwitchTile(
+                icon: Icons.play_circle_outline,
+                title: l10n.autoPlay,
+                subtitle: l10n.automaticallyPlayResponses,
                 value: settings.autoPlay,
                 onChanged: settings.enabled
                     ? (value) {
@@ -64,10 +62,12 @@ class TTSSettingsScreen extends ConsumerWidget {
                       }
                     : null,
               ),
-              SwitchListTile(
-                title: Text(l10n.queueMessages),
-                subtitle: Text(l10n.queueMessagesDescription),
+              SettingsSwitchTile(
+                icon: Icons.queue_music,
+                title: l10n.queueMessages,
+                subtitle: l10n.queueMessagesDescription,
                 value: settings.queueMessages,
+                showDivider: false,
                 onChanged: settings.enabled
                     ? (value) {
                         ref
@@ -78,53 +78,50 @@ class TTSSettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Provider selection
-          _buildSection(
-            context,
-            title: AppLocalizations.of(context).provider,
+          SettingsSection(
+            icon: Icons.cloud_outlined,
+            title: l10n.provider,
             children: [
-              ListTile(
-                title: Text(AppLocalizations.of(context).ttsProvider),
-                subtitle: Text(settings.provider.displayName),
-                trailing: DropdownButton<TTSProvider>(
-                  value: settings.provider,
-                  onChanged: settings.enabled
-                      ? (value) {
-                          if (value != null) {
-                            ref
-                                .read(ttsSettingsProvider.notifier)
-                                .setProvider(value);
-                          }
-                        }
-                      : null,
-                  items: TTSProvider.values.map((provider) {
-                    return DropdownMenuItem(
+              SettingsChoiceTile<TTSProvider>(
+                icon: Icons.speaker_group_outlined,
+                title: l10n.ttsProvider,
+                selected: settings.provider,
+                enabled: settings.enabled,
+                choices: [
+                  for (final provider in TTSProvider.values)
+                    SettingsChoice(
                       value: provider,
-                      child: Text(provider.displayName),
-                    );
-                  }).toList(),
-                ),
+                      label: provider.displayName,
+                    ),
+                ],
+                valueLabel: settings.provider.displayName,
+                onSelected: (value) {
+                  ref.read(ttsSettingsProvider.notifier).setProvider(value);
+                },
+                showDivider: settings.provider != TTSProvider.system,
               ),
               if (settings.provider != TTSProvider.system) ...[
-                ListTile(
-                  title: Text(AppLocalizations.of(context).apiKey),
-                  subtitle: Text(
-                    settings.apiKey?.isNotEmpty == true
-                        ? '••••••••${settings.apiKey!.length > 4 ? settings.apiKey!.substring(settings.apiKey!.length - 4) : settings.apiKey}'
-                        : AppLocalizations.of(context).notConfigured,
-                  ),
-                  trailing: const Icon(Icons.edit),
+                SettingsListTile(
+                  icon: Icons.key_outlined,
+                  title: l10n.apiKey,
+                  subtitle: settings.apiKey?.isNotEmpty == true
+                      ? '••••••••${settings.apiKey!.length > 4 ? settings.apiKey!.substring(settings.apiKey!.length - 4) : settings.apiKey}'
+                      : l10n.notConfigured,
+                  trailing: Icon(Icons.edit,
+                      color: scheme.onSurfaceVariant, size: 20),
+                  enabled: settings.enabled,
                   onTap: settings.enabled
                       ? () => _showApiKeyDialog(context, ref, settings)
                       : null,
                 ),
-                ListTile(
-                  title: Text(AppLocalizations.of(context).apiEndpoint),
-                  subtitle: Text(_remoteEndpointSummary(settings)),
-                  trailing: const Icon(Icons.edit),
+                SettingsListTile(
+                  icon: Icons.link,
+                  title: l10n.apiEndpoint,
+                  subtitle: _remoteEndpointSummary(settings),
+                  showDivider: false,
+                  trailing: Icon(Icons.edit,
+                      color: scheme.onSurfaceVariant, size: 20),
+                  enabled: settings.enabled,
                   onTap: settings.enabled
                       ? () => _showApiEndpointDialog(context, ref, settings)
                       : null,
@@ -132,152 +129,109 @@ class TTSSettingsScreen extends ConsumerWidget {
               ],
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Voice selection
-          _buildSection(
-            context,
-            title: AppLocalizations.of(context).voice,
+          SettingsSection(
+            icon: Icons.record_voice_over_outlined,
+            title: l10n.voice,
             children: [
               voicesAsync.when(
-                data: (voices) => ListTile(
-                  title: Text(AppLocalizations.of(context).voice),
-                  subtitle: Text(
-                    voices
-                        .firstWhere(
-                          (v) => v.id == settings.voiceId,
-                          orElse: () => voices.first,
-                        )
-                        .name,
-                  ),
-                  trailing: DropdownButton<String>(
-                    value: settings.voiceId ?? voices.first.id,
-                    onChanged: settings.enabled
-                        ? (value) {
-                            ref
-                                .read(ttsSettingsProvider.notifier)
-                                .setVoiceId(value);
-                          }
-                        : null,
-                    items: voices.map((voice) {
-                      return DropdownMenuItem(
-                        value: voice.id,
-                        child: Text(voice.name),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                loading: () => ListTile(
-                  title: Text(l10n.voice),
-                  subtitle: Text(l10n.loadingVoices),
+                data: (voices) {
+                  final selected = voices.firstWhere(
+                    (v) => v.id == settings.voiceId,
+                    orElse: () => voices.first,
+                  );
+                  return SettingsChoiceTile<String>(
+                    icon: Icons.voice_chat_outlined,
+                    title: l10n.voice,
+                    selected: settings.voiceId ?? voices.first.id,
+                    enabled: settings.enabled,
+                    choices: [
+                      for (final voice in voices)
+                        SettingsChoice(value: voice.id, label: voice.name),
+                    ],
+                    valueLabel: selected.name,
+                    showDivider: false,
+                    onSelected: (value) {
+                      ref.read(ttsSettingsProvider.notifier).setVoiceId(value);
+                    },
+                  );
+                },
+                loading: () => SettingsListTile(
+                  icon: Icons.voice_chat_outlined,
+                  title: l10n.voice,
+                  subtitle: l10n.loadingVoices,
+                  showDivider: false,
                   trailing: const SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 ),
-                error: (_, __) => ListTile(
-                  title: Text(l10n.voice),
-                  subtitle: Text(l10n.failedToLoadVoices),
+                error: (_, __) => SettingsListTile(
+                  icon: Icons.voice_chat_outlined,
+                  title: l10n.voice,
+                  subtitle: l10n.failedToLoadVoices,
+                  showDivider: false,
                   trailing: const Icon(Icons.error, color: Colors.red),
                 ),
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Voice parameters
-          _buildSection(
-            context,
-            title: AppLocalizations.of(context).voiceSettings,
+          SettingsSection(
+            icon: Icons.tune,
+            title: l10n.voiceSettings,
             children: [
-              // Rate slider
-              ListTile(
-                title: Text(AppLocalizations.of(context).speed),
-                subtitle: Slider(
-                  value: settings.rate,
-                  min: 0.5,
-                  max: 2.0,
-                  divisions: 15,
-                  label: '${settings.rate.toStringAsFixed(1)}x',
-                  onChanged: settings.enabled
-                      ? (value) {
-                          ref.read(ttsSettingsProvider.notifier).setRate(value);
-                        }
-                      : null,
-                ),
-                trailing: Text(
-                  '${settings.rate.toStringAsFixed(1)}x',
-                  style: const TextStyle(color: AppTheme.textSecondary),
-                ),
+              SettingsSliderTile(
+                icon: Icons.speed,
+                title: l10n.speed,
+                valueLabel: '${settings.rate.toStringAsFixed(1)}x',
+                value: settings.rate,
+                min: 0.5,
+                max: 2.0,
+                divisions: 15,
+                enabled: settings.enabled,
+                onChanged: (value) {
+                  ref.read(ttsSettingsProvider.notifier).setRate(value);
+                },
               ),
-
-              // Pitch slider
-              ListTile(
-                title: Text(AppLocalizations.of(context).pitch),
-                subtitle: Slider(
-                  value: settings.pitch,
-                  min: 0.5,
-                  max: 2.0,
-                  divisions: 15,
-                  label: '${settings.pitch.toStringAsFixed(1)}x',
-                  onChanged: settings.enabled
-                      ? (value) {
-                          ref
-                              .read(ttsSettingsProvider.notifier)
-                              .setPitch(value);
-                        }
-                      : null,
-                ),
-                trailing: Text(
-                  '${settings.pitch.toStringAsFixed(1)}x',
-                  style: const TextStyle(color: AppTheme.textSecondary),
-                ),
+              SettingsSliderTile(
+                icon: Icons.graphic_eq,
+                title: l10n.pitch,
+                valueLabel: '${settings.pitch.toStringAsFixed(1)}x',
+                value: settings.pitch,
+                min: 0.5,
+                max: 2.0,
+                divisions: 15,
+                enabled: settings.enabled,
+                onChanged: (value) {
+                  ref.read(ttsSettingsProvider.notifier).setPitch(value);
+                },
               ),
-
-              // Volume slider
-              ListTile(
-                title: Text(AppLocalizations.of(context).volume),
-                subtitle: Slider(
-                  value: settings.volume,
-                  min: 0.0,
-                  max: 1.0,
-                  divisions: 10,
-                  label: '${(settings.volume * 100).round()}%',
-                  onChanged: settings.enabled
-                      ? (value) {
-                          ref
-                              .read(ttsSettingsProvider.notifier)
-                              .setVolume(value);
-                        }
-                      : null,
-                ),
-                trailing: Text(
-                  '${(settings.volume * 100).round()}%',
-                  style: const TextStyle(color: AppTheme.textSecondary),
-                ),
+              SettingsSliderTile(
+                icon: Icons.volume_up_outlined,
+                title: l10n.volume,
+                valueLabel: '${(settings.volume * 100).round()}%',
+                value: settings.volume,
+                min: 0.0,
+                max: 1.0,
+                divisions: 10,
+                showDivider: false,
+                enabled: settings.enabled,
+                onChanged: (value) {
+                  ref.read(ttsSettingsProvider.notifier).setVolume(value);
+                },
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Test section
-          _buildSection(
-            context,
-            title: AppLocalizations.of(context).test,
+          SettingsSection(
+            icon: Icons.play_arrow_outlined,
+            title: l10n.test,
             children: [
-              ListTile(
-                leading: Icon(
-                  isSpeaking ? Icons.stop : Icons.play_arrow,
-                  color: AppTheme.accentColor,
-                ),
-                title: Text(isSpeaking
-                    ? AppLocalizations.of(context).stopListening
-                    : AppLocalizations.of(context).testVoice),
-                subtitle: Text(AppLocalizations.of(context).testVoice),
+              SettingsListTile(
+                icon: isSpeaking ? Icons.stop : Icons.play_arrow,
+                title: isSpeaking ? l10n.stopListening : l10n.testVoice,
+                subtitle: l10n.testVoice,
+                showDivider: false,
+                enabled: settings.enabled,
                 onTap: settings.enabled
                     ? () async {
                         if (isSpeaking) {
@@ -290,62 +244,33 @@ class TTSSettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Info section
-          _buildSection(
-            context,
-            title: AppLocalizations.of(context).information,
+          SettingsSection(
+            icon: Icons.info_outline,
+            title: l10n.information,
             children: [
-              ListTile(
-                leading:
-                    const Icon(Icons.info_outline, color: AppTheme.accentColor),
-                title: Text(l10n.aboutTts),
-                subtitle: Text(l10n.aboutTtsDescription),
+              SettingsListTile(
+                icon: Icons.info_outline,
+                title: l10n.aboutTts,
+                subtitle: l10n.aboutTtsDescription,
+                showDivider: settings.provider == TTSProvider.system ||
+                    settings.provider == TTSProvider.elevenlabs,
               ),
               if (settings.provider == TTSProvider.system)
-                ListTile(
-                  leading: const Icon(Icons.phone_android,
-                      color: AppTheme.textMuted),
-                  title: Text(l10n.systemTts),
-                  subtitle: Text(l10n.systemTtsDetails),
+                SettingsListTile(
+                  icon: Icons.phone_android,
+                  title: l10n.systemTts,
+                  subtitle: l10n.systemTtsDetails,
+                  showDivider: false,
                 ),
               if (settings.provider == TTSProvider.elevenlabs)
-                ListTile(
-                  leading: const Icon(Icons.cloud, color: AppTheme.textMuted),
-                  title: const Text('ElevenLabs'),
-                  subtitle: Text(l10n.elevenLabsDescription),
+                SettingsListTile(
+                  icon: Icons.cloud,
+                  title: 'ElevenLabs',
+                  subtitle: l10n.elevenLabsDescription,
+                  showDivider: false,
                 ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSection(
-    BuildContext context, {
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Card(
-      color: AppTheme.darkCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.accentColor,
-              ),
-            ),
-          ),
-          ...children,
         ],
       ),
     );
@@ -361,8 +286,7 @@ class TTSSettingsScreen extends ConsumerWidget {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-            '${settings.provider.displayName} ${AppLocalizations.of(context).apiKey}'),
+        title: Text('${settings.provider.displayName} ${AppLocalizations.of(context).apiKey}'),
         content: TextField(
           controller: controller,
           decoration: InputDecoration(

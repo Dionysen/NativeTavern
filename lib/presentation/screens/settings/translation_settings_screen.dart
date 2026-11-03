@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/translation_service.dart';
 import 'package:native_tavern/presentation/providers/translation_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
 /// Screen for translation settings
@@ -13,37 +14,34 @@ class TranslationSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(translationSettingsProvider);
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.translationSettings),
+        title: Text(l10n.translationSettings),
         actions: [
           IconButton(
             icon: const Icon(Icons.restore),
-            tooltip: AppLocalizations.of(context)!.resetToDefaults,
+            tooltip: l10n.resetToDefaults,
             onPressed: () {
               ref.read(translationSettingsProvider.notifier).reset();
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(
-                        AppLocalizations.of(context)!.settingsResetToDefaults)),
+                SnackBar(content: Text(l10n.settingsResetToDefaults)),
               );
             },
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
-          // Enable/Disable toggle
-          _buildSection(
-            context,
-            title: AppLocalizations.of(context)!.general,
+          SettingsSection(
+            icon: Icons.toggle_on_outlined,
+            title: l10n.general,
             children: [
-              SwitchListTile(
-                title: Text(AppLocalizations.of(context)!.enableTranslation),
-                subtitle: Text(AppLocalizations.of(context)!
-                    .translateMessagesAutomatically),
+              SettingsSwitchTile(
+                icon: Icons.translate,
+                title: l10n.enableTranslation,
+                subtitle: l10n.translateMessagesAutomatically,
                 value: settings.enabled,
                 onChanged: (value) {
                   ref
@@ -51,10 +49,10 @@ class TranslationSettingsScreen extends ConsumerWidget {
                       .setEnabled(value);
                 },
               ),
-              SwitchListTile(
-                title: Text(AppLocalizations.of(context)!.translateAiResponses),
-                subtitle:
-                    Text(AppLocalizations.of(context)!.translateAiResponses),
+              SettingsSwitchTile(
+                icon: Icons.smart_toy_outlined,
+                title: l10n.translateAiResponses,
+                subtitle: l10n.translateAiResponses,
                 value: settings.autoTranslateIncoming,
                 onChanged: settings.enabled
                     ? (value) {
@@ -64,11 +62,10 @@ class TranslationSettingsScreen extends ConsumerWidget {
                       }
                     : null,
               ),
-              SwitchListTile(
-                title:
-                    Text(AppLocalizations.of(context)!.translateUserMessages),
-                subtitle:
-                    Text(AppLocalizations.of(context)!.translateUserMessages),
+              SettingsSwitchTile(
+                icon: Icons.person_outline,
+                title: l10n.translateUserMessages,
+                subtitle: l10n.translateUserMessages,
                 value: settings.autoTranslateOutgoing,
                 onChanged: settings.enabled
                     ? (value) {
@@ -78,10 +75,12 @@ class TranslationSettingsScreen extends ConsumerWidget {
                       }
                     : null,
               ),
-              SwitchListTile(
-                title: Text(l10n.showOriginal),
-                subtitle: Text(l10n.showOriginalDescription),
+              SettingsSwitchTile(
+                icon: Icons.visibility_outlined,
+                title: l10n.showOriginal,
+                subtitle: l10n.showOriginalDescription,
                 value: settings.showOriginal,
+                showDivider: false,
                 onChanged: settings.enabled
                     ? (value) {
                         ref
@@ -92,201 +91,153 @@ class TranslationSettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Provider selection
-          _buildSection(
-            context,
-            title: AppLocalizations.of(context)!.provider,
+          SettingsSection(
+            icon: Icons.cloud_outlined,
+            title: l10n.provider,
             children: [
-              ListTile(
-                title: Text(AppLocalizations.of(context)!.translationProvider),
-                subtitle: Text(settings.provider.displayName),
-                trailing: DropdownButton<TranslationProvider>(
-                  value: settings.provider,
-                  onChanged: settings.enabled
-                      ? (value) {
-                          if (value != null) {
-                            ref
-                                .read(translationSettingsProvider.notifier)
-                                .setProvider(value);
-                          }
-                        }
-                      : null,
-                  items: TranslationProvider.values.map((provider) {
-                    return DropdownMenuItem(
+              SettingsChoiceTile<TranslationProvider>(
+                icon: Icons.translate,
+                title: l10n.translationProvider,
+                selected: settings.provider,
+                enabled: settings.enabled,
+                choices: [
+                  for (final provider in TranslationProvider.values)
+                    SettingsChoice(
                       value: provider,
-                      child: Text(provider.displayName),
-                    );
-                  }).toList(),
-                ),
+                      label: provider.displayName,
+                    ),
+                ],
+                valueLabel: settings.provider.displayName,
+                showDivider: settings.provider != TranslationProvider.libre,
+                onSelected: (value) {
+                  ref
+                      .read(translationSettingsProvider.notifier)
+                      .setProvider(value);
+                },
               ),
-              if (settings.provider != TranslationProvider.libre) ...[
-                ListTile(
-                  title: Text(AppLocalizations.of(context)!.apiKey),
-                  subtitle: Text(
-                    settings.apiKey?.isNotEmpty == true
-                        ? '••••••••${settings.apiKey!.substring(settings.apiKey!.length - 4)}'
-                        : AppLocalizations.of(context)!.notConfigured,
-                  ),
-                  trailing: const Icon(Icons.edit),
+              if (settings.provider != TranslationProvider.libre)
+                SettingsListTile(
+                  icon: Icons.key_outlined,
+                  title: l10n.apiKey,
+                  subtitle: settings.apiKey?.isNotEmpty == true
+                      ? '••••••••${settings.apiKey!.substring(settings.apiKey!.length - 4)}'
+                      : l10n.notConfigured,
+                  showDivider: false,
+                  trailing: Icon(Icons.edit,
+                      color: scheme.onSurfaceVariant, size: 20),
+                  enabled: settings.enabled,
                   onTap: settings.enabled
                       ? () => _showApiKeyDialog(context, ref, settings)
                       : null,
                 ),
-              ],
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Language selection
-          _buildSection(
-            context,
-            title: AppLocalizations.of(context)!.language,
+          SettingsSection(
+            icon: Icons.language,
+            title: l10n.language,
             children: [
-              // Source language
-              ListTile(
-                title: Text(AppLocalizations.of(context)!.sourceLanguage),
-                subtitle: Text(
-                  _translationLanguageName(settings.sourceLanguage, l10n),
-                ),
-                trailing: DropdownButton<String>(
-                  value: settings.sourceLanguage,
-                  onChanged: settings.enabled
-                      ? (value) {
-                          if (value != null) {
-                            ref
-                                .read(translationSettingsProvider.notifier)
-                                .setSourceLanguage(value);
-                          }
-                        }
-                      : null,
-                  items: TranslationLanguage.supportedLanguages.map((lang) {
-                    return DropdownMenuItem(
+              SettingsChoiceTile<String>(
+                icon: Icons.input,
+                title: l10n.sourceLanguage,
+                selected: settings.sourceLanguage,
+                enabled: settings.enabled,
+                choices: [
+                  for (final lang in TranslationLanguage.supportedLanguages)
+                    SettingsChoice(
                       value: lang.code,
-                      child: Text(_translationLanguageName(lang.code, l10n)),
-                    );
-                  }).toList(),
+                      label: _translationLanguageName(lang.code, l10n),
+                    ),
+                ],
+                valueLabel:
+                    _translationLanguageName(settings.sourceLanguage, l10n),
+                onSelected: (value) {
+                  ref
+                      .read(translationSettingsProvider.notifier)
+                      .setSourceLanguage(value);
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Center(
+                  child: IconButton(
+                    icon: const Icon(Icons.swap_vert),
+                    tooltip: l10n.swapLanguages,
+                    onPressed:
+                        settings.enabled && settings.sourceLanguage != 'auto'
+                            ? () {
+                                ref
+                                    .read(translationSettingsProvider.notifier)
+                                    .swapLanguages();
+                              }
+                            : null,
+                  ),
                 ),
               ),
-
-              // Swap button
-              Center(
-                child: IconButton(
-                  icon: const Icon(Icons.swap_vert),
-                  tooltip: l10n.swapLanguages,
-                  onPressed:
-                      settings.enabled && settings.sourceLanguage != 'auto'
-                          ? () {
-                              ref
-                                  .read(translationSettingsProvider.notifier)
-                                  .swapLanguages();
-                            }
-                          : null,
-                ),
-              ),
-
-              // Target language
-              ListTile(
-                title: Text(AppLocalizations.of(context)!.targetLanguage),
-                subtitle: Text(
-                  _translationLanguageName(settings.targetLanguage, l10n),
-                ),
-                trailing: DropdownButton<String>(
-                  value: settings.targetLanguage,
-                  onChanged: settings.enabled
-                      ? (value) {
-                          if (value != null) {
-                            ref
-                                .read(translationSettingsProvider.notifier)
-                                .setTargetLanguage(value);
-                          }
-                        }
-                      : null,
-                  items: TranslationLanguage.targetLanguages.map((lang) {
-                    return DropdownMenuItem(
+              SettingsChoiceTile<String>(
+                icon: Icons.output,
+                title: l10n.targetLanguage,
+                selected: settings.targetLanguage,
+                enabled: settings.enabled,
+                choices: [
+                  for (final lang in TranslationLanguage.targetLanguages)
+                    SettingsChoice(
                       value: lang.code,
-                      child: Text(_translationLanguageName(lang.code, l10n)),
-                    );
-                  }).toList(),
-                ),
+                      label: _translationLanguageName(lang.code, l10n),
+                    ),
+                ],
+                valueLabel:
+                    _translationLanguageName(settings.targetLanguage, l10n),
+                showDivider: false,
+                onSelected: (value) {
+                  ref
+                      .read(translationSettingsProvider.notifier)
+                      .setTargetLanguage(value);
+                },
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Test section
-          _buildSection(
-            context,
-            title: AppLocalizations.of(context)!.test,
+          SettingsSection(
+            icon: Icons.play_arrow_outlined,
+            title: l10n.test,
             children: [
               _TranslationTestWidget(enabled: settings.enabled),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Info section
-          _buildSection(
-            context,
-            title: AppLocalizations.of(context)!.information,
+          SettingsSection(
+            icon: Icons.info_outline,
+            title: l10n.information,
             children: [
-              ListTile(
-                leading:
-                    const Icon(Icons.info_outline, color: AppTheme.accentColor),
-                title: Text(l10n.aboutTranslation),
-                subtitle: Text(l10n.aboutTranslationDescription),
+              SettingsListTile(
+                icon: Icons.info_outline,
+                title: l10n.aboutTranslation,
+                subtitle: l10n.aboutTranslationDescription,
+                showDivider: settings.provider == TranslationProvider.google ||
+                    settings.provider == TranslationProvider.deepl ||
+                    settings.provider == TranslationProvider.libre,
               ),
               if (settings.provider == TranslationProvider.google)
-                ListTile(
-                  leading: const Icon(Icons.cloud, color: AppTheme.textMuted),
-                  title: Text(l10n.googleTranslate),
-                  subtitle: Text(l10n.googleTranslateDescription),
+                SettingsListTile(
+                  icon: Icons.cloud,
+                  title: l10n.googleTranslate,
+                  subtitle: l10n.googleTranslateDescription,
+                  showDivider: false,
                 ),
               if (settings.provider == TranslationProvider.deepl)
-                ListTile(
-                  leading: const Icon(Icons.cloud, color: AppTheme.textMuted),
-                  title: Text(l10n.deepL),
-                  subtitle: Text(l10n.deepLDescription),
+                SettingsListTile(
+                  icon: Icons.cloud,
+                  title: l10n.deepL,
+                  subtitle: l10n.deepLDescription,
+                  showDivider: false,
                 ),
               if (settings.provider == TranslationProvider.libre)
-                ListTile(
-                  leading: const Icon(Icons.public, color: AppTheme.textMuted),
-                  title: Text(l10n.libreTranslate),
-                  subtitle: Text(l10n.libreTranslateDescription),
+                SettingsListTile(
+                  icon: Icons.public,
+                  title: l10n.libreTranslate,
+                  subtitle: l10n.libreTranslateDescription,
+                  showDivider: false,
                 ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSection(
-    BuildContext context, {
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Card(
-      color: AppTheme.darkCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.accentColor,
-              ),
-            ),
-          ),
-          ...children,
         ],
       ),
     );
@@ -299,20 +250,19 @@ class TranslationSettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-            '${settings.provider.displayName} ${AppLocalizations.of(context)!.apiKey}'),
+        title: Text('${settings.provider.displayName} ${AppLocalizations.of(context).apiKey}'),
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
-            labelText: AppLocalizations.of(context)!.apiKey,
-            hintText: AppLocalizations.of(context)!.enterApiKey,
+            labelText: AppLocalizations.of(context).apiKey,
+            hintText: AppLocalizations.of(context).enterApiKey,
           ),
           obscureText: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -321,7 +271,7 @@ class TranslationSettingsScreen extends ConsumerWidget {
                   .setApiKey(controller.text);
               Navigator.pop(context);
             },
-            child: Text(AppLocalizations.of(context)!.save),
+            child: Text(AppLocalizations.of(context).save),
           ),
         ],
       ),
@@ -362,8 +312,8 @@ class _TranslationTestWidgetState
           TextField(
             controller: _controller,
             decoration: InputDecoration(
-              labelText: AppLocalizations.of(context)!.enterTextToTokenize,
-              hintText: AppLocalizations.of(context)!.enterTextToTokenize,
+              labelText: AppLocalizations.of(context).enterTextToTokenize,
+              hintText: AppLocalizations.of(context).enterTextToTokenize,
               border: const OutlineInputBorder(),
             ),
             maxLines: 3,
@@ -385,7 +335,7 @@ class _TranslationTestWidgetState
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.translate),
-            label: Text(AppLocalizations.of(context)!.translation),
+            label: Text(AppLocalizations.of(context).translation),
           ),
           if (translationState.result != null) ...[
             const SizedBox(height: 16),

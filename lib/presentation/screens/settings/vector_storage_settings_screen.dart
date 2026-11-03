@@ -8,6 +8,7 @@ import 'package:native_tavern/presentation/providers/vector_storage_providers.da
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Settings screen for Vector Storage / RAG
 class VectorStorageSettingsScreen extends ConsumerWidget {
@@ -31,25 +32,30 @@ class VectorStorageSettingsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: SettingsPageBody(
         children: [
-          // Enable toggle
-          SwitchListTile(
-            title: Text(l10n.enableRag),
-            subtitle: Text(l10n.retrievalAugmentedGeneration),
-            value: settings.enabled,
-            onChanged: (value) {
-              ref
-                  .read(vectorStorageSettingsProvider.notifier)
-                  .setEnabled(value);
-            },
+          SettingsSection(
+            icon: Icons.storage,
+            title: l10n.vectorStorageRag,
+            children: [
+              SettingsSwitchTile(
+                icon: Icons.auto_awesome,
+                title: l10n.enableRag,
+                subtitle: l10n.retrievalAugmentedGeneration,
+                value: settings.enabled,
+                showDivider: false,
+                onChanged: (value) {
+                  ref
+                      .read(vectorStorageSettingsProvider.notifier)
+                      .setEnabled(value);
+                },
+              ),
+            ],
           ),
-          const Divider(height: 32),
-
-          // Collections section
-          _buildSectionHeader(context, l10n.collections),
-          const SizedBox(height: 8),
+          SettingsSection(
+            icon: Icons.folder_outlined,
+            title: l10n.collections,
+            children: [
           _CollectionsSection(
             collections: collections,
             activeCollectionId: settings.activeCollectionId,
@@ -65,231 +71,226 @@ class VectorStorageSettingsScreen extends ConsumerWidget {
             onExportCollection: (id) => _exportCollection(context, ref, id),
             onImportCollection: () => _importCollection(context, ref),
           ),
-
-          const Divider(height: 32),
-
-          // Search settings
-          _buildSectionHeader(context, l10n.searchSettings),
-          const SizedBox(height: 16),
-
-          // Top K slider
-          ListTile(
-            title: Text(l10n.topKResults),
-            subtitle: Text(l10n.topKResultsDescription(settings.topK)),
-            trailing: SizedBox(
-              width: 150,
-              child: Slider(
+            ],
+          ),
+          SettingsSection(
+            icon: Icons.search,
+            title: l10n.searchSettings,
+            children: [
+              SettingsSliderTile(
+                icon: Icons.filter_list,
+                title: l10n.topKResults,
+                subtitle: l10n.topKResultsDescription(settings.topK),
                 value: settings.topK.toDouble(),
                 min: 1,
                 max: 20,
                 divisions: 19,
-                label: settings.topK.toString(),
-                onChanged: settings.enabled
-                    ? (value) {
-                        ref
-                            .read(vectorStorageSettingsProvider.notifier)
-                            .setTopK(value.round());
-                      }
-                    : null,
+                valueLabel: settings.topK.toString(),
+                enabled: settings.enabled,
+                onChanged: (value) {
+                  ref
+                      .read(vectorStorageSettingsProvider.notifier)
+                      .setTopK(value.round());
+                },
               ),
-            ),
-          ),
-
-          // Similarity threshold slider
-          ListTile(
-            title: Text(l10n.similarityThreshold),
-            subtitle: Text(l10n.minimumPercent(
-              (settings.similarityThreshold * 100).toStringAsFixed(0),
-            )),
-            trailing: SizedBox(
-              width: 150,
-              child: Slider(
+              SettingsSliderTile(
+                icon: Icons.percent,
+                title: l10n.similarityThreshold,
+                subtitle: l10n.minimumPercent(
+                  (settings.similarityThreshold * 100).toStringAsFixed(0),
+                ),
                 value: settings.similarityThreshold,
                 min: 0,
                 max: 1,
                 divisions: 20,
-                label:
+                valueLabel:
                     '${(settings.similarityThreshold * 100).toStringAsFixed(0)}%',
+                enabled: settings.enabled,
+                showDivider: false,
+                onChanged: (value) {
+                  ref
+                      .read(vectorStorageSettingsProvider.notifier)
+                      .setSimilarityThreshold(value);
+                },
+              ),
+            ],
+          ),
+          SettingsSection(
+            icon: Icons.hub_outlined,
+            title: l10n.embeddingProvider,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.link),
+                  label: Text(l10n.useCurrentChatConnection),
+                  onPressed: settings.enabled &&
+                          chatConfig.apiUrl.trim().isNotEmpty &&
+                          chatConfig.apiKey.trim().isNotEmpty
+                      ? () {
+                          ref
+                              .read(vectorStorageSettingsProvider.notifier)
+                              .useChatConnection(
+                                endpoint: chatConfig.apiUrl,
+                                apiKey: chatConfig.apiKey,
+                              );
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(l10n.chatConnectionAppliedToEmbeddings),
+                          ));
+                        }
+                      : null,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: DropdownButtonFormField<EmbeddingProvider>(
+                  value: settings.embeddingProvider,
+                  decoration: InputDecoration(
+                    labelText: l10n.provider,
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: EmbeddingProvider.values.map((provider) {
+                    return DropdownMenuItem(
+                      value: provider,
+                      child: Text(provider.displayName),
+                    );
+                  }).toList(),
+                  onChanged: settings.enabled
+                      ? (provider) {
+                          if (provider != null) {
+                            ref
+                                .read(vectorStorageSettingsProvider.notifier)
+                                .setEmbeddingProvider(provider);
+                          }
+                        }
+                      : null,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: TextFormField(
+                  key: ValueKey(
+                      'embedding-model-${settings.embeddingProvider.name}-${settings.embeddingModel}'),
+                  initialValue: settings.embeddingModel ??
+                      settings.embeddingProvider.defaultModel,
+                  decoration: InputDecoration(
+                    labelText: l10n.model,
+                    border: const OutlineInputBorder(),
+                  ),
+                  enabled: settings.enabled,
+                  onChanged: (value) {
+                    ref
+                        .read(vectorStorageSettingsProvider.notifier)
+                        .setEmbeddingModel(value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: TextFormField(
+                  key: ValueKey(
+                      'embedding-endpoint-${settings.embeddingProvider.name}-${settings.embeddingEndpoint}'),
+                  initialValue: settings.embeddingEndpoint ??
+                      settings.embeddingProvider.defaultEndpoint,
+                  decoration: InputDecoration(
+                    labelText: l10n.apiEndpoint,
+                    border: const OutlineInputBorder(),
+                  ),
+                  enabled: settings.enabled,
+                  onChanged: (value) {
+                    ref
+                        .read(vectorStorageSettingsProvider.notifier)
+                        .setEmbeddingEndpoint(value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: TextFormField(
+                  key: ValueKey(
+                      'embedding-key-${settings.embeddingProvider.name}-${settings.embeddingApiKey?.isNotEmpty ?? false}'),
+                  initialValue: settings.embeddingApiKey ?? '',
+                  decoration: InputDecoration(
+                    labelText: l10n.apiKey,
+                    border: const OutlineInputBorder(),
+                  ),
+                  obscureText: true,
+                  enabled: settings.enabled,
+                  onChanged: (value) {
+                    ref
+                        .read(vectorStorageSettingsProvider.notifier)
+                        .setEmbeddingApiKey(value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: FilledButton.icon(
+                  icon: const Icon(Icons.auto_fix_high),
+                  label: Text(l10n.embedPendingDocuments),
+                  onPressed:
+                      settings.enabled && settings.activeCollectionId != null
+                          ? () async {
+                              final messenger = ScaffoldMessenger.of(context);
+                              final l10n = AppLocalizations.of(context);
+                              try {
+                                final count = await ref
+                                    .read(embedCollectionProvider)(
+                                        settings.activeCollectionId!);
+                                messenger.showSnackBar(SnackBar(
+                                    content: Text(count > 0
+                                        ? l10n.embeddedDocuments('$count')
+                                        : l10n.allDocumentsEmbedded)));
+                              } catch (e) {
+                                messenger.showSnackBar(SnackBar(
+                                    content:
+                                        Text(l10n.embeddingFailed('$e'))));
+                              }
+                            }
+                          : null,
+                ),
+              ),
+            ],
+          ),
+          SettingsSection(
+            icon: Icons.integration_instructions_outlined,
+            title: l10n.promptIntegration,
+            children: [
+              SettingsSwitchTile(
+                icon: Icons.add_box_outlined,
+                title: l10n.includeInPrompt,
+                subtitle: l10n.automaticallyAddContext,
+                value: settings.includeInPrompt,
                 onChanged: settings.enabled
                     ? (value) {
                         ref
                             .read(vectorStorageSettingsProvider.notifier)
-                            .setSimilarityThreshold(value);
+                            .setIncludeInPrompt(value);
                       }
                     : null,
               ),
-            ),
-          ),
-
-          const Divider(height: 32),
-
-          // Embedding settings
-          _buildSectionHeader(context, l10n.embeddingProvider),
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            icon: const Icon(Icons.link),
-            label: Text(AppLocalizations.of(context).useCurrentChatConnection),
-            onPressed: settings.enabled &&
-                    chatConfig.apiUrl.trim().isNotEmpty &&
-                    chatConfig.apiKey.trim().isNotEmpty
-                ? () {
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: TextFormField(
+                  initialValue: settings.promptTemplate,
+                  decoration: InputDecoration(
+                    labelText: l10n.promptTemplate,
+                    hintText: l10n.useContextPlaceholder('{{context}}'),
+                    border: const OutlineInputBorder(),
+                  ),
+                  maxLines: 5,
+                  enabled: settings.enabled && settings.includeInPrompt,
+                  onChanged: (value) {
                     ref
                         .read(vectorStorageSettingsProvider.notifier)
-                        .useChatConnection(
-                          endpoint: chatConfig.apiUrl,
-                          apiKey: chatConfig.apiKey,
-                        );
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(AppLocalizations.of(context)
-                          .chatConnectionAppliedToEmbeddings),
-                    ));
-                  }
-                : null,
+                        .setPromptTemplate(value);
+                  },
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<EmbeddingProvider>(
-            value: settings.embeddingProvider,
-            decoration: InputDecoration(
-              labelText: l10n.provider,
-              border: const OutlineInputBorder(),
-            ),
-            items: EmbeddingProvider.values.map((provider) {
-              return DropdownMenuItem(
-                value: provider,
-                child: Text(provider.displayName),
-              );
-            }).toList(),
-            onChanged: settings.enabled
-                ? (provider) {
-                    if (provider != null) {
-                      ref
-                          .read(vectorStorageSettingsProvider.notifier)
-                          .setEmbeddingProvider(provider);
-                    }
-                  }
-                : null,
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            key: ValueKey(
-                'embedding-model-${settings.embeddingProvider.name}-${settings.embeddingModel}'),
-            initialValue: settings.embeddingModel ??
-                settings.embeddingProvider.defaultModel,
-            decoration: InputDecoration(
-              labelText: l10n.model,
-              border: const OutlineInputBorder(),
-            ),
-            enabled: settings.enabled,
-            onChanged: (value) {
-              ref
-                  .read(vectorStorageSettingsProvider.notifier)
-                  .setEmbeddingModel(value);
-            },
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            key: ValueKey(
-                'embedding-endpoint-${settings.embeddingProvider.name}-${settings.embeddingEndpoint}'),
-            initialValue: settings.embeddingEndpoint ??
-                settings.embeddingProvider.defaultEndpoint,
-            decoration: InputDecoration(
-              labelText: AppLocalizations.of(context).apiEndpoint,
-              border: const OutlineInputBorder(),
-            ),
-            enabled: settings.enabled,
-            onChanged: (value) {
-              ref
-                  .read(vectorStorageSettingsProvider.notifier)
-                  .setEmbeddingEndpoint(value);
-            },
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            key: ValueKey(
-                'embedding-key-${settings.embeddingProvider.name}-${settings.embeddingApiKey?.isNotEmpty ?? false}'),
-            initialValue: settings.embeddingApiKey ?? '',
-            decoration: InputDecoration(
-              labelText: AppLocalizations.of(context).apiKey,
-              border: const OutlineInputBorder(),
-            ),
-            obscureText: true,
-            enabled: settings.enabled,
-            onChanged: (value) {
-              ref
-                  .read(vectorStorageSettingsProvider.notifier)
-                  .setEmbeddingApiKey(value);
-            },
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            icon: const Icon(Icons.auto_fix_high),
-            label: Text(AppLocalizations.of(context).embedPendingDocuments),
-            onPressed: settings.enabled && settings.activeCollectionId != null
-                ? () async {
-                    final messenger = ScaffoldMessenger.of(context);
-                    final l10n = AppLocalizations.of(context);
-                    try {
-                      final count = await ref.read(embedCollectionProvider)(
-                          settings.activeCollectionId!);
-                      messenger.showSnackBar(SnackBar(
-                          content: Text(count > 0
-                              ? l10n.embeddedDocuments('$count')
-                              : l10n.allDocumentsEmbedded)));
-                    } catch (e) {
-                      messenger.showSnackBar(
-                          SnackBar(content: Text(l10n.embeddingFailed('$e'))));
-                    }
-                  }
-                : null,
-          ),
-
-          const Divider(height: 32),
-
-          // Prompt settings
-          _buildSectionHeader(context, l10n.promptIntegration),
-          const SizedBox(height: 8),
-          SwitchListTile(
-            title: Text(l10n.includeInPrompt),
-            subtitle: Text(l10n.automaticallyAddContext),
-            value: settings.includeInPrompt,
-            onChanged: settings.enabled
-                ? (value) {
-                    ref
-                        .read(vectorStorageSettingsProvider.notifier)
-                        .setIncludeInPrompt(value);
-                  }
-                : null,
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            initialValue: settings.promptTemplate,
-            decoration: InputDecoration(
-              labelText: l10n.promptTemplate,
-              hintText: l10n.useContextPlaceholder('{{context}}'),
-              border: const OutlineInputBorder(),
-            ),
-            maxLines: 5,
-            enabled: settings.enabled && settings.includeInPrompt,
-            onChanged: (value) {
-              ref
-                  .read(vectorStorageSettingsProvider.notifier)
-                  .setPromptTemplate(value);
-            },
-          ),
-
-          const SizedBox(height: 32),
         ],
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppTheme.accentColor,
-            fontWeight: FontWeight.bold,
-          ),
     );
   }
 

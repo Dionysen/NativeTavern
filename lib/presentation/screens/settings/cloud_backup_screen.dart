@@ -8,6 +8,7 @@ import 'package:native_tavern/domain/services/google_drive_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/cloud_backup_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for cloud backup settings (Google Drive & iCloud)
 class CloudBackupScreen extends ConsumerWidget {
@@ -67,11 +68,11 @@ class CloudBackupScreen extends ConsumerWidget {
               ),
             )
           : ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               children: [
                 // Cloud backup info
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.backup_outlined,
                   title: l10n.cloudBackupInfo,
                   children: [
                     ListTile(
@@ -85,8 +86,8 @@ class CloudBackupScreen extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.backup_outlined,
                   title: l10n.backupContents,
                   children: [
                     CheckboxListTile(
@@ -96,50 +97,80 @@ class CloudBackupScreen extends ConsumerWidget {
                       title: Text(l10n.allTextData),
                       subtitle: Text(l10n.allTextDataDescription),
                     ),
-                    SwitchListTile(
+                    SettingsSwitchTile(
+
+                      icon: Icons.account_box_outlined,
+
+                      title: l10n.characterCardImages,
+
+                      subtitle: l10n.characterCardImagesDescription,
+
                       value: settings.includeCharacterImages,
+
                       onChanged: ref
                           .read(cloudBackupSettingsProvider.notifier)
                           .setIncludeCharacterImages,
-                      secondary: const Icon(Icons.account_box_outlined),
-                      title: Text(l10n.characterCardImages),
-                      subtitle: Text(l10n.characterCardImagesDescription),
+
                     ),
-                    SwitchListTile(
+                    SettingsSwitchTile(
+
+                      icon: Icons.public_outlined,
+
+                      title: l10n.worldBookImages,
+
+                      subtitle: l10n.worldBookImagesDescription,
+
                       value: settings.includeWorldInfoImages,
+
                       onChanged: ref
                           .read(cloudBackupSettingsProvider.notifier)
                           .setIncludeWorldInfoImages,
-                      secondary: const Icon(Icons.public_outlined),
-                      title: Text(l10n.worldBookImages),
-                      subtitle: Text(l10n.worldBookImagesDescription),
+
                     ),
-                    SwitchListTile(
+                    SettingsSwitchTile(
+
+                      icon: Icons.photo_library_outlined,
+
+                      title: l10n.conversationImages,
+
+                      subtitle: l10n.conversationImagesDescription,
+
                       value: settings.includeConversationImages,
+
                       onChanged: ref
                           .read(cloudBackupSettingsProvider.notifier)
                           .setIncludeConversationImages,
-                      secondary: const Icon(Icons.photo_library_outlined),
-                      title: Text(l10n.conversationImages),
-                      subtitle: Text(l10n.conversationImagesDescription),
+
                     ),
-                    SwitchListTile(
+                    SettingsSwitchTile(
+
+                      icon: Icons.wallpaper_outlined,
+
+                      title: l10n.backgroundImages,
+
+                      subtitle: l10n.backgroundImagesDescription,
+
                       value: settings.includeBackgrounds,
+
                       onChanged: ref
                           .read(cloudBackupSettingsProvider.notifier)
                           .setIncludeBackgrounds,
-                      secondary: const Icon(Icons.wallpaper_outlined),
-                      title: Text(l10n.backgroundImages),
-                      subtitle: Text(l10n.backgroundImagesDescription),
+
                     ),
-                    SwitchListTile(
+                    SettingsSwitchTile(
+
+                      icon: Icons.view_in_ar_outlined,
+
+                      title: l10n.live2DBackup,
+
+                      subtitle: l10n.live2DModelsBackupDescription,
+
                       value: settings.includeLive2D,
+
                       onChanged: ref
                           .read(cloudBackupSettingsProvider.notifier)
                           .setIncludeLive2D,
-                      secondary: const Icon(Icons.view_in_ar_outlined),
-                      title: Text(l10n.live2DBackup),
-                      subtitle: Text(l10n.live2DModelsBackupDescription),
+
                     ),
                     ListTile(
                       leading: const Icon(Icons.link_outlined),
@@ -153,10 +184,10 @@ class CloudBackupScreen extends ConsumerWidget {
 
                 // iCloud section (iOS/macOS only)
                 if (Platform.isIOS || Platform.isMacOS) ...[
-                  _buildSection(
-                    context: context,
-                    title: 'iCloud',
-                    children: [
+                  SettingsSection(
+                  icon: Icons.backup_outlined,
+                  title: 'iCloud',
+                  children: [
                       iCloudAvailable.when(
                         loading: () => ListTile(
                           leading: const SizedBox(
@@ -221,10 +252,10 @@ class CloudBackupScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
 
                   // iCloud backups list
-                  _buildSection(
-                    context: context,
-                    title: l10n.iCloudBackups,
-                    children: [
+                  SettingsSection(
+                  icon: Icons.backup_outlined,
+                  title: l10n.iCloudBackups,
+                  children: [
                       iCloudBackupsAsync.when(
                         loading: () => const Padding(
                           padding: EdgeInsets.all(32),
@@ -277,8 +308,8 @@ class CloudBackupScreen extends ConsumerWidget {
                 ],
 
                 // Google Drive section
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.backup_outlined,
                   title: 'Google Drive',
                   children: [
                     // Sign in/out section
@@ -337,10 +368,10 @@ class CloudBackupScreen extends ConsumerWidget {
                 // Google Drive backups list (only when signed in)
                 if (isGoogleDriveSignedIn) ...[
                   const SizedBox(height: 16),
-                  _buildSection(
-                    context: context,
-                    title: l10n.googleDriveBackups,
-                    children: [
+                  SettingsSection(
+                  icon: Icons.backup_outlined,
+                  title: l10n.googleDriveBackups,
+                  children: [
                       googleDriveBackupsAsync.when(
                         loading: () => const Padding(
                           padding: EdgeInsets.all(32),
@@ -395,8 +426,8 @@ class CloudBackupScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
 
                 // Restore settings
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.backup_outlined,
                   title: l10n.restoreSettings,
                   children: [
                     ListTile(
@@ -428,8 +459,8 @@ class CloudBackupScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
 
                 // Information section
-                _buildSection(
-                  context: context,
+                SettingsSection(
+                  icon: Icons.backup_outlined,
                   title: l10n.information,
                   children: [
                     ListTile(
@@ -496,32 +527,6 @@ class CloudBackupScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSection({
-    required BuildContext context,
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Card(
-      color: AppTheme.darkCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.accentColor,
-              ),
-            ),
-          ),
-          ...children,
-        ],
-      ),
-    );
-  }
 
   String _formatDateTime(BuildContext context, DateTime dateTime) {
     final l10n = AppLocalizations.of(context);

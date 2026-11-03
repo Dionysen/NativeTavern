@@ -6510,6 +6510,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get themeSlotDark => '暗色';
+
+  @override
+  String get multimedia => '多媒体';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

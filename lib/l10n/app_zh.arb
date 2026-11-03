@@ -2016,5 +2016,6 @@
     }
   },
   "themeSlotLight": "亮色",
-  "themeSlotDark": "暗色"
+  "themeSlotDark": "暗色",
+  "multimedia": "多媒体"
 }

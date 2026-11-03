@@ -6749,4 +6749,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get themeSlotDark => 'Dark';
+
+  @override
+  String get multimedia => 'Multimedia';
 }
