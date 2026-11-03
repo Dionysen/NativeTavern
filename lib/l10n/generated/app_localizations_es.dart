@@ -6564,4 +6564,208 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get aiDataSharingLocalOnlyDescription =>
       'Bloqueado; la IA local sigue disponible';
+
+  @override
+  String get appearanceSectionTitle => 'Appearance';
+
+  @override
+  String get themeModeTitle => 'Theme mode';
+
+  @override
+  String get themeModeSubtitle =>
+      'Choose light, dark, or follow the system appearance.';
+
+  @override
+  String get themeModeSystem => 'System';
+
+  @override
+  String get themeModeLight => 'Light';
+
+  @override
+  String get themeModeDark => 'Dark';
+
+  @override
+  String get uiFontSizeTitle => 'UI font size';
+
+  @override
+  String get uiFontSizeDescription =>
+      'Size of text in settings and the rest of the interface.';
+
+  @override
+  String get cornerRadiusTitle => 'Corner radius';
+
+  @override
+  String get cornerRadiusDescription =>
+      'Shared roundness for buttons, menus, cards, and fields.';
+
+  @override
+  String get barCornerRadiusTitle => 'Bar corner radius';
+
+  @override
+  String get barCornerRadiusDescription =>
+      'Roundness of app bars and floating bars.';
+
+  @override
+  String get chatBubbleCornerRadiusTitle => 'Chat bubble corners';
+
+  @override
+  String get chatBubbleCornerRadiusDescription =>
+      'Roundness of chat message bubbles.';
+
+  @override
+  String get showBordersTitle => 'Show borders';
+
+  @override
+  String get showBordersSubtitle =>
+      'When off, buttons and cards have no outline.';
+
+  @override
+  String get themePresetsSectionTitle => 'Theme colors';
+
+  @override
+  String get themePackRenameTitle => 'Rename theme';
+
+  @override
+  String themePackCopyName(String name) {
+    return '$name copy';
+  }
+
+  @override
+  String get themePackDeleteTitle => 'Delete theme?';
+
+  @override
+  String themePackDeleteBody(String name) {
+    return '“$name” will be removed permanently.';
+  }
+
+  @override
+  String get themeCurrentCustom => 'Current: Custom';
+
+  @override
+  String themeCurrentPreset(String preset) {
+    return 'Current: $preset';
+  }
+
+  @override
+  String get customColorsTitle => 'Custom colors';
+
+  @override
+  String get customColorsSubtitle =>
+      'Adjust colors for the current appearance. Changes apply right away.';
+
+  @override
+  String get restoreDefaultColors => 'Restore defaults';
+
+  @override
+  String get saveAsThemeColor => 'Save as theme';
+
+  @override
+  String get saveThemeColorTitle => 'Save as theme color';
+
+  @override
+  String get saveThemeColorNameLabel => 'Theme name';
+
+  @override
+  String themePackNameDefault(int n) {
+    return 'Theme $n';
+  }
+
+  @override
+  String get themePresetLight => 'Light';
+
+  @override
+  String get themePresetGrey => 'Grey';
+
+  @override
+  String get themePresetSlate => 'Slate';
+
+  @override
+  String get themePresetClaude => 'Claude Code';
+
+  @override
+  String get themePresetMint => 'Mint';
+
+  @override
+  String get themePresetPurple => 'Purple';
+
+  @override
+  String get themePresetHermes => 'Hermes';
+
+  @override
+  String get themePresetOcean => 'Ocean';
+
+  @override
+  String get themePresetDarkModern => 'Dark Modern';
+
+  @override
+  String get tokenEditorSurface => 'App background';
+
+  @override
+  String get tokenSidebarSurface => 'Panel background';
+
+  @override
+  String get tokenControlSurface => 'Buttons and fields';
+
+  @override
+  String get tokenBorder => 'Border';
+
+  @override
+  String get tokenDivider => 'Divider';
+
+  @override
+  String get tokenPrimaryText => 'Primary text';
+
+  @override
+  String get tokenMutedText => 'Muted text';
+
+  @override
+  String get tokenAccent => 'Accent';
+
+  @override
+  String get tokenCursor => 'Cursor';
+
+  @override
+  String get tokenEditorSurfaceDescription => 'Main scaffold background.';
+
+  @override
+  String get tokenSidebarSurfaceDescription =>
+      'Background of side panels and drawers.';
+
+  @override
+  String get tokenControlSurfaceDescription =>
+      'Fill color for fields, menus, and cards.';
+
+  @override
+  String get tokenBorderDescription => 'Outlines around buttons and fields.';
+
+  @override
+  String get tokenDividerDescription => 'List and section separators.';
+
+  @override
+  String get tokenPrimaryTextDescription =>
+      'Default title and body copy color.';
+
+  @override
+  String get tokenMutedTextDescription =>
+      'Softer color for hints and captions.';
+
+  @override
+  String get tokenAccentDescription => 'Highlights and selected items.';
+
+  @override
+  String get tokenCursorDescription => 'Caret color in text fields.';
+
+  @override
+  String get themeColorsSectionTitle => 'Theme colors';
+
+  @override
+  String numberPickerDefaultLabel(String value) {
+    return 'Default $value';
+  }
+
+  @override
+  String get themeSlotLight => 'Light';
+
+  @override
+  String get themeSlotDark => 'Dark';
 }

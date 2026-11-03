@@ -1920,5 +1920,101 @@
   "aiDataSharingAllowedDescription": "已允许向你配置的服务商和端点发送数据",
   "aiDataSharingLocalOnlyDescription": "已阻止；本地 AI 端点仍可使用",
   "imagine": "生图",
-  "fillImagePromptWithAi": "AI 填写提示词"
+  "fillImagePromptWithAi": "AI 填写提示词",
+"appearanceSectionTitle": "外观",
+  "themeModeTitle": "主题模式",
+  "themeModeSubtitle": "选择浅色、深色，或跟随系统外观",
+  "themeModeSystem": "跟随系统",
+  "themeModeLight": "浅色",
+  "themeModeDark": "深色",
+  "uiFontSizeTitle": "UI 字体大小",
+  "uiFontSizeDescription": "设置与界面文字大小",
+  "cornerRadiusTitle": "圆角",
+  "cornerRadiusDescription": "按钮、菜单、卡片与输入框的圆角",
+  "barCornerRadiusTitle": "栏圆角",
+  "barCornerRadiusDescription": "应用栏与浮动栏的圆角",
+  "chatBubbleCornerRadiusTitle": "对话气泡圆角",
+  "chatBubbleCornerRadiusDescription": "聊天消息气泡的圆角",
+  "showBordersTitle": "显示边框",
+  "showBordersSubtitle": "关闭后按钮和卡片没有边框",
+  "themePresetsSectionTitle": "主题颜色",
+  "themePackRenameTitle": "重命名主题",
+  "themePackCopyName": "{name} 副本",
+  "@themePackCopyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "themePackDeleteTitle": "删除主题？",
+  "themePackDeleteBody": "删除「{name}」后无法恢复",
+  "@themePackDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "themeCurrentCustom": "当前：自定义",
+  "themeCurrentPreset": "当前：{preset}",
+  "@themeCurrentPreset": {
+    "placeholders": {
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "customColorsTitle": "自定义颜色",
+  "customColorsSubtitle": "调整当前外观下的各项颜色，修改后立即生效",
+  "restoreDefaultColors": "恢复默认",
+  "saveAsThemeColor": "保存为主题",
+  "saveThemeColorTitle": "保存为主题颜色",
+  "saveThemeColorNameLabel": "主题名称",
+  "themePackNameDefault": "主题{n}",
+  "@themePackNameDefault": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "themePresetLight": "浅色",
+  "themePresetGrey": "灰色",
+  "themePresetSlate": "石板",
+  "themePresetClaude": "Claude Code",
+  "themePresetMint": "薄荷",
+  "themePresetPurple": "紫色",
+  "themePresetHermes": "Hermes",
+  "themePresetOcean": "海洋",
+  "themePresetDarkModern": "深色现代",
+  "tokenEditorSurface": "应用背景",
+  "tokenSidebarSurface": "面板背景",
+  "tokenControlSurface": "按钮和输入框",
+  "tokenBorder": "边框",
+  "tokenDivider": "分割线",
+  "tokenPrimaryText": "主文字",
+  "tokenMutedText": "次要文字",
+  "tokenAccent": "强调色",
+  "tokenCursor": "光标",
+  "tokenEditorSurfaceDescription": "主界面背景色",
+  "tokenSidebarSurfaceDescription": "侧栏与面板背景色",
+  "tokenControlSurfaceDescription": "输入框、菜单与卡片的填充色",
+  "tokenBorderDescription": "按钮和输入框的边框",
+  "tokenDividerDescription": "列表与分区分隔线",
+  "tokenPrimaryTextDescription": "默认标题与正文字色",
+  "tokenMutedTextDescription": "提示与说明文字的较淡色",
+  "tokenAccentDescription": "高亮和选中状态",
+  "tokenCursorDescription": "输入框光标颜色",
+  "themeColorsSectionTitle": "主题颜色",
+  "numberPickerDefaultLabel": "默认 {value}",
+  "@numberPickerDefaultLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "themeSlotLight": "亮色",
+  "themeSlotDark": "暗色"
 }

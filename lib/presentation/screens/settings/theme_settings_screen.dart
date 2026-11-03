@@ -1,669 +1,610 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
-import '../../../data/models/app_theme_config.dart';
-import '../../providers/theme_providers.dart';
-import '../../theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 
-/// Screen for managing app themes
-class ThemeSettingsScreen extends ConsumerWidget {
+import '../../../data/models/theme/app_theme_mode.dart';
+import '../../../data/models/theme/theme_color_pack.dart';
+import '../../../data/models/theme/theme_tokens.dart';
+import '../../../data/models/theme/ui_preferences.dart';
+import '../../providers/theme_providers.dart';
+import '../../theme/native_tavern_theme.dart';
+import '../../widgets/settings/settings_widgets.dart';
+import '../../widgets/settings/theme_color_picker.dart';
+
+/// Theme / appearance settings — layout and spacing aligned with Zephyr.
+class ThemeSettingsScreen extends ConsumerStatefulWidget {
   const ThemeSettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final allThemes = ref.watch(allThemesProvider);
-    final activeThemeId = ref.watch(activeThemeIdProvider);
-    // ignore: unused_local_variable
-    final customThemes = ref.watch(customThemesProvider);
+  ConsumerState<ThemeSettingsScreen> createState() =>
+      _ThemeSettingsScreenState();
+}
 
-    // Separate built-in and custom themes
-    final builtInThemes = allThemes.where((t) => t.isBuiltIn).toList();
-    final userThemes = allThemes.where((t) => !t.isBuiltIn).toList();
+class _ThemeSettingsScreenState extends ConsumerState<ThemeSettingsScreen> {
+  var _customColorsExpanded = false;
+  var _presetsExpanded = false;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.themes),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: AppLocalizations.of(context)!.createCustomTheme,
-            onPressed: () => _showCreateThemeDialog(context, ref),
+  ThemeAppearanceNotifier get _notifier =>
+      ref.read(themeProvider.notifier);
+
+  Future<void> _pickTokenColor(ThemeToken token) async {
+    final l10n = AppLocalizations.of(context);
+    final current = Color(ref.read(themeProvider).tokens.valueOf(token));
+    final next = await showThemeColorPicker(
+      context,
+      initialColor: current,
+      title: _tokenLabel(l10n, token),
+      cancelLabel: l10n.cancel,
+      doneLabel: l10n.done,
+    );
+    if (next == null || !mounted) return;
+    _notifier.updateToken(token, next.toARGB32());
+  }
+
+  Future<void> _saveAsThemeColor() async {
+    final l10n = AppLocalizations.of(context);
+    final notifier = _notifier;
+    final name = await _promptThemeName(
+      title: l10n.saveThemeColorTitle,
+      initialName: l10n.themePackNameDefault(notifier.nextDefaultThemeNumber()),
+    );
+    if (name == null || !mounted) return;
+    notifier.saveCurrentAsTheme(name);
+  }
+
+  Future<String?> _promptThemeName({
+    required String title,
+    required String initialName,
+  }) async {
+    final l10n = AppLocalizations.of(context);
+    final controller = TextEditingController(text: initialName);
+    controller.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: controller.text.length,
+    );
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(labelText: l10n.saveThemeColorNameLabel),
+            onSubmitted: (value) {
+              final trimmed = value.trim();
+              if (trimmed.isEmpty) return;
+              Navigator.of(context).pop(trimmed);
+            },
           ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Built-in themes
-          _buildSectionHeader(
-              context, AppLocalizations.of(context)!.builtInThemes),
-          const SizedBox(height: 12),
-          _buildThemeGrid(context, ref, builtInThemes, activeThemeId),
-
-          if (userThemes.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            _buildSectionHeader(context, 'Custom Themes'),
-            const SizedBox(height: 12),
-            _buildThemeGrid(context, ref, userThemes, activeThemeId,
-                isCustom: true),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                final trimmed = controller.text.trim();
+                if (trimmed.isEmpty) return;
+                Navigator.of(context).pop(trimmed);
+              },
+              child: Text(l10n.save),
+            ),
           ],
-
-          const SizedBox(height: 32),
-
-          // Theme preview
-          _buildSectionHeader(context, 'Preview'),
-          const SizedBox(height: 12),
-          _buildThemePreview(context, ref),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppTheme.accentColor,
-            fontWeight: FontWeight.bold,
-          ),
-    );
-  }
-
-  Widget _buildThemeGrid(
-    BuildContext context,
-    WidgetRef ref,
-    List<AppThemeConfig> themes,
-    String activeThemeId, {
-    bool isCustom = false,
-  }) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 0.85,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: themes.length,
-      itemBuilder: (context, index) {
-        final theme = themes[index];
-        final isActive = theme.id == activeThemeId;
-
-        return _ThemeCard(
-          theme: theme,
-          isActive: isActive,
-          isCustom: isCustom,
-          onTap: () {
-            ref.read(activeThemeIdProvider.notifier).setActiveTheme(theme.id);
-          },
-          onEdit:
-              isCustom ? () => _showEditThemeDialog(context, ref, theme) : null,
-          onDelete: isCustom
-              ? () => _showDeleteConfirmation(context, ref, theme)
-              : null,
         );
       },
     );
+    controller.dispose();
+    return result;
   }
 
-  Widget _buildThemePreview(BuildContext context, WidgetRef ref) {
-    final activeTheme = ref.watch(activeThemeConfigProvider);
+  Future<void> _showCustomPackMenu(ThemeColorPack pack) async {
+    if (pack.isBuiltIn) return;
     final l10n = AppLocalizations.of(context);
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        height: 200,
-        color: activeTheme.background,
-        child: Column(
-          children: [
-            // App bar preview
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: activeTheme.surface,
-              child: Row(
-                children: [
-                  Icon(Icons.arrow_back,
-                      color: activeTheme.textPrimary, size: 20),
-                  const SizedBox(width: 16),
-                  Text(
-                    l10n.chatPreview,
-                    style: TextStyle(
-                      color: activeTheme.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(Icons.more_vert,
-                      color: activeTheme.textPrimary, size: 20),
-                ],
-              ),
-            ),
-            // Chat preview
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Assistant message
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: activeTheme.card,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        l10n.sampleMessage1,
-                        style: TextStyle(
-                            color: activeTheme.textPrimary, fontSize: 13),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // User message
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: activeTheme.accent,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          l10n.sampleMessage2,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // Input preview
-            Container(
-              padding: const EdgeInsets.all(12),
-              color: activeTheme.card,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: activeTheme.background,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        l10n.typeMessage,
-                        style: TextStyle(
-                            color: activeTheme.textSecondary, fontSize: 13),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: activeTheme.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child:
-                        const Icon(Icons.send, color: Colors.white, size: 16),
-                  ),
-                ],
-              ),
-            ),
-          ],
+    final action = await showModalBottomSheet<_PackMenuAction>(
+      context: context,
+      showDragHandle: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(context.appCornerRadius + 4),
         ),
       ),
-    );
-  }
-
-  void _showCreateThemeDialog(BuildContext context, WidgetRef ref) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => _ThemeEditorDialog(
-        onSave: (AppThemeConfig theme) {
-          ref.read(customThemesProvider.notifier).addTheme(theme);
-          ref.read(activeThemeIdProvider.notifier).setActiveTheme(theme.id);
-        },
-      ),
-    );
-  }
-
-  void _showEditThemeDialog(
-      BuildContext context, WidgetRef ref, AppThemeConfig theme) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => _ThemeEditorDialog(
-        theme: theme,
-        onSave: (AppThemeConfig updatedTheme) {
-          ref.read(customThemesProvider.notifier).updateTheme(updatedTheme);
-        },
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(
-      BuildContext context, WidgetRef ref, AppThemeConfig theme) {
-    final l10n = AppLocalizations.of(context);
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteTheme),
-        content: Text(l10n.deleteThemeConfirmation(theme.name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                child: Text(pack.name, style: Theme.of(context).textTheme.titleMedium),
+              ),
+              ListTile(
+                leading: const Icon(Icons.drive_file_rename_outline),
+                title: Text(l10n.rename),
+                onTap: () => Navigator.pop(context, _PackMenuAction.rename),
+              ),
+              ListTile(
+                leading: const Icon(Icons.copy_outlined),
+                title: Text(l10n.copy),
+                onTap: () => Navigator.pop(context, _PackMenuAction.copy),
+              ),
+              ListTile(
+                leading: Icon(Icons.delete_outline,
+                    color: Theme.of(context).colorScheme.error),
+                title: Text(l10n.delete),
+                onTap: () => Navigator.pop(context, _PackMenuAction.delete),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              final activeId = ref.read(activeThemeIdProvider);
-              if (activeId == theme.id) {
-                ref
-                    .read(activeThemeIdProvider.notifier)
-                    .setActiveTheme(BuiltInThemes.defaultDark.id);
-              }
-              ref.read(customThemesProvider.notifier).deleteTheme(theme.id);
-              Navigator.pop(context);
-            },
-            child: Text(l10n.delete),
+        );
+      },
+    );
+    if (action == null || !mounted) return;
+    final notifier = _notifier;
+    switch (action) {
+      case _PackMenuAction.rename:
+        final name = await _promptThemeName(
+          title: l10n.themePackRenameTitle,
+          initialName: pack.name,
+        );
+        if (name == null || !mounted) return;
+        notifier.renameCustomPack(pack.id, name);
+      case _PackMenuAction.copy:
+        notifier.copyCustomPack(pack.id, l10n.themePackCopyName(pack.name));
+      case _PackMenuAction.delete:
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(l10n.themePackDeleteTitle),
+            content: Text(l10n.themePackDeleteBody(pack.name)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(l10n.cancel),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(l10n.delete),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ThemeCard extends StatelessWidget {
-  final AppThemeConfig theme;
-  final bool isActive;
-  final bool isCustom;
-  final VoidCallback onTap;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
-
-  const _ThemeCard({
-    required this.theme,
-    required this.isActive,
-    required this.isCustom,
-    required this.onTap,
-    this.onEdit,
-    this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: isActive
-              ? Border.all(color: AppTheme.accentColor, width: 3)
-              : Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          children: [
-            // Color preview
-            Expanded(
-              child: Container(
-                color: theme.background,
-                child: Column(
-                  children: [
-                    // Top bar
-                    Container(
-                      height: 20,
-                      color: theme.surface,
-                    ),
-                    // Content area
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              height: 16,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                color: theme.card,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
-                            const Spacer(),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Container(
-                                height: 16,
-                                width: 30,
-                                decoration: BoxDecoration(
-                                  color: theme.accent,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Bottom bar
-                    Container(
-                      height: 16,
-                      color: theme.card,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Container(
-                            width: 12,
-                            height: 12,
-                            margin: const EdgeInsets.only(right: 4),
-                            decoration: BoxDecoration(
-                              color: theme.primary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // Name
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              color: AppTheme.darkCard,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      theme.name,
-                      style: const TextStyle(fontSize: 11),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (isActive)
-                    const Icon(Icons.check_circle,
-                        size: 14, color: AppTheme.accentColor),
-                  if (isCustom && !isActive)
-                    AdaptivePopupMenuButton<String>(
-                      padding: EdgeInsets.zero,
-                      iconSize: 14,
-                      icon: const Icon(Icons.more_vert, size: 14),
-                      itemBuilder: (context) => [
-                        PopupMenuItem(value: 'edit', child: Text(l10n.edit)),
-                        PopupMenuItem(
-                            value: 'delete', child: Text(l10n.delete)),
-                      ],
-                      onSelected: (value) {
-                        if (value == 'edit') onEdit?.call();
-                        if (value == 'delete') onDelete?.call();
-                      },
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ThemeEditorDialog extends StatefulWidget {
-  final AppThemeConfig? theme;
-  final void Function(AppThemeConfig) onSave;
-
-  const _ThemeEditorDialog({
-    this.theme,
-    required this.onSave,
-  });
-
-  @override
-  State<_ThemeEditorDialog> createState() => _ThemeEditorDialogState();
-}
-
-class _ThemeEditorDialogState extends State<_ThemeEditorDialog> {
-  late TextEditingController _nameController;
-  late bool _isDark;
-  late String _primaryColor;
-  late String _accentColor;
-  late String _backgroundColor;
-  late String _surfaceColor;
-  late String _cardColor;
-  bool _initializedDefaultName = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final theme = widget.theme ?? BuiltInThemes.defaultDark;
-    _nameController = TextEditingController(text: widget.theme?.name ?? '');
-    _isDark = theme.isDark;
-    _primaryColor = theme.primaryColor;
-    _accentColor = theme.accentColor;
-    _backgroundColor = theme.backgroundColor;
-    _surfaceColor = theme.surfaceColor;
-    _cardColor = theme.cardColor;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (widget.theme == null && !_initializedDefaultName) {
-      _nameController.text = AppLocalizations.of(context).myTheme;
-      _initializedDefaultName = true;
+        );
+        if (confirmed != true || !mounted) return;
+        notifier.deleteCustomPack(pack.id);
     }
   }
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isEditing = widget.theme != null;
     final l10n = AppLocalizations.of(context);
+    final themeState = ref.watch(themeProvider);
+    final packs = themeState.colorPacks;
+    final activePack = themeState.activePack;
+    final activeMatches =
+        activePack != null && activePack.tokens == themeState.tokens;
+    const defaults = UiPreferences.defaults;
+    final currentThemeLabel = activeMatches
+        ? l10n.themeCurrentPreset(_packTitle(l10n, activePack))
+        : l10n.themeCurrentCustom;
 
-    return AlertDialog(
-      title: Text(isEditing ? l10n.editTheme : l10n.createTheme),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: l10n.themeName,
-                border: const OutlineInputBorder(),
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.themes)),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        children: [
+          SettingsSection(
+            icon: Icons.palette_outlined,
+            title: l10n.themeColorsSectionTitle,
+            children: [
+              SettingsChoiceTile<AppThemeMode>(
+                icon: Icons.brightness_6_outlined,
+                title: l10n.themeModeTitle,
+                subtitle: l10n.themeModeSubtitle,
+                selected: themeState.themeMode,
+                choices: [
+                  SettingsChoice(
+                    value: AppThemeMode.system,
+                    label: l10n.themeModeSystem,
+                  ),
+                  SettingsChoice(
+                    value: AppThemeMode.light,
+                    label: l10n.themeModeLight,
+                  ),
+                  SettingsChoice(
+                    value: AppThemeMode.dark,
+                    label: l10n.themeModeDark,
+                  ),
+                ],
+                valueLabel: _themeModeLabel(l10n, themeState.themeMode),
+                onSelected: _notifier.setThemeMode,
               ),
-            ),
-            const SizedBox(height: 16),
-            SwitchListTile(
-              title: Text(l10n.darkMode),
-              value: _isDark,
-              onChanged: (value) => setState(() => _isDark = value),
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 8),
-            _ColorPickerTile(
-              label: l10n.primaryColor,
-              color: _primaryColor,
-              onChanged: (color) => setState(() => _primaryColor = color),
-            ),
-            _ColorPickerTile(
-              label: l10n.accentColor,
-              color: _accentColor,
-              onChanged: (color) => setState(() => _accentColor = color),
-            ),
-            _ColorPickerTile(
-              label: l10n.background,
-              color: _backgroundColor,
-              onChanged: (color) => setState(() => _backgroundColor = color),
-            ),
-            _ColorPickerTile(
-              label: l10n.surface,
-              color: _surfaceColor,
-              onChanged: (color) => setState(() => _surfaceColor = color),
-            ),
-            _ColorPickerTile(
-              label: l10n.card,
-              color: _cardColor,
-              onChanged: (color) => setState(() => _cardColor = color),
-            ),
-          ],
-        ),
+              SettingsListTile(
+                icon: Icons.palette_outlined,
+                title: l10n.themePresetsSectionTitle,
+                subtitle: currentThemeLabel,
+                showDivider: true,
+                trailing: Icon(
+                  _presetsExpanded ? Icons.expand_less : Icons.expand_more,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                onTap: () =>
+                    setState(() => _presetsExpanded = !_presetsExpanded),
+              ),
+              if (_presetsExpanded)
+                _ExpandedSettingsBlock(
+                  children: [
+                    for (var i = 0; i < packs.length; i++)
+                      SettingsListTile(
+                        icon: Icons.style_outlined,
+                        title: _packTitle(l10n, packs[i]),
+                        showDivider: i != packs.length - 1,
+                        trailing: _packTrailing(
+                          context,
+                          l10n,
+                          packId: packs[i].id,
+                          lightPackId: themeState.lightPackId,
+                          darkPackId: themeState.darkPackId,
+                          isActive: activeMatches &&
+                              packs[i].id == themeState.activePackId,
+                        ),
+                        onTap: () => _notifier.applyPack(packs[i].id),
+                        onLongPress: packs[i].isBuiltIn
+                            ? null
+                            : () => _showCustomPackMenu(packs[i]),
+                      ),
+                  ],
+                ),
+              SettingsListTile(
+                icon: Icons.color_lens_outlined,
+                title: l10n.customColorsTitle,
+                subtitle: l10n.customColorsSubtitle,
+                showDivider: _customColorsExpanded,
+                trailing: Icon(
+                  _customColorsExpanded
+                      ? Icons.expand_less
+                      : Icons.expand_more,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                onTap: () => setState(
+                  () => _customColorsExpanded = !_customColorsExpanded,
+                ),
+              ),
+              if (_customColorsExpanded)
+                _ExpandedSettingsBlock(
+                  children: [
+                    for (final token in ThemeToken.values)
+                      SettingsListTile(
+                        icon: Icons.palette_outlined,
+                        title: _tokenLabel(l10n, token),
+                        subtitle: _tokenDescription(l10n, token),
+                        showDivider: true,
+                        onTap: () => _pickTokenColor(token),
+                        trailing: _ColorSwatchButton(
+                          color: Color(themeState.tokens.valueOf(token)),
+                          onTap: () => _pickTokenColor(token),
+                        ),
+                      ),
+                    _CustomColorActions(
+                      onSave: _saveAsThemeColor,
+                      onRestore: _notifier.restoreDefaults,
+                      saveLabel: l10n.saveAsThemeColor,
+                      restoreLabel: l10n.restoreDefaultColors,
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          SettingsSection(
+            icon: Icons.tune,
+            title: l10n.appearanceSectionTitle,
+            children: [
+              SettingsNumberTile(
+                icon: Icons.format_size,
+                title: l10n.uiFontSizeTitle,
+                subtitle: l10n.uiFontSizeDescription,
+                value: themeState.ui.fontSize,
+                min: UiPreferences.minFontSize,
+                max: UiPreferences.maxFontSize,
+                defaultValue: defaults.fontSize,
+                suffix: 'px',
+                divisions: 7,
+                defaultLabelBuilder: l10n.numberPickerDefaultLabel,
+                onChanged: _notifier.updateFontSize,
+              ),
+              SettingsNumberTile(
+                icon: Icons.rounded_corner,
+                title: l10n.cornerRadiusTitle,
+                subtitle: l10n.cornerRadiusDescription,
+                value: themeState.ui.cornerRadius,
+                min: UiPreferences.minCornerRadius,
+                max: UiPreferences.maxCornerRadius,
+                defaultValue: defaults.cornerRadius,
+                suffix: 'px',
+                divisions: 20,
+                defaultLabelBuilder: l10n.numberPickerDefaultLabel,
+                onChanged: _notifier.updateCornerRadius,
+              ),
+              SettingsNumberTile(
+                icon: Icons.crop_landscape,
+                title: l10n.barCornerRadiusTitle,
+                subtitle: l10n.barCornerRadiusDescription,
+                value: themeState.ui.barCornerRadius,
+                min: UiPreferences.minBarCornerRadius,
+                max: UiPreferences.maxBarCornerRadius,
+                defaultValue: defaults.barCornerRadius,
+                suffix: 'px',
+                divisions: 24,
+                defaultLabelBuilder: l10n.numberPickerDefaultLabel,
+                onChanged: _notifier.updateBarCornerRadius,
+              ),
+              SettingsNumberTile(
+                icon: Icons.chat_bubble_outline,
+                title: l10n.chatBubbleCornerRadiusTitle,
+                subtitle: l10n.chatBubbleCornerRadiusDescription,
+                value: themeState.ui.chatBubbleCornerRadius,
+                min: UiPreferences.minChatBubbleCornerRadius,
+                max: UiPreferences.maxChatBubbleCornerRadius,
+                defaultValue: defaults.chatBubbleCornerRadius,
+                suffix: 'px',
+                divisions: 50,
+                defaultLabelBuilder: l10n.numberPickerDefaultLabel,
+                onChanged: _notifier.updateChatBubbleCornerRadius,
+              ),
+              SettingsSwitchTile(
+                icon: Icons.border_style,
+                title: l10n.showBordersTitle,
+                subtitle: l10n.showBordersSubtitle,
+                value: themeState.ui.showBorders,
+                showDivider: false,
+                onChanged: _notifier.updateShowBorders,
+              ),
+            ],
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l10n.cancel),
-        ),
-        FilledButton(
-          onPressed: () {
-            final theme = AppThemeConfig(
-              id: widget.theme?.id ?? const Uuid().v4(),
-              name: _nameController.text.trim(),
-              isDark: _isDark,
-              primaryColor: _primaryColor,
-              accentColor: _accentColor,
-              backgroundColor: _backgroundColor,
-              surfaceColor: _surfaceColor,
-              cardColor: _cardColor,
-              textPrimaryColor: _isDark ? '#FFFFFF' : '#171717',
-              textSecondaryColor: _isDark ? '#A3A3A3' : '#737373',
-              dividerColor: _isDark ? '#404040' : '#E5E5E5',
-              isBuiltIn: false,
-            );
-            widget.onSave(theme);
-            Navigator.pop(context);
-          },
-          child: Text(isEditing ? l10n.save : l10n.create),
-        ),
-      ],
     );
   }
 }
 
-class _ColorPickerTile extends StatelessWidget {
-  final String label;
-  final String color;
-  final void Function(String) onChanged;
+enum _PackMenuAction { rename, copy, delete }
 
-  const _ColorPickerTile({
-    required this.label,
-    required this.color,
-    required this.onChanged,
+class _ExpandedSettingsBlock extends StatelessWidget {
+  const _ExpandedSettingsBlock({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => ColoredBox(
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        ),
+      );
+}
+
+class _CustomColorActions extends StatelessWidget {
+  const _CustomColorActions({
+    required this.onSave,
+    required this.onRestore,
+    required this.saveLabel,
+    required this.restoreLabel,
   });
 
+  final VoidCallback onSave;
+  final VoidCallback onRestore;
+  final String saveLabel;
+  final String restoreLabel;
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Text(label),
-          const Spacer(),
-          GestureDetector(
-            onTap: () => _showColorPicker(context),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppThemeConfig.hexToColor(color),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey),
-              ),
-            ),
-          ),
-        ],
-      ),
+    final scheme = Theme.of(context).colorScheme;
+    final shape = RoundedRectangleBorder(
+      borderRadius: context.appBorderRadius,
     );
-  }
+    ButtonStyle styleFor(Color background) => ButtonStyle(
+          shape: WidgetStatePropertyAll(shape),
+          minimumSize: const WidgetStatePropertyAll(Size(0, 44)),
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: 8),
+          ),
+          backgroundColor: WidgetStatePropertyAll(background),
+          foregroundColor: WidgetStatePropertyAll(scheme.onSurface),
+          visualDensity: VisualDensity.standard,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        );
 
-  void _showColorPicker(BuildContext context) {
-    final controller = TextEditingController(text: color);
-    final l10n = AppLocalizations.of(context);
+    Widget button({
+      required VoidCallback onPressed,
+      required Color background,
+      required IconData icon,
+      required String label,
+    }) =>
+        FilledButton(
+          onPressed: onPressed,
+          style: styleFor(background),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        );
 
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.selectThemeColor(label)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+      child: SizedBox(
+        height: 44,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                labelText: l10n.hexColor,
-                hintText: '#RRGGBB',
-                border: const OutlineInputBorder(),
+            Expanded(
+              child: button(
+                onPressed: onSave,
+                background: scheme.secondaryContainer,
+                icon: Icons.bookmark_add_outlined,
+                label: saveLabel,
               ),
             ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                '#6366F1',
-                '#8B5CF6',
-                '#EC4899',
-                '#EF4444',
-                '#F97316',
-                '#EAB308',
-                '#22C55E',
-                '#06B6D4',
-                '#3B82F6',
-                '#000000',
-                '#1A1A1A',
-                '#FFFFFF',
-              ]
-                  .map((c) => GestureDetector(
-                        onTap: () {
-                          controller.text = c;
-                        },
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: AppThemeConfig.hexToColor(c),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: Colors.grey),
-                          ),
-                        ),
-                      ))
-                  .toList(),
+            const SizedBox(width: 8),
+            Expanded(
+              child: button(
+                onPressed: onRestore,
+                background: scheme.surfaceContainerHighest,
+                icon: Icons.restart_alt,
+                label: restoreLabel,
+              ),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              onChanged(controller.text);
-              Navigator.pop(context);
-            },
-            child: Text(l10n.apply),
-          ),
-        ],
       ),
     );
   }
 }
+
+class _ColorSwatchButton extends StatelessWidget {
+  const _ColorSwatchButton({required this.color, required this.onTap});
+
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final radius = context.appBorderRadius;
+    return Material(
+      color: color,
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: BorderSide(color: theme.colorScheme.outline),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        child: const SizedBox(width: 28, height: 28),
+      ),
+    );
+  }
+}
+
+class _ThemeSlotBadge extends StatelessWidget {
+  const _ThemeSlotBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.labelSmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+      height: 1,
+    );
+    final fontSize = style?.fontSize ?? 11;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      alignment: Alignment.center,
+      decoration: ShapeDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        shape: const StadiumBorder(),
+      ),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: style,
+        strutStyle: StrutStyle(
+          fontSize: fontSize,
+          height: 1,
+          forceStrutHeight: true,
+          leading: 0,
+        ),
+      ),
+    );
+  }
+}
+
+Widget? _packTrailing(
+  BuildContext context,
+  AppLocalizations l10n, {
+  required String packId,
+  required String lightPackId,
+  required String darkPackId,
+  required bool isActive,
+}) {
+  final theme = Theme.of(context);
+  final roles = <String>[
+    if (packId == lightPackId) l10n.themeSlotLight,
+    if (packId == darkPackId) l10n.themeSlotDark,
+  ];
+  if (roles.isEmpty && !isActive) return null;
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      for (var i = 0; i < roles.length; i++) ...[
+        if (i > 0) const SizedBox(width: 6),
+        _ThemeSlotBadge(label: roles[i]),
+      ],
+      if (isActive) ...[
+        if (roles.isNotEmpty) const SizedBox(width: 8),
+        Icon(Icons.check, color: theme.colorScheme.primary, size: 20),
+      ],
+    ],
+  );
+}
+
+String _themeModeLabel(AppLocalizations l10n, AppThemeMode mode) =>
+    switch (mode) {
+      AppThemeMode.system => l10n.themeModeSystem,
+      AppThemeMode.light => l10n.themeModeLight,
+      AppThemeMode.dark => l10n.themeModeDark,
+    };
+
+String _packTitle(AppLocalizations l10n, ThemeColorPack pack) {
+  final preset = pack.builtInPreset;
+  if (preset == null) return pack.name;
+  return switch (preset) {
+    ThemePreset.light => l10n.themePresetLight,
+    ThemePreset.grey => l10n.themePresetGrey,
+    ThemePreset.slate => l10n.themePresetSlate,
+    ThemePreset.claude => l10n.themePresetClaude,
+    ThemePreset.mint => l10n.themePresetMint,
+    ThemePreset.purple => l10n.themePresetPurple,
+    ThemePreset.hermes => l10n.themePresetHermes,
+    ThemePreset.ocean => l10n.themePresetOcean,
+    ThemePreset.darkModern => l10n.themePresetDarkModern,
+  };
+}
+
+String _tokenLabel(AppLocalizations l10n, ThemeToken token) => switch (token) {
+      ThemeToken.editorSurface => l10n.tokenEditorSurface,
+      ThemeToken.sidebarSurface => l10n.tokenSidebarSurface,
+      ThemeToken.controlSurface => l10n.tokenControlSurface,
+      ThemeToken.border => l10n.tokenBorder,
+      ThemeToken.divider => l10n.tokenDivider,
+      ThemeToken.primaryText => l10n.tokenPrimaryText,
+      ThemeToken.mutedText => l10n.tokenMutedText,
+      ThemeToken.accent => l10n.tokenAccent,
+      ThemeToken.cursor => l10n.tokenCursor,
+    };
+
+String _tokenDescription(AppLocalizations l10n, ThemeToken token) =>
+    switch (token) {
+      ThemeToken.editorSurface => l10n.tokenEditorSurfaceDescription,
+      ThemeToken.sidebarSurface => l10n.tokenSidebarSurfaceDescription,
+      ThemeToken.controlSurface => l10n.tokenControlSurfaceDescription,
+      ThemeToken.border => l10n.tokenBorderDescription,
+      ThemeToken.divider => l10n.tokenDividerDescription,
+      ThemeToken.primaryText => l10n.tokenPrimaryTextDescription,
+      ThemeToken.mutedText => l10n.tokenMutedTextDescription,
+      ThemeToken.accent => l10n.tokenAccentDescription,
+      ThemeToken.cursor => l10n.tokenCursorDescription,
+    };

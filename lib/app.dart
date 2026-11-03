@@ -38,7 +38,7 @@ class _NativeTavernAppState extends ConsumerState<NativeTavernApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(appRouterProvider);
-    final activeTheme = ref.watch(activeThemeConfigProvider);
+    final themeState = ref.watch(themeProvider);
     final locale = ref.watch(localeProvider);
     final settings = ref.watch(appSettingsProvider);
     ref.watch(worldRuntimeProvider);
@@ -57,9 +57,9 @@ class _NativeTavernAppState extends ConsumerState<NativeTavernApp> {
     return MaterialApp.router(
       title: 'NativeTavern',
       debugShowCheckedModeBanner: false,
-      theme: activeTheme.toThemeData(),
-      darkTheme: activeTheme.toThemeData(),
-      themeMode: activeTheme.isDark ? ThemeMode.dark : ThemeMode.light,
+      theme: themeState.themeData,
+      darkTheme: themeState.themeData,
+      themeMode: themeState.materialThemeMode,
       routerConfig: router,
       locale: locale,
       localizationsDelegates: const [
@@ -70,6 +70,14 @@ class _NativeTavernAppState extends ConsumerState<NativeTavernApp> {
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) {
+        // Keep system mode in sync with OS brightness without rebuilding during build.
+        final brightness = MediaQuery.platformBrightnessOf(context);
+        final notifier = ref.read(themeProvider.notifier);
+        if (themeState.platformBrightness != brightness) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            notifier.syncPlatformBrightness(brightness);
+          });
+        }
         return ValueListenableBuilder(
           valueListenable: router.routeInformationProvider,
           builder: (context, route, content) => AppViewport(

@@ -11654,6 +11654,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Blocked; local AI endpoints remain available'**
   String get aiDataSharingLocalOnlyDescription;
+
+  /// No description provided for @appearanceSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearanceSectionTitle;
+
+  /// No description provided for @themeModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme mode'**
+  String get themeModeTitle;
+
+  /// No description provided for @themeModeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose light, dark, or follow the system appearance.'**
+  String get themeModeSubtitle;
+
+  /// No description provided for @themeModeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeModeSystem;
+
+  /// No description provided for @themeModeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeModeLight;
+
+  /// No description provided for @themeModeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeModeDark;
+
+  /// No description provided for @uiFontSizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'UI font size'**
+  String get uiFontSizeTitle;
+
+  /// No description provided for @uiFontSizeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Size of text in settings and the rest of the interface.'**
+  String get uiFontSizeDescription;
+
+  /// No description provided for @cornerRadiusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Corner radius'**
+  String get cornerRadiusTitle;
+
+  /// No description provided for @cornerRadiusDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared roundness for buttons, menus, cards, and fields.'**
+  String get cornerRadiusDescription;
+
+  /// No description provided for @barCornerRadiusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar corner radius'**
+  String get barCornerRadiusTitle;
+
+  /// No description provided for @barCornerRadiusDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Roundness of app bars and floating bars.'**
+  String get barCornerRadiusDescription;
+
+  /// No description provided for @chatBubbleCornerRadiusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat bubble corners'**
+  String get chatBubbleCornerRadiusTitle;
+
+  /// No description provided for @chatBubbleCornerRadiusDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Roundness of chat message bubbles.'**
+  String get chatBubbleCornerRadiusDescription;
+
+  /// No description provided for @showBordersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show borders'**
+  String get showBordersTitle;
+
+  /// No description provided for @showBordersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When off, buttons and cards have no outline.'**
+  String get showBordersSubtitle;
+
+  /// No description provided for @themePresetsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme colors'**
+  String get themePresetsSectionTitle;
+
+  /// No description provided for @themePackRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename theme'**
+  String get themePackRenameTitle;
+
+  /// No description provided for @themePackCopyName.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} copy'**
+  String themePackCopyName(String name);
+
+  /// No description provided for @themePackDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete theme?'**
+  String get themePackDeleteTitle;
+
+  /// No description provided for @themePackDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” will be removed permanently.'**
+  String themePackDeleteBody(String name);
+
+  /// No description provided for @themeCurrentCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Current: Custom'**
+  String get themeCurrentCustom;
+
+  /// No description provided for @themeCurrentPreset.
+  ///
+  /// In en, this message translates to:
+  /// **'Current: {preset}'**
+  String themeCurrentPreset(String preset);
+
+  /// No description provided for @customColorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom colors'**
+  String get customColorsTitle;
+
+  /// No description provided for @customColorsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust colors for the current appearance. Changes apply right away.'**
+  String get customColorsSubtitle;
+
+  /// No description provided for @restoreDefaultColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore defaults'**
+  String get restoreDefaultColors;
+
+  /// No description provided for @saveAsThemeColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as theme'**
+  String get saveAsThemeColor;
+
+  /// No description provided for @saveThemeColorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as theme color'**
+  String get saveThemeColorTitle;
+
+  /// No description provided for @saveThemeColorNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme name'**
+  String get saveThemeColorNameLabel;
+
+  /// No description provided for @themePackNameDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme {n}'**
+  String themePackNameDefault(int n);
+
+  /// No description provided for @themePresetLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themePresetLight;
+
+  /// No description provided for @themePresetGrey.
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get themePresetGrey;
+
+  /// No description provided for @themePresetSlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Slate'**
+  String get themePresetSlate;
+
+  /// No description provided for @themePresetClaude.
+  ///
+  /// In en, this message translates to:
+  /// **'Claude Code'**
+  String get themePresetClaude;
+
+  /// No description provided for @themePresetMint.
+  ///
+  /// In en, this message translates to:
+  /// **'Mint'**
+  String get themePresetMint;
+
+  /// No description provided for @themePresetPurple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get themePresetPurple;
+
+  /// No description provided for @themePresetHermes.
+  ///
+  /// In en, this message translates to:
+  /// **'Hermes'**
+  String get themePresetHermes;
+
+  /// No description provided for @themePresetOcean.
+  ///
+  /// In en, this message translates to:
+  /// **'Ocean'**
+  String get themePresetOcean;
+
+  /// No description provided for @themePresetDarkModern.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Modern'**
+  String get themePresetDarkModern;
+
+  /// No description provided for @tokenEditorSurface.
+  ///
+  /// In en, this message translates to:
+  /// **'App background'**
+  String get tokenEditorSurface;
+
+  /// No description provided for @tokenSidebarSurface.
+  ///
+  /// In en, this message translates to:
+  /// **'Panel background'**
+  String get tokenSidebarSurface;
+
+  /// No description provided for @tokenControlSurface.
+  ///
+  /// In en, this message translates to:
+  /// **'Buttons and fields'**
+  String get tokenControlSurface;
+
+  /// No description provided for @tokenBorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Border'**
+  String get tokenBorder;
+
+  /// No description provided for @tokenDivider.
+  ///
+  /// In en, this message translates to:
+  /// **'Divider'**
+  String get tokenDivider;
+
+  /// No description provided for @tokenPrimaryText.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary text'**
+  String get tokenPrimaryText;
+
+  /// No description provided for @tokenMutedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Muted text'**
+  String get tokenMutedText;
+
+  /// No description provided for @tokenAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent'**
+  String get tokenAccent;
+
+  /// No description provided for @tokenCursor.
+  ///
+  /// In en, this message translates to:
+  /// **'Cursor'**
+  String get tokenCursor;
+
+  /// No description provided for @tokenEditorSurfaceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Main scaffold background.'**
+  String get tokenEditorSurfaceDescription;
+
+  /// No description provided for @tokenSidebarSurfaceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Background of side panels and drawers.'**
+  String get tokenSidebarSurfaceDescription;
+
+  /// No description provided for @tokenControlSurfaceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill color for fields, menus, and cards.'**
+  String get tokenControlSurfaceDescription;
+
+  /// No description provided for @tokenBorderDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Outlines around buttons and fields.'**
+  String get tokenBorderDescription;
+
+  /// No description provided for @tokenDividerDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'List and section separators.'**
+  String get tokenDividerDescription;
+
+  /// No description provided for @tokenPrimaryTextDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Default title and body copy color.'**
+  String get tokenPrimaryTextDescription;
+
+  /// No description provided for @tokenMutedTextDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Softer color for hints and captions.'**
+  String get tokenMutedTextDescription;
+
+  /// No description provided for @tokenAccentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlights and selected items.'**
+  String get tokenAccentDescription;
+
+  /// No description provided for @tokenCursorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Caret color in text fields.'**
+  String get tokenCursorDescription;
+
+  /// No description provided for @themeColorsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme colors'**
+  String get themeColorsSectionTitle;
+
+  /// No description provided for @numberPickerDefaultLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default {value}'**
+  String numberPickerDefaultLabel(String value);
+
+  /// No description provided for @themeSlotLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeSlotLight;
+
+  /// No description provided for @themeSlotDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeSlotDark;
 }
 
 class _AppLocalizationsDelegate

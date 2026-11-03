@@ -6332,5 +6332,101 @@
   "useLocalAiOnly": "Use local AI only",
   "aiDataSharingSettingsTitle": "Remote AI data sharing",
   "aiDataSharingAllowedDescription": "Allowed for providers and endpoints you configure",
-  "aiDataSharingLocalOnlyDescription": "Blocked; local AI endpoints remain available"
+  "aiDataSharingLocalOnlyDescription": "Blocked; local AI endpoints remain available",
+"appearanceSectionTitle": "Appearance",
+  "themeModeTitle": "Theme mode",
+  "themeModeSubtitle": "Choose light, dark, or follow the system appearance.",
+  "themeModeSystem": "System",
+  "themeModeLight": "Light",
+  "themeModeDark": "Dark",
+  "uiFontSizeTitle": "UI font size",
+  "uiFontSizeDescription": "Size of text in settings and the rest of the interface.",
+  "cornerRadiusTitle": "Corner radius",
+  "cornerRadiusDescription": "Shared roundness for buttons, menus, cards, and fields.",
+  "barCornerRadiusTitle": "Bar corner radius",
+  "barCornerRadiusDescription": "Roundness of app bars and floating bars.",
+  "chatBubbleCornerRadiusTitle": "Chat bubble corners",
+  "chatBubbleCornerRadiusDescription": "Roundness of chat message bubbles.",
+  "showBordersTitle": "Show borders",
+  "showBordersSubtitle": "When off, buttons and cards have no outline.",
+  "themePresetsSectionTitle": "Theme colors",
+  "themePackRenameTitle": "Rename theme",
+  "themePackCopyName": "{name} copy",
+  "@themePackCopyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "themePackDeleteTitle": "Delete theme?",
+  "themePackDeleteBody": "“{name}” will be removed permanently.",
+  "@themePackDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "themeCurrentCustom": "Current: Custom",
+  "themeCurrentPreset": "Current: {preset}",
+  "@themeCurrentPreset": {
+    "placeholders": {
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "customColorsTitle": "Custom colors",
+  "customColorsSubtitle": "Adjust colors for the current appearance. Changes apply right away.",
+  "restoreDefaultColors": "Restore defaults",
+  "saveAsThemeColor": "Save as theme",
+  "saveThemeColorTitle": "Save as theme color",
+  "saveThemeColorNameLabel": "Theme name",
+  "themePackNameDefault": "Theme {n}",
+  "@themePackNameDefault": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "themePresetLight": "Light",
+  "themePresetGrey": "Grey",
+  "themePresetSlate": "Slate",
+  "themePresetClaude": "Claude Code",
+  "themePresetMint": "Mint",
+  "themePresetPurple": "Purple",
+  "themePresetHermes": "Hermes",
+  "themePresetOcean": "Ocean",
+  "themePresetDarkModern": "Dark Modern",
+  "tokenEditorSurface": "App background",
+  "tokenSidebarSurface": "Panel background",
+  "tokenControlSurface": "Buttons and fields",
+  "tokenBorder": "Border",
+  "tokenDivider": "Divider",
+  "tokenPrimaryText": "Primary text",
+  "tokenMutedText": "Muted text",
+  "tokenAccent": "Accent",
+  "tokenCursor": "Cursor",
+  "tokenEditorSurfaceDescription": "Main scaffold background.",
+  "tokenSidebarSurfaceDescription": "Background of side panels and drawers.",
+  "tokenControlSurfaceDescription": "Fill color for fields, menus, and cards.",
+  "tokenBorderDescription": "Outlines around buttons and fields.",
+  "tokenDividerDescription": "List and section separators.",
+  "tokenPrimaryTextDescription": "Default title and body copy color.",
+  "tokenMutedTextDescription": "Softer color for hints and captions.",
+  "tokenAccentDescription": "Highlights and selected items.",
+  "tokenCursorDescription": "Caret color in text fields.",
+  "themeColorsSectionTitle": "Theme colors",
+  "numberPickerDefaultLabel": "Default {value}",
+  "@numberPickerDefaultLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "themeSlotLight": "Light",
+  "themeSlotDark": "Dark"
 }

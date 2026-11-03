@@ -6317,6 +6317,199 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiDataSharingLocalOnlyDescription => '已阻止；本地 AI 端点仍可使用';
+
+  @override
+  String get appearanceSectionTitle => '外观';
+
+  @override
+  String get themeModeTitle => '主题模式';
+
+  @override
+  String get themeModeSubtitle => '选择浅色、深色，或跟随系统外观';
+
+  @override
+  String get themeModeSystem => '跟随系统';
+
+  @override
+  String get themeModeLight => '浅色';
+
+  @override
+  String get themeModeDark => '深色';
+
+  @override
+  String get uiFontSizeTitle => 'UI 字体大小';
+
+  @override
+  String get uiFontSizeDescription => '设置与界面文字大小';
+
+  @override
+  String get cornerRadiusTitle => '圆角';
+
+  @override
+  String get cornerRadiusDescription => '按钮、菜单、卡片与输入框的圆角';
+
+  @override
+  String get barCornerRadiusTitle => '栏圆角';
+
+  @override
+  String get barCornerRadiusDescription => '应用栏与浮动栏的圆角';
+
+  @override
+  String get chatBubbleCornerRadiusTitle => '对话气泡圆角';
+
+  @override
+  String get chatBubbleCornerRadiusDescription => '聊天消息气泡的圆角';
+
+  @override
+  String get showBordersTitle => '显示边框';
+
+  @override
+  String get showBordersSubtitle => '关闭后按钮和卡片没有边框';
+
+  @override
+  String get themePresetsSectionTitle => '主题颜色';
+
+  @override
+  String get themePackRenameTitle => '重命名主题';
+
+  @override
+  String themePackCopyName(String name) {
+    return '$name 副本';
+  }
+
+  @override
+  String get themePackDeleteTitle => '删除主题？';
+
+  @override
+  String themePackDeleteBody(String name) {
+    return '删除「$name」后无法恢复';
+  }
+
+  @override
+  String get themeCurrentCustom => '当前：自定义';
+
+  @override
+  String themeCurrentPreset(String preset) {
+    return '当前：$preset';
+  }
+
+  @override
+  String get customColorsTitle => '自定义颜色';
+
+  @override
+  String get customColorsSubtitle => '调整当前外观下的各项颜色，修改后立即生效';
+
+  @override
+  String get restoreDefaultColors => '恢复默认';
+
+  @override
+  String get saveAsThemeColor => '保存为主题';
+
+  @override
+  String get saveThemeColorTitle => '保存为主题颜色';
+
+  @override
+  String get saveThemeColorNameLabel => '主题名称';
+
+  @override
+  String themePackNameDefault(int n) {
+    return '主题$n';
+  }
+
+  @override
+  String get themePresetLight => '浅色';
+
+  @override
+  String get themePresetGrey => '灰色';
+
+  @override
+  String get themePresetSlate => '石板';
+
+  @override
+  String get themePresetClaude => 'Claude Code';
+
+  @override
+  String get themePresetMint => '薄荷';
+
+  @override
+  String get themePresetPurple => '紫色';
+
+  @override
+  String get themePresetHermes => 'Hermes';
+
+  @override
+  String get themePresetOcean => '海洋';
+
+  @override
+  String get themePresetDarkModern => '深色现代';
+
+  @override
+  String get tokenEditorSurface => '应用背景';
+
+  @override
+  String get tokenSidebarSurface => '面板背景';
+
+  @override
+  String get tokenControlSurface => '按钮和输入框';
+
+  @override
+  String get tokenBorder => '边框';
+
+  @override
+  String get tokenDivider => '分割线';
+
+  @override
+  String get tokenPrimaryText => '主文字';
+
+  @override
+  String get tokenMutedText => '次要文字';
+
+  @override
+  String get tokenAccent => '强调色';
+
+  @override
+  String get tokenCursor => '光标';
+
+  @override
+  String get tokenEditorSurfaceDescription => '主界面背景色';
+
+  @override
+  String get tokenSidebarSurfaceDescription => '侧栏与面板背景色';
+
+  @override
+  String get tokenControlSurfaceDescription => '输入框、菜单与卡片的填充色';
+
+  @override
+  String get tokenBorderDescription => '按钮和输入框的边框';
+
+  @override
+  String get tokenDividerDescription => '列表与分区分隔线';
+
+  @override
+  String get tokenPrimaryTextDescription => '默认标题与正文字色';
+
+  @override
+  String get tokenMutedTextDescription => '提示与说明文字的较淡色';
+
+  @override
+  String get tokenAccentDescription => '高亮和选中状态';
+
+  @override
+  String get tokenCursorDescription => '输入框光标颜色';
+
+  @override
+  String get themeColorsSectionTitle => '主题颜色';
+
+  @override
+  String numberPickerDefaultLabel(String value) {
+    return '默认 $value';
+  }
+
+  @override
+  String get themeSlotLight => '亮色';
+
+  @override
+  String get themeSlotDark => '暗色';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

@@ -37,6 +37,7 @@ import 'package:native_tavern/presentation/providers/tts_providers.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/chat/author_note_dialog.dart';
 import 'package:native_tavern/presentation/widgets/chat/bookmark_dialog.dart';
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
@@ -3451,19 +3452,23 @@ class _MessageBubbleState extends State<_MessageBubble> {
         ],
       );
     } else {
-      // Classic bubble mode
+      // Classic bubble mode — colors / radius follow active theme tokens.
+      final scheme = Theme.of(context).colorScheme;
+      final bubbleRadius = context.appChatBubbleCornerRadius;
+      final userColor = scheme.primary;
+      final assistantColor = scheme.surfaceContainerHigh;
       return BoxDecoration(
         color: isUser
             ? (widget.hasBackground
-                ? AppTheme.accentColor.withValues(alpha: widget.bubbleOpacity)
-                : AppTheme.accentColor)
+                ? userColor.withValues(alpha: widget.bubbleOpacity)
+                : userColor)
             : (widget.hasBackground
-                ? AppTheme.darkCard.withValues(alpha: widget.bubbleOpacity)
-                : AppTheme.darkCard),
-        borderRadius: BorderRadius.circular(16),
+                ? assistantColor.withValues(alpha: widget.bubbleOpacity)
+                : assistantColor),
+        borderRadius: BorderRadius.circular(bubbleRadius),
         border: widget.highlighted
             ? Border.all(
-                color: Theme.of(context).colorScheme.tertiary,
+                color: scheme.tertiary,
                 width: 3,
               )
             : null,
