@@ -38,6 +38,7 @@ import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/chat/author_note_dialog.dart';
 import 'package:native_tavern/presentation/widgets/chat/bookmark_dialog.dart';
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
@@ -1057,14 +1058,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _handleChatTTSChange(previous, next);
     });
 
-    return AdaptiveScaffold(
-      appBar: _buildAppBar(chatState),
-      body: ChatBackgroundWidget(
-        characterId: chatState.character?.id,
-        child: SafeArea(
-          top: false,
-          bottom: false,
-          child: LayoutBuilder(builder: (context, constraints) {
+    return PopScope(
+      canPop: !chatState.hasUnsavedChanges,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop || !chatState.hasUnsavedChanges) return;
+        final shouldLeave = await _handleUnsavedLeave();
+        if (shouldLeave && mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: AdaptiveScaffold(
+        appBar: _buildAppBar(chatState),
+        body: ChatBackgroundWidget(
+          characterId: chatState.character?.id,
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: LayoutBuilder(builder: (context, constraints) {
             final contentWidth = math.min(constraints.maxWidth, 900.0);
             return Align(
               alignment: Alignment.topCenter,
@@ -1145,6 +1155,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           }),
         ),
       ),
+    ),
     );
   }
 
@@ -1246,6 +1257,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ],
       ),
       actions: [
+        if (chatState.hasUnsavedChanges)
+          IconButton(
+            icon: const Icon(Icons.save_outlined),
+            tooltip: l10n.saveChat,
+            onPressed: _saveChatManually,
+          ),
         ChatTTSPlaybackControls(ownerId: widget.chatId),
         if (kRpgProductUiEnabled)
           IconButton(
@@ -1452,6 +1469,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 contentPadding: EdgeInsets.zero,
               ),
             ),
+            if (chatState.hasUnsavedChanges ||
+                !ref.read(appSettingsProvider).autoSaveChats)
+              PopupMenuItem(
+                value: 'save_chat',
+                child: ListTile(
+                  leading: Icon(
+                    Icons.save_outlined,
+                    color: chatState.hasUnsavedChanges
+                        ? AppTheme.accentColor
+                        : null,
+                  ),
+                  title: Text(l10n.saveChat),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
             PopupMenuItem(
               value: 'export',
               child: ListTile(
@@ -1538,6 +1570,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 break;
               case 'memory_usage':
                 _showMemoryUsage();
+                break;
+              case 'save_chat':
+                await _saveChatManually();
                 break;
               case 'export':
                 _showExportDialog();
@@ -2215,56 +2250,29 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  void _showDeleteConfirmation(String messageId) {
+  Future<void> _showDeleteConfirmation(String messageId) async {
     final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteMessage),
-        content: Text(l10n.deleteMessageConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(activeChatProvider.notifier).deleteMessage(messageId);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
+    final confirmed = await confirmDestructiveAction(
+      context,
+      ref,
+      title: l10n.deleteMessage,
+      body: l10n.deleteMessageConfirmation,
     );
+    if (!confirmed || !mounted) return;
+    ref.read(activeChatProvider.notifier).deleteMessage(messageId);
   }
 
-  void _showDeleteAndAfterConfirmation(String messageId) {
+  Future<void> _showDeleteAndAfterConfirmation(String messageId) async {
     final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteMessages),
-        content: Text(l10n.deleteMessagesConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ref
-                  .read(activeChatProvider.notifier)
-                  .deleteMessageAndAfter(messageId);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.deleteAll),
-          ),
-        ],
-      ),
+    final confirmed = await confirmDestructiveAction(
+      context,
+      ref,
+      title: l10n.deleteMessages,
+      body: l10n.deleteMessagesConfirmation,
+      confirmLabel: l10n.deleteAll,
     );
+    if (!confirmed || !mounted) return;
+    ref.read(activeChatProvider.notifier).deleteMessageAndAfter(messageId);
   }
 
   Widget _buildQuickReplyBar(ActiveChatState chatState) {
@@ -3179,38 +3187,75 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  void _showClearConfirmation() {
+  Future<void> _showClearConfirmation() async {
     final l10n = AppLocalizations.of(context);
-    showDialog(
+    final confirmed = await confirmDestructiveAction(
+      context,
+      ref,
+      title: l10n.clearMessages,
+      body: l10n.clearMessagesConfirmation,
+      confirmLabel: l10n.clear,
+    );
+    if (!confirmed || !mounted) return;
+    try {
+      await ref.read(activeChatProvider.notifier).clearMessages();
+      if (mounted) {
+        _showSnackBar(l10n.messagesCleared);
+      }
+    } catch (error) {
+      if (mounted) {
+        _showSnackBar('${l10n.error}: $error');
+      }
+    }
+  }
+
+  Future<void> _saveChatManually() async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      await ref.read(activeChatProvider.notifier).saveChatNow();
+      if (mounted) {
+        _showSnackBar(l10n.chatSaved);
+      }
+    } catch (error) {
+      if (mounted) {
+        _showSnackBar('${l10n.error}: $error');
+      }
+    }
+  }
+
+  Future<bool> _handleUnsavedLeave() async {
+    final l10n = AppLocalizations.of(context);
+    final action = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.clearMessages),
-        content: Text(l10n.clearMessagesConfirmation),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.unsavedChatTitle),
+        content: Text(l10n.unsavedChatBody),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext, 'cancel'),
             child: Text(l10n.cancel),
           ),
           TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                await ref.read(activeChatProvider.notifier).clearMessages();
-                if (mounted) {
-                  _showSnackBar(l10n.messagesCleared);
-                }
-              } catch (error) {
-                if (mounted) {
-                  _showSnackBar('${l10n.error}: $error');
-                }
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.clear),
+            onPressed: () => Navigator.pop(dialogContext, 'discard'),
+            child: Text(l10n.discardChanges),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, 'save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
     );
+
+    if (action == 'save') {
+      await ref.read(activeChatProvider.notifier).saveChatNow();
+      return true;
+    }
+    if (action == 'discard') {
+      await ref.read(activeChatProvider.notifier).discardUnsavedChanges();
+      return true;
+    }
+    return false;
   }
 }
 

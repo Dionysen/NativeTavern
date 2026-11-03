@@ -6770,4 +6770,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get multimedia => 'Multimedia';
+
+  @override
+  String get confirmBeforeDeleteTitle => 'Confirm before delete';
+
+  @override
+  String get confirmBeforeDeleteSubtitle =>
+      'Ask for confirmation before deleting chats, characters, messages, and similar items.';
+
+  @override
+  String get autoSaveChatsTitle => 'Auto-save chats';
+
+  @override
+  String get autoSaveChatsSubtitle =>
+      'When on, chat changes are saved immediately. When off, save manually or when leaving the chat.';
+
+  @override
+  String get saveChat => 'Save chat';
+
+  @override
+  String get chatSaved => 'Chat saved';
+
+  @override
+  String get unsavedChatTitle => 'Unsaved changes';
+
+  @override
+  String get unsavedChatBody =>
+      'This chat has unsaved changes. Save them before leaving?';
+
+  @override
+  String get discardChanges => 'Discard';
 }

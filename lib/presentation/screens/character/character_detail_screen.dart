@@ -10,6 +10,7 @@ import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
+import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 
 /// Character detail screen
@@ -132,26 +133,14 @@ class _CharacterDetailContentState
 
   Future<void> _confirmDelete(Character character) async {
     final l10n = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteCharacter),
-        content: Text(l10n.deleteCharacterConfirmationSimple(character.name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
+    final confirmed = await confirmDestructiveAction(
+      context,
+      ref,
+      title: l10n.deleteCharacter,
+      body: l10n.deleteCharacterConfirmationSimple(character.name),
     );
 
-    if (confirmed == true && mounted) {
+    if (confirmed && mounted) {
       try {
         // Use characterListProvider.notifier to ensure list gets refreshed
         await ref

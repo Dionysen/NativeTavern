@@ -6513,6 +6513,33 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get multimedia => '多媒体';
+
+  @override
+  String get confirmBeforeDeleteTitle => '删除前确认';
+
+  @override
+  String get confirmBeforeDeleteSubtitle => '删除聊天、角色、消息等项目前先弹出确认。';
+
+  @override
+  String get autoSaveChatsTitle => '自动保存聊天';
+
+  @override
+  String get autoSaveChatsSubtitle => '开启后每次改动立即保存；关闭后需手动保存，或在离开聊天时处理未保存改动。';
+
+  @override
+  String get saveChat => '保存聊天';
+
+  @override
+  String get chatSaved => '聊天已保存';
+
+  @override
+  String get unsavedChatTitle => '未保存的更改';
+
+  @override
+  String get unsavedChatBody => '当前聊天有未保存的更改，离开前要保存吗？';
+
+  @override
+  String get discardChanges => '丢弃';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

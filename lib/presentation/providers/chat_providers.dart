@@ -61,6 +61,8 @@ class ActiveChatState {
   final String? error;
   final String?
       currentResponderId; // Which character is currently responding (group chat)
+  /// True when [autoSaveChats] is off and memory differs from disk.
+  final bool hasUnsavedChanges;
 
   const ActiveChatState({
     this.chat,
@@ -75,6 +77,7 @@ class ActiveChatState {
     this.generatingMessageIds = const {},
     this.error,
     this.currentResponderId,
+    this.hasUnsavedChanges = false,
   });
 
   /// Check if this is a group chat
@@ -103,6 +106,7 @@ class ActiveChatState {
     String? error,
     String? currentResponderId,
     bool clearCurrentResponder = false,
+    bool? hasUnsavedChanges,
   }) {
     return ActiveChatState(
       chat: chat ?? this.chat,
@@ -120,6 +124,7 @@ class ActiveChatState {
       currentResponderId: clearCurrentResponder
           ? null
           : (currentResponderId ?? this.currentResponderId),
+      hasUnsavedChanges: hasUnsavedChanges ?? this.hasUnsavedChanges,
     );
   }
 }
@@ -185,6 +190,64 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     return lookupAppLocalizations(
       isSupported ? requestedLocale : const Locale('en'),
     );
+  }
+
+  bool get _autoSaveChats => _ref.read(appSettingsProvider).autoSaveChats;
+
+  void _markUnsaved() {
+    if (!state.hasUnsavedChanges) {
+      state = state.copyWith(hasUnsavedChanges: true);
+    }
+  }
+
+  Future<void> _persistAddMessage(ChatMessage message) async {
+    if (_autoSaveChats) {
+      await _chatRepository.addMessage(message);
+    } else {
+      _markUnsaved();
+    }
+  }
+
+  Future<void> _persistUpdateMessage(ChatMessage message) async {
+    if (_autoSaveChats) {
+      await _chatRepository.updateMessage(message);
+    } else {
+      _markUnsaved();
+    }
+  }
+
+  Future<void> _persistDeleteMessage(String messageId) async {
+    if (_autoSaveChats) {
+      await _chatRepository.deleteMessage(messageId);
+    } else {
+      _markUnsaved();
+    }
+  }
+
+  /// Flush in-memory chat messages to disk (used when auto-save is off).
+  Future<void> saveChatNow() async {
+    final chat = state.chat;
+    if (chat == null) return;
+
+    await _chatRepository.clearMessages(chat.id);
+    for (final message in state.messages) {
+      await _chatRepository.addMessage(message);
+    }
+    final updatedChat = await _chatRepository.updateChat(
+      chat.copyWith(updatedAt: DateTime.now()),
+    );
+    state = state.copyWith(
+      chat: updatedChat,
+      hasUnsavedChanges: false,
+    );
+    _ref.invalidate(allChatsProvider);
+  }
+
+  /// Drop in-memory edits and reload the chat from disk.
+  Future<void> discardUnsavedChanges() async {
+    final chatId = state.chat?.id;
+    if (chatId == null) return;
+    await loadChat(chatId, discardUnsaved: true);
   }
 
   Future<Persona?> _resolvePersona({
@@ -501,7 +564,17 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
   }
 
   /// Load a chat by ID
-  Future<void> loadChat(String chatId) async {
+  Future<void> loadChat(
+    String chatId, {
+    bool discardUnsaved = false,
+  }) async {
+    if (!discardUnsaved &&
+        state.hasUnsavedChanges &&
+        state.chat != null &&
+        state.chat!.id != chatId) {
+      await saveChatNow();
+    }
+
     final loadGeneration = ++_chatLoadGeneration;
     state = const ActiveChatState(isLoading: true);
 
@@ -560,6 +633,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
           hasOlderMessages: messages.length < messageCount,
           isLoadingOlderMessages: false,
           isLoading: false,
+          hasUnsavedChanges: false,
         );
       } else {
         if (loadGeneration != _chatLoadGeneration) return;
@@ -572,6 +646,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
           hasOlderMessages: messages.length < messageCount,
           isLoadingOlderMessages: false,
           isLoading: false,
+          hasUnsavedChanges: false,
         );
       }
     } catch (e, stackTrace) {
@@ -707,7 +782,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     if (!changed) return messages;
 
     final updated = first.copyWith(swipes: existingSwipes);
-    await _chatRepository.updateMessage(updated);
+    await _persistUpdateMessage(updated);
     return [updated, ...messages.skip(1)];
   }
 
@@ -934,7 +1009,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       attachments: attachments,
     );
 
-    await _chatRepository.addMessage(userMessage);
+    await _persistAddMessage(userMessage);
     state = state.copyWith(
       messages: [...state.messages, userMessage],
       isGenerating: true,
@@ -1019,7 +1094,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         reasoning: finalReasoning,
         reasoningSwipes: finalReasoning != null ? [finalReasoning] : null,
       );
-      await _chatRepository.addMessage(finalMessage);
+      await _persistAddMessage(finalMessage);
 
       state = state.copyWith(isGenerating: false);
       await _restoreRecentMessagesPage();
@@ -1145,7 +1220,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
             newReasoningSwipes.isNotEmpty ? newReasoningSwipes : null,
         metadata: responseMetadata,
       );
-      await _chatRepository.updateMessage(finalMessage);
+      await _persistUpdateMessage(finalMessage);
 
       state = state.copyWith(isGenerating: false);
       await _restoreRecentMessagesPage();
@@ -1173,7 +1248,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       currentSwipeIndex: swipeIndex,
     );
 
-    await _chatRepository.updateMessage(updatedMessage);
+    await _persistUpdateMessage(updatedMessage);
 
     final updatedMessages = List<ChatMessage>.from(state.messages);
     updatedMessages[messageIndex] = updatedMessage;
@@ -1210,7 +1285,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       ),
     );
 
-    await _chatRepository.updateMessage(updatedMessage);
+    await _persistUpdateMessage(updatedMessage);
 
     final updatedMessages = List<ChatMessage>.from(state.messages);
     updatedMessages[messageIndex] = updatedMessage;
@@ -1231,7 +1306,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       swipes: updatedSwipes,
     );
 
-    await _chatRepository.updateMessage(updatedMessage);
+    await _persistUpdateMessage(updatedMessage);
 
     final updatedMessages = List<ChatMessage>.from(state.messages);
     updatedMessages[messageIndex] = updatedMessage;
@@ -1240,7 +1315,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
   /// Delete a message
   Future<void> deleteMessage(String messageId) async {
-    await _chatRepository.deleteMessage(messageId);
+    await _persistDeleteMessage(messageId);
     state = state.copyWith(
       messages: state.messages.where((m) => m.id != messageId).toList(),
     );
@@ -1259,7 +1334,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
     final updatedMessage = message.copyWith(attachments: updatedAttachments);
 
-    await _chatRepository.updateMessage(updatedMessage);
+    await _persistUpdateMessage(updatedMessage);
 
     final updatedMessages = List<ChatMessage>.from(state.messages);
     updatedMessages[messageIndex] = updatedMessage;
@@ -1284,7 +1359,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       swipes: [content],
       attachments: attachments,
     );
-    await _chatRepository.addMessage(message);
+    await _persistAddMessage(message);
     state = state.copyWith(messages: [...state.messages, message]);
     return message;
   }
@@ -1297,7 +1372,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     // Delete all messages from this index onwards
     final messagesToDelete = state.messages.sublist(messageIndex);
     for (final msg in messagesToDelete) {
-      await _chatRepository.deleteMessage(msg.id);
+      await _persistDeleteMessage(msg.id);
     }
 
     state = state.copyWith(messages: state.messages.sublist(0, messageIndex));
@@ -1413,7 +1488,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
             newReasoningSwipes.isNotEmpty ? newReasoningSwipes : null,
         metadata: responseMetadata,
       );
-      await _chatRepository.updateMessage(finalMessage);
+      await _persistUpdateMessage(finalMessage);
 
       state = state.copyWith(isGenerating: false);
       await _restoreRecentMessagesPage();
@@ -1438,7 +1513,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     if (messageIndex < state.messages.length - 1) {
       final messagesToDelete = state.messages.sublist(messageIndex + 1);
       for (final msg in messagesToDelete) {
-        await _chatRepository.deleteMessage(msg.id);
+        await _persistDeleteMessage(msg.id);
       }
       state = state.copyWith(
         messages: state.messages.sublist(0, messageIndex + 1),
@@ -1614,7 +1689,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         reasoning: finalReasoning,
         reasoningSwipes: finalReasoning != null ? [finalReasoning] : null,
       );
-      await _chatRepository.addMessage(finalMessage);
+      await _persistAddMessage(finalMessage);
 
       state = state.copyWith(isGenerating: false);
       await _restoreRecentMessagesPage();
@@ -2820,7 +2895,11 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     final updatedChat = await _chatRepository.updateChat(
       chat.copyWith(summaries: const []),
     );
-    state = state.copyWith(chat: updatedChat, messages: const []);
+    state = state.copyWith(
+      chat: updatedChat,
+      messages: const [],
+      hasUnsavedChanges: false,
+    );
     _ref.invalidate(allChatsProvider);
   }
 
@@ -2842,6 +2921,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     state = state.copyWith(
       chat: updatedChat ?? state.chat,
       messages: updatedMessages,
+      hasUnsavedChanges: false,
     );
 
     return sortedMessages.length;
@@ -2978,7 +3058,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     if (messageIndex < state.messages.length - 1) {
       final messagesToDelete = state.messages.sublist(messageIndex + 1);
       for (final msg in messagesToDelete) {
-        await _chatRepository.deleteMessage(msg.id);
+        await _persistDeleteMessage(msg.id);
       }
 
       state = state.copyWith(
@@ -3025,7 +3105,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       attachments: attachments,
     );
 
-    await _chatRepository.addMessage(userMessage);
+    await _persistAddMessage(userMessage);
     state = state.copyWith(
       messages: [...state.messages, userMessage],
       error: null,
@@ -3428,7 +3508,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         reasoningSwipes: finalReasoning != null ? [finalReasoning] : null,
       );
       _replaceMessage(assistantMessage.id, finalMessage);
-      await _chatRepository.addMessage(finalMessage);
+      await _persistAddMessage(finalMessage);
     } on ChatGenerationCancelledException {
       _removeEmptyMessage(assistantMessage.id);
     } catch (error, stackTrace) {

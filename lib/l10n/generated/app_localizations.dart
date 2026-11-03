@@ -12026,6 +12026,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Multimedia'**
   String get multimedia;
+
+  /// Settings switch title for delete confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm before delete'**
+  String get confirmBeforeDeleteTitle;
+
+  /// Settings switch subtitle for delete confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for confirmation before deleting chats, characters, messages, and similar items.'**
+  String get confirmBeforeDeleteSubtitle;
+
+  /// Settings switch title for auto-saving chats
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-save chats'**
+  String get autoSaveChatsTitle;
+
+  /// Settings switch subtitle for auto-saving chats
+  ///
+  /// In en, this message translates to:
+  /// **'When on, chat changes are saved immediately. When off, save manually or when leaving the chat.'**
+  String get autoSaveChatsSubtitle;
+
+  /// Manual save chat action
+  ///
+  /// In en, this message translates to:
+  /// **'Save chat'**
+  String get saveChat;
+
+  /// SnackBar after manually saving a chat
+  ///
+  /// In en, this message translates to:
+  /// **'Chat saved'**
+  String get chatSaved;
+
+  /// Dialog title when leaving a chat with unsaved changes
+  ///
+  /// In en, this message translates to:
+  /// **'Unsaved changes'**
+  String get unsavedChatTitle;
+
+  /// Dialog body when leaving a chat with unsaved changes
+  ///
+  /// In en, this message translates to:
+  /// **'This chat has unsaved changes. Save them before leaving?'**
+  String get unsavedChatBody;
+
+  /// Discard unsaved chat changes
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discardChanges;
 }
 
 class _AppLocalizationsDelegate

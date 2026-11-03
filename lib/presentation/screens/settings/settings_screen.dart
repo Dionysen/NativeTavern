@@ -348,7 +348,8 @@ class _ConfirmDeleteTile extends ConsumerWidget {
 
     return SettingsSwitchTile(
       icon: Icons.delete_forever,
-      title: l10n.delete,
+      title: l10n.confirmBeforeDeleteTitle,
+      subtitle: l10n.confirmBeforeDeleteSubtitle,
       value: settings.confirmBeforeDelete,
       onChanged: (value) {
         ref.read(appSettingsProvider.notifier).updateConfirmBeforeDelete(value);
@@ -409,7 +410,8 @@ class _AutoSaveTile extends ConsumerWidget {
 
     return SettingsSwitchTile(
       icon: Icons.save,
-      title: l10n.save,
+      title: l10n.autoSaveChatsTitle,
+      subtitle: l10n.autoSaveChatsSubtitle,
       value: settings.autoSaveChats,
       onChanged: (value) {
         ref.read(appSettingsProvider.notifier).updateAutoSaveChats(value);

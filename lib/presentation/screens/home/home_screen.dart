@@ -13,6 +13,7 @@ import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/widgets/common/group_avatar.dart';
+import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 
 /// Home screen showing recent chats
@@ -322,36 +323,24 @@ class _ChatListTile extends ConsumerWidget {
     }
   }
 
-  void _showDeleteConfirmation(BuildContext context, WidgetRef ref) {
+  Future<void> _showDeleteConfirmation(
+      BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
-
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.deleteChat),
-        content: Text(l10n.deleteChatConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              await ref.read(chatRepositoryProvider).deleteChat(chat.id);
-              ref.invalidate(allChatsProvider);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.chatDeleted)),
-                );
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
+    final confirmed = await confirmDestructiveAction(
+      context,
+      ref,
+      title: l10n.deleteChat,
+      body: l10n.deleteChatConfirmation,
     );
+    if (!confirmed) return;
+
+    await ref.read(chatRepositoryProvider).deleteChat(chat.id);
+    ref.invalidate(allChatsProvider);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.chatDeleted)),
+      );
+    }
   }
 }
 

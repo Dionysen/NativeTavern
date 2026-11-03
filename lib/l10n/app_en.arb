@@ -6432,5 +6432,41 @@
   "multimedia": "Multimedia",
   "@multimedia": {
     "description": "Multimedia settings section"
+  },
+  "confirmBeforeDeleteTitle": "Confirm before delete",
+  "@confirmBeforeDeleteTitle": {
+    "description": "Settings switch title for delete confirmation"
+  },
+  "confirmBeforeDeleteSubtitle": "Ask for confirmation before deleting chats, characters, messages, and similar items.",
+  "@confirmBeforeDeleteSubtitle": {
+    "description": "Settings switch subtitle for delete confirmation"
+  },
+  "autoSaveChatsTitle": "Auto-save chats",
+  "@autoSaveChatsTitle": {
+    "description": "Settings switch title for auto-saving chats"
+  },
+  "autoSaveChatsSubtitle": "When on, chat changes are saved immediately. When off, save manually or when leaving the chat.",
+  "@autoSaveChatsSubtitle": {
+    "description": "Settings switch subtitle for auto-saving chats"
+  },
+  "saveChat": "Save chat",
+  "@saveChat": {
+    "description": "Manual save chat action"
+  },
+  "chatSaved": "Chat saved",
+  "@chatSaved": {
+    "description": "SnackBar after manually saving a chat"
+  },
+  "unsavedChatTitle": "Unsaved changes",
+  "@unsavedChatTitle": {
+    "description": "Dialog title when leaving a chat with unsaved changes"
+  },
+  "unsavedChatBody": "This chat has unsaved changes. Save them before leaving?",
+  "@unsavedChatBody": {
+    "description": "Dialog body when leaving a chat with unsaved changes"
+  },
+  "discardChanges": "Discard",
+  "@discardChanges": {
+    "description": "Discard unsaved chat changes"
   }
 }
