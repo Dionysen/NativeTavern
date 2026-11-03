@@ -6,6 +6,9 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "lib/generated/**"
+    - build/**
+    - ios/**
+    - macos/**
   errors:
     invalid_annotation_target: ignore
   language:
