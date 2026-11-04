@@ -159,6 +159,8 @@ ThemeData buildNativeTavernTheme(
   final primaryText = Color(tokens.primaryText);
   final mutedText = Color(tokens.mutedText);
   final accent = Color(tokens.accent);
+  final secondaryAccent = Color(tokens.secondaryAccent);
+  final tertiaryAccent = Color(tokens.tertiaryAccent);
   final cursor = Color(tokens.cursor);
   final brightness = editor.computeLuminance() < .5
       ? Brightness.dark
@@ -198,10 +200,19 @@ ThemeData buildNativeTavernTheme(
         .copyWith(
       primary: accent,
       onPrimary: Colors.white,
-      secondary: accent,
+      secondary: secondaryAccent,
       onSecondary: Colors.white,
+      tertiary: tertiaryAccent,
+      onTertiary: Colors.white,
       secondaryContainer: selected,
       onSecondaryContainer: primaryText,
+      tertiaryContainer: Color.alphaBlend(
+        tertiaryAccent.withValues(
+          alpha: brightness == Brightness.dark ? .28 : .18,
+        ),
+        editor,
+      ),
+      onTertiaryContainer: primaryText,
       primaryContainer: Color.alphaBlend(
         accent.withValues(alpha: brightness == Brightness.dark ? .28 : .18),
         editor,

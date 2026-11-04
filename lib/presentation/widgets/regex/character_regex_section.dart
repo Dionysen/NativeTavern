@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/regex_script.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/regex/regex_script_widgets.dart';
 
 /// Character-scoped regex scripts list for character detail.
@@ -18,10 +17,11 @@ class CharacterRegexSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final scripts = ref.watch(characterRegexScriptsProvider(characterId));
 
     return Card(
-      color: AppTheme.darkCard,
+      color: scheme.surfaceContainerHigh,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -29,7 +29,7 @@ class CharacterRegexSection extends ConsumerWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.find_replace, color: AppTheme.accentColor),
+                Icon(Icons.find_replace, color: scheme.tertiary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -37,16 +37,17 @@ class CharacterRegexSection extends ConsumerWidget {
                     children: [
                       Text(
                         l10n.characterRegexScripts,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          color: scheme.tertiary,
                         ),
                       ),
                       Text(
                         l10n.characterRegexScriptsHint,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppTheme.textMuted,
+                          color: scheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -66,7 +67,7 @@ class CharacterRegexSection extends ConsumerWidget {
                 child: Center(
                   child: Text(
                     l10n.noCharacterRegexScripts,
-                    style: const TextStyle(color: AppTheme.textMuted),
+                    style: TextStyle(color: scheme.onSurfaceVariant),
                   ),
                 ),
               )

@@ -7,12 +7,14 @@ import 'package:native_tavern/core/utils/path_utils.dart';
 class CharacterAvatarImage extends StatelessWidget {
   final String imagePath;
   final BoxFit fit;
+  final AlignmentGeometry alignment;
   final Widget Function(BuildContext, Object?, StackTrace?)? errorBuilder;
 
   const CharacterAvatarImage({
     super.key,
     required this.imagePath,
     this.fit = BoxFit.cover,
+    this.alignment = Alignment.center,
     this.errorBuilder,
   });
 
@@ -26,6 +28,7 @@ class CharacterAvatarImage extends StatelessWidget {
           return Image.file(
             file,
             fit: fit,
+            alignment: alignment,
             errorBuilder: errorBuilder,
           );
         } else if (snapshot.hasError) {
@@ -34,12 +37,13 @@ class CharacterAvatarImage extends StatelessWidget {
           return Image.file(
             file,
             fit: fit,
+            alignment: alignment,
             errorBuilder: errorBuilder,
           );
         } else {
           // Loading
           return Container(
-            color: Colors.grey[800],
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             child: const Center(
               child: SizedBox(
                 width: 20,

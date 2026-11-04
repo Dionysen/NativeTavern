@@ -593,6 +593,8 @@ String _tokenLabel(AppLocalizations l10n, ThemeToken token) => switch (token) {
       ThemeToken.primaryText => l10n.tokenPrimaryText,
       ThemeToken.mutedText => l10n.tokenMutedText,
       ThemeToken.accent => l10n.tokenAccent,
+      ThemeToken.secondaryAccent => l10n.tokenSecondaryAccent,
+      ThemeToken.tertiaryAccent => l10n.tokenTertiaryAccent,
       ThemeToken.cursor => l10n.tokenCursor,
     };
 
@@ -606,5 +608,7 @@ String _tokenDescription(AppLocalizations l10n, ThemeToken token) =>
       ThemeToken.primaryText => l10n.tokenPrimaryTextDescription,
       ThemeToken.mutedText => l10n.tokenMutedTextDescription,
       ThemeToken.accent => l10n.tokenAccentDescription,
+      ThemeToken.secondaryAccent => l10n.tokenSecondaryAccentDescription,
+      ThemeToken.tertiaryAccent => l10n.tokenTertiaryAccentDescription,
       ThemeToken.cursor => l10n.tokenCursorDescription,
     };

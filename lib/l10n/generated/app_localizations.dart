@@ -12021,6 +12021,18 @@ abstract class AppLocalizations {
   /// **'Accent'**
   String get tokenAccent;
 
+  /// No description provided for @tokenSecondaryAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary accent'**
+  String get tokenSecondaryAccent;
+
+  /// No description provided for @tokenTertiaryAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'Tertiary accent'**
+  String get tokenTertiaryAccent;
+
   /// No description provided for @tokenCursor.
   ///
   /// In en, this message translates to:
@@ -12074,6 +12086,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Highlights and selected items.'**
   String get tokenAccentDescription;
+
+  /// No description provided for @tokenSecondaryAccentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Second accent for section and action contrast.'**
+  String get tokenSecondaryAccentDescription;
+
+  /// No description provided for @tokenTertiaryAccentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Third accent for additional section contrast.'**
+  String get tokenTertiaryAccentDescription;
 
   /// No description provided for @tokenCursorDescription.
   ///

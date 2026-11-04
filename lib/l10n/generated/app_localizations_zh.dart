@@ -6512,6 +6512,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tokenAccent => '强调色';
 
   @override
+  String get tokenSecondaryAccent => '次强调色';
+
+  @override
+  String get tokenTertiaryAccent => '第三强调色';
+
+  @override
   String get tokenCursor => '光标';
 
   @override
@@ -6537,6 +6543,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tokenAccentDescription => '高亮和选中状态';
+
+  @override
+  String get tokenSecondaryAccentDescription => '用于区块与操作区分的第二强调色';
+
+  @override
+  String get tokenTertiaryAccentDescription => '用于额外区块区分的第三强调色';
 
   @override
   String get tokenCursorDescription => '输入框光标颜色';

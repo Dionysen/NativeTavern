@@ -8,7 +8,6 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
@@ -192,22 +191,35 @@ class _CharacterDetailContentState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final character = widget.character;
+    final screen = MediaQuery.sizeOf(context);
+    // Enter with the card filling roughly the top half of the screen;
+    // pull-to-stretch can still reveal more of the art.
+    final expandedHeight = screen.height * 0.5;
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 300,
+            expandedHeight: expandedHeight,
             pinned: true,
+            stretch: true,
             flexibleSpace: FlexibleSpaceBar(
+              stretchModes: const [
+                StretchMode.zoomBackground,
+                StretchMode.fadeTitle,
+              ],
               title: Text(
                 character.name,
-                style: const TextStyle(
-                  shadows: [Shadow(color: Colors.black, blurRadius: 4)],
+                style: TextStyle(
+                  color: scheme.onSurface,
+                  shadows: const [
+                    Shadow(color: Colors.black54, blurRadius: 4),
+                  ],
                 ),
               ),
-              background: _buildAvatarBackground(character),
+              background: _buildAvatarBackground(character, scheme),
             ),
             actions: spacedAppBarActions([
               IconButton(
@@ -239,7 +251,7 @@ class _CharacterDetailContentState
                   PopupMenuItem(
                     value: 'delete',
                     child: Text(l10n.delete,
-                        style: const TextStyle(color: Colors.red)),
+                        style: TextStyle(color: scheme.error)),
                   ),
                 ],
               ),
@@ -254,14 +266,30 @@ class _CharacterDetailContentState
                   // Tags
                   if (character.tags.isNotEmpty)
                     Wrap(
-                      spacing: 8,
+                      spacing: 6,
                       runSpacing: 4,
                       children: character.tags
-                          .map((tag) => Chip(
-                                label: Text(tag),
-                                backgroundColor: AppTheme.primaryColor
-                                    .withValues(alpha: 0.2),
-                              ))
+                          .map(
+                            (tag) => Chip(
+                              label: Text(
+                                tag,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: scheme.onSecondaryContainer,
+                                ),
+                              ),
+                              backgroundColor: scheme.secondaryContainer,
+                              visualDensity: VisualDensity.compact,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              padding: EdgeInsets.zero,
+                              labelPadding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 0,
+                              ),
+                              side: BorderSide.none,
+                            ),
+                          )
                           .toList(),
                     ),
                   if (character.tags.isNotEmpty) const SizedBox(height: 16),
@@ -270,27 +298,27 @@ class _CharacterDetailContentState
                   Row(
                     children: [
                       if (character.creator.isNotEmpty) ...[
-                        const Icon(Icons.person_outline,
-                            size: 16, color: AppTheme.textMuted),
+                        Icon(Icons.person_outline,
+                            size: 16, color: scheme.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
                           l10n.byCreator(character.creator),
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppTheme.textMuted,
+                                    color: scheme.onSurfaceVariant,
                                   ),
                         ),
                         const SizedBox(width: 16),
                       ],
                       if (character.version.isNotEmpty) ...[
-                        const Icon(Icons.update,
-                            size: 16, color: AppTheme.textMuted),
+                        Icon(Icons.update,
+                            size: 16, color: scheme.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
                           l10n.versionLabel(character.version),
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppTheme.textMuted,
+                                    color: scheme.onSurfaceVariant,
                                   ),
                         ),
                       ],
@@ -414,12 +442,16 @@ class _CharacterDetailContentState
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _isCreatingChat ? null : _startChat,
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
         icon: _isCreatingChat
-            ? const SizedBox(
+            ? SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Colors.white),
+                  strokeWidth: 2,
+                  color: scheme.onPrimary,
+                ),
               )
             : const Icon(Icons.chat),
         label: Text(_isCreatingChat ? l10n.creating : l10n.startChat),
@@ -427,7 +459,7 @@ class _CharacterDetailContentState
     );
   }
 
-  Widget _buildAvatarBackground(Character character) {
+  Widget _buildAvatarBackground(Character character, ColorScheme scheme) {
     if (character.assets?.avatarPath != null) {
       return Stack(
         fit: StackFit.expand,
@@ -435,17 +467,18 @@ class _CharacterDetailContentState
           CharacterAvatarImage(
             imagePath: character.assets!.avatarPath!,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _defaultBackground(),
+            alignment: Alignment.topCenter,
+            errorBuilder: (_, __, ___) => _defaultBackground(scheme),
           ),
           // Gradient overlay for better text readability
-          Container(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.black.withValues(alpha: 0.7),
+                  scheme.surface.withValues(alpha: 0.85),
                 ],
               ),
             ),
@@ -453,17 +486,17 @@ class _CharacterDetailContentState
         ],
       );
     }
-    return _defaultBackground();
+    return _defaultBackground(scheme);
   }
 
-  Widget _defaultBackground() {
-    return Container(
-      color: AppTheme.darkCard,
-      child: const Center(
+  Widget _defaultBackground(ColorScheme scheme) {
+    return ColoredBox(
+      color: scheme.surfaceContainerHigh,
+      child: Center(
         child: Icon(
           Icons.person,
           size: 120,
-          color: AppTheme.textMuted,
+          color: scheme.onSurfaceVariant,
         ),
       ),
     );
@@ -504,6 +537,7 @@ class _SectionCardState extends State<_SectionCard> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final lines = widget.content.split('\n');
     final shouldShowExpand =
         lines.length > widget.maxLines || widget.content.length > 500;
@@ -521,13 +555,13 @@ class _SectionCardState extends State<_SectionCard> {
             children: [
               Row(
                 children: [
-                  Icon(widget.icon, size: 20, color: AppTheme.primaryColor),
+                  Icon(widget.icon, size: 20, color: scheme.primary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       widget.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: AppTheme.primaryColor,
+                            color: scheme.primary,
                           ),
                     ),
                   ),
@@ -595,6 +629,7 @@ class _AlternateGreetingsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -603,14 +638,13 @@ class _AlternateGreetingsCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.waving_hand,
-                    size: 20, color: AppTheme.primaryColor),
+                Icon(Icons.waving_hand, size: 20, color: scheme.primary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     l10n.alternateGreetingsCount(greetings.length),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: AppTheme.primaryColor,
+                          color: scheme.primary,
                         ),
                   ),
                 ),
@@ -630,9 +664,9 @@ class _AlternateGreetingsCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface,
+                        color: scheme.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppTheme.darkDivider),
+                        border: Border.all(color: scheme.outlineVariant),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -646,7 +680,7 @@ class _AlternateGreetingsCard extends StatelessWidget {
                                       .textTheme
                                       .labelSmall
                                       ?.copyWith(
-                                        color: AppTheme.textMuted,
+                                        color: scheme.onSurfaceVariant,
                                       ),
                                 ),
                               ),
@@ -701,6 +735,7 @@ class _CharacterBookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final enabledEntries = characterBook.entries.where((e) => e.enabled).length;
 
     return Card(
@@ -711,8 +746,7 @@ class _CharacterBookCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.auto_stories,
-                    size: 20, color: AppTheme.primaryColor),
+                Icon(Icons.auto_stories, size: 20, color: scheme.tertiary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -722,14 +756,14 @@ class _CharacterBookCard extends StatelessWidget {
                         characterBook.name ?? l10n.embeddedLorebook,
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: AppTheme.primaryColor,
+                                  color: scheme.tertiary,
                                 ),
                       ),
                       Text(
                         l10n.entriesEnabled(
                             enabledEntries, characterBook.entries.length),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textMuted,
+                              color: scheme.onSurfaceVariant,
                             ),
                       ),
                     ],
@@ -743,7 +777,7 @@ class _CharacterBookCard extends StatelessWidget {
               Text(
                 characterBook.description!,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.textMuted,
+                      color: scheme.onSurfaceVariant,
                     ),
               ),
             ],
@@ -758,13 +792,13 @@ class _CharacterBookCard extends StatelessWidget {
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: entry.enabled
-                            ? AppTheme.darkSurface
+                            ? scheme.surfaceContainerHigh
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: entry.enabled
-                              ? AppTheme.primaryColor.withValues(alpha: 0.3)
-                              : AppTheme.darkDivider,
+                              ? scheme.tertiary.withValues(alpha: 0.35)
+                              : scheme.outlineVariant,
                         ),
                       ),
                       child: Column(
@@ -778,8 +812,8 @@ class _CharacterBookCard extends StatelessWidget {
                                     : Icons.cancel,
                                 size: 14,
                                 color: entry.enabled
-                                    ? Colors.green
-                                    : AppTheme.textMuted,
+                                    ? scheme.secondary
+                                    : scheme.onSurfaceVariant,
                               ),
                               const SizedBox(width: 6),
                               Expanded(
@@ -794,7 +828,7 @@ class _CharacterBookCard extends StatelessWidget {
                                         fontWeight: FontWeight.bold,
                                         color: entry.enabled
                                             ? null
-                                            : AppTheme.textMuted,
+                                            : scheme.onSurfaceVariant,
                                       ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -820,8 +854,7 @@ class _CharacterBookCard extends StatelessWidget {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: AppTheme.primaryColor
-                                              .withValues(alpha: 0.2),
+                                          color: scheme.tertiaryContainer,
                                           borderRadius:
                                               BorderRadius.circular(4),
                                         ),
@@ -829,7 +862,11 @@ class _CharacterBookCard extends StatelessWidget {
                                           key,
                                           style: Theme.of(context)
                                               .textTheme
-                                              .labelSmall,
+                                              .labelSmall
+                                              ?.copyWith(
+                                                color:
+                                                    scheme.onTertiaryContainer,
+                                              ),
                                         ),
                                       ))
                                   .toList(),
@@ -842,7 +879,7 @@ class _CharacterBookCard extends StatelessWidget {
                                 : entry.content,
                             style:
                                 Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppTheme.textMuted,
+                                      color: scheme.onSurfaceVariant,
                                     ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -858,7 +895,7 @@ class _CharacterBookCard extends StatelessWidget {
                 child: Text(
                   l10n.andMoreEntries(characterBook.entries.length - 5),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textMuted,
+                        color: scheme.onSurfaceVariant,
                         fontStyle: FontStyle.italic,
                       ),
                 ),
@@ -878,6 +915,7 @@ class _CharacterFriendsList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     return FutureBuilder(
       future: ref.watch(characterSocialServiceProvider).friendsOf(characterId),
       builder: (context, snapshot) {
@@ -892,13 +930,13 @@ class _CharacterFriendsList extends ConsumerWidget {
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
                   child: Row(
                     children: [
-                      const Icon(Icons.people_outline,
-                          size: 20, color: AppTheme.primaryColor),
+                      Icon(Icons.people_outline,
+                          size: 20, color: scheme.secondary),
                       const SizedBox(width: 8),
                       Text(
                         l10n.momentsFriends,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: AppTheme.primaryColor,
+                              color: scheme.secondary,
                             ),
                       ),
                     ],
@@ -915,7 +953,7 @@ class _CharacterFriendsList extends ConsumerWidget {
                     child: Text(
                       l10n.momentsNoFriends,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.textMuted,
+                            color: scheme.onSurfaceVariant,
                           ),
                     ),
                   )
@@ -948,6 +986,7 @@ class _CharacterChatList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final chats = ref.watch(characterChatsProvider(characterId));
     return Card(
       child: Padding(
@@ -959,14 +998,13 @@ class _CharacterChatList extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: Row(
                 children: [
-                  const Icon(Icons.forum_outlined,
-                      size: 20, color: AppTheme.primaryColor),
+                  Icon(Icons.forum_outlined, size: 20, color: scheme.primary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       l10n.chats,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: AppTheme.primaryColor,
+                            color: scheme.primary,
                           ),
                     ),
                   ),
@@ -994,7 +1032,7 @@ class _CharacterChatList extends ConsumerWidget {
                     child: Text(
                       l10n.noChatsYet,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.textMuted,
+                            color: scheme.onSurfaceVariant,
                           ),
                     ),
                   );

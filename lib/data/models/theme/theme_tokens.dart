@@ -13,6 +13,8 @@ enum ThemeToken {
   primaryText,
   mutedText,
   accent,
+  secondaryAccent,
+  tertiaryAccent,
   cursor,
 }
 
@@ -38,6 +40,8 @@ class ThemeTokens {
     required this.primaryText,
     required this.mutedText,
     required this.accent,
+    this.secondaryAccent = defaultSecondaryAccent,
+    this.tertiaryAccent = defaultTertiaryAccent,
     required this.cursor,
   });
 
@@ -46,6 +50,12 @@ class ThemeTokens {
 
   /// Cursor / VS Code “Sync Changes” button blue.
   static const darkModernAccent = 0xFF3376CE;
+
+  /// Second accent for section/action differentiation (teal).
+  static const defaultSecondaryAccent = 0xFF1ABC9C;
+
+  /// Third accent for section/action differentiation (violet).
+  static const defaultTertiaryAccent = 0xFF9B59B6;
 
   /// Default dark pack (Dark Modern).
   static const defaults = ThemeTokens(
@@ -160,6 +170,8 @@ class ThemeTokens {
   final int primaryText;
   final int mutedText;
   final int accent;
+  final int secondaryAccent;
+  final int tertiaryAccent;
   final int cursor;
 
   ThemePreset? get preset => ThemePreset.values
@@ -193,6 +205,8 @@ class ThemeTokens {
         ThemeToken.primaryText => primaryText,
         ThemeToken.mutedText => mutedText,
         ThemeToken.accent => accent,
+        ThemeToken.secondaryAccent => secondaryAccent,
+        ThemeToken.tertiaryAccent => tertiaryAccent,
         ThemeToken.cursor => cursor,
       };
 
@@ -205,6 +219,8 @@ class ThemeTokens {
         ThemeToken.primaryText => copyWith(primaryText: value),
         ThemeToken.mutedText => copyWith(mutedText: value),
         ThemeToken.accent => copyWith(accent: value),
+        ThemeToken.secondaryAccent => copyWith(secondaryAccent: value),
+        ThemeToken.tertiaryAccent => copyWith(tertiaryAccent: value),
         ThemeToken.cursor => copyWith(cursor: value),
       };
 
@@ -217,6 +233,8 @@ class ThemeTokens {
     int? primaryText,
     int? mutedText,
     int? accent,
+    int? secondaryAccent,
+    int? tertiaryAccent,
     int? cursor,
   }) =>
       ThemeTokens(
@@ -228,6 +246,8 @@ class ThemeTokens {
         primaryText: primaryText ?? this.primaryText,
         mutedText: mutedText ?? this.mutedText,
         accent: accent ?? this.accent,
+        secondaryAccent: secondaryAccent ?? this.secondaryAccent,
+        tertiaryAccent: tertiaryAccent ?? this.tertiaryAccent,
         cursor: cursor ?? this.cursor,
       );
 
@@ -240,6 +260,8 @@ class ThemeTokens {
         'primaryText': primaryText,
         'mutedText': mutedText,
         'accent': accent,
+        'secondaryAccent': secondaryAccent,
+        'tertiaryAccent': tertiaryAccent,
         'cursor': cursor,
       };
 
@@ -252,6 +274,9 @@ class ThemeTokens {
         primaryText: json['primaryText'] as int,
         mutedText: json['mutedText'] as int,
         accent: json['accent'] as int,
+        secondaryAccent:
+            json['secondaryAccent'] as int? ?? defaultSecondaryAccent,
+        tertiaryAccent: json['tertiaryAccent'] as int? ?? defaultTertiaryAccent,
         cursor: json['cursor'] as int,
       );
 
@@ -266,6 +291,8 @@ class ThemeTokens {
       primaryText == other.primaryText &&
       mutedText == other.mutedText &&
       accent == other.accent &&
+      secondaryAccent == other.secondaryAccent &&
+      tertiaryAccent == other.tertiaryAccent &&
       cursor == other.cursor;
 
   @override
@@ -278,6 +305,8 @@ class ThemeTokens {
         primaryText,
         mutedText,
         accent,
+        secondaryAccent,
+        tertiaryAccent,
         cursor,
       );
 }

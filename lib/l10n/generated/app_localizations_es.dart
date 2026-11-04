@@ -6770,6 +6770,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tokenAccent => 'Accent';
 
   @override
+  String get tokenSecondaryAccent => 'Secondary accent';
+
+  @override
+  String get tokenTertiaryAccent => 'Tertiary accent';
+
+  @override
   String get tokenCursor => 'Cursor';
 
   @override
@@ -6799,6 +6805,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get tokenAccentDescription => 'Highlights and selected items.';
+
+  @override
+  String get tokenSecondaryAccentDescription =>
+      'Second accent for section and action contrast.';
+
+  @override
+  String get tokenTertiaryAccentDescription =>
+      'Third accent for additional section contrast.';
 
   @override
   String get tokenCursorDescription => 'Caret color in text fields.';
