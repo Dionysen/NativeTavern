@@ -5,6 +5,7 @@ import 'package:native_tavern/domain/services/image_generation_service.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Widget to display images extracted from text content
 class ExtractedImagesWidget extends StatelessWidget {
@@ -165,7 +166,7 @@ class _FullScreenImageDialog extends StatelessWidget {
           Positioned(
             top: 40,
             right: 16,
-            child: IconButton(
+            child: ChromeIconButton(
               icon: const Icon(Icons.close, color: Colors.white, size: 32),
               onPressed: () => Navigator.of(context).pop(),
             ),

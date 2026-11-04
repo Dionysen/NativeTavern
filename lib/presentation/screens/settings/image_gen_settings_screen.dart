@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/image_generation_service.dart';
 import 'package:native_tavern/presentation/providers/image_gen_providers.dart';
@@ -19,7 +20,7 @@ class ImageGenSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.imageGeneration),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.restore),
             tooltip: AppLocalizations.of(context)!.resetToDefaults,
             onPressed: () {
@@ -451,7 +452,7 @@ class ImageGenSettingsScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (supportsFetching)
-            IconButton(
+            ChromeIconButton(
               icon: fetchedState.isLoading
                   ? const SizedBox(
                       width: 20,
@@ -813,7 +814,7 @@ class _ImageGenTestWidgetState extends ConsumerState<_ImageGenTestWidget> {
             Positioned(
               top: 40,
               right: 16,
-              child: IconButton(
+              child: ChromeIconButton(
                 icon: const Icon(Icons.close, color: Colors.white, size: 32),
                 onPressed: () => Navigator.of(context).pop(),
               ),

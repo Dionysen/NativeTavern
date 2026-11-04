@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/chat_statistics.dart';
 import '../../providers/statistics_providers.dart';
@@ -19,7 +20,7 @@ class StatisticsScreen extends ConsumerWidget {
         title: Text(chatId != null ? l10n.chatStatistics : l10n.appStatistics),
         actions: [
           if (chatId == null)
-            IconButton(
+            ChromeIconButton(
               icon: const Icon(Icons.refresh),
               tooltip: l10n.resetStatistics,
               onPressed: () => _showResetConfirmation(context, ref),

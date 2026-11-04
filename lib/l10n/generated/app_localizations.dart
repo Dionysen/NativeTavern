@@ -1537,6 +1537,24 @@ abstract class AppLocalizations {
   /// **'Grid view'**
   String get gridView;
 
+  /// Character list avatar shape: circle
+  ///
+  /// In en, this message translates to:
+  /// **'Circular avatar'**
+  String get characterAvatarShapeCircle;
+
+  /// Character list avatar shape: square
+  ///
+  /// In en, this message translates to:
+  /// **'Square avatar'**
+  String get characterAvatarShapeSquare;
+
+  /// Character list avatar shape: portrait rectangle
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangular avatar'**
+  String get characterAvatarShapeRectangle;
+
   /// Search label
   ///
   /// In en, this message translates to:

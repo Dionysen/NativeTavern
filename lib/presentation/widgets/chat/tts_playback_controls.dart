@@ -6,6 +6,7 @@ import 'package:native_tavern/presentation/providers/tts_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/app_viewport.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 class ChatTTSMessageButton extends ConsumerWidget {
   const ChatTTSMessageButton({
@@ -36,7 +37,7 @@ class ChatTTSMessageButton extends ConsumerWidget {
         playback.isActive;
     final paused = ownsPlayback && playback.isPaused;
 
-    return IconButton(
+    return ChromeIconButton(density: ChromeIconButtonDensity.compact, 
       icon: Icon(
         paused
             ? Icons.play_arrow
@@ -66,9 +67,6 @@ class ChatTTSMessageButton extends ConsumerWidget {
           );
         }
       },
-      visualDensity: VisualDensity.compact,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
       color: ownsPlayback ? AppTheme.accentColor : AppTheme.textMuted,
     );
   }
@@ -98,7 +96,7 @@ class ChatTTSPlaybackControls extends ConsumerWidget {
           : Axis.vertical,
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
+        ChromeIconButton(
           icon: Icon(
             playback.isPaused ? Icons.play_arrow : Icons.pause,
           ),
@@ -113,7 +111,7 @@ class ChatTTSPlaybackControls extends ConsumerWidget {
             );
           },
         ),
-        IconButton(
+        ChromeIconButton(
           icon: const Icon(Icons.stop),
           tooltip: AppLocalizations.of(context).stopReading,
           onPressed: () {

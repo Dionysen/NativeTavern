@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 import '../../theme/native_tavern_theme.dart';
 
@@ -673,7 +674,7 @@ class SettingsNumberTile extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      IconButton(
+                      ChromeIconButton(
                         onPressed: current <= min ? null : () => nudge(-step),
                         icon: const Icon(Icons.remove_circle_outline),
                       ),
@@ -686,7 +687,7 @@ class SettingsNumberTile extends StatelessWidget {
                           onChanged: (v) => setState(() => current = v),
                         ),
                       ),
-                      IconButton(
+                      ChromeIconButton(
                         onPressed: current >= max ? null : () => nudge(step),
                         icon: const Icon(Icons.add_circle_outline),
                       ),
@@ -701,7 +702,7 @@ class SettingsNumberTile extends StatelessWidget {
                     MaterialLocalizations.of(context).cancelButtonLabel,
                   ),
                 ),
-                IconButton(
+                ChromeIconButton(
                   tooltip: defaultLabel,
                   onPressed: () => setState(() => current = defaultValue),
                   icon: const Icon(Icons.restart_alt),

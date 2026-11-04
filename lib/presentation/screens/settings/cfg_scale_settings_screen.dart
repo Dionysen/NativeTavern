@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/cfg_scale.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -26,12 +27,12 @@ class CFGScaleSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.cfgScale),
         actions: spacedAppBarActions([
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () => _showHelpDialog(context),
             tooltip: l10n.help,
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
               ref.read(cfgScaleSettingsProvider.notifier).resetToDefaults();

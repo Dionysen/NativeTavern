@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -503,7 +504,7 @@ class _LanguageTile extends ConsumerWidget {
                     ),
                   ),
                   const Spacer(),
-                  IconButton(
+                  ChromeIconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
                   ),

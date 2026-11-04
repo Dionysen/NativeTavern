@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/debug_log_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Floating debug ball widget that can be dragged around
 class DebugFloatingBall extends StatefulWidget {
@@ -215,7 +216,7 @@ class _DebugLogViewerState extends ConsumerState<DebugLogViewer> {
                     ),
                     const Spacer(),
                     // Auto-scroll toggle
-                    IconButton(
+                    ChromeIconButton(
                       icon: Icon(
                         _autoScroll ? Icons.vertical_align_bottom : Icons.vertical_align_center,
                         color: _autoScroll ? Colors.orange : Colors.grey,
@@ -226,7 +227,7 @@ class _DebugLogViewerState extends ConsumerState<DebugLogViewer> {
                       },
                     ),
                     // Copy all logs
-                    IconButton(
+                    ChromeIconButton(
                       icon: const Icon(Icons.copy, color: Colors.white70),
                       tooltip: l10n.copyAll,
                       onPressed: () {
@@ -238,7 +239,7 @@ class _DebugLogViewerState extends ConsumerState<DebugLogViewer> {
                       },
                     ),
                     // Clear logs
-                    IconButton(
+                    ChromeIconButton(
                       icon: const Icon(Icons.delete_outline, color: Colors.white70),
                       tooltip: l10n.clearLogs,
                       onPressed: () {
@@ -247,7 +248,7 @@ class _DebugLogViewerState extends ConsumerState<DebugLogViewer> {
                       },
                     ),
                     // Close
-                    IconButton(
+                    ChromeIconButton(
                       icon: const Icon(Icons.close, color: Colors.white70),
                       tooltip: l10n.close,
                       onPressed: () => Navigator.of(context).pop(),
@@ -303,7 +304,7 @@ class _DebugLogViewerState extends ConsumerState<DebugLogViewer> {
                       hintStyle: TextStyle(color: Colors.grey.shade500),
                       prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
                       suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
+                          ? ChromeIconButton(
                               icon: const Icon(Icons.clear, color: Colors.grey),
                               onPressed: () {
                                 _searchController.clear();
@@ -610,7 +611,7 @@ class _DebugLogViewerInlineState extends ConsumerState<DebugLogViewerInline> {
                   ),
                 ),
                 const Spacer(),
-                IconButton(
+                ChromeIconButton(
                   icon: Icon(
                     _autoScroll ? Icons.vertical_align_bottom : Icons.vertical_align_center,
                     color: _autoScroll ? Colors.orange : Colors.grey,
@@ -620,7 +621,7 @@ class _DebugLogViewerInlineState extends ConsumerState<DebugLogViewerInline> {
                     setState(() => _autoScroll = !_autoScroll);
                   },
                 ),
-                IconButton(
+                ChromeIconButton(
                   icon: const Icon(Icons.copy, color: Colors.white70),
                   tooltip: l10n.copyAll,
                   onPressed: () {
@@ -631,7 +632,7 @@ class _DebugLogViewerInlineState extends ConsumerState<DebugLogViewerInline> {
                     );
                   },
                 ),
-                IconButton(
+                ChromeIconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.white70),
                   tooltip: l10n.clearLogs,
                   onPressed: () {
@@ -639,7 +640,7 @@ class _DebugLogViewerInlineState extends ConsumerState<DebugLogViewerInline> {
                     setState(() {});
                   },
                 ),
-                IconButton(
+                ChromeIconButton(
                   icon: const Icon(Icons.close, color: Colors.white70),
                   tooltip: l10n.close,
                   onPressed: widget.onClose,
@@ -691,7 +692,7 @@ class _DebugLogViewerInlineState extends ConsumerState<DebugLogViewerInline> {
                       hintStyle: TextStyle(color: Colors.grey.shade500),
                       prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
                       suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
+                          ? ChromeIconButton(
                               icon: const Icon(Icons.clear, color: Colors.grey),
                               onPressed: () {
                                 _searchController.clear();

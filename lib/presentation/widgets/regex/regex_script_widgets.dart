@@ -4,6 +4,7 @@ import 'package:native_tavern/data/models/regex_script.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:uuid/uuid.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Show the shared regex script editor as a modal bottom sheet.
 Future<void> showRegexScriptEditor(
@@ -69,7 +70,7 @@ class RegexScriptTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
+          ChromeIconButton(
             icon: Icon(
               script.disabled ? Icons.toggle_off : Icons.toggle_on,
               color:
@@ -77,7 +78,7 @@ class RegexScriptTile extends StatelessWidget {
             ),
             onPressed: onToggle,
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: onDelete,
           ),

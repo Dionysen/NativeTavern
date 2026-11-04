@@ -749,6 +749,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get gridView => 'グリッド表示';
 
   @override
+  String get characterAvatarShapeCircle => 'Circular avatar';
+
+  @override
+  String get characterAvatarShapeSquare => 'Square avatar';
+
+  @override
+  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+
+  @override
   String get search => '検索';
 
   @override

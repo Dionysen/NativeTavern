@@ -13,6 +13,7 @@ import 'package:native_tavern/presentation/widgets/common/group_avatar.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Groups list screen
 class GroupsScreen extends ConsumerWidget {
@@ -26,7 +27,7 @@ class GroupsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.groupChats),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.read(groupListProvider.notifier).refresh(),
           ),

@@ -1038,6 +1038,18 @@
   "@gridView": {
     "description": "Grid view toggle"
   },
+  "characterAvatarShapeCircle": "圆形头像",
+  "@characterAvatarShapeCircle": {
+    "description": "Character list avatar shape: circle"
+  },
+  "characterAvatarShapeSquare": "方形头像",
+  "@characterAvatarShapeSquare": {
+    "description": "Character list avatar shape: square"
+  },
+  "characterAvatarShapeRectangle": "矩形头像",
+  "@characterAvatarShapeRectangle": {
+    "description": "Character list avatar shape: portrait rectangle"
+  },
   "search": "搜索",
   "@search": {
     "description": "Search label"

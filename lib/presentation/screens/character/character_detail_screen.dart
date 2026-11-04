@@ -13,6 +13,7 @@ import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/regex/character_regex_section.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Character detail screen
 class CharacterDetailScreen extends ConsumerWidget {
@@ -227,13 +228,13 @@ class _CharacterDetailContentState
               background: _buildAvatarBackground(character, scheme),
             ),
             actions: spacedAppBarActions([
-              IconButton(
+              ChromeIconButton(density: ChromeIconButtonDensity.compact, 
                 icon: const Icon(Icons.animation),
                 tooltip: 'Live2D',
                 onPressed: () =>
                     context.push('/characters/${character.id}/live2d'),
               ),
-              IconButton(
+              ChromeIconButton(
                 icon: const Icon(Icons.edit),
                 onPressed: () =>
                     context.push('/characters/${character.id}/edit'),
@@ -286,10 +287,8 @@ class _CharacterDetailContentState
                                 ),
                               ),
                               backgroundColor: scheme.secondaryContainer,
-                              visualDensity: VisualDensity.compact,
                               materialTapTargetSize:
                                   MaterialTapTargetSize.shrinkWrap,
-                              padding: EdgeInsets.zero,
                               labelPadding: const EdgeInsets.symmetric(
                                 horizontal: 6,
                                 vertical: 0,
@@ -629,13 +628,13 @@ class _SectionCardState extends State<_SectionCard> {
                           ),
                     ),
                   ),
-                  IconButton(
+                  ChromeIconButton(density: ChromeIconButtonDensity.compact, 
                     icon: const Icon(Icons.copy, size: 18),
                     onPressed: _copyToClipboard,
                     tooltip: l10n.copiedToClipboard,
                   ),
                   if (shouldShowExpand)
-                    IconButton(
+                    ChromeIconButton(
                       icon: Icon(
                           _expanded ? Icons.expand_less : Icons.expand_more),
                       onPressed: () => setState(() => _expanded = !_expanded),
@@ -712,7 +711,7 @@ class _AlternateGreetingsCard extends StatelessWidget {
                         ),
                   ),
                 ),
-                IconButton(
+                ChromeIconButton(
                   icon: const Icon(Icons.copy_all, size: 18),
                   onPressed: () => _copyAllGreetings(context),
                   tooltip: l10n.copiedToClipboard,
@@ -748,13 +747,11 @@ class _AlternateGreetingsCard extends StatelessWidget {
                                       ),
                                 ),
                               ),
-                              IconButton(
+                              ChromeIconButton(
                                 icon: const Icon(Icons.copy, size: 14),
                                 onPressed: () => _copyGreeting(
                                     context, entry.value, entry.key),
                                 tooltip: l10n.copiedToClipboard,
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
                               ),
                             ],
                           ),
@@ -898,12 +895,10 @@ class _CharacterBookCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              IconButton(
+                              ChromeIconButton(density: ChromeIconButtonDensity.compact, 
                                 icon: const Icon(Icons.copy, size: 14),
                                 onPressed: () => _copyEntry(context, entry),
                                 tooltip: l10n.copiedToClipboard,
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
                               ),
                             ],
                           ),

@@ -12,6 +12,7 @@ import 'package:native_tavern/presentation/widgets/chat/message_content_widget.d
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
 import 'package:native_tavern/presentation/widgets/chat/reasoning_widget.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Visual novel style message view - displays messages at the bottom of the screen
 /// with the background image visible above
@@ -112,7 +113,7 @@ class _VisualNovelMessageViewState
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Previous button
-          IconButton(
+          ChromeIconButton(
             icon: Icon(
               Icons.chevron_left,
               color: _currentIndex > 0 ? Colors.white : Colors.white38,
@@ -143,7 +144,7 @@ class _VisualNovelMessageViewState
             ),
           ),
           // Next button
-          IconButton(
+          ChromeIconButton(
             icon: Icon(
               Icons.chevron_right,
               color: _currentIndex < widget.messages.length - 1
@@ -403,7 +404,7 @@ class _VisualNovelMessageViewState
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          IconButton(
+          ChromeIconButton(
             icon: Icon(
               Icons.arrow_back_ios,
               size: 16,
@@ -424,7 +425,7 @@ class _VisualNovelMessageViewState
               style: const TextStyle(color: Colors.white70, fontSize: 12),
             ),
           ),
-          IconButton(
+          ChromeIconButton(
             icon: Icon(
               Icons.arrow_forward_ios,
               size: 16,

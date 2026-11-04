@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/chat/message_content_widget.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// A collapsible widget that displays AI reasoning/thinking content
 /// 
@@ -147,18 +148,14 @@ class _ReasoningWidgetState extends State<ReasoningWidget>
                   ),
                   const SizedBox(width: 8),
                   // Copy button
-                  IconButton(
+                  ChromeIconButton(
+                    density: ChromeIconButtonDensity.compact,
                     icon: Icon(
                       Icons.copy,
                       size: 16,
                       color: AppTheme.textMuted,
                     ),
                     onPressed: _copyReasoning,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 24,
-                      minHeight: 24,
-                    ),
                     tooltip: AppLocalizations.of(context)!.copyReasoning,
                   ),
                   // Expand/collapse arrow

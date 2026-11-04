@@ -34,10 +34,9 @@ abstract final class ChromeControls {
 
   static bool isCircularRadius(double radius) => radius >= buttonSize / 2;
 
-  static OutlinedBorder iconButtonShapeFor(double radius) =>
-      isCircularRadius(radius)
-          ? const CircleBorder()
-          : RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));
+  /// Icon-only controls are always circular, independent of chrome cornerRadius.
+  static OutlinedBorder iconButtonShapeFor([double? radius]) =>
+      const CircleBorder();
 
   static OutlinedBorder labeledButtonShapeFor(double radius) =>
       RoundedRectangleBorder(
@@ -72,8 +71,7 @@ class AppShapeTheme extends ThemeExtension<AppShapeTheme> {
   BorderRadius get chatBubbleBorderRadius =>
       BorderRadius.circular(chatBubbleCornerRadius);
 
-  OutlinedBorder get iconButtonShape =>
-      ChromeControls.iconButtonShapeFor(cornerRadius);
+  OutlinedBorder get iconButtonShape => ChromeControls.iconButtonShapeFor();
 
   OutlinedBorder get labeledButtonShape =>
       ChromeControls.labeledButtonShapeFor(cornerRadius);

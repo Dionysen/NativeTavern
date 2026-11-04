@@ -7,6 +7,7 @@ import 'package:native_tavern/core/utils/share_utils.dart';
 import 'package:native_tavern/data/models/prompt_manager.dart';
 import 'package:native_tavern/presentation/providers/prompt_manager_providers.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -174,7 +175,7 @@ class PromptManagerScreen extends ConsumerWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const Spacer(),
-                  IconButton(
+                  ChromeIconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -203,7 +204,7 @@ class PromptManagerScreen extends ConsumerWidget {
                         : null,
                     trailing: preset.isBuiltIn
                         ? null
-                        : IconButton(
+                        : ChromeIconButton(
                             icon: const Icon(Icons.delete, size: 20),
                             onPressed: () {
                               ref
@@ -835,7 +836,7 @@ class _PromptSectionTile extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (onEdit != null)
-              IconButton(
+              ChromeIconButton(
                 icon: Icon(
                   Icons.edit,
                   size: 20,

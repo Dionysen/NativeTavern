@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/tts_service.dart';
 import 'package:native_tavern/presentation/providers/tts_providers.dart';
@@ -22,7 +23,7 @@ class TTSSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.textToSpeech),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.restore),
             tooltip: l10n.resetToDefaults,
             onPressed: () {
@@ -388,7 +389,7 @@ class TTSMessageButton extends ConsumerWidget {
 
     if (!settings.enabled) return const SizedBox.shrink();
 
-    return IconButton(
+    return ChromeIconButton(
       icon: Icon(
         isSpeaking ? Icons.stop : Icons.volume_up,
         size: size,
@@ -422,7 +423,7 @@ class TTSControls extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (isSpeaking)
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.stop, size: 20),
             tooltip: AppLocalizations.of(context).stopSpeaking,
             onPressed: () => ref.read(ttsStopProvider)(),

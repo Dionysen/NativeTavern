@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/models/tool_generation.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/tool_calling_providers.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 class ToolActivityPanel extends ConsumerWidget {
   const ToolActivityPanel({super.key, required this.chatId});
@@ -178,7 +179,7 @@ class _ApprovalPrompt extends ConsumerWidget {
               icon: const Icon(Icons.block, size: 18),
               label: Text(l10n.toolDeny),
             ),
-            IconButton(
+            ChromeIconButton(
               key: const Key('tool-cancel'),
               onPressed: () => controller.resolveApproval(
                 ToolApprovalAction.cancel,

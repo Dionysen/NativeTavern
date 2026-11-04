@@ -5,6 +5,7 @@ import '../../../data/models/quick_reply.dart';
 import '../../providers/quick_reply_providers.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for managing quick replies
@@ -21,7 +22,7 @@ class QuickReplyScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.quickReplies),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.restore),
             tooltip: AppLocalizations.of(context)!.resetToDefault,
             onPressed: () => _showResetDialog(context, ref),

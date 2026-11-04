@@ -15,6 +15,7 @@ import 'package:native_tavern/presentation/controllers/rpg_scenario_editor_contr
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 class RpgScenarioFileData {
   final String name;
@@ -141,19 +142,19 @@ class _RpgScenarioEditorScreenState extends State<RpgScenarioEditorScreen>
               : l10n.rpgScenarioTitle,
         ),
         actions: spacedAppBarActions([
-          IconButton(
+          ChromeIconButton(
             key: const Key('rpg-import'),
             tooltip: l10n.rpgImportScenario,
             onPressed: _working ? null : _import,
             icon: const Icon(Icons.file_open_outlined),
           ),
-          IconButton(
+          ChromeIconButton(
             key: const Key('rpg-save-draft'),
             tooltip: l10n.rpgSaveDraft,
             onPressed: _working ? null : _saveDraft,
             icon: const Icon(Icons.save_outlined),
           ),
-          IconButton(
+          ChromeIconButton(
             key: const Key('rpg-load-draft'),
             tooltip: l10n.rpgRestoreDraft,
             onPressed: _working ? null : _loadDraft,
@@ -399,7 +400,7 @@ class _NodeEditor extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(
+            ChromeIconButton(
               key: Key('rpg-set-${path.key}'),
               tooltip: l10n.rpgSetValue,
               onPressed: () => controller.initializeOptional(path),
@@ -448,7 +449,7 @@ class _ListEditor extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
+          ChromeIconButton(
             key: Key('rpg-add-${path.key}'),
             tooltip: l10n.rpgAddItem(label),
             onPressed: () => controller.addListItem(path),
@@ -554,7 +555,7 @@ class _OpenMapEditor extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
+          ChromeIconButton(
             key: Key('rpg-add-map-${path.key}'),
             tooltip: l10n.rpgAddEntry,
             onPressed: () => _addEntry(context),
@@ -573,7 +574,7 @@ class _OpenMapEditor extends StatelessWidget {
             path: childPath,
             label: entry.key,
             value: entry.value,
-            trailing: IconButton(
+            trailing: ChromeIconButton(
               tooltip: l10n.rpgDeleteEntry,
               onPressed: () => controller.removeMapEntry(path, entry.key),
               icon: const Icon(Icons.delete_outline),

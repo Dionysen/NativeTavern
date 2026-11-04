@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
 /// View mode for character list display
@@ -10,6 +11,33 @@ enum CharacterViewMode {
 
   /// Compact grid view with 3 columns (small size)
   compactGrid,
+}
+
+/// Avatar geometry for character list cards.
+enum CharacterAvatarShape {
+  circle,
+  square,
+  rectangle,
+}
+
+extension CharacterAvatarShapeExtension on CharacterAvatarShape {
+  CharacterAvatarShape get next => switch (this) {
+        CharacterAvatarShape.circle => CharacterAvatarShape.square,
+        CharacterAvatarShape.square => CharacterAvatarShape.rectangle,
+        CharacterAvatarShape.rectangle => CharacterAvatarShape.circle,
+      };
+
+  IconData get icon => switch (this) {
+        CharacterAvatarShape.circle => Icons.circle_outlined,
+        CharacterAvatarShape.square => Icons.square_outlined,
+        CharacterAvatarShape.rectangle => Icons.crop_portrait_outlined,
+      };
+
+  String getDisplayName(AppLocalizations l10n) => switch (this) {
+        CharacterAvatarShape.circle => l10n.characterAvatarShapeCircle,
+        CharacterAvatarShape.square => l10n.characterAvatarShapeSquare,
+        CharacterAvatarShape.rectangle => l10n.characterAvatarShapeRectangle,
+      };
 }
 
 extension CharacterViewModeExtension on CharacterViewMode {

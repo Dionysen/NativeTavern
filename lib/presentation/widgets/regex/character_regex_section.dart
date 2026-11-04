@@ -4,6 +4,7 @@ import 'package:native_tavern/data/models/regex_script.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/widgets/regex/regex_script_widgets.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Character-scoped regex scripts list for character detail.
 class CharacterRegexSection extends ConsumerWidget {
@@ -53,7 +54,7 @@ class CharacterRegexSection extends ConsumerWidget {
                     ],
                   ),
                 ),
-                IconButton(
+                ChromeIconButton(
                   icon: const Icon(Icons.add),
                   tooltip: l10n.addScript,
                   onPressed: () => _showEditor(context, ref, null),

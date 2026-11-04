@@ -70,6 +70,7 @@ import 'package:native_tavern/presentation/widgets/live2d/live2d_character_view.
 import 'package:native_tavern/presentation/widgets/live2d/live2d_stage_gestures.dart';
 import 'package:native_tavern/presentation/widgets/rpg/rpg_game_panel.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import '../../widgets/chat/swipe_picker_sheet.dart';
@@ -461,7 +462,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
-                    IconButton(
+                    ChromeIconButton(
                       onPressed: () => Navigator.pop(sheetContext, _importRpg),
                       icon: const Icon(Icons.file_open_outlined),
                       tooltip: AppLocalizations.of(context).importScenario,
@@ -1107,7 +1108,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                     style: const TextStyle(color: Colors.red),
                                   ),
                                 ),
-                                IconButton(
+                                ChromeIconButton(
                                   icon: const Icon(Icons.close, size: 20),
                                   onPressed: () {
                                     // Clear error
@@ -1257,7 +1258,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ),
       actions: spacedAppBarActions([
         if (chatState.hasUnsavedChanges)
-          IconButton(
+          ChromeIconButton(
             icon: Icon(
               Icons.save_outlined,
               color: Theme.of(context).colorScheme.primary,
@@ -1267,7 +1268,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
         ChatTTSPlaybackControls(ownerId: widget.chatId),
         if (kRpgProductUiEnabled)
-          IconButton(
+          ChromeIconButton(
             key: const Key('rpg-mode-toggle'),
             icon: Icon(
               rpgState.enabled
@@ -1280,7 +1281,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             onPressed: rpgState.isLoading ? null : _toggleRpgMode,
           ),
         // Bookmarks button
-        IconButton(
+        ChromeIconButton(
           icon: const Icon(Icons.bookmark_border),
           tooltip: l10n.bookmarks,
           onPressed: () => _showBookmarksDialog(context),
@@ -1292,7 +1293,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ?.type ==
                 BackgroundType.image ||
             chatState.character?.assets?.live2d?.enabled == true)
-          IconButton(
+          ChromeIconButton(
             icon: Icon(
               ref.watch(appSettingsProvider.select((s) => s.chatLayoutMode)) ==
                       'bubble'
@@ -1312,7 +1313,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         if (chatState.messages.isNotEmpty &&
             chatState.messages.last.role == MessageRole.assistant &&
             !chatState.isGenerating)
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.refresh),
             tooltip: l10n.regenerate,
             onPressed: _regenerateMessage,
@@ -2349,29 +2350,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          IconButton(
+                          ChromeIconButton(
+                            density: ChromeIconButtonDensity.compact,
                             onPressed: () =>
                                 _setInputMenuVisible(!_showInputMenu),
                             tooltip: l10n.moreOptions,
-                            style: IconButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              foregroundColor: _showInputMenu
-                                  ? scheme.primary
-                                  : scheme.onSurfaceVariant,
-                              visualDensity: VisualDensity.compact,
-                              splashFactory: NoSplash.splashFactory,
-                              highlightColor: Colors.transparent,
-                            ),
                             icon: Icon(
                               _showInputMenu
                                   ? Icons.close_rounded
                                   : Icons.menu_rounded,
                               size: 22,
-                            ),
-                            padding: const EdgeInsets.all(6),
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
                             ),
                           ),
                           const Spacer(),
@@ -3431,15 +3419,14 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        IconButton(
+                        ChromeIconButton(
+                          density: ChromeIconButtonDensity.compact,
                           icon: const Icon(Icons.chevron_left, size: 20),
                           onPressed: widget.message.currentSwipeIndex > 0
                               ? () => widget.onSwipe(
                                     widget.message.currentSwipeIndex - 1,
                                   )
                               : null,
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
                         ),
                         GestureDetector(
                           // Long press opens the Swipe Picker (ST 1.17+)
@@ -3456,7 +3443,8 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                             ),
                           ),
                         ),
-                        IconButton(
+                        ChromeIconButton(
+                          density: ChromeIconButtonDensity.compact,
                           icon: const Icon(Icons.chevron_right, size: 20),
                           onPressed: widget.message.currentSwipeIndex <
                                   widget.message.swipes.length - 1
@@ -3464,8 +3452,6 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                                     widget.message.currentSwipeIndex + 1,
                                   )
                               : null,
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
                         ),
                       ],
                     ),
@@ -3479,14 +3465,14 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                         widget.message.characterId ?? widget.character?.id,
                   ),
                 if (isUser && !_isEditing && !widget.isGenerating)
-                  IconButton(
+                  ChromeIconButton(
+                    density: ChromeIconButtonDensity.compact,
                     icon: const Icon(Icons.edit, size: 16),
                     tooltip: AppLocalizations.of(context).edit,
                     onPressed: () {
                       _editController.text = widget.message.content;
                       setState(() => _isEditing = true);
                     },
-                    visualDensity: VisualDensity.compact,
                   ),
               ],
             ),
@@ -3656,7 +3642,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
             Positioned(
               top: 0,
               right: 0,
-              child: IconButton(
+              child: ChromeIconButton(
                 icon: const Icon(Icons.close, color: Colors.white),
                 onPressed: () => Navigator.pop(context),
               ),

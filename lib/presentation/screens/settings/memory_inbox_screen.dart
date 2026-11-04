@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:native_tavern/data/models/chat.dart';
@@ -36,13 +37,13 @@ class _MemoryInboxScreenState extends ConsumerState<MemoryInboxScreen> {
       appBar: AppBar(
         title: Text(l10n.memoryInbox),
         actions: spacedAppBarActions([
-          IconButton(
+          ChromeIconButton(
             key: const Key('memory-context-settings'),
             tooltip: l10n.memoryChatContext,
             onPressed: _showContextSettings,
             icon: const Icon(Icons.psychology_outlined),
           ),
-          IconButton(
+          ChromeIconButton(
             tooltip: l10n.refresh,
             onPressed: inbox.isLoading
                 ? null
@@ -106,7 +107,7 @@ class _MemoryInboxScreenState extends ConsumerState<MemoryInboxScreen> {
                 ),
                 const SizedBox(width: 8),
                 if (inbox.isExtracting)
-                  IconButton.filledTonal(
+                  ChromeIconButton.filledTonal(
                     key: const Key('memory-cancel-extraction'),
                     tooltip: l10n.memoryCancelExtraction,
                     onPressed: () => ref
@@ -115,7 +116,7 @@ class _MemoryInboxScreenState extends ConsumerState<MemoryInboxScreen> {
                     icon: const Icon(Icons.stop),
                   )
                 else
-                  IconButton.filled(
+                  ChromeIconButton.filled(
                     key: const Key('memory-extract-chat'),
                     tooltip: l10n.memoryExtractFromChat,
                     onPressed: selectedChatId == null
@@ -201,14 +202,14 @@ class _MemoryInboxScreenState extends ConsumerState<MemoryInboxScreen> {
                       child: Text(
                           l10n.memorySelectedCount(inbox.selectedIds.length)),
                     ),
-                    IconButton(
+                    ChromeIconButton(
                       tooltip: l10n.memoryClearSelection,
                       onPressed: () => ref
                           .read(memoryInboxProvider.notifier)
                           .clearSelection(),
                       icon: const Icon(Icons.close),
                     ),
-                    IconButton.filledTonal(
+                    ChromeIconButton.filledTonal(
                       key: const Key('memory-batch-ignore'),
                       tooltip: l10n.memoryIgnoreSelected,
                       onPressed: () => _run(
@@ -219,7 +220,7 @@ class _MemoryInboxScreenState extends ConsumerState<MemoryInboxScreen> {
                       icon: const Icon(Icons.visibility_off_outlined),
                     ),
                     const SizedBox(width: 8),
-                    IconButton.filled(
+                    ChromeIconButton.filled(
                       key: const Key('memory-merge-selected'),
                       tooltip: l10n.memoryMergeSelected,
                       onPressed:
@@ -624,21 +625,21 @@ class _MemoryItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if (onApprove != null)
-                  IconButton(
+                  ChromeIconButton(
                     key: Key('memory-approve-${memory.id}'),
                     tooltip: l10n.memoryApprove,
                     onPressed: onApprove,
                     icon: const Icon(Icons.check_circle_outline),
                   ),
                 if (onEdit != null)
-                  IconButton(
+                  ChromeIconButton(
                     key: Key('memory-edit-${memory.id}'),
                     tooltip: l10n.edit,
                     onPressed: onEdit,
                     icon: const Icon(Icons.edit_outlined),
                   ),
                 if (onLock != null)
-                  IconButton(
+                  ChromeIconButton(
                     key: Key('memory-lock-${memory.id}'),
                     tooltip:
                         memory.locked ? l10n.memoryUnlock : l10n.memoryLock,
@@ -647,14 +648,14 @@ class _MemoryItem extends StatelessWidget {
                         memory.locked ? Icons.lock_open : Icons.lock_outline),
                   ),
                 if (onSource != null)
-                  IconButton(
+                  ChromeIconButton(
                     key: Key('memory-source-${memory.id}'),
                     tooltip: l10n.memoryOpenSource,
                     onPressed: onSource,
                     icon: const Icon(Icons.open_in_new),
                   ),
                 if (onIgnore != null)
-                  IconButton(
+                  ChromeIconButton(
                     key: Key('memory-ignore-${memory.id}'),
                     tooltip: l10n.memoryIgnore,
                     onPressed: onIgnore,

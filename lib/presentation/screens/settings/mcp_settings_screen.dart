@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/models/built_in_tool.dart';
 import 'package:native_tavern/domain/models/mcp.dart';
@@ -24,7 +25,7 @@ class McpSettingsScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(l10n.mcpServers),
           actions: [
-            IconButton(
+            ChromeIconButton(
               key: const Key('mcp-add-server'),
               onPressed: () => _editServer(context, controller),
               icon: const Icon(Icons.add),
@@ -565,7 +566,7 @@ class _McpServerEditorDialogState extends State<_McpServerEditorDialog> {
                 enableSuggestions: false,
                 decoration: InputDecoration(
                   labelText: l10n.mcpBearerToken,
-                  suffixIcon: IconButton(
+                  suffixIcon: ChromeIconButton(
                     onPressed: () =>
                         setState(() => _obscureToken = !_obscureToken),
                     icon: Icon(
@@ -683,7 +684,7 @@ class _ActionIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox.square(
       dimension: 42,
-      child: IconButton(
+      child: ChromeIconButton(
         onPressed: onPressed,
         icon: Icon(icon),
         tooltip: tooltip,

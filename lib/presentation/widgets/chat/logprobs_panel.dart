@@ -5,6 +5,7 @@ import 'package:native_tavern/data/models/logprobs.dart';
 import 'package:native_tavern/presentation/providers/logprobs_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Panel for displaying token log probabilities
 class LogprobsPanel extends ConsumerWidget {
@@ -104,11 +105,9 @@ class LogprobsPanel extends ConsumerWidget {
           ),
           if (onClose != null) ...[
             const SizedBox(width: 8),
-            IconButton(
+            ChromeIconButton(density: ChromeIconButtonDensity.compact, 
               icon: const Icon(Icons.close, size: 20),
               onPressed: onClose,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
             ),
           ],
         ],

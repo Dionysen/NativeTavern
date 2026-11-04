@@ -759,6 +759,15 @@ class AppLocalizationsId extends AppLocalizations {
   String get gridView => 'Tampilan Grid';
 
   @override
+  String get characterAvatarShapeCircle => 'Circular avatar';
+
+  @override
+  String get characterAvatarShapeSquare => 'Square avatar';
+
+  @override
+  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+
+  @override
   String get search => 'Cari';
 
   @override

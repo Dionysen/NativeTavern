@@ -5,6 +5,7 @@ import 'package:native_tavern/domain/services/variables_service.dart';
 import 'package:native_tavern/presentation/providers/variables_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
@@ -27,7 +28,7 @@ class VariablesSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(chatId != null ? l10n.chatVariables : l10n.variables),
         actions: spacedAppBarActions([
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.add),
             tooltip: l10n.addVariable,
             onPressed: () => _showAddVariableDialog(context, ref),
@@ -443,22 +444,22 @@ class _VariableTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.remove, size: 18),
             onPressed: onDecrement,
             tooltip: l10n.decrement,
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.add, size: 18),
             onPressed: onIncrement,
             tooltip: l10n.increment,
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.edit, size: 18),
             onPressed: onEdit,
             tooltip: l10n.edit,
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.delete, size: 18, color: Colors.red),
             onPressed: onDelete,
             tooltip: l10n.delete,

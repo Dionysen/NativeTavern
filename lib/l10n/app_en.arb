@@ -1038,6 +1038,18 @@
   "@gridView": {
     "description": "Grid view toggle"
   },
+  "characterAvatarShapeCircle": "Circular avatar",
+  "@characterAvatarShapeCircle": {
+    "description": "Character list avatar shape: circle"
+  },
+  "characterAvatarShapeSquare": "Square avatar",
+  "@characterAvatarShapeSquare": {
+    "description": "Character list avatar shape: square"
+  },
+  "characterAvatarShapeRectangle": "Rectangular avatar",
+  "@characterAvatarShapeRectangle": {
+    "description": "Character list avatar shape: portrait rectangle"
+  },
   "search": "Search",
   "@search": {
     "description": "Search label"

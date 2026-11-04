@@ -5,6 +5,7 @@ import 'package:native_tavern/presentation/providers/tag_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Screen for managing tags
 class TagsScreen extends ConsumerStatefulWidget {
@@ -24,7 +25,7 @@ class _TagsScreenState extends ConsumerState<TagsScreen> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.tags),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.add),
             tooltip: AppLocalizations.of(context)!.createTag,
             onPressed: () => _showCreateTagDialog(context),

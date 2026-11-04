@@ -9,6 +9,7 @@ import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 class GroupDetailScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -221,17 +222,17 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
       appBar: AppBar(
         title: Text(_group!.name),
         actions: spacedAppBarActions([
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.play_arrow),
             tooltip: AppLocalizations.of(context)!.startChatAction,
             onPressed: _group!.members.isNotEmpty ? _startGroupChat : null,
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.save),
             tooltip: AppLocalizations.of(context)!.save,
             onPressed: _saveGroup,
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.delete),
             tooltip: AppLocalizations.of(context)!.delete,
             onPressed: _deleteGroup,
@@ -327,7 +328,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
                             .membersCount(_group!.members.length),
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      IconButton(
+                      ChromeIconButton(
                         icon: const Icon(Icons.add),
                         tooltip: AppLocalizations.of(context)!.addMember,
                         onPressed: _addMember,
@@ -467,7 +468,7 @@ class _MemberTile extends StatelessWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
+              ChromeIconButton(
                 icon: Icon(
                   member.isMuted ? Icons.volume_off : Icons.volume_up,
                   color: member.isMuted ? Colors.grey : null,
@@ -477,12 +478,12 @@ class _MemberTile extends StatelessWidget {
                     : AppLocalizations.of(context)!.mute,
                 onPressed: onToggleMute,
               ),
-              IconButton(
+              ChromeIconButton(
                 icon: const Icon(Icons.settings),
                 tooltip: AppLocalizations.of(context)!.settings,
                 onPressed: onEdit,
               ),
-              IconButton(
+              ChromeIconButton(
                 icon: const Icon(Icons.remove_circle_outline),
                 tooltip: AppLocalizations.of(context)!.removeMember,
                 onPressed: onRemove,

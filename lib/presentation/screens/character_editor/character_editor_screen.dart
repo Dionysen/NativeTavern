@@ -8,6 +8,7 @@ import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Character editor screen for creating/editing characters
 class CharacterEditorScreen extends ConsumerStatefulWidget {
@@ -532,7 +533,7 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
                     _alternateGreetingControllers.length),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              IconButton(
+              ChromeIconButton(
                 icon: const Icon(Icons.add_circle_outline),
                 onPressed: _addAlternateGreeting,
                 tooltip: AppLocalizations.of(context)!.addAlternateGreeting,
@@ -573,20 +574,20 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
                   const SizedBox(width: 8),
                   Column(
                     children: [
-                      IconButton(
+                      ChromeIconButton(
                         icon:
                             const Icon(Icons.delete_outline, color: Colors.red),
                         onPressed: () => _removeAlternateGreeting(index),
                         tooltip: AppLocalizations.of(context)!.removeGreeting,
                       ),
                       if (index > 0)
-                        IconButton(
+                        ChromeIconButton(
                           icon: const Icon(Icons.arrow_upward),
                           onPressed: () => _moveGreeting(index, -1),
                           tooltip: AppLocalizations.of(context)!.moveUp,
                         ),
                       if (index < _alternateGreetingControllers.length - 1)
-                        IconButton(
+                        ChromeIconButton(
                           icon: const Icon(Icons.arrow_downward),
                           onPressed: () => _moveGreeting(index, 1),
                           tooltip: AppLocalizations.of(context)!.moveDown,

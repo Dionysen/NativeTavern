@@ -17,6 +17,7 @@ import 'package:native_tavern/presentation/providers/moment_providers.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// WeChat Moments-style public feed. Browsing only; posting is a full page.
 class MomentsScreen extends ConsumerWidget {
@@ -88,12 +89,12 @@ class MomentsScreen extends ConsumerWidget {
                         foregroundColor: Colors.white,
                         title: Text(l10n.moments),
                         expandedHeight: _coverHeight + topInset,
-                        leading: IconButton(
+                        leading: ChromeIconButton(
                           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
                           onPressed: () => Navigator.of(context).maybePop(),
                         ),
                         actions: [
-                          IconButton(
+                          ChromeIconButton(
                             key: const Key('moments-compose'),
                             tooltip: l10n.momentsCompose,
                             onPressed: () => _compose(context, ref, selfName),
@@ -226,7 +227,7 @@ class _CoverHeader extends StatelessWidget {
             Positioned(
               top: topInset + 4,
               left: 4,
-              child: IconButton(
+              child: ChromeIconButton(
                 icon: const Icon(Icons.arrow_back_ios_new,
                     size: 18, color: Colors.white),
                 onPressed: onBack,
@@ -383,10 +384,9 @@ class _MomentRowState extends ConsumerState<_MomentRow> {
                         },
                       ),
                       const SizedBox(width: 8),
-                      IconButton(
+                      ChromeIconButton(density: ChromeIconButtonDensity.compact, 
                         key: Key('moment-like-${post.id}'),
                         tooltip: 'Like',
-                        visualDensity: VisualDensity.compact,
                         icon: Icon(
                           widget.item.likedByViewer
                               ? Icons.favorite

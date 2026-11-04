@@ -745,6 +745,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get gridView => '网格视图';
 
   @override
+  String get characterAvatarShapeCircle => '圆形头像';
+
+  @override
+  String get characterAvatarShapeSquare => '方形头像';
+
+  @override
+  String get characterAvatarShapeRectangle => '矩形头像';
+
+  @override
   String get search => '搜索';
 
   @override

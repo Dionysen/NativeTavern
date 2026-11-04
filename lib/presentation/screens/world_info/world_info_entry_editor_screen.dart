@@ -6,6 +6,7 @@ import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Enhanced World Info Entry Editor Screen with all new fields
 class WorldInfoEntryEditorScreen extends ConsumerStatefulWidget {
@@ -117,7 +118,7 @@ class _WorldInfoEntryEditorScreenState
       appBar: AppBar(
         title: Text(widget.entry == null ? _l10n.createEntry : _l10n.editEntry),
         actions: spacedAppBarActions([
-          IconButton(
+          ChromeIconButton(
             icon: Icon(_isFavorite ? Icons.star : Icons.star_border),
             tooltip: _l10n.favorites,
             onPressed: () => setState(() => _isFavorite = !_isFavorite),
@@ -126,7 +127,7 @@ class _WorldInfoEntryEditorScreenState
             value: _enabled,
             onChanged: (value) => setState(() => _enabled = value),
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.check),
             tooltip: _l10n.save,
             onPressed: _isSaving ? null : _save,

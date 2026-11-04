@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/live2d.dart';
@@ -520,12 +521,12 @@ class _Live2DSettingsEditorState extends ConsumerState<_Live2DSettingsEditor> {
       appBar: AppBar(
         title: Text('${widget.character.name} Live2D'),
         actions: spacedAppBarActions([
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.info_outline),
             tooltip: l10n.live2dLicensing,
             onPressed: _showLicenseNotice,
           ),
-          IconButton(
+          ChromeIconButton(
             icon: _isSaving
                 ? const SizedBox(
                     width: 20,
@@ -700,7 +701,7 @@ class _Live2DSettingsEditorState extends ConsumerState<_Live2DSettingsEditor> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    IconButton.filled(
+                    ChromeIconButton.filled(
                       key: const Key('live2d-preview-play-motion'),
                       icon: _isPlayingPreviewMotion
                           ? const SizedBox(
@@ -762,7 +763,7 @@ class _Live2DSettingsEditorState extends ConsumerState<_Live2DSettingsEditor> {
                         model.modelFileName,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      trailing: IconButton(
+                      trailing: ChromeIconButton(
                         icon: const Icon(Icons.delete_outline),
                         tooltip: l10n.live2dDeleteImportedModel,
                         onPressed: _isDeleting || _isImporting

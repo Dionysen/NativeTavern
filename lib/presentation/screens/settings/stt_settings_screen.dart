@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/stt_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -23,7 +24,7 @@ class STTSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.speechToText),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.restore),
             tooltip: l10n.resetToDefaults,
             onPressed: () {

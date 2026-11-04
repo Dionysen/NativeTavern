@@ -754,6 +754,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get gridView => 'عرض الشبكة';
 
   @override
+  String get characterAvatarShapeCircle => 'Circular avatar';
+
+  @override
+  String get characterAvatarShapeSquare => 'Square avatar';
+
+  @override
+  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+
+  @override
   String get search => 'بحث';
 
   @override

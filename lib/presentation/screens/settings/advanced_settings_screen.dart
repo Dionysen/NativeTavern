@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/llm_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -19,7 +20,7 @@ class AdvancedSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.advancedSettings),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.restore),
             tooltip: l10n.resetToDefaults,
             onPressed: () => _showResetConfirmation(context, ref),

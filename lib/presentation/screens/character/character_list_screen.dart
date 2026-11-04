@@ -13,6 +13,7 @@ import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'character_view_mode.dart';
 
 /// Character list screen
@@ -27,6 +28,7 @@ class CharacterListScreen extends ConsumerStatefulWidget {
 class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   String _searchQuery = '';
   CharacterViewMode _viewMode = CharacterViewMode.compactGrid;
+  CharacterAvatarShape _avatarShape = CharacterAvatarShape.circle;
   Timer? _searchDebounce;
 
   @override
@@ -44,22 +46,29 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
       appBar: AppBar(
         title: Text(l10n.characters),
         actions: spacedAppBarActions([
-          IconButton(
+          if (_viewMode == CharacterViewMode.list)
+            ChromeIconButton(
+              icon: Icon(_avatarShape.icon),
+              onPressed: () =>
+                  setState(() => _avatarShape = _avatarShape.next),
+              tooltip: _avatarShape.getDisplayName(l10n),
+            ),
+          ChromeIconButton(
             icon: _getViewModeIcon(),
             onPressed: () => setState(() => _viewMode = _viewMode.next),
             tooltip: _viewMode.getDisplayName(l10n),
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.add),
             tooltip: l10n.createCharacter,
             onPressed: () => context.push(AppRoutes.characterCreate),
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.refresh),
             tooltip: l10n.retry,
             onPressed: () => ref.read(characterListProvider.notifier).refresh(),
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.file_download_outlined),
             tooltip: l10n.import,
             onPressed: () => context.push(AppRoutes.import_),
@@ -107,7 +116,10 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
 
                   switch (_viewMode) {
                     case CharacterViewMode.list:
-                      return _CharacterListView(characters: filtered);
+                      return _CharacterListView(
+                        characters: filtered,
+                        avatarShape: _avatarShape,
+                      );
                     case CharacterViewMode.grid:
                       return _CharacterGridView(characters: filtered);
                     case CharacterViewMode.compactGrid:
@@ -168,7 +180,7 @@ class _SearchBar extends StatelessWidget {
         decoration: InputDecoration(
           hintText: l10n.searchCharacters,
           prefixIcon: const Icon(Icons.search),
-          suffixIcon: IconButton(
+          suffixIcon: ChromeIconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
               // TODO: Show filter options
@@ -206,8 +218,12 @@ class _CharacterGridView extends StatelessWidget {
 
 class _CharacterListView extends StatelessWidget {
   final List<Character> characters;
+  final CharacterAvatarShape avatarShape;
 
-  const _CharacterListView({required this.characters});
+  const _CharacterListView({
+    required this.characters,
+    required this.avatarShape,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +231,10 @@ class _CharacterListView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: characters.length,
       itemBuilder: (context, index) {
-        return _CharacterListTile(character: characters[index]);
+        return _CharacterListTile(
+          character: characters[index],
+          avatarShape: avatarShape,
+        );
       },
     );
   }
@@ -652,8 +671,12 @@ class _CharacterCompactGridCard extends ConsumerWidget {
 
 class _CharacterListTile extends ConsumerWidget {
   final Character character;
+  final CharacterAvatarShape avatarShape;
 
-  const _CharacterListTile({required this.character});
+  const _CharacterListTile({
+    required this.character,
+    required this.avatarShape,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -679,18 +702,18 @@ class _CharacterListTile extends ConsumerWidget {
           ref,
           character,
         ),
-        // Overflow sits on the title row (not vertically centered). ListTile's
-        // trailing centering leaves large empty bands on multi-line cards.
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+          // Equal vertical insets so text sits evenly in the card.
+          padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildListAvatar(),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -704,21 +727,9 @@ class _CharacterListTile extends ConsumerWidget {
                           ),
                         ),
                         AdaptiveActionMenuButton<String>(
-                          icon: const Icon(
-                            Icons.more_vert,
-                            size: ChromeControls.menuIconSize,
-                          ),
                           tooltip: l10n.moreOptions,
                           title: character.name,
-                          visualDensity: VisualDensity.compact,
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(
-                            minWidth: ChromeControls.buttonSize,
-                            minHeight: ChromeControls.buttonSize,
-                          ),
-                          style: IconButton.styleFrom(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
+                          density: ChromeIconButtonDensity.compact,
                           itemBuilder: (context) => [
                             AdaptiveActionDrawerItem(
                               value: 'chat',
@@ -751,6 +762,7 @@ class _CharacterListTile extends ConsumerWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 4),
                     Text(
                       description,
                       style: metaStyle,
@@ -758,7 +770,7 @@ class _CharacterListTile extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (character.tags.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Wrap(
                         spacing: 4,
                         runSpacing: 4,
@@ -797,24 +809,22 @@ class _CharacterListTile extends ConsumerWidget {
   }
 
   Widget _buildListAvatar() {
-    if (character.assets?.avatarPath != null) {
-      return CharacterAvatarCircle(
-        imagePath: character.assets!.avatarPath!,
-        radius: 28,
-      );
-    }
+    // Keep a shared width so list rows align when switching shapes.
+    const width = 56.0;
+    final (height, shape, radius) = switch (avatarShape) {
+      CharacterAvatarShape.circle => (width, BoxShape.circle, width / 2),
+      CharacterAvatarShape.square => (width, BoxShape.rectangle, 8.0),
+      CharacterAvatarShape.rectangle => (width * 4 / 3, BoxShape.rectangle, 8.0),
+    };
 
-    final icon = _getCharacterIcon(character);
-    final color = _getCharacterColor(character);
-
-    return CircleAvatar(
-      radius: 28,
-      backgroundColor: color,
-      child: Icon(
-        icon,
-        color: Colors.white,
-        size: 28,
-      ),
+    return CharacterAvatarShaped(
+      imagePath: character.assets?.avatarPath,
+      width: width,
+      height: height,
+      shape: shape,
+      borderRadius: radius,
+      fallbackColor: _getCharacterColor(character),
+      fallbackIcon: _getCharacterIcon(character),
     );
   }
 

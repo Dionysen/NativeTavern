@@ -758,6 +758,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get gridView => 'Izgara Görünümü';
 
   @override
+  String get characterAvatarShapeCircle => 'Circular avatar';
+
+  @override
+  String get characterAvatarShapeSquare => 'Square avatar';
+
+  @override
+  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+
+  @override
   String get search => 'Ara';
 
   @override

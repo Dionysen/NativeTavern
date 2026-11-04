@@ -11,6 +11,7 @@ import 'package:native_tavern/presentation/providers/story_timeline_providers.da
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/screens/play/story_models.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 class StoryScreen extends ConsumerWidget {
   const StoryScreen({super.key, this.initialChatId});
@@ -27,12 +28,12 @@ class StoryScreen extends ConsumerWidget {
         title: Text(l10n.story),
         actions: spacedAppBarActions([
           if (visibleChapters.isNotEmpty)
-            IconButton(
+            ChromeIconButton(
               tooltip: l10n.storySearch,
               onPressed: () => _search(context, visibleChapters),
               icon: const Icon(Icons.search),
             ),
-          IconButton(
+          ChromeIconButton(
             key: const Key('story-jot-note'),
             tooltip: l10n.storyJotNote,
             onPressed: () => _showJotNoteSheet(
@@ -43,7 +44,7 @@ class StoryScreen extends ConsumerWidget {
             ),
             icon: const Icon(Icons.edit_note_outlined),
           ),
-          IconButton(
+          ChromeIconButton(
             key: const Key('story-open-inbox'),
             tooltip: l10n.memoryInbox,
             onPressed: () => context.push(AppRoutes.memoryInbox),
@@ -189,7 +190,7 @@ class _StoryRoot extends ConsumerWidget {
               child: Text(title, style: Theme.of(context).textTheme.titleLarge),
             ),
             if (branches.length >= 2)
-              IconButton(
+              ChromeIconButton(
                 tooltip: l10n.storyCompare,
                 onPressed: () => _compare(context, ref, branches),
                 icon: const Icon(Icons.compare_arrows),
@@ -433,7 +434,7 @@ class _StoryChapterTile extends ConsumerWidget {
                 icon: const Icon(Icons.call_split),
                 label: Text(l10n.storyFork),
               ),
-              IconButton(
+              ChromeIconButton(
                 tooltip: l10n.storyViewSource,
                 onPressed: () => context.push(chapter.chatPath),
                 icon: const Icon(Icons.history),
@@ -804,7 +805,7 @@ class _StorySearchDelegate extends SearchDelegate<StoryChapterTimelineItem?> {
   @override
   List<Widget>? buildActions(BuildContext context) => [
         if (query.isNotEmpty)
-          IconButton(
+          ChromeIconButton(
             tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
             onPressed: () => query = '',
             icon: const Icon(Icons.clear),
@@ -812,7 +813,7 @@ class _StorySearchDelegate extends SearchDelegate<StoryChapterTimelineItem?> {
       ];
 
   @override
-  Widget? buildLeading(BuildContext context) => IconButton(
+  Widget? buildLeading(BuildContext context) => ChromeIconButton(
         tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         onPressed: () => close(context, null),
         icon: const Icon(Icons.arrow_back),

@@ -8,6 +8,7 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/chat/sprite_display.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for managing sprite settings
@@ -23,7 +24,7 @@ class SpriteSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.expressionSprites),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.restore),
             tooltip: l10n.resetToDefaults,
             onPressed: () {
@@ -234,7 +235,7 @@ class _CharacterSpritesScreenState
       appBar: AppBar(
         title: Text(l10n.characterSprites(widget.characterName)),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.folder_open),
             tooltip: l10n.importFromFolder,
             onPressed: _importFromFolder,

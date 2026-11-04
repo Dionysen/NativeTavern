@@ -8,6 +8,7 @@ import 'package:native_tavern/data/models/tag.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/screens/personas/persona_editor_screen.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -27,7 +28,7 @@ class PersonasScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.personas),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.add),
             tooltip: AppLocalizations.of(context)!.createPersona,
             onPressed: () => _showCreatePersonaDialog(context, ref),

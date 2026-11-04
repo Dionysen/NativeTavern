@@ -73,18 +73,71 @@ class CharacterAvatarCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: radius * 2,
-      child: ClipOval(
-        child: CharacterAvatarImage(
-          imagePath: imagePath,
-          errorBuilder: errorBuilder ??
-              (_, __, ___) => CircleAvatar(
-                    radius: radius,
-                    child: const Icon(Icons.person),
-                  ),
+    return CharacterAvatarShaped(
+      imagePath: imagePath,
+      width: radius * 2,
+      height: radius * 2,
+      shape: BoxShape.circle,
+      errorBuilder: errorBuilder,
+    );
+  }
+}
+
+/// Avatar clipped as circle, rounded square, or portrait rectangle.
+class CharacterAvatarShaped extends StatelessWidget {
+  final String? imagePath;
+  final double width;
+  final double height;
+  final BoxShape shape;
+  final double borderRadius;
+  final Color? fallbackColor;
+  final IconData fallbackIcon;
+  final Widget Function(BuildContext, Object?, StackTrace?)? errorBuilder;
+
+  const CharacterAvatarShaped({
+    super.key,
+    this.imagePath,
+    required this.width,
+    required this.height,
+    this.shape = BoxShape.circle,
+    this.borderRadius = 8,
+    this.fallbackColor,
+    this.fallbackIcon = Icons.person,
+    this.errorBuilder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final fallback = ColoredBox(
+      color: fallbackColor ?? scheme.primary,
+      child: Center(
+        child: Icon(
+          fallbackIcon,
+          color: scheme.onPrimary,
+          size: width * 0.45,
         ),
       ),
+    );
+
+    final child = imagePath == null
+        ? fallback
+        : CharacterAvatarImage(
+            imagePath: imagePath!,
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter,
+            errorBuilder: errorBuilder ?? (_, __, ___) => fallback,
+          );
+
+    return SizedBox(
+      width: width,
+      height: height,
+      child: shape == BoxShape.circle
+          ? ClipOval(child: child)
+          : ClipRRect(
+              borderRadius: BorderRadius.circular(borderRadius),
+              child: child,
+            ),
     );
   }
 }

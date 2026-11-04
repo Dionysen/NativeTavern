@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/storage_governance_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -28,7 +29,7 @@ class _StorageManagementScreenState
       appBar: AppBar(
         title: Text(l10n.storageManagement),
         actions: [
-          IconButton(
+          ChromeIconButton(
             tooltip: l10n.refresh,
             onPressed: _working ? null : _refresh,
             icon: const Icon(Icons.refresh),

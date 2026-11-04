@@ -11,6 +11,7 @@ import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -99,12 +100,12 @@ class _PersonaEditorScreenState extends ConsumerState<PersonaEditorScreen>
           widget.persona == null ? _l10n.createPersona : _l10n.editPersona,
         ),
         actions: spacedAppBarActions([
-          IconButton(
+          ChromeIconButton(
             icon: Icon(_isFavorite ? Icons.star : Icons.star_border),
             tooltip: _l10n.favorite,
             onPressed: () => setState(() => _isFavorite = !_isFavorite),
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.check),
             tooltip: _l10n.save,
             onPressed: _isSaving ? null : _save,
@@ -244,7 +245,7 @@ class _PersonaEditorScreenState extends ConsumerState<PersonaEditorScreen>
                   style: const TextStyle(color: AppTheme.textSecondary),
                 ),
               ),
-              IconButton(
+              ChromeIconButton(
                 icon: const Icon(Icons.add),
                 tooltip: _l10n.addConnection,
                 onPressed: _showAddConnectionDialog,
@@ -286,7 +287,7 @@ class _PersonaEditorScreenState extends ConsumerState<PersonaEditorScreen>
                         subtitle: Text(_l10n.lockLabel(
                           _personaLockName(connection.lockType, _l10n),
                         )),
-                        trailing: IconButton(
+                        trailing: ChromeIconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () => _removeConnection(index),
                         ),

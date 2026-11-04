@@ -60,6 +60,9 @@ class AdaptivePopupMenuButton<T> extends StatelessWidget {
         iconSize: iconSize,
         enabled: enabled,
         initialValue: initialValue,
+        style: IconButton.styleFrom(
+          shape: ChromeControls.iconButtonShapeFor(),
+        ),
         child: child,
       ),
     );

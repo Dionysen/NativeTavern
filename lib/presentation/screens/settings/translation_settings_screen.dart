@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/translation_service.dart';
 import 'package:native_tavern/presentation/providers/translation_providers.dart';
@@ -20,7 +21,7 @@ class TranslationSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.translationSettings),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.restore),
             tooltip: l10n.resetToDefaults,
             onPressed: () {
@@ -159,7 +160,7 @@ class TranslationSettingsScreen extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Center(
-                  child: IconButton(
+                  child: ChromeIconButton(
                     icon: const Icon(Icons.swap_vert),
                     tooltip: l10n.swapLanguages,
                     onPressed:
@@ -420,7 +421,7 @@ class TranslateButton extends ConsumerWidget {
 
     if (!settings.enabled) return const SizedBox.shrink();
 
-    return IconButton(
+    return ChromeIconButton(
       icon: Icon(Icons.translate, size: size),
       tooltip: AppLocalizations.of(context).translate,
       onPressed: () async {

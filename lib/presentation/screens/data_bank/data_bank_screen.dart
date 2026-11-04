@@ -17,6 +17,7 @@ import 'package:native_tavern/presentation/controllers/data_bank_library_control
 import 'package:native_tavern/presentation/providers/data_bank_providers.dart';
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 abstract interface class DataBankFileGateway {
   Future<File?> pickDocument();
@@ -142,19 +143,19 @@ class _DataBankScreenState extends ConsumerState<DataBankScreen> {
       appBar: AppBar(
         title: Text(l10n.dataBank),
         actions: spacedAppBarActions([
-          IconButton(
+          ChromeIconButton(
             key: const Key('data-bank-context-settings'),
             tooltip: l10n.dataBankChatRetrievalSettings,
             onPressed: _showContextSettings,
             icon: const Icon(Icons.tune),
           ),
-          IconButton(
+          ChromeIconButton(
             key: const Key('data-bank-rebuild-index'),
             tooltip: l10n.dataBankRebuildSearchIndex,
             onPressed: _controller.working ? null : _rebuildIndex,
             icon: const Icon(Icons.manage_search_outlined),
           ),
-          IconButton(
+          ChromeIconButton(
             key: const Key('data-bank-import'),
             tooltip: l10n.dataBankImportDocument,
             onPressed: _controller.working ? null : _importDocument,
@@ -173,7 +174,7 @@ class _DataBankScreenState extends ConsumerState<DataBankScreen> {
               leading: const Icon(Icons.search),
               trailing: [
                 if (_controller.showingSearch)
-                  IconButton(
+                  ChromeIconButton(
                     tooltip: l10n.dataBankClearSearch,
                     onPressed: () {
                       _searchController.clear();
@@ -410,7 +411,7 @@ class _DataBankContextSettingsSheet extends ConsumerWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
-                  IconButton(
+                  ChromeIconButton(
                     tooltip: l10n.close,
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
@@ -719,23 +720,23 @@ class _DocumentCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
+                ChromeIconButton(
                   tooltip: l10n.preview,
                   onPressed: busy || entry.chunkCount == 0 ? null : onPreview,
                   icon: const Icon(Icons.visibility_outlined),
                 ),
-                IconButton(
+                ChromeIconButton(
                   tooltip: l10n.dataBankManageBindings,
                   onPressed: busy ? null : onBindings,
                   icon: const Icon(Icons.link_outlined),
                 ),
-                IconButton(
+                ChromeIconButton(
                   key: ValueKey('data-bank-retry-${document.id}'),
                   tooltip: failed ? l10n.retry : l10n.dataBankRebuildDocument,
                   onPressed: busy || disabled || processing ? null : onRetry,
                   icon: Icon(failed ? Icons.refresh : Icons.replay_outlined),
                 ),
-                IconButton(
+                ChromeIconButton(
                   key: ValueKey('data-bank-delete-${document.id}'),
                   tooltip: l10n.delete,
                   onPressed: busy ? null : onDelete,
@@ -807,7 +808,7 @@ class _PreviewSheet extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
-                  IconButton(
+                  ChromeIconButton(
                     tooltip: l10n.close,
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
@@ -905,7 +906,7 @@ class _BindingsDialogState extends State<_BindingsDialog> {
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(_bindingIcon(binding.scope)),
                   title: Text(_bindingLabel(l10n, binding)),
-                  trailing: IconButton(
+                  trailing: ChromeIconButton(
                     tooltip: l10n.dataBankRemoveBinding,
                     onPressed: _working ? null : () => _remove(binding),
                     icon: const Icon(Icons.delete_outline),
@@ -1054,7 +1055,7 @@ class _ErrorBanner extends StatelessWidget {
         color: Theme.of(context).colorScheme.error,
       ),
       actions: [
-        IconButton(
+        ChromeIconButton(
           tooltip: AppLocalizations.of(context).dataBankDismiss,
           onPressed: onDismiss,
           icon: const Icon(Icons.close),

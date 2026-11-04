@@ -759,6 +759,15 @@ class AppLocalizationsIt extends AppLocalizations {
   String get gridView => 'Vista Griglia';
 
   @override
+  String get characterAvatarShapeCircle => 'Circular avatar';
+
+  @override
+  String get characterAvatarShapeSquare => 'Square avatar';
+
+  @override
+  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+
+  @override
   String get search => 'Cerca';
 
   @override

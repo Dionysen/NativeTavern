@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import '../../../domain/services/slash_command_service.dart';
 import '../../theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -61,11 +62,9 @@ class SlashCommandSuggestions extends ConsumerWidget {
                   ),
                 ),
                 const Spacer(),
-                IconButton(
+                ChromeIconButton(density: ChromeIconButtonDensity.compact, 
                   icon: const Icon(Icons.close, size: 16),
                   onPressed: onDismiss,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
                   color: AppTheme.textMuted,
                 ),
               ],

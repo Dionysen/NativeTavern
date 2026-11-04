@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:native_tavern/data/models/chat.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Swipe Picker (aligned with SillyTavern 1.17+):
 /// browse, jump to, and delete swipes of a message.
@@ -175,12 +176,10 @@ class _SwipePickerSheetState extends State<SwipePickerSheet> {
                   ),
                   const SizedBox(width: 4),
                   if (_swipes.length > 1)
-                    IconButton(
+                    ChromeIconButton(
+                      density: ChromeIconButtonDensity.compact,
                       icon: const Icon(Icons.delete_outline, size: 18),
                       color: AppTheme.textMuted,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                          minWidth: 32, minHeight: 32),
                       onPressed: () => _confirmDelete(context, index),
                     ),
                 ],

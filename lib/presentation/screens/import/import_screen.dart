@@ -15,6 +15,7 @@ import 'package:native_tavern/domain/services/character_regex_import_service.dar
 import 'package:native_tavern/domain/services/live2d_import_service.dart';
 import 'package:native_tavern/domain/services/live2d_service.dart';
 import 'package:native_tavern/domain/services/url_import_service.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:path/path.dart' as p;
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
@@ -416,7 +417,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         title: Text(l10n.importCharacter),
         actions: [
           if (importState.hasResults)
-            IconButton(
+            ChromeIconButton(
               icon: const Icon(Icons.close),
               onPressed: () => ref.read(importStateProvider.notifier).clear(),
               tooltip: l10n.clear,
@@ -732,13 +733,13 @@ class _FilePickerViewState extends State<_FilePickerView> {
                           suffixIcon: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              IconButton(
+                              ChromeIconButton(
                                 icon: const Icon(Icons.content_paste, size: 20),
                                 onPressed: _pasteAndImport,
                                 tooltip: AppLocalizations.of(context)!
                                     .pasteAndImport,
                               ),
-                              IconButton(
+                              ChromeIconButton(
                                 icon: const Icon(Icons.download, size: 20),
                                 onPressed:
                                     widget.isLoading ? null : _handleUrlImport,

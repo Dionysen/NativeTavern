@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import '../../../data/models/tag.dart';
 import '../../providers/character_filter_providers.dart';
 import '../../providers/tag_providers.dart';
@@ -33,7 +34,7 @@ class CharacterFilterBar extends ConsumerWidget {
                     hintText: AppLocalizations.of(context)!.searchCharacters,
                     prefixIcon: const Icon(Icons.search, size: 20),
                     suffixIcon: filterState.searchQuery.isNotEmpty
-                        ? IconButton(
+                        ? ChromeIconButton(
                             icon: const Icon(Icons.clear, size: 20),
                             onPressed: () {
                               ref
@@ -61,7 +62,7 @@ class CharacterFilterBar extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               // Favorites toggle
-              IconButton(
+              ChromeIconButton(
                 icon: Icon(
                   filterState.showFavoritesOnly
                       ? Icons.favorite
@@ -104,7 +105,7 @@ class CharacterFilterBar extends ConsumerWidget {
                 }).toList(),
               ),
               // Filter button (tags)
-              IconButton(
+              ChromeIconButton(
                 icon: Badge(
                   isLabelVisible: filterState.selectedTagIds.isNotEmpty ||
                       filterState.selectedLegacyTags.isNotEmpty,

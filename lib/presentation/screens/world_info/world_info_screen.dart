@@ -18,6 +18,7 @@ import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dar
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Log a message to the console
 void _log(String message, {String? error, StackTrace? stackTrace}) {
@@ -53,12 +54,12 @@ class WorldInfoScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.worldInfoLorebooks),
         actions: spacedAppBarActions([
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.file_download),
             tooltip: AppLocalizations.of(context)!.import,
             onPressed: () => _importWorldInfo(context, ref),
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.add),
             tooltip: AppLocalizations.of(context)!.createLorebook,
             onPressed: () => _showCreateDialog(context, ref),
@@ -832,7 +833,7 @@ class _WorldInfoEntriesScreenState
       appBar: AppBar(
         title: Text(_worldInfo.name),
         actions: [
-          IconButton(
+          ChromeIconButton(density: ChromeIconButtonDensity.compact, 
             icon: const Icon(Icons.add),
             tooltip: AppLocalizations.of(context)!.addEntry,
             onPressed: () => _showEntryDialog(context, ref, null),
@@ -1003,14 +1004,13 @@ class _WorldInfoEntryCard extends StatelessWidget {
                                 backgroundColor:
                                     scheme.primary.withValues(alpha: 0.2),
                                 side: BorderSide.none,
-                                padding: EdgeInsets.zero,
                                 materialTapTargetSize:
                                     MaterialTapTargetSize.shrinkWrap,
                               ))
                           .toList(),
                     ),
                   ),
-                  IconButton(
+                  ChromeIconButton(
                     icon: const Icon(Icons.copy, size: 18),
                     onPressed: () => _copyToClipboard(context),
                     tooltip: l10n.copiedToClipboard,
@@ -1019,7 +1019,7 @@ class _WorldInfoEntryCard extends StatelessWidget {
                     value: entry.enabled,
                     onChanged: onToggle,
                   ),
-                  IconButton(
+                  ChromeIconButton(
                     icon: Icon(Icons.delete_outline, color: scheme.error),
                     onPressed: onDelete,
                   ),

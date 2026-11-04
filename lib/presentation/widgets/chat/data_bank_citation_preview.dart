@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:native_tavern/data/models/chat.dart';
 import 'package:native_tavern/data/models/data_bank_context.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 class DataBankCitationPreview extends StatelessWidget {
   final ChatMessage message;
@@ -79,7 +80,7 @@ class DataBankCitationSheet extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
-                  IconButton(
+                  ChromeIconButton(
                     tooltip: l10n.close,
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),

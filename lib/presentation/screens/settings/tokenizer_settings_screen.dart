@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/tokenizer.dart';
 import 'package:native_tavern/domain/services/tokenizer_service.dart';
@@ -36,7 +37,7 @@ class _TokenizerSettingsScreenState
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.tokenizerSettings),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () => _showHelpDialog(context, service),
             tooltip: AppLocalizations.of(context)!.tokenizerHelp,

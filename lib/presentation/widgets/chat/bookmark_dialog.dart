@@ -6,6 +6,7 @@ import 'package:native_tavern/presentation/providers/bookmark_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Dialog for creating a new bookmark
 class CreateBookmarkDialog extends ConsumerStatefulWidget {
@@ -285,12 +286,12 @@ class _BookmarkTile extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(
+            ChromeIconButton(
               icon: const Icon(Icons.call_split, color: AppTheme.primaryColor),
               tooltip: AppLocalizations.of(context)!.branchFromHere,
               onPressed: onTap,
             ),
-            IconButton(
+            ChromeIconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.red),
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: onDelete,

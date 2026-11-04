@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:native_tavern/domain/services/capability_registry.dart';
@@ -22,7 +23,7 @@ class CapabilityDiagnosticsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.capabilityCheck),
         actions: [
-          IconButton(
+          ChromeIconButton(
             tooltip: l10n.refresh,
             icon: const Icon(Icons.refresh),
             onPressed: () => _refresh(ref),
@@ -43,7 +44,7 @@ class CapabilityDiagnosticsScreen extends ConsumerWidget {
               error: (_, __) => ListTile(
                 leading: const Icon(Icons.error_outline, color: Colors.red),
                 title: Text(l10n.capabilityCheckFailed),
-                trailing: IconButton(
+                trailing: ChromeIconButton(
                   tooltip: l10n.retry,
                   icon: const Icon(Icons.refresh),
                   onPressed: () => _refresh(ref),
@@ -204,17 +205,17 @@ class _CapabilityTile extends StatelessWidget {
         ],
       ),
       trailing: switch (result.fixKind) {
-        CapabilityFixKind.openSettings => IconButton(
+        CapabilityFixKind.openSettings => ChromeIconButton(
             tooltip: l10n.capabilityOpenSettings,
             icon: const Icon(Icons.chevron_right),
             onPressed: () => onAction(result),
           ),
-        CapabilityFixKind.requestPermission => IconButton(
+        CapabilityFixKind.requestPermission => ChromeIconButton(
             tooltip: l10n.capabilityRequestPermission,
             icon: const Icon(Icons.security),
             onPressed: () => onAction(result),
           ),
-        CapabilityFixKind.retry => IconButton(
+        CapabilityFixKind.retry => ChromeIconButton(
             tooltip: l10n.retry,
             icon: const Icon(Icons.refresh),
             onPressed: () => onAction(result),

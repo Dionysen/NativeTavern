@@ -757,6 +757,15 @@ class AppLocalizationsVi extends AppLocalizations {
   String get gridView => 'Xem lưới';
 
   @override
+  String get characterAvatarShapeCircle => 'Circular avatar';
+
+  @override
+  String get characterAvatarShapeSquare => 'Square avatar';
+
+  @override
+  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+
+  @override
   String get search => 'Tìm kiếm';
 
   @override

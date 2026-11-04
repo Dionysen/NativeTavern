@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// One row in [showAdaptiveActionDrawer] / [AdaptiveActionMenuButton].
 class AdaptiveActionDrawerItem<T> {
@@ -124,7 +125,7 @@ Future<T?> showAdaptiveActionDrawer<T>({
   );
 }
 
-/// Icon / child trigger that opens [showAdaptiveActionDrawer].
+/// Circular icon trigger that opens [showAdaptiveActionDrawer].
 ///
 /// Drop-in replacement for action-oriented [AdaptivePopupMenuButton] usages.
 class AdaptiveActionMenuButton<T> extends StatelessWidget {
@@ -136,12 +137,8 @@ class AdaptiveActionMenuButton<T> extends StatelessWidget {
     this.child,
     this.tooltip,
     this.title,
-    this.padding = const EdgeInsets.all(8),
-    this.iconSize,
+    this.density = ChromeIconButtonDensity.standard,
     this.enabled = true,
-    this.visualDensity,
-    this.constraints,
-    this.style,
   });
 
   final List<AdaptiveActionDrawerItem<T>> Function(BuildContext context)
@@ -151,12 +148,8 @@ class AdaptiveActionMenuButton<T> extends StatelessWidget {
   final Widget? child;
   final String? tooltip;
   final String? title;
-  final EdgeInsetsGeometry padding;
-  final double? iconSize;
+  final ChromeIconButtonDensity density;
   final bool enabled;
-  final VisualDensity? visualDensity;
-  final BoxConstraints? constraints;
-  final ButtonStyle? style;
 
   Future<void> _open(BuildContext context) async {
     if (!enabled) return;
@@ -173,27 +166,27 @@ class AdaptiveActionMenuButton<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final resolvedIcon = icon ?? const Icon(Icons.more_vert);
     if (child != null) {
+      final size = density == ChromeIconButtonDensity.compact
+          ? ChromeControls.buttonSize
+          : ChromeControls.mobileButtonSize;
       return Tooltip(
         message: tooltip ?? '',
         child: InkWell(
           onTap: enabled ? () => _open(context) : null,
-          customBorder: context.appShape.iconButtonShape,
-          child: Padding(
-            padding: padding,
-            child: child,
+          customBorder: const CircleBorder(),
+          child: SizedBox(
+            width: size,
+            height: size,
+            child: Center(child: child),
           ),
         ),
       );
     }
 
-    return IconButton(
+    return ChromeIconButton(
       icon: resolvedIcon,
       tooltip: tooltip,
-      padding: padding,
-      iconSize: iconSize,
-      visualDensity: visualDensity,
-      constraints: constraints,
-      style: style,
+      density: density,
       onPressed: enabled ? () => _open(context) : null,
     );
   }

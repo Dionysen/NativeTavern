@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/stt_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/stt_providers.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 class ChatVoiceInputButton extends ConsumerStatefulWidget {
   const ChatVoiceInputButton({
@@ -65,12 +66,11 @@ class _ChatVoiceInputButtonState extends ConsumerState<ChatVoiceInputButton> {
               ),
             ),
           ),
-          IconButton(
+          ChromeIconButton(density: ChromeIconButtonDensity.compact, 
             key: const ValueKey('chat-voice-cancel-button'),
             onPressed: active ? _cancel : null,
             icon: const Icon(Icons.close),
             tooltip: l10n.cancelVoiceInput,
-            visualDensity: VisualDensity.compact,
           ),
         ],
       ),

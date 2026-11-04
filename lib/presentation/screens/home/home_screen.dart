@@ -16,6 +16,7 @@ import 'package:native_tavern/presentation/widgets/common/character_avatar_image
 import 'package:native_tavern/presentation/widgets/common/group_avatar.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Home screen showing recent chats
 class HomeScreen extends ConsumerStatefulWidget {
@@ -69,12 +70,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       appBar: AppBar(
         title: Text(l10n.appTitle),
         actions: spacedAppBarActions([
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.groups),
             tooltip: l10n.groupChats,
             onPressed: () => context.push(AppRoutes.groups),
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.file_download_outlined),
             tooltip: l10n.import,
             onPressed: () => context.push(AppRoutes.import_),
@@ -246,8 +247,7 @@ class _ChatListTile extends ConsumerWidget {
                   ),
             ),
             AdaptiveActionMenuButton<String>(
-              icon: const Icon(Icons.more_vert, size: 20),
-              padding: EdgeInsets.zero,
+              density: ChromeIconButtonDensity.compact,
               title: chat.title,
               onSelected: (value) => _handleMenuAction(context, ref, value),
               itemBuilder: (context) => [

@@ -8,6 +8,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/rpg_chat_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 class RpgGamePanel extends ConsumerWidget {
   const RpgGamePanel({
@@ -70,7 +71,7 @@ class RpgGamePanel extends ConsumerWidget {
                             ),
                       ),
                     ),
-                    IconButton(
+                    ChromeIconButton(
                       key: const Key('rpg-disable'),
                       onPressed: onDisable,
                       icon: const Icon(Icons.close, size: 19),

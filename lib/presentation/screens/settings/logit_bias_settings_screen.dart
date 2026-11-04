@@ -7,6 +7,7 @@ import 'package:native_tavern/domain/services/logit_bias_service.dart';
 import 'package:native_tavern/presentation/providers/logit_bias_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
@@ -41,7 +42,7 @@ class _LogitBiasSettingsScreenState
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.logitBias),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () => _showHelpDialog(context, service),
             tooltip: AppLocalizations.of(context)!.help,
@@ -357,7 +358,7 @@ class _PresetSelector extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            IconButton(
+            ChromeIconButton(
               icon: const Icon(Icons.add),
               onPressed: onAddPreset,
               tooltip: AppLocalizations.of(context)!.newPreset,
@@ -625,7 +626,7 @@ class _BiasEntryCardState extends ConsumerState<_BiasEntryCard> {
                 ),
                 const SizedBox(width: 8),
                 // Delete button
-                IconButton(
+                ChromeIconButton(
                   icon: const Icon(Icons.delete_outline),
                   onPressed: widget.onDelete,
                   tooltip: AppLocalizations.of(context)!.delete,

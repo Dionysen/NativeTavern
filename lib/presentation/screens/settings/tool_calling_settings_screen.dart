@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:native_tavern/domain/models/tool_generation.dart';
@@ -205,14 +206,14 @@ class _LimitStepper extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            IconButton(
+            ChromeIconButton(
               onPressed: value <= minimum
                   ? null
                   : () => onChanged((value - step).clamp(minimum, maximum)),
               icon: const Icon(Icons.remove),
               tooltip: l10n.toolDecrease(title),
             ),
-            IconButton(
+            ChromeIconButton(
               onPressed: value >= maximum
                   ? null
                   : () => onChanged((value + step).clamp(minimum, maximum)),

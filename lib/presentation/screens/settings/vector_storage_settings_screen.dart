@@ -7,6 +7,7 @@ import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/providers/vector_storage_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
@@ -25,7 +26,7 @@ class VectorStorageSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.vectorStorageRag),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () => _showHelpDialog(context),
             tooltip: l10n.help,
@@ -530,7 +531,7 @@ class _CollectionsSection extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            IconButton(
+            ChromeIconButton(
               icon: const Icon(Icons.add),
               onPressed: enabled ? onCreateCollection : null,
               tooltip: l10n.createCollection,
@@ -607,12 +608,12 @@ class _CollectionDetails extends ConsumerWidget {
                 ),
                 Row(
                   children: [
-                    IconButton(
+                    ChromeIconButton(
                       icon: const Icon(Icons.file_upload, size: 20),
                       onPressed: onExport,
                       tooltip: l10n.export,
                     ),
-                    IconButton(
+                    ChromeIconButton(
                       icon: const Icon(Icons.delete, size: 20),
                       onPressed: onDelete,
                       tooltip: l10n.delete,
@@ -750,7 +751,7 @@ class _CollectionDetails extends ConsumerWidget {
                                 : l10n.notEmbedded,
                           ),
                         ),
-                        trailing: IconButton(
+                        trailing: ChromeIconButton(
                           icon: const Icon(Icons.delete, size: 20),
                           onPressed: () {
                             ref

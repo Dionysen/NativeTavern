@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/core/services/initialization_service.dart';
 import 'package:native_tavern/domain/services/cloud_backup_service.dart';
@@ -28,7 +29,7 @@ class CloudBackupScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.cloudBackup),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.refresh),
             tooltip: l10n.refresh,
             onPressed: () {
@@ -492,7 +493,7 @@ class CloudBackupScreen extends ConsumerWidget {
                             style: const TextStyle(color: Colors.red),
                           ),
                         ),
-                        IconButton(
+                        ChromeIconButton(
                           icon: const Icon(Icons.close, color: Colors.red),
                           onPressed: () {
                             ref
@@ -890,12 +891,12 @@ class _CloudBackupTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.restore, size: 20),
             onPressed: onRestore,
             tooltip: l10n.restoreBackup,
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.delete, size: 20, color: Colors.red),
             onPressed: onDelete,
             tooltip: l10n.delete,
@@ -949,12 +950,12 @@ class _GoogleDriveBackupTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.restore, size: 20),
             onPressed: onRestore,
             tooltip: l10n.restoreBackup,
           ),
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.delete, size: 20, color: Colors.red),
             onPressed: onDelete,
             tooltip: l10n.delete,

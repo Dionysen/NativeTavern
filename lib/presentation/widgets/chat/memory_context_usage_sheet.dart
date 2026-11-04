@@ -6,6 +6,7 @@ import 'package:native_tavern/domain/services/chat_generation_pipeline.dart';
 import 'package:native_tavern/domain/services/long_term_memory_context_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/memory_context_providers.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 class MemoryContextUsageSheet extends ConsumerWidget {
   const MemoryContextUsageSheet({super.key, required this.chatId});
@@ -132,7 +133,7 @@ class MemoryContextUsageSheet extends ConsumerWidget {
                                 ),
                               ),
                               if (canOpenSource)
-                                IconButton(
+                                ChromeIconButton(
                                   key: Key('memory-usage-source-${memory.id}'),
                                   tooltip: l10n.memoryOpenSource,
                                   onPressed: () {

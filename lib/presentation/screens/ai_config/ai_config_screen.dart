@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import '../../../data/models/instruct_template.dart';
 import '../../../domain/services/llm_service.dart';
 import '../../../domain/services/region_service.dart';
@@ -32,7 +33,7 @@ class AIConfigScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.aiConfiguration),
         actions: [
-          IconButton(
+          ChromeIconButton(
             icon: const Icon(Icons.file_download),
             tooltip: l10n.importPreset,
             onPressed: () => context.push(AppRoutes.aiPresets),
@@ -459,7 +460,7 @@ class _ApiKeyTileState extends ConsumerState<_ApiKeyTile> {
           : _obscureText
               ? '••••••••${config.apiKey.length > 8 ? config.apiKey.substring(config.apiKey.length - 4) : ''}'
               : config.apiKey,
-      trailing: IconButton(
+      trailing: ChromeIconButton(
         icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
         onPressed: () => setState(() => _obscureText = !_obscureText),
       ),
@@ -1257,7 +1258,7 @@ class _ConnectionProfilesTile extends ConsumerWidget {
                                   '${profile.config.provider.name} · ${profile.config.model}'
                                   '${profile.config.apiKey.trim().isEmpty ? ' · ${AppLocalizations.of(context)!.profileNoApiKey}' : ''}',
                                 ),
-                                trailing: IconButton(
+                                trailing: ChromeIconButton(
                                   icon: const Icon(Icons.delete_outline),
                                   onPressed: () => ref
                                       .read(connectionProfilesProvider.notifier)
@@ -1462,12 +1463,12 @@ class _ModelSelectionSheetState extends State<_ModelSelectionSheet> {
                           fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  IconButton(
+                  ChromeIconButton(
                     icon: const Icon(Icons.refresh),
                     tooltip: AppLocalizations.of(context)!.refreshModels,
                     onPressed: widget.onRefresh,
                   ),
-                  IconButton(
+                  ChromeIconButton(
                     icon: const Icon(Icons.edit),
                     tooltip: AppLocalizations.of(context)!.enterManually,
                     onPressed: widget.onManualEntry,
@@ -1483,7 +1484,7 @@ class _ModelSelectionSheetState extends State<_ModelSelectionSheet> {
                   hintText: AppLocalizations.of(context)!.searchModels,
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
+                      ? ChromeIconButton(
                           icon: const Icon(Icons.clear),
                           onPressed: () {
                             _searchController.clear();

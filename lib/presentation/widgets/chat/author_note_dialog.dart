@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Dialog for editing Author's Note settings
 class AuthorNoteDialog extends ConsumerStatefulWidget {
@@ -85,7 +86,7 @@ class _AuthorNoteDialogState extends ConsumerState<AuthorNoteDialog> {
                       style: theme.textTheme.titleLarge,
                     ),
                     const Spacer(),
-                    IconButton(
+                    ChromeIconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
