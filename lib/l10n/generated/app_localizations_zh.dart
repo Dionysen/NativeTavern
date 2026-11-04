@@ -7576,6 +7576,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get fullControlOverSampling => '完整控制採樣參數';
 
   @override
+  String get sendParametersHint => '未勾選的参数不会发送给服务商。遇到接口不支持某个参数時，取消勾選即可。';
+
+  @override
+  String get sendParameterTooltip => '在請求中包含此参数';
+
+  @override
   String get selectLlmProvider => '選擇 LLM 服務';
 
   @override
@@ -10272,6 +10278,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get noProfilesHint => '還沒有設定檔。儲存目前連線,以後即可一鍵切換。';
 
   @override
+  String get profileNoApiKey => '未儲存 API Key';
+
+  @override
   String appliedProfile(String name) {
     return '已套用設定檔:$name';
   }
@@ -12847,4 +12856,227 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get aiDataSharingLocalOnlyDescription => '已封鎖；本機 AI 端點仍可使用';
+
+  @override
+  String get appearanceSectionTitle => '外观';
+
+  @override
+  String get themeModeTitle => '主題模式';
+
+  @override
+  String get themeModeSubtitle => '選择淺色、深色，或跟隨系統外观';
+
+  @override
+  String get themeModeSystem => '跟隨系統';
+
+  @override
+  String get themeModeLight => '淺色';
+
+  @override
+  String get themeModeDark => '深色';
+
+  @override
+  String get uiFontSizeTitle => 'UI 字體大小';
+
+  @override
+  String get uiFontSizeDescription => '設定與界面文字大小';
+
+  @override
+  String get cornerRadiusTitle => '圓角';
+
+  @override
+  String get cornerRadiusDescription => '按钮、選單、卡片與輸入框的圓角';
+
+  @override
+  String get barCornerRadiusTitle => '欄圓角';
+
+  @override
+  String get barCornerRadiusDescription => '應用欄與浮動欄的圓角';
+
+  @override
+  String get chatBubbleCornerRadiusTitle => '對話氣泡圓角';
+
+  @override
+  String get chatBubbleCornerRadiusDescription => '聊天訊息氣泡的圓角';
+
+  @override
+  String get showBordersTitle => '顯示邊框';
+
+  @override
+  String get showBordersSubtitle => '關閉後按钮和卡片没有邊框';
+
+  @override
+  String get themePresetsSectionTitle => '主題顏色';
+
+  @override
+  String get themePackRenameTitle => '重新命名主題';
+
+  @override
+  String themePackCopyName(String name) {
+    return '$name 副本';
+  }
+
+  @override
+  String get themePackDeleteTitle => '刪除主題？';
+
+  @override
+  String themePackDeleteBody(String name) {
+    return '刪除「$name」後無法恢復';
+  }
+
+  @override
+  String get themeCurrentCustom => '目前：自訂';
+
+  @override
+  String themeCurrentPreset(String preset) {
+    return '目前：$preset';
+  }
+
+  @override
+  String get customColorsTitle => '自訂顏色';
+
+  @override
+  String get customColorsSubtitle => '调整目前外观下的各項顏色，修改後立即生效';
+
+  @override
+  String get restoreDefaultColors => '恢復預設';
+
+  @override
+  String get saveAsThemeColor => '儲存为主題';
+
+  @override
+  String get saveThemeColorTitle => '儲存为主題顏色';
+
+  @override
+  String get saveThemeColorNameLabel => '主題名称';
+
+  @override
+  String themePackNameDefault(int n) {
+    return '主題$n';
+  }
+
+  @override
+  String get themePresetLight => '淺色';
+
+  @override
+  String get themePresetGrey => '灰色';
+
+  @override
+  String get themePresetSlate => '石板';
+
+  @override
+  String get themePresetClaude => 'Claude Code';
+
+  @override
+  String get themePresetMint => '薄荷';
+
+  @override
+  String get themePresetPurple => '紫色';
+
+  @override
+  String get themePresetHermes => 'Hermes';
+
+  @override
+  String get themePresetOcean => '海洋';
+
+  @override
+  String get themePresetDarkModern => '深色现代';
+
+  @override
+  String get tokenEditorSurface => '應用背景';
+
+  @override
+  String get tokenSidebarSurface => '面板背景';
+
+  @override
+  String get tokenControlSurface => '按钮和輸入框';
+
+  @override
+  String get tokenBorder => '邊框';
+
+  @override
+  String get tokenDivider => '分隔線';
+
+  @override
+  String get tokenPrimaryText => '主文字';
+
+  @override
+  String get tokenMutedText => '次要文字';
+
+  @override
+  String get tokenAccent => '強調色';
+
+  @override
+  String get tokenCursor => '游標';
+
+  @override
+  String get tokenEditorSurfaceDescription => '主界面背景色';
+
+  @override
+  String get tokenSidebarSurfaceDescription => '側欄與面板背景色';
+
+  @override
+  String get tokenControlSurfaceDescription => '輸入框、選單與卡片的填充色';
+
+  @override
+  String get tokenBorderDescription => '按钮和輸入框的邊框';
+
+  @override
+  String get tokenDividerDescription => '清單與分區分隔线';
+
+  @override
+  String get tokenPrimaryTextDescription => '預設標題與內文字色';
+
+  @override
+  String get tokenMutedTextDescription => '提示與說明文字的較淡色';
+
+  @override
+  String get tokenAccentDescription => '高亮和選取狀態';
+
+  @override
+  String get tokenCursorDescription => '輸入框游標顏色';
+
+  @override
+  String get themeColorsSectionTitle => '主題顏色';
+
+  @override
+  String numberPickerDefaultLabel(String value) {
+    return '預設 $value';
+  }
+
+  @override
+  String get themeSlotLight => '亮色';
+
+  @override
+  String get themeSlotDark => '暗色';
+
+  @override
+  String get multimedia => '多媒體';
+
+  @override
+  String get confirmBeforeDeleteTitle => '刪除前確認';
+
+  @override
+  String get confirmBeforeDeleteSubtitle => '刪除聊天、角色、訊息等項目前先彈出確認。';
+
+  @override
+  String get autoSaveChatsTitle => '自動儲存聊天';
+
+  @override
+  String get autoSaveChatsSubtitle => '開啟後每次更動立即儲存；關閉後需手動儲存，或在離開聊天時處理未儲存更動。';
+
+  @override
+  String get saveChat => '儲存聊天';
+
+  @override
+  String get chatSaved => '聊天已儲存';
+
+  @override
+  String get unsavedChatTitle => '未儲存的更改';
+
+  @override
+  String get unsavedChatBody => '目前聊天有未儲存的更改，離開前要儲存嗎？';
+
+  @override
+  String get discardChanges => '捨棄';
 }

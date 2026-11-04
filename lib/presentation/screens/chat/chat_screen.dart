@@ -1259,7 +1259,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       actions: [
         if (chatState.hasUnsavedChanges)
           IconButton(
-            icon: const Icon(Icons.save_outlined),
+            icon: Icon(
+              Icons.save_outlined,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             tooltip: l10n.saveChat,
             onPressed: _saveChatManually,
           ),
@@ -1469,16 +1472,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 contentPadding: EdgeInsets.zero,
               ),
             ),
-            if (chatState.hasUnsavedChanges ||
-                !ref.read(appSettingsProvider).autoSaveChats)
+            if (chatState.hasUnsavedChanges)
               PopupMenuItem(
                 value: 'save_chat',
                 child: ListTile(
                   leading: Icon(
                     Icons.save_outlined,
-                    color: chatState.hasUnsavedChanges
-                        ? AppTheme.accentColor
-                        : null,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   title: Text(l10n.saveChat),
                   contentPadding: EdgeInsets.zero,

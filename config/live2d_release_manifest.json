@@ -70,7 +70,7 @@
       {
         "platform": "macos",
         "path": "packages/native_tavern_live2d_macos/macos/Libs/libLive2DCubismCore.dylib",
-        "sha256": "d6b029354e47e81c1e063ad2de3cfc63bdd0b7bf3fe8dd079de17c2a4b43b27f"
+        "sha256": "dbe397798fc07060030d3b4429bab308b47c55c061cb5397422493230c25c67a"
       }
     ]
   },

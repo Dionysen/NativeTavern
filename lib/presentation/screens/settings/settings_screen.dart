@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/providers/locale_provider.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
@@ -409,12 +410,16 @@ class _AutoSaveTile extends ConsumerWidget {
     final settings = ref.watch(appSettingsProvider);
 
     return SettingsSwitchTile(
-      icon: Icons.save,
+      icon: Icons.save_outlined,
       title: l10n.autoSaveChatsTitle,
       subtitle: l10n.autoSaveChatsSubtitle,
       value: settings.autoSaveChats,
-      onChanged: (value) {
+      onChanged: (value) async {
         ref.read(appSettingsProvider.notifier).updateAutoSaveChats(value);
+        // Turning auto-save on should immediately flush any pending edits.
+        if (value && ref.read(activeChatProvider).hasUnsavedChanges) {
+          await ref.read(activeChatProvider.notifier).saveChatNow();
+        }
       },
     );
   }
