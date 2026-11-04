@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:native_tavern/data/models/regex_script.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:uuid/uuid.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
@@ -12,10 +12,17 @@ Future<void> showRegexScriptEditor(
   RegexScript? script,
   required void Function(RegexScript) onSave,
 }) {
+  final scheme = Theme.of(context).colorScheme;
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: AppTheme.darkCard,
+    showDragHandle: true,
+    backgroundColor: scheme.surfaceContainerHigh,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(context.appCornerRadius + 4),
+      ),
+    ),
     builder: (context) => RegexScriptEditor(
       script: script,
       onSave: (newScript) {
@@ -45,24 +52,27 @@ class RegexScriptTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final muted = scheme.onSurfaceVariant;
+    final active = scheme.primary;
     return ListTile(
       leading: Icon(
         Icons.find_replace,
-        color: script.disabled ? AppTheme.textMuted : AppTheme.accentColor,
+        color: script.disabled ? muted : active,
       ),
       title: Text(
         script.scriptName,
         style: TextStyle(
-          color: script.disabled ? AppTheme.textMuted : null,
+          color: script.disabled ? muted : null,
           decoration: script.disabled ? TextDecoration.lineThrough : null,
         ),
       ),
       subtitle: Text(
         script.findRegex,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
           fontFamily: 'monospace',
-          color: AppTheme.textMuted,
+          color: muted,
         ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -73,17 +83,15 @@ class RegexScriptTile extends StatelessWidget {
           ChromeIconButton(
             icon: Icon(
               script.disabled ? Icons.toggle_off : Icons.toggle_on,
-              color:
-                  script.disabled ? AppTheme.textMuted : AppTheme.accentColor,
+              color: script.disabled ? muted : active,
             ),
             onPressed: onToggle,
           ),
           ChromeIconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
+            icon: Icon(Icons.delete, color: scheme.error),
             onPressed: onDelete,
           ),
-          if (showDragHandle)
-            const Icon(Icons.drag_handle, color: AppTheme.textMuted),
+          if (showDragHandle) Icon(Icons.drag_handle, color: muted),
         ],
       ),
       onTap: onTap,
@@ -177,206 +185,231 @@ class _RegexScriptEditorState extends State<RegexScriptEditor> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final sectionStyle = theme.textTheme.titleSmall?.copyWith(
+      color: scheme.primary,
+      fontWeight: FontWeight.w600,
+    );
+
     return DraggableScrollableSheet(
       initialChildSize: 0.9,
       minChildSize: 0.5,
       maxChildSize: 0.95,
       expand: false,
       builder: (context, scrollController) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppTheme.textMuted,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      widget.script == null ? l10n.newScript : l10n.editScript,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: _save,
-                      child: Text(l10n.save),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(),
-              Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    TextField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: l10n.scriptName,
-                        border: const OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _descriptionController,
-                      decoration: InputDecoration(
-                        labelText: l10n.descriptionOptional,
-                        border: const OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _findController,
-                      decoration: InputDecoration(
-                        labelText: l10n.findPattern,
-                        hintText: l10n.patternOrPlainPattern,
-                        border: const OutlineInputBorder(),
-                      ),
-                      style: const TextStyle(fontFamily: 'monospace'),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _replaceController,
-                      decoration: InputDecoration(
-                        labelText: l10n.replaceWith,
-                        hintText: l10n.replacementHint,
-                        border: const OutlineInputBorder(),
-                      ),
-                      style: const TextStyle(fontFamily: 'monospace'),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _trimStringsController,
-                      decoration: InputDecoration(
-                        labelText: l10n.trimStrings,
-                        hintText: l10n.trimStringsHint,
-                        border: const OutlineInputBorder(),
-                        alignLabelWithHint: true,
-                      ),
-                      style: const TextStyle(fontFamily: 'monospace'),
-                      minLines: 2,
-                      maxLines: 5,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _minDepthController,
-                            decoration: InputDecoration(
-                              labelText: l10n.minDepth,
-                              hintText: l10n.depthUnlimitedHint,
-                              border: const OutlineInputBorder(),
-                            ),
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                          ),
+        return Material(
+          color: scheme.surfaceContainerHigh,
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 8, 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.script == null
+                              ? l10n.newScript
+                              : l10n.editScript,
+                          style: theme.textTheme.titleLarge,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextField(
-                            controller: _maxDepthController,
-                            decoration: InputDecoration(
-                              labelText: l10n.maxDepth,
-                              hintText: l10n.depthUnlimitedHint,
-                              border: const OutlineInputBorder(),
-                            ),
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      l10n.applyTo,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      children: RegexPlacement.values.map((p) {
-                        final selected = _placement.contains(p);
-                        return FilterChip(
-                          label: Text(regexPlacementName(p, l10n)),
-                          selected: selected,
-                          onSelected: (value) {
-                            setState(() {
-                              if (value) {
-                                _placement.add(p);
-                              } else {
-                                _placement.remove(p);
-                              }
-                            });
-                          },
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      l10n.options,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SwitchListTile(
-                      title: Text(l10n.markdownOnly),
-                      subtitle: Text(l10n.onlyApplyDuringMarkdown),
-                      value: _markdownOnly,
-                      onChanged: (value) =>
-                          setState(() => _markdownOnly = value),
-                    ),
-                    SwitchListTile(
-                      title: Text(l10n.promptOnly),
-                      subtitle: Text(l10n.onlyApplyDuringPrompt),
-                      value: _promptOnly,
-                      onChanged: (value) => setState(() => _promptOnly = value),
-                    ),
-                    SwitchListTile(
-                      title: Text(l10n.runOnEdit),
-                      subtitle: Text(l10n.applyWhenEditingMessages),
-                      value: _runOnEdit,
-                      onChanged: (value) => setState(() => _runOnEdit = value),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<SubstituteRegex>(
-                      value: _substituteRegex,
-                      decoration: InputDecoration(
-                        labelText: l10n.macroSubstitution,
-                        border: const OutlineInputBorder(),
                       ),
-                      items: SubstituteRegex.values.map((s) {
-                        return DropdownMenuItem(
-                          value: s,
-                          child: Text(s.name.toUpperCase()),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _substituteRegex = value);
-                        }
-                      },
-                    ),
-                  ],
+                      FilledButton(
+                        onPressed: _save,
+                        child: Text(l10n.save),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Divider(height: 1, color: scheme.outlineVariant),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      TextField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          labelText: l10n.scriptName,
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _descriptionController,
+                        decoration: InputDecoration(
+                          labelText: l10n.descriptionOptional,
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _findController,
+                        decoration: InputDecoration(
+                          labelText: l10n.findPattern,
+                          hintText: l10n.patternOrPlainPattern,
+                          border: const OutlineInputBorder(),
+                        ),
+                        style: const TextStyle(fontFamily: 'monospace'),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _replaceController,
+                        decoration: InputDecoration(
+                          labelText: l10n.replaceWith,
+                          hintText: l10n.replacementHint,
+                          border: const OutlineInputBorder(),
+                        ),
+                        style: const TextStyle(fontFamily: 'monospace'),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _trimStringsController,
+                        decoration: InputDecoration(
+                          labelText: l10n.trimStrings,
+                          hintText: l10n.trimStringsHint,
+                          border: const OutlineInputBorder(),
+                          alignLabelWithHint: true,
+                        ),
+                        style: const TextStyle(fontFamily: 'monospace'),
+                        minLines: 2,
+                        maxLines: 5,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _minDepthController,
+                              decoration: InputDecoration(
+                                labelText: l10n.minDepth,
+                                hintText: l10n.depthUnlimitedHint,
+                                border: const OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              controller: _maxDepthController,
+                              decoration: InputDecoration(
+                                labelText: l10n.maxDepth,
+                                hintText: l10n.depthUnlimitedHint,
+                                border: const OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Text(l10n.applyTo, style: sectionStyle),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: RegexPlacement.values.map((p) {
+                          final selected = _placement.contains(p);
+                          return FilterChip(
+                            label: Text(regexPlacementName(p, l10n)),
+                            selected: selected,
+                            showCheckmark: true,
+                            selectedColor: scheme.primaryContainer,
+                            checkmarkColor: scheme.onPrimaryContainer,
+                            labelStyle: TextStyle(
+                              color: selected
+                                  ? scheme.onPrimaryContainer
+                                  : scheme.onSurface,
+                            ),
+                            side: BorderSide(
+                              color: selected
+                                  ? scheme.primary
+                                  : scheme.outlineVariant,
+                            ),
+                            onSelected: (value) {
+                              setState(() {
+                                if (value) {
+                                  _placement.add(p);
+                                } else {
+                                  _placement.remove(p);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(l10n.options, style: sectionStyle),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.markdownOnly),
+                        subtitle: Text(l10n.onlyApplyDuringMarkdown),
+                        activeThumbColor: scheme.onPrimary,
+                        activeTrackColor: scheme.primary,
+                        value: _markdownOnly,
+                        onChanged: (value) =>
+                            setState(() => _markdownOnly = value),
+                      ),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.promptOnly),
+                        subtitle: Text(l10n.onlyApplyDuringPrompt),
+                        activeThumbColor: scheme.onPrimary,
+                        activeTrackColor: scheme.primary,
+                        value: _promptOnly,
+                        onChanged: (value) =>
+                            setState(() => _promptOnly = value),
+                      ),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.runOnEdit),
+                        subtitle: Text(l10n.applyWhenEditingMessages),
+                        activeThumbColor: scheme.onPrimary,
+                        activeTrackColor: scheme.primary,
+                        value: _runOnEdit,
+                        onChanged: (value) =>
+                            setState(() => _runOnEdit = value),
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<SubstituteRegex>(
+                        value: _substituteRegex,
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: l10n.macroSubstitution,
+                          border: const OutlineInputBorder(),
+                        ),
+                        items: SubstituteRegex.values.map((s) {
+                          return DropdownMenuItem(
+                            value: s,
+                            child: Text(
+                              s.name.toUpperCase(),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _substituteRegex = value);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
