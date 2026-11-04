@@ -12,9 +12,9 @@ import 'package:native_tavern/domain/services/world_info_import.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/screens/world_info/world_info_entry_editor_screen.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -115,22 +115,21 @@ class WorldInfoScreen extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final muted = theme.colorScheme.onSurfaceVariant;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.auto_stories_outlined,
             size: 64,
-            color: AppTheme.textMuted,
+            color: muted,
           ),
           const SizedBox(height: 16),
           Text(
             AppLocalizations.of(context)!.noLorebooksYet,
-            style: const TextStyle(
-              fontSize: 18,
-              color: AppTheme.textSecondary,
-            ),
+            style: theme.textTheme.titleMedium?.copyWith(color: muted),
           ),
           const SizedBox(height: 8),
           Padding(
@@ -138,7 +137,7 @@ class WorldInfoScreen extends ConsumerWidget {
             child: Text(
               AppLocalizations.of(context)!.lorebooksInjectContext,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppTheme.textMuted),
+              style: theme.textTheme.bodyMedium?.copyWith(color: muted),
             ),
           ),
           const SizedBox(height: 24),
@@ -359,9 +358,13 @@ class _WorldInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final muted = scheme.onSurfaceVariant;
+    final accent = worldInfo.enabled ? scheme.primary : muted;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: AppTheme.darkCard,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -374,17 +377,10 @@ class _WorldInfoCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: worldInfo.enabled
-                      ? AppTheme.primaryColor.withValues(alpha: 0.2)
-                      : AppTheme.textMuted.withValues(alpha: 0.2),
+                  color: accent.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.auto_stories,
-                  color: worldInfo.enabled
-                      ? AppTheme.primaryColor
-                      : AppTheme.textMuted,
-                ),
+                child: Icon(Icons.auto_stories, color: accent),
               ),
               const SizedBox(width: 16),
 
@@ -398,8 +394,7 @@ class _WorldInfoCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             worldInfo.name,
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -411,15 +406,14 @@ class _WorldInfoCard extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color:
-                                  AppTheme.accentColor.withValues(alpha: 0.2),
+                              color: scheme.secondary.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
                               AppLocalizations.of(context)!.globalScope,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10,
-                                color: AppTheme.accentColor,
+                                color: scheme.secondary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -430,18 +424,16 @@ class _WorldInfoCard extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context)!
                           .entriesCount(entryCount),
-                      style: const TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 14,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: muted,
                       ),
                     ),
                     if (worldInfo.description?.isNotEmpty == true) ...[
                       const SizedBox(height: 4),
                       Text(
                         worldInfo.description!,
-                        style: const TextStyle(
-                          color: AppTheme.textMuted,
-                          fontSize: 12,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: muted,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -452,12 +444,12 @@ class _WorldInfoCard extends StatelessWidget {
               ),
 
               // Actions
-              Switch(
+              ThemedSwitch(
                 value: worldInfo.enabled,
                 onChanged: onToggle,
               ),
               AdaptivePopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: AppTheme.textMuted),
+                icon: Icon(Icons.more_vert, color: muted),
                 onSelected: (value) {
                   switch (value) {
                     case 'edit':
@@ -857,6 +849,7 @@ class _WorldInfoEntriesScreenState
           ? _buildEmptyState(context)
           : ReorderableListView.builder(
               padding: const EdgeInsets.all(16),
+              buildDefaultDragHandles: false,
               itemCount: _worldInfo.entries.length,
               onReorder: (oldIndex, newIndex) {
                 // TODO: Implement reordering
@@ -881,27 +874,26 @@ class _WorldInfoEntriesScreenState
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final theme = Theme.of(context);
+    final muted = theme.colorScheme.onSurfaceVariant;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.note_add_outlined,
             size: 64,
-            color: AppTheme.textMuted,
+            color: muted,
           ),
           const SizedBox(height: 16),
           Text(
             AppLocalizations.of(context)!.noEntriesYet,
-            style: const TextStyle(
-              fontSize: 18,
-              color: AppTheme.textSecondary,
-            ),
+            style: theme.textTheme.titleMedium?.copyWith(color: muted),
           ),
           const SizedBox(height: 8),
           Text(
             AppLocalizations.of(context)!.addEntriesWithKeywords,
-            style: const TextStyle(color: AppTheme.textMuted),
+            style: theme.textTheme.bodyMedium?.copyWith(color: muted),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -988,9 +980,11 @@ class _WorldInfoEntryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final muted = scheme.onSurfaceVariant;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: AppTheme.darkCard,
       child: InkWell(
         onTap: onTap,
         onLongPress: () => _copyToClipboard(context),
@@ -1010,8 +1004,9 @@ class _WorldInfoEntryCard extends StatelessWidget {
                           .map((key) => Chip(
                                 label: Text(key,
                                     style: const TextStyle(fontSize: 12)),
-                                backgroundColor: AppTheme.primaryColor
-                                    .withValues(alpha: 0.2),
+                                backgroundColor:
+                                    scheme.primary.withValues(alpha: 0.2),
+                                side: BorderSide.none,
                                 padding: EdgeInsets.zero,
                                 materialTapTargetSize:
                                     MaterialTapTargetSize.shrinkWrap,
@@ -1024,12 +1019,12 @@ class _WorldInfoEntryCard extends StatelessWidget {
                     onPressed: () => _copyToClipboard(context),
                     tooltip: l10n.copiedToClipboard,
                   ),
-                  Switch(
+                  ThemedSwitch(
                     value: entry.enabled,
                     onChanged: onToggle,
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    icon: Icon(Icons.delete_outline, color: scheme.error),
                     onPressed: onDelete,
                   ),
                 ],
@@ -1038,17 +1033,16 @@ class _WorldInfoEntryCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   entry.comment,
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: muted,
                     fontStyle: FontStyle.italic,
-                    fontSize: 12,
                   ),
                 ),
               ],
               const SizedBox(height: 8),
               Text(
                 entry.content,
-                style: const TextStyle(fontSize: 14),
+                style: theme.textTheme.bodyMedium,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1057,9 +1051,9 @@ class _WorldInfoEntryCard extends StatelessWidget {
                 Row(
                   children: [
                     if (entry.constant)
-                      _buildBadge(l10n.constant, Colors.orange),
+                      _buildBadge(l10n.constant, scheme.tertiary),
                     if (entry.selective)
-                      _buildBadge(l10n.selective, Colors.purple),
+                      _buildBadge(l10n.selective, scheme.secondary),
                   ],
                 ),
               ],

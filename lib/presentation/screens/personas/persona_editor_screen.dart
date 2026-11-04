@@ -337,6 +337,7 @@ class _PersonaEditorScreenState extends ConsumerState<PersonaEditorScreen>
       data: (lorebooks) {
         return DropdownButtonFormField<String?>(
           value: _lorebookId,
+          isExpanded: true,
           decoration: InputDecoration(
             labelText: _l10n.personaLorebook,
             hintText: _l10n.selectLorebook,
@@ -347,11 +348,17 @@ class _PersonaEditorScreenState extends ConsumerState<PersonaEditorScreen>
           items: [
             DropdownMenuItem<String?>(
               value: null,
-              child: Text(_l10n.none),
+              child: Text(
+                _l10n.none,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             ...lorebooks.map((lb) => DropdownMenuItem(
                   value: lb.id,
-                  child: Text(lb.name),
+                  child: Text(
+                    lb.name,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 )),
           ],
           onChanged: (value) => setState(() => _lorebookId = value),

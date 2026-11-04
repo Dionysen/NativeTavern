@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:native_tavern/data/models/persona.dart';
+import 'package:native_tavern/data/models/tag.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/screens/personas/persona_editor_screen.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
@@ -86,27 +86,26 @@ class PersonasScreen extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final muted = theme.colorScheme.onSurfaceVariant;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.person_outline,
             size: 64,
-            color: AppTheme.textMuted,
+            color: muted,
           ),
           const SizedBox(height: 16),
           Text(
             AppLocalizations.of(context)!.noPersonasYet,
-            style: const TextStyle(
-              fontSize: 18,
-              color: AppTheme.textSecondary,
-            ),
+            style: theme.textTheme.titleMedium?.copyWith(color: muted),
           ),
           const SizedBox(height: 8),
           Text(
             AppLocalizations.of(context)!.createPersonaDescription,
-            style: const TextStyle(color: AppTheme.textMuted),
+            style: theme.textTheme.bodyMedium?.copyWith(color: muted),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -181,15 +180,25 @@ class _PersonaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final muted = scheme.onSurfaceVariant;
+    final metaStyle = theme.textTheme.labelSmall?.copyWith(
+      fontSize: 11,
+      height: 1.3,
+      color: muted,
+    );
+    final l10n = AppLocalizations.of(context);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       color: isActive
-          ? AppTheme.primaryColor.withValues(alpha: 0.15)
-          : AppTheme.darkCard,
+          ? scheme.primary.withValues(alpha: 0.15)
+          : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: isActive
-            ? const BorderSide(color: AppTheme.primaryColor, width: 2)
+            ? BorderSide(color: scheme.primary, width: 2)
             : BorderSide.none,
       ),
       child: InkWell(
@@ -199,11 +208,8 @@ class _PersonaCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Avatar
-              _buildAvatar(),
+              _buildAvatar(scheme),
               const SizedBox(width: 16),
-
-              // Info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,51 +219,22 @@ class _PersonaCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             persona.name,
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (persona.isDefault)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  AppTheme.accentColor.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context).default_,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: AppTheme.accentColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                          _statusBadge(
+                            l10n.default_,
+                            scheme.secondary,
                           ),
                         if (isActive && !persona.isDefault)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  AppTheme.primaryColor.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context).active,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: AppTheme.primaryColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                          _statusBadge(
+                            l10n.active,
+                            scheme.primary,
                           ),
                       ],
                     ),
@@ -265,21 +242,45 @@ class _PersonaCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         persona.description,
-                        style: const TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 14,
-                        ),
-                        maxLines: 2,
+                        style: metaStyle,
+                        maxLines: 3,
                         overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    if (persona.tags.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: persona.tags
+                            .map((tag) {
+                              final color = TagColors.forLabel(tag);
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                  vertical: 1,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: color.withValues(alpha: 0.55),
+                                  ),
+                                ),
+                                child: Text(
+                                  tag,
+                                  style: metaStyle?.copyWith(color: color),
+                                ),
+                              );
+                            })
+                            .toList(growable: false),
                       ),
                     ],
                   ],
                 ),
               ),
-
-              // Actions
               AdaptivePopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: AppTheme.textMuted),
+                icon: Icon(Icons.more_vert, color: muted),
                 onSelected: (value) {
                   switch (value) {
                     case 'edit':
@@ -298,7 +299,7 @@ class _PersonaCard extends StatelessWidget {
                     value: 'edit',
                     child: ListTile(
                       leading: const Icon(Icons.edit),
-                      title: Text(AppLocalizations.of(context)!.edit),
+                      title: Text(l10n.edit),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -307,7 +308,7 @@ class _PersonaCard extends StatelessWidget {
                       value: 'default',
                       child: ListTile(
                         leading: const Icon(Icons.star),
-                        title: Text(AppLocalizations.of(context)!.setAsDefault),
+                        title: Text(l10n.setAsDefault),
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
@@ -315,9 +316,9 @@ class _PersonaCard extends StatelessWidget {
                     PopupMenuItem(
                       value: 'delete',
                       child: ListTile(
-                        leading: const Icon(Icons.delete, color: Colors.red),
-                        title: Text(AppLocalizations.of(context)!.delete,
-                            style: const TextStyle(color: Colors.red)),
+                        leading: Icon(Icons.delete, color: scheme.error),
+                        title: Text(l10n.delete,
+                            style: TextStyle(color: scheme.error)),
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
@@ -330,7 +331,27 @@ class _PersonaCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _statusBadge(String label, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(left: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withValues(alpha: 0.55)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          color: color,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatar(ColorScheme scheme) {
     if (persona.avatarPath != null) {
       return CircleAvatar(
         radius: 28,
@@ -339,13 +360,13 @@ class _PersonaCard extends StatelessWidget {
     }
     return CircleAvatar(
       radius: 28,
-      backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
+      backgroundColor: scheme.primary.withValues(alpha: 0.2),
       child: Text(
         persona.name.isNotEmpty ? persona.name[0].toUpperCase() : 'U',
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
-          color: AppTheme.primaryColor,
+          color: scheme.primary,
         ),
       ),
     );
@@ -433,10 +454,9 @@ class _PersonaDialogState extends State<_PersonaDialog> {
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.personaDescriptionHelp,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppTheme.textMuted,
-              ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
           ],
         ),
@@ -461,6 +481,7 @@ class _PersonaDialogState extends State<_PersonaDialog> {
   }
 
   Widget _buildAvatarPicker() {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Stack(
         children: [
@@ -468,14 +489,14 @@ class _PersonaDialogState extends State<_PersonaDialog> {
             onTap: _showAvatarOptions,
             child: CircleAvatar(
               radius: 50,
-              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
+              backgroundColor: scheme.primary.withValues(alpha: 0.2),
               backgroundImage:
                   _avatarPath != null ? FileImage(File(_avatarPath!)) : null,
               child: _avatarPath == null
-                  ? const Icon(
+                  ? Icon(
                       Icons.person,
                       size: 50,
-                      color: AppTheme.primaryColor,
+                      color: scheme.primary,
                     )
                   : null,
             ),
@@ -488,17 +509,17 @@ class _PersonaDialogState extends State<_PersonaDialog> {
               child: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryColor,
+                  color: scheme.primary,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: AppTheme.darkCard,
+                    color: scheme.surface,
                     width: 2,
                   ),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.camera_alt,
                   size: 18,
-                  color: Colors.white,
+                  color: scheme.onPrimary,
                 ),
               ),
             ),
@@ -516,9 +537,10 @@ class _PersonaDialogState extends State<_PersonaDialog> {
     }
 
     // On mobile, show options sheet
+    final scheme = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: scheme.surfaceContainerHigh,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -531,14 +553,13 @@ class _PersonaDialogState extends State<_PersonaDialog> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppTheme.textMuted,
+                color: scheme.onSurfaceVariant,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 16),
             ListTile(
-              leading:
-                  const Icon(Icons.photo_library, color: AppTheme.primaryColor),
+              leading: Icon(Icons.photo_library, color: scheme.primary),
               title: Text(AppLocalizations.of(context)!.chooseFromGallery),
               onTap: () {
                 Navigator.pop(context);
@@ -546,8 +567,7 @@ class _PersonaDialogState extends State<_PersonaDialog> {
               },
             ),
             ListTile(
-              leading:
-                  const Icon(Icons.camera_alt, color: AppTheme.accentColor),
+              leading: Icon(Icons.camera_alt, color: scheme.secondary),
               title: Text(AppLocalizations.of(context)!.takePhoto),
               onTap: () {
                 Navigator.pop(context);

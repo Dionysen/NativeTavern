@@ -234,6 +234,31 @@ class SettingsListTile extends StatelessWidget {
 }
 
 /// Settings row with a Material [Switch].
+/// Compact [Switch] that follows theme [SwitchTheme] (accent track, white thumb).
+class ThemedSwitch extends StatelessWidget {
+  const ThemedSwitch({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.scale(
+      scale: ChromeControls.settingsSwitchScale,
+      alignment: Alignment.centerRight,
+      child: Switch(
+        value: value,
+        onChanged: onChanged,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    );
+  }
+}
+
 class SettingsSwitchTile extends StatelessWidget {
   const SettingsSwitchTile({
     super.key,
@@ -261,15 +286,7 @@ class SettingsSwitchTile extends StatelessWidget {
       showDivider: showDivider,
       enabled: onChanged != null,
       onTap: onChanged == null ? null : () => onChanged!(!value),
-      trailing: Transform.scale(
-        scale: ChromeControls.settingsSwitchScale,
-        alignment: Alignment.centerRight,
-        child: Switch(
-          value: value,
-          onChanged: onChanged,
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-      ),
+      trailing: ThemedSwitch(value: value, onChanged: onChanged),
     );
   }
 }

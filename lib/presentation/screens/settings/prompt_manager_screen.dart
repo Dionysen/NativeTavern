@@ -6,7 +6,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:native_tavern/core/utils/share_utils.dart';
 import 'package:native_tavern/data/models/prompt_manager.dart';
 import 'package:native_tavern/presentation/providers/prompt_manager_providers.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:path_provider/path_provider.dart';
@@ -130,6 +129,7 @@ class PromptManagerScreen extends ConsumerWidget {
           Expanded(
             child: ReorderableListView.builder(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              buildDefaultDragHandles: false,
               itemCount: sortedSections.length,
               onReorder: (oldIndex, newIndex) {
                 ref
@@ -185,12 +185,14 @@ class PromptManagerScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  const Icon(Icons.list, color: AppTheme.accentColor),
+                  Icon(
+                    Icons.list,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     AppLocalizations.of(context)!.loadPreset,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const Spacer(),
                   IconButton(
@@ -207,12 +209,13 @@ class PromptManagerScreen extends ConsumerWidget {
                 itemCount: presets.length,
                 itemBuilder: (context, index) {
                   final preset = presets[index];
+                  final scheme = Theme.of(context).colorScheme;
                   return ListTile(
                     leading: Icon(
                       preset.isBuiltIn ? Icons.lock : Icons.edit,
                       color: preset.isBuiltIn
-                          ? AppTheme.textMuted
-                          : AppTheme.accentColor,
+                          ? scheme.onSurfaceVariant
+                          : scheme.secondary,
                     ),
                     title: Text(preset.name),
                     subtitle: preset.description != null
@@ -489,7 +492,10 @@ class PromptManagerScreen extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.help_outline, color: AppTheme.primaryColor),
+            Icon(
+              Icons.help_outline,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(width: 8),
             Text(AppLocalizations.of(context)!.promptManagerHelp),
           ],
@@ -549,14 +555,15 @@ class PromptManagerScreen extends ConsumerWidget {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) {
+        final scheme = Theme.of(context).colorScheme;
+        final muted = scheme.onSurfaceVariant;
+        return AlertDialog(
         title: Row(
           children: [
             Icon(
               section.isCustom ? Icons.code : Icons.edit,
-              color: section.isCustom
-                  ? AppTheme.accentColor
-                  : AppTheme.primaryColor,
+              color: section.isCustom ? scheme.secondary : scheme.primary,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -587,17 +594,16 @@ class PromptManagerScreen extends ConsumerWidget {
                 ],
                 Text(
                   description,
-                  style: TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 12,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: muted,
+                      ),
                 ),
                 if (section.identifier != null) ...[
                   const SizedBox(height: 4),
                   Text(
                     l10n.identifierLabel(section.identifier!),
                     style: TextStyle(
-                      color: AppTheme.textMuted,
+                      color: muted,
                       fontSize: 10,
                       fontFamily: 'monospace',
                     ),
@@ -608,7 +614,7 @@ class PromptManagerScreen extends ConsumerWidget {
                   Text(
                     l10n.roleLabel(section.role!),
                     style: TextStyle(
-                      color: AppTheme.textMuted,
+                      color: muted,
                       fontSize: 10,
                     ),
                   ),
@@ -622,7 +628,7 @@ class PromptManagerScreen extends ConsumerWidget {
                     '{{date}}',
                   ),
                   style: TextStyle(
-                    color: AppTheme.textMuted,
+                    color: muted,
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                   ),
@@ -691,7 +697,8 @@ class PromptManagerScreen extends ConsumerWidget {
             child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
-      ),
+      );
+      },
     );
   }
 }
@@ -772,35 +779,30 @@ class _PromptSectionTile extends StatelessWidget {
       }
     }
 
+    final enabled = section.enabled;
+    final primary = colorScheme.primary;
+    final secondary = colorScheme.secondary;
+    final muted = colorScheme.onSurfaceVariant;
+    final onSurface = colorScheme.onSurface;
+    final accent = section.isCustom ? secondary : primary;
+    final iconColor = enabled ? accent : muted;
+    final titleColor = enabled ? onSurface : muted;
+    final subtitleColor = enabled ? muted : muted.withValues(alpha: 0.7);
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      color: section.enabled
-          ? colorScheme.surface
-          : colorScheme.surfaceContainerHighest.withOpacity(0.5),
+      color: enabled
+          ? colorScheme.surfaceContainerLow
+          : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
       child: ListTile(
         leading: ReorderableDragStartListener(
           index: index,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.drag_handle,
-                color: section.enabled
-                    ? AppTheme.textSecondary
-                    : AppTheme.textMuted,
-              ),
+              Icon(Icons.drag_handle, color: muted),
               const SizedBox(width: 8),
-              Icon(
-                typeIcon,
-                size: 20,
-                color: section.isCustom
-                    ? (section.enabled
-                        ? AppTheme.accentColor
-                        : AppTheme.textMuted)
-                    : (section.enabled
-                        ? AppTheme.primaryColor
-                        : AppTheme.textMuted),
-              ),
+              Icon(typeIcon, size: 20, color: iconColor),
             ],
           ),
         ),
@@ -809,12 +811,9 @@ class _PromptSectionTile extends StatelessWidget {
             Expanded(
               child: Text(
                 displayName,
-                style: TextStyle(
-                  color: section.enabled
-                      ? AppTheme.textPrimary
-                      : AppTheme.textMuted,
-                  fontWeight:
-                      section.enabled ? FontWeight.w500 : FontWeight.normal,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: titleColor,
+                  fontWeight: enabled ? FontWeight.w500 : FontWeight.normal,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -825,16 +824,14 @@ class _PromptSectionTile extends StatelessWidget {
                 margin: const EdgeInsets.only(left: 4),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentColor.withOpacity(0.2),
+                  color: secondary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
                   l10n.customPrompt,
                   style: TextStyle(
                     fontSize: 10,
-                    color: section.enabled
-                        ? AppTheme.accentColor
-                        : AppTheme.textMuted,
+                    color: enabled ? secondary : muted,
                   ),
                 ),
               ),
@@ -844,20 +841,14 @@ class _PromptSectionTile extends StatelessWidget {
                 child: Icon(
                   Icons.edit_note,
                   size: 16,
-                  color: section.enabled
-                      ? AppTheme.accentColor
-                      : AppTheme.textMuted,
+                  color: enabled ? primary : muted,
                 ),
               ),
           ],
         ),
         subtitle: Text(
           description,
-          style: TextStyle(
-            color:
-                section.enabled ? AppTheme.textSecondary : AppTheme.textMuted,
-            fontSize: 12,
-          ),
+          style: theme.textTheme.bodySmall?.copyWith(color: subtitleColor),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -869,21 +860,18 @@ class _PromptSectionTile extends StatelessWidget {
                 icon: Icon(
                   Icons.edit,
                   size: 20,
-                  color: section.enabled
-                      ? AppTheme.accentColor
-                      : AppTheme.textMuted,
+                  color: enabled ? primary : muted,
                 ),
-                onPressed: section.enabled ? onEdit : null,
+                onPressed: enabled ? onEdit : null,
                 tooltip: AppLocalizations.of(context)!.edit,
               ),
-            Switch(
-              value: section.enabled,
+            ThemedSwitch(
+              value: enabled,
               onChanged: (_) => onToggle(),
-              activeColor: AppTheme.primaryColor,
             ),
           ],
         ),
-        onTap: onEdit != null && section.enabled ? onEdit : null,
+        onTap: onEdit != null && enabled ? onEdit : null,
       ),
     );
   }

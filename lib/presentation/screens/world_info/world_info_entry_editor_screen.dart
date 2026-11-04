@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/world_info.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Enhanced World Info Entry Editor Screen with all new fields
 class WorldInfoEntryEditorScreen extends ConsumerStatefulWidget {
@@ -122,7 +122,7 @@ class _WorldInfoEntryEditorScreenState
             tooltip: _l10n.favorites,
             onPressed: () => setState(() => _isFavorite = !_isFavorite),
           ),
-          Switch(
+          ThemedSwitch(
             value: _enabled,
             onChanged: (value) => setState(() => _enabled = value),
           ),
@@ -420,7 +420,9 @@ class _WorldInfoEntryEditorScreenState
             ),
             Text(
               _l10n.probabilityPercent(_probability),
-              style: const TextStyle(color: AppTheme.textSecondary),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
           const Divider(height: 32),
@@ -464,8 +466,10 @@ class _WorldInfoEntryEditorScreenState
               const SizedBox(height: 16),
               Text(
                 _l10n.characterIds,
-                style: const TextStyle(
-                    fontSize: 12, color: AppTheme.textSecondary),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 8),
               TextField(
