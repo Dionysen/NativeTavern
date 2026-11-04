@@ -694,67 +694,101 @@ class _CharacterListTile extends ConsumerWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: _buildListAvatar(),
-        title: Text(
-          character.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              description,
-              style: metaStyle,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (character.tags.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Wrap(
-                spacing: 4,
-                runSpacing: 4,
-                children: character.tags
-                    .map((tag) {
-                      final color = TagColors.forLabel(tag);
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 5,
-                          vertical: 1,
-                        ),
-                        decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color: color.withValues(alpha: 0.55),
-                          ),
-                        ),
-                        child: Text(
-                          tag,
-                          style: metaStyle?.copyWith(color: color),
-                        ),
-                      );
-                    })
-                    .toList(growable: false),
-              ),
-            ],
-          ],
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.more_vert),
-          tooltip: l10n.moreOptions,
-          onPressed: () => _showCharacterActionMenu(
-            context,
-            ref,
-            character,
-          ),
-        ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
         onTap: () => context.push('/characters/${character.id}'),
         onLongPress: () => _showCharacterActionMenu(
           context,
           ref,
           character,
+        ),
+        // Overflow sits on the title row (not vertically centered). ListTile's
+        // trailing centering leaves large empty bands on multi-line cards.
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildListAvatar(),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            character.name,
+                            style: theme.textTheme.titleMedium,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.more_vert,
+                            size: ChromeControls.menuIconSize,
+                          ),
+                          tooltip: l10n.moreOptions,
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: ChromeControls.buttonSize,
+                            minHeight: ChromeControls.buttonSize,
+                          ),
+                          style: IconButton.styleFrom(
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () => _showCharacterActionMenu(
+                            context,
+                            ref,
+                            character,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      description,
+                      style: metaStyle,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (character.tags.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: character.tags
+                            .map((tag) {
+                              final color = TagColors.forLabel(tag);
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                  vertical: 1,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: color.withValues(alpha: 0.55),
+                                  ),
+                                ),
+                                child: Text(
+                                  tag,
+                                  style: metaStyle?.copyWith(color: color),
+                                ),
+                              );
+                            })
+                            .toList(growable: false),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
