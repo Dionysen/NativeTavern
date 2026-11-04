@@ -27,13 +27,12 @@ apply plugin: 'com.android.library'
 android {
     namespace 'com.example.spine_flutter'
 
-    // Bumping the plugin compileSdkVersion requires all clients of this plugin
-    // to bump the version in their app.
-    compileSdkVersion 31
+    // Keep compileSdk aligned with current AndroidX / AGP 9 requirements.
+    compileSdk 36
 
     // Bumping the plugin ndkVersion requires all clients of this plugin to bump
     // the version in their app and to download a newer version of the NDK.
-    ndkVersion "21.1.6352462"
+    ndkVersion "27.0.12077973"
 
     // Invoke the shared CMake build with the Android Gradle Plugin.
     externalNativeBuild {
@@ -56,6 +55,6 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 24
     }
 }
