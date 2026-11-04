@@ -1437,6 +1437,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get solidColors => '纯色';
 
   @override
+  String get customBackgroundColor => '自定义颜色';
+
+  @override
+  String get backgroundColorImageMutexHint => '纯色 / 渐变与背景图片互斥，选择其一会替换另一种。';
+
+  @override
   String get customImage => '自定义图片';
 
   @override

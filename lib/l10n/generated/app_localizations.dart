@@ -2791,6 +2791,18 @@ abstract class AppLocalizations {
   /// **'Solid Colors'**
   String get solidColors;
 
+  /// Custom solid background color picker label
+  ///
+  /// In en, this message translates to:
+  /// **'Custom color'**
+  String get customBackgroundColor;
+
+  /// Hint that color/gradient backgrounds cannot be used with an image background
+  ///
+  /// In en, this message translates to:
+  /// **'Solid color / gradient and background image are mutually exclusive — choosing one replaces the other.'**
+  String get backgroundColorImageMutexHint;
+
   /// Custom image section header
   ///
   /// In en, this message translates to:

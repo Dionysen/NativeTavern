@@ -2078,6 +2078,14 @@
   "@solidColors": {
     "description": "Solid colors section header"
   },
+  "customBackgroundColor": "自定义颜色",
+  "@customBackgroundColor": {
+    "description": "Custom solid background color picker label"
+  },
+  "backgroundColorImageMutexHint": "纯色 / 渐变与背景图片互斥，选择其一会替换另一种。",
+  "@backgroundColorImageMutexHint": {
+    "description": "Hint that color/gradient backgrounds cannot be used with an image background"
+  },
   "customImage": "自定义图片",
   "@customImage": {
     "description": "Custom image section header"

@@ -9,7 +9,9 @@ import '../../../l10n/generated/app_localizations.dart';
 import '../../providers/background_providers.dart';
 import '../../providers/settings_providers.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/zephyr_chat_chrome.dart';
 import '../../widgets/chat/chat_background_widget.dart';
+import '../../widgets/settings/theme_color_picker.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for managing chat backgrounds
@@ -97,6 +99,7 @@ class _BackgroundSettingsScreenState
   }
 
   Future<void> _saveBackground(ChatBackground background) async {
+    // Color / gradient and image are mutually exclusive via [BackgroundType].
     setState(() => _currentBackground = background);
 
     if (widget.characterId != null) {
@@ -107,7 +110,54 @@ class _BackgroundSettingsScreenState
       await ref
           .read(globalBackgroundProvider.notifier)
           .setBackground(background);
+      // Color/gradient should win over "character image as background".
+      if (background.type == BackgroundType.color ||
+          background.type == BackgroundType.gradient) {
+        final useAvatar = ref.read(
+          appSettingsProvider.select((s) => s.useCharacterAvatarAsBackground),
+        );
+        if (useAvatar) {
+          ref
+              .read(appSettingsProvider.notifier)
+              .updateUseCharacterAvatarAsBackground(false);
+        }
+      }
     }
+  }
+
+  ChatBackground _withBubbleOpacity(ChatBackground bg) {
+    return bg.copyWith(bubbleOpacity: _currentBackground.bubbleOpacity);
+  }
+
+  Future<void> _pickCustomColor() async {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final initial = _currentBackground.type == BackgroundType.color &&
+            _currentBackground.color != null
+        ? _parseHexColor(_currentBackground.color!)
+        : scheme.surfaceContainerHigh;
+    final next = await showThemeColorPicker(
+      context,
+      initialColor: initial,
+      title: l10n.customBackgroundColor,
+      cancelLabel: l10n.cancel,
+      doneLabel: l10n.done,
+    );
+    if (next == null || !mounted) return;
+    await _saveBackground(
+      _withBubbleOpacity(ChatBackground.color(_hexOf(next))),
+    );
+  }
+
+  static String _hexOf(Color color) {
+    final rgb = color.toARGB32() & 0xFFFFFF;
+    return '#${rgb.toRadixString(16).padLeft(6, '0').toUpperCase()}';
+  }
+
+  static Color _parseHexColor(String hexColor) {
+    var hex = hexColor.replaceAll('#', '');
+    if (hex.length == 6) hex = 'FF$hex';
+    return Color(int.parse(hex, radix: 16));
   }
 
   @override
@@ -147,13 +197,20 @@ class _BackgroundSettingsScreenState
           _buildGradientPresets(),
           const SizedBox(height: 24),
 
-          // Solid colors
+          // Solid colors (+ custom)
           _buildSectionHeader(l10n.solidColors),
           const SizedBox(height: 8),
           _buildColorPresets(),
+          const SizedBox(height: 8),
+          Text(
+            l10n.backgroundColorImageMutexHint,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
           const SizedBox(height: 24),
 
-          // Custom image
+          // Custom image (mutually exclusive with color/gradient)
           _buildSectionHeader(l10n.customImage),
           const SizedBox(height: 8),
           _buildImageSection(),
@@ -242,6 +299,34 @@ class _BackgroundSettingsScreenState
   }
 
   Widget _buildPreviewSection() {
+    final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final hasBackground = _currentBackground.type != BackgroundType.none;
+    final bubbleOpacity = _currentBackground.bubbleOpacity;
+
+    Widget sampleBubble({required bool isUser, required String text}) {
+      return Align(
+        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: ZephyrChatChrome.messageBubbleDecoration(
+            context,
+            isUser: isUser,
+            transparent: false,
+            hasBackground: hasBackground,
+            bubbleOpacity: bubbleOpacity,
+            highlighted: false,
+          ),
+          child: Text(
+            text,
+            style: TextStyle(
+              color: ZephyrChatChrome.bubbleTextColor(scheme, isUser: isUser),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Card(
       clipBehavior: Clip.antiAlias,
       child: SizedBox(
@@ -249,64 +334,37 @@ class _BackgroundSettingsScreenState
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (_currentBackground.type != BackgroundType.none)
+            if (hasBackground)
               _BackgroundPreviewFull(background: _currentBackground)
             else
-              Container(
-                color: AppTheme.darkBackground,
+              ColoredBox(
+                color: scheme.surface,
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.wallpaper,
-                          size: 48, color: AppTheme.textMuted),
+                      Icon(Icons.wallpaper,
+                          size: 48, color: scheme.onSurfaceVariant),
                       const SizedBox(height: 8),
                       Text(
-                        AppLocalizations.of(context).noBackgroundSelected,
-                        style: const TextStyle(color: AppTheme.textMuted),
+                        l10n.noBackgroundSelected,
+                        style: TextStyle(color: scheme.onSurfaceVariant),
                       ),
                     ],
                   ),
                 ),
               ),
-            // Sample chat bubbles overlay
+            // Sample bubbles use the same chrome as real chat.
             Positioned(
               left: 16,
               right: 16,
               bottom: 16,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.darkCard
-                          .withValues(alpha: _currentBackground.bubbleOpacity),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context).sampleMessage1,
-                      style: const TextStyle(color: AppTheme.textPrimary),
-                    ),
-                  ),
+                  sampleBubble(isUser: false, text: l10n.sampleMessage1),
                   const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppTheme.accentColor.withValues(
-                            alpha: _currentBackground.bubbleOpacity),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context).sampleMessage2,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
+                  sampleBubble(isUser: true, text: l10n.sampleMessage2),
                 ],
               ),
             ),
@@ -331,28 +389,83 @@ class _BackgroundSettingsScreenState
               selected: _currentBackground.type == BackgroundType.gradient &&
                   _currentBackground.gradientColors?.join(',') ==
                       bg.gradientColors?.join(','),
-              onTap: () => _saveBackground(bg),
+              onTap: () => _saveBackground(_withBubbleOpacity(bg)),
             )),
       ],
     );
   }
 
   Widget _buildColorPresets() {
+    final isCustomSelected = _currentBackground.type == BackgroundType.color &&
+        !BackgroundPresets.isPresetColor(_currentBackground.color);
+    final scheme = Theme.of(context).colorScheme;
+    const size = 60.0;
+    const radius = 8.0;
+    final borderWidth = isCustomSelected ? 3.0 : 1.0;
+
     return Wrap(
       spacing: 12,
       runSpacing: 12,
-      children: BackgroundPresets.solidColors
-          .map((bg) => BackgroundPreview(
-                background: bg,
-                selected: _currentBackground.type == BackgroundType.color &&
-                    _currentBackground.color == bg.color,
-                onTap: () => _saveBackground(bg),
-              ))
-          .toList(),
+      children: [
+        ...BackgroundPresets.solidColors.map((bg) => BackgroundPreview(
+              background: bg,
+              selected: _currentBackground.type == BackgroundType.color &&
+                  _currentBackground.color?.toUpperCase() ==
+                      bg.color?.toUpperCase(),
+              onTap: () => _saveBackground(_withBubbleOpacity(bg)),
+            )),
+        // Custom color entry — opens HSV picker; exclusive with image bg.
+        Tooltip(
+          message: AppLocalizations.of(context).customBackgroundColor,
+          child: GestureDetector(
+            onTap: _pickCustomColor,
+            child: SizedBox(
+              width: size,
+              height: size,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(radius),
+                  border: Border.all(
+                    color: isCustomSelected
+                        ? scheme.primary
+                        : scheme.outline.withValues(alpha: 0.35),
+                    width: borderWidth,
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(borderWidth),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      (radius - borderWidth).clamp(0, radius),
+                    ),
+                    child: ColoredBox(
+                      color: isCustomSelected
+                          ? _parseHexColor(_currentBackground.color!)
+                          : scheme.surfaceContainerHigh,
+                      child: Icon(
+                        Icons.colorize_outlined,
+                        color: isCustomSelected
+                            ? _contrastIconColor(
+                                _parseHexColor(_currentBackground.color!))
+                            : scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
+  static Color _contrastIconColor(Color bg) {
+    return bg.computeLuminance() > 0.45 ? Colors.black87 : Colors.white;
+  }
+
   Widget _buildImageSection() {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -361,7 +474,7 @@ class _BackgroundSettingsScreenState
             Expanded(
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.image),
-                label: Text(AppLocalizations.of(context).chooseImage),
+                label: Text(l10n.chooseImage),
                 onPressed: _isLoading ? null : _pickImage,
               ),
             ),
@@ -369,7 +482,7 @@ class _BackgroundSettingsScreenState
             Expanded(
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.link),
-                label: Text(AppLocalizations.of(context).fromUrl),
+                label: Text(l10n.fromUrl),
                 onPressed: _isLoading ? null : _showUrlDialog,
               ),
             ),
@@ -379,12 +492,10 @@ class _BackgroundSettingsScreenState
           const SizedBox(height: 12),
           Text(
             _currentBackground.imagePath != null
-                ? AppLocalizations.of(context)
-                    .localImage(p.basename(_currentBackground.imagePath!))
+                ? l10n.localImage(p.basename(_currentBackground.imagePath!))
                 : _currentBackground.imageUrl != null
-                    ? AppLocalizations.of(context)
-                        .urlLabel(_currentBackground.imageUrl!)
-                    : AppLocalizations.of(context).noImage,
+                    ? l10n.urlLabel(_currentBackground.imageUrl!)
+                    : l10n.noImage,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppTheme.textMuted,
                 ),
@@ -792,7 +903,7 @@ class _BackgroundPreviewFull extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (background.type) {
       case BackgroundType.none:
-        return Container(color: AppTheme.darkBackground);
+        return ColoredBox(color: Theme.of(context).colorScheme.surface);
 
       case BackgroundType.color:
         return Container(color: _parseColor(background.color));

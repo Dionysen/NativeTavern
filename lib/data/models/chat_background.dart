@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:native_tavern/data/models/theme/theme_tokens.dart';
-
 /// Types of chat backgrounds
 enum BackgroundType {
   none,
@@ -180,58 +178,109 @@ class ChatBackground {
   int get hashCode => Object.hash(type, color, imagePath, imageUrl, opacity);
 }
 
-/// Preset backgrounds derived from built-in [ThemeTokens] packs.
+/// Curated chat background presets — visually distinct only, no near-duplicates.
 class BackgroundPresets {
-  static String _hex(int argb) {
-    final rgb = argb & 0xFFFFFF;
-    return '#${rgb.toRadixString(16).padLeft(6, '0').toUpperCase()}';
+  BackgroundPresets._();
+
+  /// Distinctive two-stop gradients (dark + tinted light).
+  static const List<ChatBackground> gradients = [
+    ChatBackground(
+      type: BackgroundType.gradient,
+      gradientColors: ['#1F1F1F', '#313131'],
+      gradientAngle: 180,
+      bubbleOpacity: 1.0,
+    ),
+    ChatBackground(
+      type: BackgroundType.gradient,
+      gradientColors: ['#10131B', '#2A3348'],
+      gradientAngle: 180,
+      bubbleOpacity: 1.0,
+    ),
+    ChatBackground(
+      type: BackgroundType.gradient,
+      gradientColors: ['#1A1025', '#3D2A55'],
+      gradientAngle: 160,
+      bubbleOpacity: 1.0,
+    ),
+    ChatBackground(
+      type: BackgroundType.gradient,
+      gradientColors: ['#0F1A18', '#1F3A34'],
+      gradientAngle: 180,
+      bubbleOpacity: 1.0,
+    ),
+    ChatBackground(
+      type: BackgroundType.gradient,
+      gradientColors: ['#1A1210', '#4A2E24'],
+      gradientAngle: 145,
+      bubbleOpacity: 1.0,
+    ),
+    ChatBackground(
+      type: BackgroundType.gradient,
+      gradientColors: ['#F1F3F6', '#FFFFFF'],
+      gradientAngle: 180,
+      bubbleOpacity: 1.0,
+    ),
+    ChatBackground(
+      type: BackgroundType.gradient,
+      gradientColors: ['#F4F0E9', '#FCFAF7'],
+      gradientAngle: 180,
+      bubbleOpacity: 1.0,
+    ),
+    ChatBackground(
+      type: BackgroundType.gradient,
+      gradientColors: ['#E5F2EC', '#FBFDFC'],
+      gradientAngle: 180,
+      bubbleOpacity: 1.0,
+    ),
+    ChatBackground(
+      type: BackgroundType.gradient,
+      gradientColors: ['#F0E6FB', '#FCF9FF'],
+      gradientAngle: 180,
+      bubbleOpacity: 1.0,
+    ),
+    ChatBackground(
+      type: BackgroundType.gradient,
+      gradientColors: ['#DBEAFE', '#EFF6FF'],
+      gradientAngle: 180,
+      bubbleOpacity: 1.0,
+    ),
+    ChatBackground(
+      type: BackgroundType.gradient,
+      gradientColors: ['#FEE2E2', '#FFF7ED'],
+      gradientAngle: 145,
+      bubbleOpacity: 1.0,
+    ),
+  ];
+
+  /// Distinctive solid fills spanning dark neutrals and tinted lights.
+  static const List<ChatBackground> solidColors = [
+    ChatBackground(type: BackgroundType.color, color: '#1F1F1F', bubbleOpacity: 1.0),
+    ChatBackground(type: BackgroundType.color, color: '#10131B', bubbleOpacity: 1.0),
+    ChatBackground(type: BackgroundType.color, color: '#2A1F3D', bubbleOpacity: 1.0),
+    ChatBackground(type: BackgroundType.color, color: '#1B2D2A', bubbleOpacity: 1.0),
+    ChatBackground(type: BackgroundType.color, color: '#3A241C', bubbleOpacity: 1.0),
+    ChatBackground(type: BackgroundType.color, color: '#FFFFFF', bubbleOpacity: 1.0),
+    ChatBackground(type: BackgroundType.color, color: '#F4F0E9', bubbleOpacity: 1.0),
+    ChatBackground(type: BackgroundType.color, color: '#E5F2EC', bubbleOpacity: 1.0),
+    ChatBackground(type: BackgroundType.color, color: '#F0E6FB', bubbleOpacity: 1.0),
+    ChatBackground(type: BackgroundType.color, color: '#DBEAFE', bubbleOpacity: 1.0),
+    ChatBackground(type: BackgroundType.color, color: '#FEE2E2', bubbleOpacity: 1.0),
+    ChatBackground(type: BackgroundType.color, color: '#FFF7ED', bubbleOpacity: 1.0),
+  ];
+
+  static bool isPresetColor(String? hex) {
+    if (hex == null) return false;
+    final normalized = hex.toUpperCase();
+    return solidColors.any((bg) => bg.color?.toUpperCase() == normalized);
   }
 
-  /// Soft vertical / diagonal gradients from each theme pack's surfaces.
-  static List<ChatBackground> get gradients {
-    final seen = <String>{};
-    final out = <ChatBackground>[];
-
-    void add(List<String> colors, double angle) {
-      if (colors.length < 2) return;
-      if (colors.toSet().length < 2) return;
-      final key = '${colors.join(',')}|$angle';
-      if (!seen.add(key)) return;
-      out.add(ChatBackground.gradient(colors, angle: angle));
-    }
-
-    for (final tokens in ThemeTokens.presets.values) {
-      final sidebar = _hex(tokens.sidebarSurface);
-      final editor = _hex(tokens.editorSurface);
-      final control = _hex(tokens.controlSurface);
-      final accent = _hex(tokens.accent);
-      add([sidebar, editor], 180);
-      add([editor, control], 135);
-      if (!tokens.isLight) {
-        add([editor, accent], 160);
-      } else {
-        add([sidebar, accent], 145);
-      }
-    }
-    return out;
-  }
-
-  /// Solid fills from theme pack surfaces (deduped).
-  static List<ChatBackground> get solidColors {
-    final seen = <String>{};
-    final out = <ChatBackground>[];
-
-    void add(int argb) {
-      final hex = _hex(argb);
-      if (!seen.add(hex)) return;
-      out.add(ChatBackground.color(hex));
-    }
-
-    for (final tokens in ThemeTokens.presets.values) {
-      add(tokens.editorSurface);
-      add(tokens.sidebarSurface);
-      add(tokens.controlSurface);
-    }
-    return out;
+  static bool isPresetGradient(List<String>? colors) {
+    if (colors == null || colors.isEmpty) return false;
+    final key = colors.map((c) => c.toUpperCase()).join(',');
+    return gradients.any(
+      (bg) =>
+          (bg.gradientColors?.map((c) => c.toUpperCase()).join(',') ?? '') ==
+          key,
+    );
   }
 }

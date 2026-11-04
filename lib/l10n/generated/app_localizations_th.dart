@@ -1468,6 +1468,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
+  String get customBackgroundColor => 'Custom color';
+
+  @override
+  String get backgroundColorImageMutexHint =>
+      'Solid color / gradient and background image are mutually exclusive — choosing one replaces the other.';
+
+  @override
   String get customImage => 'Custom Image';
 
   @override
