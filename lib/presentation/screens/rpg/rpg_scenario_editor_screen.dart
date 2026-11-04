@@ -12,6 +12,7 @@ import 'package:native_tavern/domain/services/rpg_scenario_draft_store.dart';
 import 'package:native_tavern/domain/services/rpg_scenario_package_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/controllers/rpg_scenario_editor_controller.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 class RpgScenarioFileData {
   final String name;
@@ -137,7 +138,7 @@ class _RpgScenarioEditorScreenState extends State<RpgScenarioEditorScreen>
               ? '${l10n.rpgScenarioTitle} *'
               : l10n.rpgScenarioTitle,
         ),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             key: const Key('rpg-import'),
             tooltip: l10n.rpgImportScenario,
@@ -174,7 +175,7 @@ class _RpgScenarioEditorScreenState extends State<RpgScenarioEditorScreen>
               ),
             ],
           ),
-        ],
+        ]),
         bottom: TabBar(
           controller: _tabs,
           tabs: [

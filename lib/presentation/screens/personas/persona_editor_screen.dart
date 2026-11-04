@@ -14,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 /// Enhanced Persona Editor Screen with all new fields
 class PersonaEditorScreen extends ConsumerStatefulWidget {
@@ -97,7 +98,7 @@ class _PersonaEditorScreenState extends ConsumerState<PersonaEditorScreen>
         title: Text(
           widget.persona == null ? _l10n.createPersona : _l10n.editPersona,
         ),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             icon: Icon(_isFavorite ? Icons.star : Icons.star_border),
             tooltip: _l10n.favorite,
@@ -108,7 +109,7 @@ class _PersonaEditorScreenState extends ConsumerState<PersonaEditorScreen>
             tooltip: _l10n.save,
             onPressed: _isSaving ? null : _save,
           ),
-        ],
+        ]),
         bottom: TabBar(
           controller: _tabController,
           tabs: [

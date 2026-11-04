@@ -9,8 +9,13 @@ import '../../data/models/theme/ui_preferences.dart';
 abstract final class ChromeControls {
   static const double buttonSize = 28;
   static const double iconSize = 16;
+  /// AppBar / toolbar IconButtons — same on every platform (Android reference).
   static const double mobileButtonSize = 40;
   static const double mobileIconSize = 22;
+  /// Trailing inset so AppBar actions are not flush to the window edge.
+  static const double appBarActionsEndPadding = 12;
+  /// Horizontal gap inserted between AppBar action children.
+  static const double appBarActionGap = 8;
   static const double defaultCornerRadius = 4;
   static const double fieldHeight = 36;
   static const double menuInsets = 4;
@@ -119,6 +124,19 @@ extension AppThemeContext on BuildContext {
       appShape.outlineSide(color ?? Theme.of(this).colorScheme.outline);
 }
 
+/// Inserts a fixed gap between AppBar action children so desktop and mobile
+/// match (Material AppBar packs actions with zero spacing by default).
+List<Widget> spacedAppBarActions(Iterable<Widget> actions) {
+  final list = actions.toList(growable: false);
+  if (list.length <= 1) return list;
+  return [
+    for (var i = 0; i < list.length; i++) ...[
+      if (i > 0) const SizedBox(width: ChromeControls.appBarActionGap),
+      list[i],
+    ],
+  ];
+}
+
 /// Builds Material theme from semantic tokens + chrome prefs.
 ThemeData buildNativeTavernTheme(
   ThemeTokens tokens, {
@@ -163,6 +181,9 @@ ThemeData buildNativeTavernTheme(
 
   return ThemeData(
     useMaterial3: true,
+    // Keep density identical on phone and desktop; adaptive compact on macOS
+    // was shrinking chrome relative to Android.
+    visualDensity: VisualDensity.standard,
     extensions: [shape],
     colorScheme: ColorScheme.fromSeed(seedColor: accent, brightness: brightness)
         .copyWith(
@@ -229,20 +250,22 @@ ThemeData buildNativeTavernTheme(
     ),
     iconTheme: IconThemeData(
       color: primaryText.withValues(alpha: .76),
-      size: ChromeControls.iconSize,
+      size: ChromeControls.mobileIconSize,
     ),
     iconButtonTheme: IconButtonThemeData(
       style: IconButton.styleFrom(
         foregroundColor: primaryText.withValues(alpha: .76),
-        iconSize: ChromeControls.iconSize,
-        padding: EdgeInsets.zero,
+        iconSize: ChromeControls.mobileIconSize,
+        padding: const EdgeInsets.all(
+          (ChromeControls.mobileButtonSize - ChromeControls.mobileIconSize) / 2,
+        ),
         minimumSize: const Size(
-          ChromeControls.buttonSize,
-          ChromeControls.buttonSize,
+          ChromeControls.mobileButtonSize,
+          ChromeControls.mobileButtonSize,
         ),
         fixedSize: const Size(
-          ChromeControls.buttonSize,
-          ChromeControls.buttonSize,
+          ChromeControls.mobileButtonSize,
+          ChromeControls.mobileButtonSize,
         ),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         visualDensity: VisualDensity.standard,
@@ -318,6 +341,9 @@ ThemeData buildNativeTavernTheme(
       elevation: 0,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: shape.barBorderRadius),
+      actionsPadding: const EdgeInsetsDirectional.only(
+        end: ChromeControls.appBarActionsEndPadding,
+      ),
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: cursor,

@@ -12,6 +12,7 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 /// Character detail screen
 class CharacterDetailScreen extends ConsumerWidget {
@@ -207,7 +208,7 @@ class _CharacterDetailContentState
               ),
               background: _buildAvatarBackground(character),
             ),
-            actions: [
+            actions: spacedAppBarActions([
               IconButton(
                 icon: const Icon(Icons.animation),
                 tooltip: 'Live2D',
@@ -241,7 +242,7 @@ class _CharacterDetailContentState
                   ),
                 ],
               ),
-            ],
+            ]),
           ),
           SliverToBoxAdapter(
             child: Padding(

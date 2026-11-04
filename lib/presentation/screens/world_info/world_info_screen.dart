@@ -13,6 +13,7 @@ import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/screens/world_info/world_info_entry_editor_screen.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
@@ -51,7 +52,7 @@ class WorldInfoScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.worldInfoLorebooks),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             icon: const Icon(Icons.file_download),
             tooltip: AppLocalizations.of(context)!.import,
@@ -62,7 +63,7 @@ class WorldInfoScreen extends ConsumerWidget {
             tooltip: AppLocalizations.of(context)!.createLorebook,
             onPressed: () => _showCreateDialog(context, ref),
           ),
-        ],
+        ]),
       ),
       body: worldInfosAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

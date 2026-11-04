@@ -10,6 +10,7 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 /// Screen for managing regex scripts
 class RegexSettingsScreen extends ConsumerWidget {
@@ -23,7 +24,7 @@ class RegexSettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.regexScripts),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             icon: const Icon(Icons.add),
             tooltip: AppLocalizations.of(context)!.addScript,
@@ -68,7 +69,7 @@ class RegexSettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-        ],
+        ]),
       ),
       body: SettingsPageBody(
         children: [

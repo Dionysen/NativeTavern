@@ -7,6 +7,7 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 /// Screen for managing variables
 class VariablesSettingsScreen extends ConsumerWidget {
@@ -25,7 +26,7 @@ class VariablesSettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(chatId != null ? l10n.chatVariables : l10n.variables),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             icon: const Icon(Icons.add),
             tooltip: l10n.addVariable,
@@ -53,7 +54,7 @@ class VariablesSettingsScreen extends ConsumerWidget {
                 ),
             ],
           ),
-        ],
+        ]),
       ),
       body: SettingsPageBody(
         children: [

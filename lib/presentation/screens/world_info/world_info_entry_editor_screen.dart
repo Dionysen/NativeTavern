@@ -5,6 +5,7 @@ import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 /// Enhanced World Info Entry Editor Screen with all new fields
 class WorldInfoEntryEditorScreen extends ConsumerStatefulWidget {
@@ -115,7 +116,7 @@ class _WorldInfoEntryEditorScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.entry == null ? _l10n.createEntry : _l10n.editEntry),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             icon: Icon(_isFavorite ? Icons.star : Icons.star_border),
             tooltip: _l10n.favorites,
@@ -130,7 +131,7 @@ class _WorldInfoEntryEditorScreenState
             tooltip: _l10n.save,
             onPressed: _isSaving ? null : _save,
           ),
-        ],
+        ]),
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,

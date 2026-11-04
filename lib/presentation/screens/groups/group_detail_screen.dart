@@ -8,6 +8,7 @@ import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 class GroupDetailScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -219,7 +220,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_group!.name),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             icon: const Icon(Icons.play_arrow),
             tooltip: AppLocalizations.of(context)!.startChatAction,
@@ -235,7 +236,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
             tooltip: AppLocalizations.of(context)!.delete,
             onPressed: _deleteGroup,
           ),
-        ],
+        ]),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

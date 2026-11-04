@@ -11,6 +11,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/widgets/common/group_avatar.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
@@ -67,7 +68,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.appTitle),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             icon: const Icon(Icons.groups),
             tooltip: l10n.groupChats,
@@ -78,7 +79,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             tooltip: l10n.import,
             onPressed: () => context.push(AppRoutes.import_),
           ),
-        ],
+        ]),
       ),
       body: const _ChatListView(),
       floatingActionButton: FloatingActionButton.extended(

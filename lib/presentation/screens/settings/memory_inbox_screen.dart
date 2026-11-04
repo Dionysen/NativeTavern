@@ -8,6 +8,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/memory_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 class MemoryInboxScreen extends ConsumerStatefulWidget {
   const MemoryInboxScreen({super.key});
@@ -34,7 +35,7 @@ class _MemoryInboxScreenState extends ConsumerState<MemoryInboxScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.memoryInbox),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             key: const Key('memory-context-settings'),
             tooltip: l10n.memoryChatContext,
@@ -48,7 +49,7 @@ class _MemoryInboxScreenState extends ConsumerState<MemoryInboxScreen> {
                 : () => ref.read(memoryInboxProvider.notifier).refresh(),
             icon: const Icon(Icons.refresh),
           ),
-        ],
+        ]),
       ),
       body: Column(
         children: [

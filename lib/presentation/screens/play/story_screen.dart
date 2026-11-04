@@ -10,6 +10,7 @@ import 'package:native_tavern/presentation/providers/story_providers.dart';
 import 'package:native_tavern/presentation/providers/story_timeline_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/screens/play/story_models.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 class StoryScreen extends ConsumerWidget {
   const StoryScreen({super.key, this.initialChatId});
@@ -24,7 +25,7 @@ class StoryScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.story),
-        actions: [
+        actions: spacedAppBarActions([
           if (visibleChapters.isNotEmpty)
             IconButton(
               tooltip: l10n.storySearch,
@@ -48,7 +49,7 @@ class StoryScreen extends ConsumerWidget {
             onPressed: () => context.push(AppRoutes.memoryInbox),
             icon: const Icon(Icons.inbox_outlined),
           ),
-        ],
+        ]),
       ),
       body: chapters.when(
         loading: () => const Center(child: CircularProgressIndicator()),

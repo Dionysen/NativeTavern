@@ -16,6 +16,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/controllers/data_bank_library_controller.dart';
 import 'package:native_tavern/presentation/providers/data_bank_providers.dart';
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 abstract interface class DataBankFileGateway {
   Future<File?> pickDocument();
@@ -140,7 +141,7 @@ class _DataBankScreenState extends ConsumerState<DataBankScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.dataBank),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             key: const Key('data-bank-context-settings'),
             tooltip: l10n.dataBankChatRetrievalSettings,
@@ -159,7 +160,7 @@ class _DataBankScreenState extends ConsumerState<DataBankScreen> {
             onPressed: _controller.working ? null : _importDocument,
             icon: const Icon(Icons.note_add_outlined),
           ),
-        ],
+        ]),
       ),
       body: Column(
         children: [

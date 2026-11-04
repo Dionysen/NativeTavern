@@ -17,6 +17,7 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/live2d/live2d_character_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 class Live2DSettingsScreen extends ConsumerWidget {
   final String characterId;
@@ -518,7 +519,7 @@ class _Live2DSettingsEditorState extends ConsumerState<_Live2DSettingsEditor> {
     return Scaffold(
       appBar: AppBar(
         title: Text('${widget.character.name} Live2D'),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             icon: const Icon(Icons.info_outline),
             tooltip: l10n.live2dLicensing,
@@ -535,7 +536,7 @@ class _Live2DSettingsEditorState extends ConsumerState<_Live2DSettingsEditor> {
             tooltip: l10n.save,
             onPressed: _isSaving ? null : _save,
           ),
-        ],
+        ]),
       ),
       body: SettingsPageBody(
         children: [

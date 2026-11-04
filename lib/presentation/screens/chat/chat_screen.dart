@@ -1256,7 +1256,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
         ],
       ),
-      actions: [
+      actions: spacedAppBarActions([
         if (chatState.hasUnsavedChanges)
           IconButton(
             icon: Icon(
@@ -1586,7 +1586,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             }
           },
         ),
-      ],
+      ]),
     );
   }
 

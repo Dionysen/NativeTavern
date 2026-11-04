@@ -9,6 +9,7 @@ import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
@@ -42,7 +43,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.characters),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             icon: _getViewModeIcon(),
             onPressed: () => setState(() => _viewMode = _viewMode.next),
@@ -63,7 +64,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
             tooltip: l10n.import,
             onPressed: () => context.push(AppRoutes.import_),
           ),
-        ],
+        ]),
       ),
       body: Column(
         children: [

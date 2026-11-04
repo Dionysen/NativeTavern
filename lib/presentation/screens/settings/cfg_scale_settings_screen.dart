@@ -4,6 +4,7 @@ import 'package:native_tavern/data/models/cfg_scale.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/cfg_scale_providers.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 /// Settings screen for CFG Scale configuration
 class CFGScaleSettingsScreen extends ConsumerWidget {
@@ -24,7 +25,7 @@ class CFGScaleSettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.cfgScale),
-        actions: [
+        actions: spacedAppBarActions([
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () => _showHelpDialog(context),
@@ -37,7 +38,7 @@ class CFGScaleSettingsScreen extends ConsumerWidget {
             },
             tooltip: l10n.resetToDefaults,
           ),
-        ],
+        ]),
       ),
       body: SettingsPageBody(
         children: [
