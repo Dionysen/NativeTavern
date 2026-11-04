@@ -40,6 +40,7 @@ import 'package:native_tavern/data/models/regex_script.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/chat/author_note_dialog.dart';
 import 'package:native_tavern/presentation/widgets/chat/bookmark_dialog.dart';
@@ -2276,93 +2277,132 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildInputArea(ActiveChatState chatState) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.darkCard,
-        border: Border(top: BorderSide(color: AppTheme.darkDivider)),
-      ),
-      child: SafeArea(
+    final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final isDesktop = !(Platform.isIOS || Platform.isAndroid);
+
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 6, 14, 10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Pending attachments preview
-            if (_pendingAttachments.isNotEmpty) _buildAttachmentsPreview(),
-            // Input row with menu button
+            if (_pendingAttachments.isNotEmpty) ...[
+              _buildAttachmentsPreview(),
+              const SizedBox(height: 8),
+            ],
             CompositedTransformTarget(
               link: _inputMenuLayerLink,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // Menu button
-                  IconButton(
-                    icon: Icon(
-                      _showInputMenu ? Icons.close : Icons.menu,
-                      size: 24,
-                      color: _showInputMenu
-                          ? AppTheme.primaryColor
-                          : AppTheme.textMuted,
-                    ),
-                    onPressed: () => _setInputMenuVisible(!_showInputMenu),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 40,
-                      minHeight: 40,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  // Input field
-                  Expanded(
-                    child: MarkdownInputField(
-                      controller: _messageController,
-                      focusNode: _focusNode,
-                      maxLines: 5,
-                      minLines: 1,
-                      hintText: AppLocalizations.of(context).typeMessage,
-                      onSubmitted: Platform.isIOS || Platform.isAndroid
-                          ? null
-                          : (_) => _sendMessage(),
-                      textInputAction: Platform.isIOS || Platform.isAndroid
-                          ? TextInputAction.newline
-                          : TextInputAction.send,
-                      showToolbar: false,
-                      decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context).typeMessage,
-                        filled: true,
-                        fillColor: AppTheme.darkBackground,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+              child: DecoratedBox(
+                decoration: ZephyrChatChrome.composerShell(context),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
+                      child: MarkdownInputField(
+                        controller: _messageController,
+                        focusNode: _focusNode,
+                        maxLines: 5,
+                        minLines: 1,
+                        hintText: l10n.typeMessage,
+                        onSubmitted:
+                            isDesktop ? (_) => _sendMessage() : null,
+                        textInputAction: isDesktop
+                            ? TextInputAction.send
+                            : TextInputAction.newline,
+                        showToolbar: false,
+                        decoration:
+                            ZephyrChatChrome.composerFieldDecoration(
+                          context,
+                          hintText: l10n.typeMessage,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  ChatVoiceInputButton(
-                    controller: _messageController,
-                    onAutoSend: _sendMessage,
-                  ),
-                  // Show stop button when generating, send button otherwise
-                  if (chatState.isGenerating)
-                    IconButton.filled(
-                      onPressed: () => ref
-                          .read(activeChatProvider.notifier)
-                          .cancelGeneration(),
-                      icon: const Icon(Icons.stop_circle),
-                      style: IconButton.styleFrom(backgroundColor: Colors.red),
-                      tooltip: AppLocalizations.of(context).stopGenerating,
-                    )
-                  else
-                    IconButton.filled(
-                      onPressed: _sendMessage,
-                      icon: const Icon(Icons.send),
-                      tooltip: AppLocalizations.of(context).send,
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 6),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: () =>
+                                _setInputMenuVisible(!_showInputMenu),
+                            tooltip: l10n.moreOptions,
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: _showInputMenu
+                                  ? scheme.primary
+                                  : scheme.onSurfaceVariant,
+                              visualDensity: VisualDensity.compact,
+                              splashFactory: NoSplash.splashFactory,
+                              highlightColor: Colors.transparent,
+                            ),
+                            icon: Icon(
+                              _showInputMenu
+                                  ? Icons.close_rounded
+                                  : Icons.menu_rounded,
+                              size: 22,
+                            ),
+                            padding: const EdgeInsets.all(6),
+                            constraints: const BoxConstraints(
+                              minWidth: 32,
+                              minHeight: 32,
+                            ),
+                          ),
+                          const Spacer(),
+                          ChatVoiceInputButton(
+                            controller: _messageController,
+                            onAutoSend: _sendMessage,
+                          ),
+                          const SizedBox(width: 4),
+                          Tooltip(
+                            message: chatState.isGenerating
+                                ? l10n.stopGenerating
+                                : l10n.send,
+                            child: Material(
+                              color: scheme.primary,
+                              shape: const CircleBorder(),
+                              clipBehavior: Clip.antiAlias,
+                              child: InkWell(
+                                onTap: chatState.isGenerating
+                                    ? () => ref
+                                        .read(activeChatProvider.notifier)
+                                        .cancelGeneration()
+                                    : _sendMessage,
+                                child: SizedBox(
+                                  width: 34,
+                                  height: 34,
+                                  child: Center(
+                                    child: chatState.isGenerating
+                                        ? DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              color: scheme.onPrimary,
+                                              borderRadius:
+                                                  BorderRadius.circular(2.5),
+                                            ),
+                                            child: const SizedBox(
+                                              width: 12,
+                                              height: 12,
+                                            ),
+                                          )
+                                        : Icon(
+                                            Icons.send_rounded,
+                                            size: 18,
+                                            color: scheme.onPrimary,
+                                          ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -2408,11 +2448,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Container(
       key: const ValueKey('chat-input-menu-panel'),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.darkBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.darkDivider),
-      ),
+      decoration: ZephyrChatChrome.inputMenuPanel(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -2456,16 +2492,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     horizontal: 12,
                     vertical: 8,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.darkCard,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  decoration: ZephyrChatChrome.menuChip(context),
                   child: Row(
                     children: [
                       Icon(
                         Icons.analytics_outlined,
                         size: 18,
-                        color: AppTheme.textMuted,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 8),
                       const Expanded(child: ContextUsageIndicator()),
@@ -2488,6 +2521,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   /// Build quick replies inside the menu panel
   Widget _buildQuickRepliesInMenu() {
     final enabledReplies = ref.watch(enabledQuickRepliesProvider);
+    final scheme = Theme.of(context).colorScheme;
 
     return Wrap(
       spacing: 8,
@@ -2499,20 +2533,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 _handleQuickReply(reply.message, reply.autoSend);
                 _setInputMenuVisible(false);
               },
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(context.appCornerRadius),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
                   vertical: 8,
                 ),
-                decoration: BoxDecoration(
-                  color: AppTheme.darkCard,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.darkDivider),
-                ),
+                decoration: ZephyrChatChrome.menuChip(context),
                 child: Text(
                   reply.label,
-                  style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ),
@@ -3348,9 +3381,10 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                               else
                                 MessageContentWidget(
                                   content: _displayContent(),
-                                  textColor: isUser
-                                      ? Colors.white
-                                      : AppTheme.textPrimary,
+                                  textColor: ZephyrChatChrome.bubbleTextColor(
+                                    Theme.of(context).colorScheme,
+                                    isUser: isUser,
+                                  ),
                                   selectable: true,
                                   onLongPress: () =>
                                       _showMessageOptions(context),
@@ -3450,56 +3484,15 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     );
   }
 
-  BoxDecoration _buildMessageDecoration(bool isUser) {
-    final isTransparent = widget.layoutMode == 'transparent';
-
-    if (isTransparent && widget.hasBackground) {
-      // Transparent mode: very light background with blur effect
-      return BoxDecoration(
-        color: isUser
-            ? AppTheme.accentColor.withValues(alpha: 0.35)
-            : Colors.black.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: widget.highlighted
-              ? Theme.of(context).colorScheme.tertiary
-              : isUser
-                  ? AppTheme.accentColor.withValues(alpha: 0.5)
-                  : Colors.white.withValues(alpha: 0.3),
-          width: widget.highlighted ? 3 : 1,
-        ),
-        // Glass morphism effect
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      );
-    } else {
-      // Classic bubble mode — colors / radius follow active theme tokens.
-      final scheme = Theme.of(context).colorScheme;
-      final bubbleRadius = context.appChatBubbleCornerRadius;
-      final userColor = scheme.primary;
-      final assistantColor = scheme.surfaceContainerHigh;
-      return BoxDecoration(
-        color: isUser
-            ? (widget.hasBackground
-                ? userColor.withValues(alpha: widget.bubbleOpacity)
-                : userColor)
-            : (widget.hasBackground
-                ? assistantColor.withValues(alpha: widget.bubbleOpacity)
-                : assistantColor),
-        borderRadius: BorderRadius.circular(bubbleRadius),
-        border: widget.highlighted
-            ? Border.all(
-                color: scheme.tertiary,
-                width: 3,
-              )
-            : null,
-      );
-    }
+  Decoration _buildMessageDecoration(bool isUser) {
+    return ZephyrChatChrome.messageBubbleDecoration(
+      context,
+      isUser: isUser,
+      transparent: widget.layoutMode == 'transparent',
+      hasBackground: widget.hasBackground,
+      bubbleOpacity: widget.bubbleOpacity,
+      highlighted: widget.highlighted,
+    );
   }
 
   Widget _buildAvatar() {
@@ -3936,9 +3929,16 @@ class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final radius = context.appCornerRadius;
     return Dialog(
-      backgroundColor: AppTheme.darkCard,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: scheme.surfaceContainerHigh,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radius),
+        side: context.appShowBorders
+            ? BorderSide(color: scheme.outline)
+            : BorderSide.none,
+      ),
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: 400,
@@ -3956,7 +3956,7 @@ class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.smart_toy, color: AppTheme.primaryColor),
+                      Icon(Icons.smart_toy, color: scheme.primary),
                       const SizedBox(width: 8),
                       Text(
                         l10n.selectModel,
@@ -3968,7 +3968,7 @@ class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
                   Text(
                     '${l10n.provider}: ${widget.providerName}',
                     style: TextStyle(
-                      color: AppTheme.textSecondary,
+                      color: scheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
                   ),
@@ -3981,20 +3981,20 @@ class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 controller: _searchController,
-                decoration: InputDecoration(
+                decoration: ZephyrChatChrome.inputFieldDecoration(
+                  context,
                   hintText: l10n.searchModels,
-                  prefixIcon: const Icon(Icons.search, size: 20),
-                  isDense: true,
-                  filled: true,
-                  fillColor: AppTheme.darkBackground,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
                   ),
+                ).copyWith(
+                  prefixIcon: Icon(
+                    Icons.search,
+                    size: 20,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  isDense: true,
                 ),
               ),
             ),
@@ -4009,7 +4009,7 @@ class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
                         padding: const EdgeInsets.all(32),
                         child: Text(
                           l10n.noModelsMatchSearch,
-                          style: TextStyle(color: AppTheme.textMuted),
+                          style: TextStyle(color: scheme.onSurfaceVariant),
                         ),
                       ),
                     )
@@ -4026,8 +4026,8 @@ class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
                                 ? Icons.check_circle
                                 : Icons.circle_outlined,
                             color: isSelected
-                                ? AppTheme.accentColor
-                                : AppTheme.textMuted,
+                                ? scheme.primary
+                                : scheme.onSurfaceVariant,
                             size: 20,
                           ),
                           title: Text(
@@ -4037,16 +4037,16 @@ class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
                                   ? FontWeight.bold
                                   : FontWeight.normal,
                               color: isSelected
-                                  ? AppTheme.accentColor
-                                  : AppTheme.textPrimary,
+                                  ? scheme.primary
+                                  : scheme.onSurface,
                             ),
                           ),
                           selected: isSelected,
-                          selectedTileColor: AppTheme.accentColor.withValues(
+                          selectedTileColor: scheme.primary.withValues(
                             alpha: 0.1,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(radius),
                           ),
                           onTap: () => Navigator.pop(context, model),
                         );
@@ -4089,23 +4089,24 @@ class _InputMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(context.appCornerRadius),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppTheme.darkCard,
-          borderRadius: BorderRadius.circular(12),
-        ),
+        decoration: ZephyrChatChrome.menuChip(context),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 18, color: AppTheme.primaryColor),
+            Icon(icon, size: 18, color: scheme.primary),
             const SizedBox(width: 6),
             Text(
               label,
-              style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+              style: TextStyle(
+                fontSize: 13,
+                color: scheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),

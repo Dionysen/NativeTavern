@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:native_tavern/domain/services/markdown_hotkey_service.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
@@ -137,18 +137,9 @@ class _MarkdownInputFieldState extends State<MarkdownInputField> {
             maxLines: widget.maxLines,
             minLines: widget.minLines,
             decoration: widget.decoration ??
-                InputDecoration(
+                ZephyrChatChrome.inputFieldDecoration(
+                  context,
                   hintText: widget.hintText,
-                  filled: true,
-                  fillColor: AppTheme.darkBackground,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
                 ),
             onSubmitted: widget.onSubmitted,
             textInputAction: widget.textInputAction,
@@ -168,13 +159,14 @@ class _MarkdownToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard,
+        color: scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.darkDivider),
+        border: Border.all(color: scheme.outlineVariant),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -253,7 +245,7 @@ class _ToolbarButton extends StatelessWidget {
           child: Icon(
             format.icon,
             size: 18,
-            color: AppTheme.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -268,7 +260,7 @@ class _ToolbarDivider extends StatelessWidget {
       width: 1,
       height: 20,
       margin: const EdgeInsets.symmetric(horizontal: 4),
-      color: AppTheme.darkDivider,
+      color: Theme.of(context).colorScheme.outlineVariant,
     );
   }
 }
@@ -316,16 +308,16 @@ class MarkdownToolbar extends StatelessWidget {
     if (compact) {
       return _buildCompactToolbar(context);
     }
-    return _buildFullToolbar();
+    return _buildFullToolbar(context);
   }
 
-  Widget _buildFullToolbar() {
+  Widget _buildFullToolbar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.darkDivider),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -405,20 +397,20 @@ class MarkdownToolbar extends StatelessWidget {
           icon: Icon(
             Icons.more_horiz,
             size: 18,
-            color: AppTheme.textMuted,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           tooltip: l10n.moreFormatting,
           onSelected: _applyFormat,
-          itemBuilder: (context) => [
-            _buildMenuItem(MarkdownFormat.underline, l10n),
-            _buildMenuItem(MarkdownFormat.strikethrough, l10n),
+          itemBuilder: (menuContext) => [
+            _buildMenuItem(menuContext, MarkdownFormat.underline, l10n),
+            _buildMenuItem(menuContext, MarkdownFormat.strikethrough, l10n),
             const PopupMenuDivider(),
-            _buildMenuItem(MarkdownFormat.codeBlock, l10n),
-            _buildMenuItem(MarkdownFormat.link, l10n),
-            _buildMenuItem(MarkdownFormat.quote, l10n),
+            _buildMenuItem(menuContext, MarkdownFormat.codeBlock, l10n),
+            _buildMenuItem(menuContext, MarkdownFormat.link, l10n),
+            _buildMenuItem(menuContext, MarkdownFormat.quote, l10n),
             const PopupMenuDivider(),
-            _buildMenuItem(MarkdownFormat.bulletList, l10n),
-            _buildMenuItem(MarkdownFormat.numberedList, l10n),
+            _buildMenuItem(menuContext, MarkdownFormat.bulletList, l10n),
+            _buildMenuItem(menuContext, MarkdownFormat.numberedList, l10n),
           ],
         ),
       ],
@@ -426,6 +418,7 @@ class MarkdownToolbar extends StatelessWidget {
   }
 
   PopupMenuItem<MarkdownFormat> _buildMenuItem(
+    BuildContext context,
     MarkdownFormat format,
     AppLocalizations l10n,
   ) {
@@ -441,7 +434,7 @@ class MarkdownToolbar extends StatelessWidget {
             Text(
               format.shortcutHint!,
               style: TextStyle(
-                color: AppTheme.textMuted,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 12,
               ),
             ),
@@ -496,7 +489,7 @@ class _CompactToolbarButton extends StatelessWidget {
           child: Icon(
             icon,
             size: 18,
-            color: AppTheme.textMuted,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
