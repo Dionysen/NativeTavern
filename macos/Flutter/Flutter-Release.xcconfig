@@ -1,0 +1,6 @@
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
+#include "ephemeral/Flutter-Generated.xcconfig"
+
+// Xcode 26+ can resolve TOOLCHAIN_DIR to the Metal toolchain (no Swift libs).
+// Pin the default toolchain so Pods LIBRARY_SEARCH_PATHS stay valid.
+TOOLCHAIN_DIR=$(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain
