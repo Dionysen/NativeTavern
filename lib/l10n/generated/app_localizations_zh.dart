@@ -3365,6 +3365,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get branchFromHere => '从此处创建分支';
 
   @override
+  String get newBranchChat => '开新分支聊天';
+
+  @override
+  String get newBranchChatHint => '保留当前对话，复制到此为止的消息到新聊天';
+
+  @override
+  String branchChatTitle(String title) {
+    return '$title（分支）';
+  }
+
+  @override
+  String get branchChatCreated => '已打开新分支聊天';
+
+  @override
   String previewBookmark(String name) {
     return '预览：$name';
   }
@@ -9901,6 +9915,20 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get branchFromHere => '從此處建立分支';
+
+  @override
+  String get newBranchChat => '開新分支聊天';
+
+  @override
+  String get newBranchChatHint => '保留目前對話，複製到此為止的訊息到新聊天';
+
+  @override
+  String branchChatTitle(String title) {
+    return '$title（分支）';
+  }
+
+  @override
+  String get branchChatCreated => '已開啟新分支聊天';
 
   @override
   String previewBookmark(String name) {

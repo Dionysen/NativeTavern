@@ -3135,6 +3135,54 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     }
   }
 
+  /// Create a new chat copying messages up to [messageId] (inclusive).
+  /// Leaves the current chat unchanged. Returns the new chat id, or null.
+  Future<String?> branchChatFromMessage(String messageId) async {
+    final source = state.chat;
+    if (source == null) return null;
+
+    try {
+      await _ensureAllMessagesLoaded();
+      final index = state.messages.indexWhere((m) => m.id == messageId);
+      if (index < 0) {
+        state = state.copyWith(error: _l10n.messageNotFoundInChat);
+        return null;
+      }
+
+      final now = DateTime.now();
+      final newChatId = _generateId();
+      final newChat = Chat(
+        id: newChatId,
+        characterId: source.characterId,
+        groupId: source.groupId,
+        title: _l10n.branchChatTitle(source.title),
+        authorNote: source.authorNote,
+        authorNoteDepth: source.authorNoteDepth,
+        authorNoteEnabled: source.authorNoteEnabled,
+        summaries: const [],
+        settings: Map<String, dynamic>.from(source.settings),
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      await _chatRepository.createChat(newChat);
+
+      for (final msg in state.messages.sublist(0, index + 1)) {
+        await _chatRepository.addMessage(
+          msg.copyWith(id: _generateId(), chatId: newChatId),
+        );
+      }
+
+      _ref.invalidate(allChatsProvider);
+      _ref.invalidate(characterChatsProvider(source.characterId));
+      return newChatId;
+    } catch (e, stackTrace) {
+      debugPrint('❌ ChatProvider branchChatFromMessage error: $e\n$stackTrace');
+      state = state.copyWith(error: e.toString());
+      return null;
+    }
+  }
+
   /// Get preview of messages up to a bookmark point
   List<ChatMessage> getMessagesUpTo(String messageId) {
     final index = state.messages.indexWhere((m) => m.id == messageId);

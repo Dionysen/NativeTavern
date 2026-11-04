@@ -6337,6 +6337,30 @@ abstract class AppLocalizations {
   /// **'Branch from here'**
   String get branchFromHere;
 
+  /// Message menu: open a new chat branched from this point
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new branch'**
+  String get newBranchChat;
+
+  /// Subtitle for starting a new branch chat from a message
+  ///
+  /// In en, this message translates to:
+  /// **'Keep this chat; copy history up to here into a new one'**
+  String get newBranchChatHint;
+
+  /// Title for a chat created by branching from a message
+  ///
+  /// In en, this message translates to:
+  /// **'{title} (branch)'**
+  String branchChatTitle(String title);
+
+  /// SnackBar after successfully creating a branch chat
+  ///
+  /// In en, this message translates to:
+  /// **'Opened a new branch chat'**
+  String get branchChatCreated;
+
   /// Preview bookmark title
   ///
   /// In en, this message translates to:

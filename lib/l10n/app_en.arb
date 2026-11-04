@@ -4819,6 +4819,28 @@
   "@branchFromHere": {
     "description": "Branch from here tooltip"
   },
+  "newBranchChat": "Start a new branch",
+  "@newBranchChat": {
+    "description": "Message menu: open a new chat branched from this point"
+  },
+  "newBranchChatHint": "Keep this chat; copy history up to here into a new one",
+  "@newBranchChatHint": {
+    "description": "Subtitle for starting a new branch chat from a message"
+  },
+  "branchChatTitle": "{title} (branch)",
+  "@branchChatTitle": {
+    "description": "Title for a chat created by branching from a message",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Chat with Alice"
+      }
+    }
+  },
+  "branchChatCreated": "Opened a new branch chat",
+  "@branchChatCreated": {
+    "description": "SnackBar after successfully creating a branch chat"
+  },
   "previewBookmark": "Preview: {name}",
   "@previewBookmark": {
     "description": "Preview bookmark title",

@@ -4779,6 +4779,28 @@
   "@branchFromHere": {
     "description": "Branch from here tooltip"
   },
+  "newBranchChat": "開新分支聊天",
+  "@newBranchChat": {
+    "description": "Message menu: open a new chat branched from this point"
+  },
+  "newBranchChatHint": "保留目前對話，複製到此為止的訊息到新聊天",
+  "@newBranchChatHint": {
+    "description": "Subtitle for starting a new branch chat from a message"
+  },
+  "branchChatTitle": "{title}（分支）",
+  "@branchChatTitle": {
+    "description": "Title for a chat created by branching from a message",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "與 Alice 的聊天"
+      }
+    }
+  },
+  "branchChatCreated": "已開啟新分支聊天",
+  "@branchChatCreated": {
+    "description": "SnackBar after successfully creating a branch chat"
+  },
   "previewBookmark": "預覽：{name}",
   "@previewBookmark": {
     "description": "Preview bookmark title",

@@ -3455,6 +3455,21 @@ class AppLocalizationsMs extends AppLocalizations {
   String get branchFromHere => 'Branch from here';
 
   @override
+  String get newBranchChat => 'Start a new branch';
+
+  @override
+  String get newBranchChatHint =>
+      'Keep this chat; copy history up to here into a new one';
+
+  @override
+  String branchChatTitle(String title) {
+    return '$title (branch)';
+  }
+
+  @override
+  String get branchChatCreated => 'Opened a new branch chat';
+
+  @override
   String previewBookmark(String name) {
     return 'Preview: $name';
   }

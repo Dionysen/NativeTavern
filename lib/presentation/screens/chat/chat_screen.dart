@@ -1829,89 +1829,101 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ActiveChatState chatState,
   ) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final config = ref.read(llmConfigProvider);
     final isAssistant = message.role == MessageRole.assistant;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: scheme.surfaceContainerHigh,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.copy),
-              title: Text(l10n.copy),
-              onTap: () {
-                Navigator.pop(context);
-                // Copy to clipboard
-                final content = message.content;
-                if (content.isNotEmpty) {
-                  Clipboard.setData(ClipboardData(text: content));
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: Text(l10n.edit),
-              onTap: () {
-                Navigator.pop(context);
-                _showEditMessageDialog(message);
-              },
-            ),
-            if (isAssistant)
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               ListTile(
-                leading: const Icon(Icons.volume_up_outlined),
-                title: Text(l10n.readAloud),
+                leading: Icon(Icons.copy, color: scheme.onSurfaceVariant),
+                title: Text(l10n.copy),
                 onTap: () {
                   Navigator.pop(context);
-                  unawaited(
-                    ref.read(ttsSpeakProvider)(
-                      message.content,
-                      characterId:
-                          message.characterId ?? chatState.character?.id,
-                      ownerId: widget.chatId,
-                      sourceId: message.id,
-                    ),
-                  );
+                  final content = message.content;
+                  if (content.isNotEmpty) {
+                    Clipboard.setData(ClipboardData(text: content));
+                  }
                 },
               ),
-            if (isAssistant)
               ListTile(
-                leading: const Icon(Icons.refresh),
-                title: Text(l10n.regenerate),
+                leading: Icon(Icons.edit, color: scheme.onSurfaceVariant),
+                title: Text(l10n.edit),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showEditMessageDialog(message);
+                },
+              ),
+              if (isAssistant)
+                ListTile(
+                  leading:
+                      Icon(Icons.volume_up_outlined, color: scheme.primary),
+                  title: Text(l10n.readAloud),
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(
+                      ref.read(ttsSpeakProvider)(
+                        message.content,
+                        characterId:
+                            message.characterId ?? chatState.character?.id,
+                        ownerId: widget.chatId,
+                        sourceId: message.id,
+                      ),
+                    );
+                  },
+                ),
+              if (isAssistant)
+                ListTile(
+                  leading: Icon(Icons.refresh, color: scheme.primary),
+                  title: Text(l10n.regenerate),
+                  onTap: () {
+                    Navigator.pop(context);
+                    ref
+                        .read(activeChatProvider.notifier)
+                        .regenerateMessage(message.id, config);
+                  },
+                ),
+              ListTile(
+                leading: Icon(Icons.play_arrow, color: scheme.tertiary),
+                title: Text(l10n.continueFromHere),
                 onTap: () {
                   Navigator.pop(context);
                   ref
                       .read(activeChatProvider.notifier)
-                      .regenerateMessage(message.id, config);
+                      .continueFromMessage(message.id, config);
                 },
               ),
-            ListTile(
-              leading: const Icon(Icons.play_arrow),
-              title: Text(l10n.continueFromHere),
-              onTap: () {
-                Navigator.pop(context);
-                ref
-                    .read(activeChatProvider.notifier)
-                    .continueFromMessage(message.id, config);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text(
-                l10n.delete,
-                style: const TextStyle(color: Colors.red),
+              ListTile(
+                leading: Icon(Icons.call_split, color: scheme.secondary),
+                title: Text(l10n.newBranchChat),
+                subtitle: Text(l10n.newBranchChatHint),
+                onTap: () {
+                  Navigator.pop(context);
+                  unawaited(_branchChatFromMessage(message.id));
+                },
               ),
-              onTap: () {
-                Navigator.pop(context);
-                _showDeleteConfirmation(message.id);
-              },
-            ),
-          ],
+              ListTile(
+                leading: Icon(Icons.delete, color: scheme.error),
+                title: Text(
+                  l10n.delete,
+                  style: TextStyle(color: scheme.error),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showDeleteConfirmation(message.id);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -2041,6 +2053,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             },
             onCreateBookmark: () {
               _showCreateBookmarkDialog(message.id, actualIndex);
+            },
+            onBranchChat: () {
+              unawaited(_branchChatFromMessage(message.id));
             },
             onGenerateImage: ref.read(imageGenSettingsProvider).enabled
                 ? () {
@@ -2210,6 +2225,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.bookmarkCreated)));
     }
+  }
+
+  Future<void> _branchChatFromMessage(String messageId) async {
+    final l10n = AppLocalizations.of(context);
+    final newChatId = await ref
+        .read(activeChatProvider.notifier)
+        .branchChatFromMessage(messageId);
+    if (!mounted) return;
+    if (newChatId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.error)),
+      );
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.branchChatCreated)),
+    );
+    context.push('/chat/$newChatId');
   }
 
   Future<void> _showDeleteConfirmation(String messageId) async {
@@ -3273,6 +3306,7 @@ class _MessageBubble extends ConsumerStatefulWidget {
   final VoidCallback onContinueFromHere;
   final VoidCallback onDeleteAndAfter;
   final VoidCallback onCreateBookmark;
+  final VoidCallback onBranchChat;
   final VoidCallback? onGenerateImage;
 
   const _MessageBubble({
@@ -3296,6 +3330,7 @@ class _MessageBubble extends ConsumerStatefulWidget {
     required this.onContinueFromHere,
     required this.onDeleteAndAfter,
     required this.onCreateBookmark,
+    required this.onBranchChat,
     this.onGenerateImage,
   });
 
@@ -3678,146 +3713,129 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
 
   void _showMessageOptions(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final isAssistant = widget.message.role == MessageRole.assistant;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: scheme.surfaceContainerHigh,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Handle bar
-            Container(
-              margin: const EdgeInsets.only(top: 8),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppTheme.textMuted,
-                borderRadius: BorderRadius.circular(2),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: scheme.outline.withValues(alpha: 0.45),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-
-            // Copy
-            ListTile(
-              leading: const Icon(Icons.copy, color: AppTheme.textSecondary),
-              title: Text(l10n.copy),
-              onTap: () {
-                Navigator.pop(context);
-                Clipboard.setData(ClipboardData(text: widget.message.content));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(l10n.copiedToClipboard),
-                    duration: const Duration(seconds: 1),
+              const SizedBox(height: 8),
+              ListTile(
+                leading: Icon(Icons.copy, color: scheme.onSurfaceVariant),
+                title: Text(l10n.copy),
+                onTap: () {
+                  Navigator.pop(context);
+                  Clipboard.setData(
+                    ClipboardData(text: widget.message.content),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.copiedToClipboard),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.edit, color: scheme.onSurfaceVariant),
+                title: Text(l10n.edit),
+                onTap: () {
+                  Navigator.pop(context);
+                  _editController.text = widget.message.content;
+                  setState(() => _isEditing = true);
+                },
+              ),
+              if (isAssistant && widget.onRegenerate != null)
+                ListTile(
+                  leading: Icon(Icons.refresh, color: scheme.primary),
+                  title: Text(l10n.regenerate),
+                  subtitle: Text(l10n.generateNewResponse),
+                  onTap: () {
+                    Navigator.pop(context);
+                    widget.onRegenerate!();
+                  },
+                ),
+              ListTile(
+                leading: Icon(Icons.play_arrow, color: scheme.tertiary),
+                title: Text(l10n.continueFromHere),
+                subtitle: Text(
+                  widget.message.role == MessageRole.user
+                      ? l10n.deleteMessagesAfterAndRegenerate
+                      : l10n.deleteMessagesAfterThis,
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  widget.onContinueFromHere();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.call_split, color: scheme.secondary),
+                title: Text(l10n.newBranchChat),
+                subtitle: Text(l10n.newBranchChatHint),
+                onTap: () {
+                  Navigator.pop(context);
+                  widget.onBranchChat();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.bookmark_add, color: scheme.tertiary),
+                title: Text(l10n.createBookmark),
+                subtitle: Text(l10n.saveAsCheckpoint),
+                onTap: () {
+                  Navigator.pop(context);
+                  widget.onCreateBookmark();
+                },
+              ),
+              if (widget.onGenerateImage != null)
+                ListTile(
+                  leading: Icon(Icons.auto_awesome, color: scheme.primary),
+                  title: Text(l10n.generateImagesUsingAi),
+                  onTap: () {
+                    Navigator.pop(context);
+                    widget.onGenerateImage!();
+                  },
+                ),
+              Divider(color: scheme.outlineVariant),
+              ListTile(
+                leading: Icon(Icons.delete_outline, color: scheme.error),
+                title: Text(l10n.deleteThisMessage),
+                onTap: () {
+                  Navigator.pop(context);
+                  widget.onDelete();
+                },
+              ),
+              if (!widget.isLast)
+                ListTile(
+                  leading: Icon(Icons.delete_sweep, color: scheme.error),
+                  title: Text(
+                    l10n.deleteThisAndAllAfter,
+                    style: TextStyle(color: scheme.error),
                   ),
-                );
-              },
-            ),
-
-            // Edit
-            ListTile(
-              leading: const Icon(Icons.edit, color: AppTheme.textSecondary),
-              title: Text(l10n.edit),
-              onTap: () {
-                Navigator.pop(context);
-                _editController.text = widget.message.content;
-                setState(() => _isEditing = true);
-              },
-            ),
-
-            // Regenerate (only for assistant messages)
-            if (isAssistant && widget.onRegenerate != null)
-              ListTile(
-                leading: const Icon(
-                  Icons.refresh,
-                  color: AppTheme.primaryColor,
+                  onTap: () {
+                    Navigator.pop(context);
+                    widget.onDeleteAndAfter();
+                  },
                 ),
-                title: Text(l10n.regenerate),
-                subtitle: Text(l10n.generateNewResponse),
-                onTap: () {
-                  Navigator.pop(context);
-                  widget.onRegenerate!();
-                },
-              ),
-
-            // Continue from here
-            ListTile(
-              leading: const Icon(
-                Icons.play_arrow,
-                color: AppTheme.accentColor,
-              ),
-              title: Text(l10n.continueFromHere),
-              subtitle: Text(
-                widget.message.role == MessageRole.user
-                    ? l10n.deleteMessagesAfterAndRegenerate
-                    : l10n.deleteMessagesAfterThis,
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                widget.onContinueFromHere();
-              },
-            ),
-
-            // Create bookmark
-            ListTile(
-              leading: const Icon(
-                Icons.bookmark_add,
-                color: AppTheme.accentColor,
-              ),
-              title: Text(l10n.createBookmark),
-              subtitle: Text(l10n.saveAsCheckpoint),
-              onTap: () {
-                Navigator.pop(context);
-                widget.onCreateBookmark();
-              },
-            ),
-
-            // Generate image (if enabled)
-            if (widget.onGenerateImage != null)
-              ListTile(
-                leading: const Icon(
-                  Icons.auto_awesome,
-                  color: AppTheme.primaryColor,
-                ),
-                title: Text(l10n.generateImagesUsingAi),
-                onTap: () {
-                  Navigator.pop(context);
-                  widget.onGenerateImage!();
-                },
-              ),
-
-            const Divider(),
-
-            // Delete this message
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.orange),
-              title: Text(l10n.deleteThisMessage),
-              onTap: () {
-                Navigator.pop(context);
-                widget.onDelete();
-              },
-            ),
-
-            // Delete this and all after
-            if (!widget.isLast)
-              ListTile(
-                leading: const Icon(Icons.delete_sweep, color: Colors.red),
-                title: Text(
-                  l10n.deleteThisAndAllAfter,
-                  style: const TextStyle(color: Colors.red),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  widget.onDeleteAndAfter();
-                },
-              ),
-
-            const SizedBox(height: 8),
-          ],
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
