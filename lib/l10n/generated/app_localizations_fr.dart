@@ -2209,6 +2209,32 @@ class AppLocalizationsFr extends AppLocalizations {
   String get macroSubstitution => 'Macro Substitution';
 
   @override
+  String get minDepth => 'Min Depth';
+
+  @override
+  String get maxDepth => 'Max Depth';
+
+  @override
+  String get depthUnlimitedHint => 'Leave empty for no limit';
+
+  @override
+  String get trimStrings => 'Trim Strings';
+
+  @override
+  String get trimStringsHint =>
+      'One per line; removed from matches before replace';
+
+  @override
+  String get characterRegexScripts => 'Character Regex';
+
+  @override
+  String get characterRegexScriptsHint =>
+      'Applied with global scripts for this character';
+
+  @override
+  String get noCharacterRegexScripts => 'No character regex scripts yet';
+
+  @override
   String get nameAndPatternRequired => 'Name and pattern are required';
 
   @override

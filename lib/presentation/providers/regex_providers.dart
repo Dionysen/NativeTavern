@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:native_tavern/data/models/regex_script.dart';
+import 'package:native_tavern/domain/services/chat_regex_facade.dart';
 import 'package:native_tavern/domain/services/regex_service.dart';
+import 'package:native_tavern/presentation/providers/persona_providers.dart';
 
 const _uuid = Uuid();
 
@@ -223,6 +225,17 @@ class CharacterRegexScriptsNotifier extends StateNotifier<List<RegexScript>> {
     await _saveScripts();
   }
 
+  Future<void> reorderScripts(int oldIndex, int newIndex) async {
+    await _loadFuture;
+    final scripts = List<RegexScript>.from(state);
+    final script = scripts.removeAt(oldIndex);
+    scripts.insert(newIndex, script);
+    state = scripts.asMap().entries.map((entry) {
+      return entry.value.copyWith(order: entry.key);
+    }).toList();
+    await _saveScripts();
+  }
+
   /// Merge regex scripts embedded in an imported character card.
   Future<void> importEmbeddedScripts(List<RegexScript> scripts) async {
     if (scripts.isEmpty) return;
@@ -256,6 +269,25 @@ final combinedRegexScriptsProvider = Provider.family<List<RegexScript>, String?>
     ..sort((a, b) => a.order.compareTo(b.order));
   
   return combined;
+});
+
+/// Chat-layer regex facade for a character (or globals-only when [characterId] is null).
+final chatRegexFacadeProvider =
+    Provider.family<ChatRegexFacade, String?>((ref, characterId) {
+  final settings = ref.watch(regexSettingsProvider);
+  final scripts = ref.watch(combinedRegexScriptsProvider(characterId));
+  final persona = ref.watch(activePersonaProvider).asData?.value;
+  return ChatRegexFacade(
+    service: ref.watch(regexServiceProvider),
+    scripts: scripts,
+    enabled: settings.enabled,
+    applyToUserInput: settings.applyToUserInput,
+    applyToAiOutput: settings.applyToAiOutput,
+    applyToSlashCommands: settings.applyToSlashCommands,
+    applyToWorldInfo: settings.applyToWorldInfo,
+    applyToReasoning: settings.applyToReasoning,
+    userName: persona?.name.isNotEmpty == true ? persona!.name : null,
+  );
 });
 
 /// Provider for regex settings
@@ -394,6 +426,7 @@ RegexScript createRegexScript({
   String? description,
   required String findRegex,
   required String replaceString,
+  List<String> trimStrings = const [],
   List<RegexPlacement> placement = const [RegexPlacement.aiOutput],
   RegexScriptType scriptType = RegexScriptType.global,
   bool markdownOnly = false,
@@ -411,6 +444,7 @@ RegexScript createRegexScript({
     description: description,
     findRegex: findRegex,
     replaceString: replaceString,
+    trimStrings: trimStrings,
     placement: placement,
     scriptType: scriptType,
     markdownOnly: markdownOnly,

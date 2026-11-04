@@ -20,6 +20,8 @@ import 'package:native_tavern/data/repositories/group_repository.dart';
 import 'package:native_tavern/data/repositories/persona_repository.dart';
 import 'package:native_tavern/domain/models/tool_calling.dart';
 import 'package:native_tavern/domain/services/llm_service.dart';
+import 'package:native_tavern/data/models/regex_script.dart';
+import 'package:native_tavern/domain/services/chat_regex_facade.dart';
 import 'package:native_tavern/domain/services/macro_service.dart';
 import 'package:native_tavern/domain/services/chat_summarization_service.dart';
 import 'package:native_tavern/domain/services/chat_generation_pipeline.dart';
@@ -32,6 +34,7 @@ import 'package:native_tavern/presentation/providers/story_providers.dart';
 import 'package:native_tavern/presentation/providers/locale_provider.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
+import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/story_timeline_providers.dart';
 import 'package:native_tavern/presentation/providers/prompt_manager_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
@@ -997,14 +1000,16 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
     if (state.character == null) return;
 
+    final persistedUserContent = _persistUserRegex(content);
+
     // Add user message
     final userMessage = ChatMessage(
       id: _generateId(),
       chatId: state.chat!.id,
       role: MessageRole.user,
-      content: content,
+      content: persistedUserContent,
       timestamp: DateTime.now(),
-      swipes: [content],
+      swipes: [persistedUserContent],
       currentSwipeIndex: 0,
       attachments: attachments,
     );
@@ -1086,6 +1091,8 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         updatedMessages[updatedMessages.length - 1] = updatedMessage;
         state = state.copyWith(messages: updatedMessages);
       }
+
+      finalContent = _persistAiRegex(finalContent);
 
       // Save the final message
       final finalMessage = assistantMessage.copyWith(
@@ -1196,6 +1203,8 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         finalReasoning = response.reasoning;
       }
 
+      finalContent = _persistAiRegex(finalContent);
+
       // Save the updated message
       final newSwipes = List<String>.from(lastMessage.swipes);
       newSwipes.add(finalContent);
@@ -1298,11 +1307,20 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     if (messageIndex < 0) return;
 
     final message = state.messages[messageIndex];
+    final placement = message.role == MessageRole.user
+        ? RegexPlacement.userInput
+        : RegexPlacement.aiOutput;
+    final persistedContent = _regexFacade().applyForPersist(
+      newContent,
+      placement: placement,
+      isEdit: true,
+      characterName: state.character?.name ?? message.characterName,
+    );
     final updatedSwipes = List<String>.from(message.swipes);
-    updatedSwipes[message.currentSwipeIndex] = newContent;
+    updatedSwipes[message.currentSwipeIndex] = persistedContent;
 
     final updatedMessage = message.copyWith(
-      content: newContent,
+      content: persistedContent,
       swipes: updatedSwipes,
     );
 
@@ -1463,6 +1481,8 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         finalContent = response.content;
         finalReasoning = response.reasoning;
       }
+
+      finalContent = _persistAiRegex(finalContent);
 
       // Save the updated message
       final newSwipes = List<String>.from(message.swipes);
@@ -1681,6 +1701,8 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         updatedMessages[updatedMessages.length - 1] = updatedMessage;
         state = state.copyWith(messages: updatedMessages);
       }
+
+      finalContent = _persistAiRegex(finalContent);
 
       // Save the final message
       final finalMessage = assistantMessage.copyWith(
@@ -1962,12 +1984,13 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       }
 
       // Build message with attachments if present
+      final promptContent = _promptMsgRegex(msg, depthFromEnd);
       if (msg.hasAttachments && msg.role == MessageRole.user) {
-        messages.add(_buildMultimodalMessage(msg));
+        messages.add(_buildMultimodalMessage(msg, textOverride: promptContent));
       } else {
         messages.add({
           'role': msg.role == MessageRole.user ? 'user' : 'assistant',
-          'content': msg.content,
+          'content': promptContent,
         });
       }
     }
@@ -2554,12 +2577,13 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       }
 
       // Build message with attachments if present
+      final promptContent = _promptMsgRegex(msg, depthFromEnd);
       if (msg.hasAttachments && msg.role == MessageRole.user) {
-        messages.add(_buildMultimodalMessage(msg));
+        messages.add(_buildMultimodalMessage(msg, textOverride: promptContent));
       } else {
         messages.add({
           'role': msg.role == MessageRole.user ? 'user' : 'assistant',
-          'content': msg.content,
+          'content': promptContent,
         });
       }
     }
@@ -2775,13 +2799,17 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
   }
 
   /// Build a multimodal message with text and images
-  Map<String, dynamic> _buildMultimodalMessage(ChatMessage msg) {
+  Map<String, dynamic> _buildMultimodalMessage(
+    ChatMessage msg, {
+    String? textOverride,
+  }) {
     // Build content array with text and images
     final contentParts = <Map<String, dynamic>>[];
 
     // Add text content if present
-    if (msg.content.isNotEmpty) {
-      contentParts.add({'type': 'text', 'text': msg.content});
+    final text = textOverride ?? msg.content;
+    if (text.isNotEmpty) {
+      contentParts.add({'type': 'text', 'text': text});
     }
 
     // Add image attachments as base64
@@ -2811,6 +2839,46 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
   String _generateId() {
     return DateTime.now().millisecondsSinceEpoch.toString() +
         (DateTime.now().microsecond % 1000).toString().padLeft(3, '0');
+  }
+
+  ChatRegexFacade _regexFacade({String? characterId}) {
+    return _ref.read(
+      chatRegexFacadeProvider(characterId ?? state.character?.id),
+    );
+  }
+
+  String _persistUserRegex(String content, {String? characterName}) {
+    return _regexFacade().applyForPersist(
+      content,
+      placement: RegexPlacement.userInput,
+      characterName: characterName ?? state.character?.name,
+    );
+  }
+
+  String _persistAiRegex(
+    String content, {
+    String? characterId,
+    String? characterName,
+  }) {
+    return _regexFacade(characterId: characterId).applyForPersist(
+      content,
+      placement: RegexPlacement.aiOutput,
+      characterName: characterName ?? state.character?.name,
+    );
+  }
+
+  String _promptMsgRegex(ChatMessage msg, int depthFromEnd) {
+    final placement = msg.role == MessageRole.user
+        ? RegexPlacement.userInput
+        : RegexPlacement.aiOutput;
+    return _regexFacade(
+      characterId: msg.characterId ?? state.character?.id,
+    ).applyForPrompt(
+      msg.content,
+      placement: placement,
+      depth: depthFromEnd,
+      characterName: msg.characterName ?? state.character?.name,
+    );
   }
 
   /// Check if summarization is needed and generate summary if threshold is reached
@@ -3093,14 +3161,16 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     await _ensureAllMessagesLoaded();
     final turnStart = state.messages.length;
 
+    final persistedUserContent = _persistUserRegex(content);
+
     // Add user message
     final userMessage = ChatMessage(
       id: _generateId(),
       chatId: state.chat!.id,
       role: MessageRole.user,
-      content: content,
+      content: persistedUserContent,
       timestamp: DateTime.now(),
-      swipes: [content],
+      swipes: [persistedUserContent],
       currentSwipeIndex: 0,
       attachments: attachments,
     );
@@ -3501,6 +3571,12 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         finalReasoning = response.reasoning;
       }
 
+      finalContent = _persistAiRegex(
+        finalContent,
+        characterId: assistantMessage.characterId,
+        characterName: assistantMessage.characterName,
+      );
+
       final finalMessage = assistantMessage.copyWith(
         content: finalContent,
         swipes: [finalContent],
@@ -3564,15 +3640,28 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     final conversationStartIndex = messages.length;
 
     // Add chat messages
-    for (final msg in state.messages) {
+    final chatMessages = state.messages;
+    for (var i = 0; i < chatMessages.length; i++) {
+      final msg = chatMessages[i];
+      final depthFromEnd = chatMessages.length - 1 - i;
+      final promptContent = _regexFacade(
+        characterId: respondingCharacter.id,
+      ).applyForPrompt(
+        msg.content,
+        placement: msg.role == MessageRole.user
+            ? RegexPlacement.userInput
+            : RegexPlacement.aiOutput,
+        depth: depthFromEnd,
+        characterName: respondingCharacter.name,
+      );
       if (msg.role == MessageRole.user) {
-        messages.add({'role': 'user', 'content': msg.content});
+        messages.add({'role': 'user', 'content': promptContent});
       } else if (msg.role == MessageRole.assistant) {
         // For group chats, include character name in the message
         final charName = msg.characterName ?? 'Unknown';
         messages.add({
           'role': 'assistant',
-          'content': '[$charName]: ${msg.content}',
+          'content': '[$charName]: $promptContent',
         });
       }
     }

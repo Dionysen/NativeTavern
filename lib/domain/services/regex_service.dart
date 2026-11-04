@@ -104,30 +104,33 @@ class RegexService {
         String replacement = script.replaceString;
         
         // Replace {{match}} with $0
-        replacement = replacement.replaceAll(RegExp(r'\{\{match\}\}', caseSensitive: false), match.group(0) ?? '');
-        
-        // Replace numbered capture groups ($1, $2, etc.)
-        for (int i = 0; i <= match.groupCount; i++) {
-          final group = match.group(i) ?? '';
-          final filteredGroup = _filterString(group, script.trimStrings);
-          replacement = replacement.replaceAll('\$$i', filteredGroup);
-        }
-        
-        // Replace named capture groups ($<name>)
-        // Note: Named groups require RegExpMatch, which is available when using RegExp
+        replacement = replacement.replaceAll(
+          RegExp(r'\{\{match\}\}', caseSensitive: false),
+          match.group(0) ?? '',
+        );
+
+        // Replace named capture groups ($<name>) before $n so names stay intact.
         final namedGroupPattern = RegExp(r'\$<([^>]+)>');
         replacement = replacement.replaceAllMapped(namedGroupPattern, (m) {
           final groupName = m.group(1);
           if (groupName != null && match is RegExpMatch) {
             try {
-              final regExpMatch = match as RegExpMatch;
-              final groupValue = regExpMatch.namedGroup(groupName) ?? '';
+              final groupValue = match.namedGroup(groupName) ?? '';
               return _filterString(groupValue, script.trimStrings);
             } catch (_) {
               return '';
             }
           }
           return '';
+        });
+
+        // Replace numbered capture groups in one pass so $10 is not eaten by $1.
+        replacement = replacement.replaceAllMapped(RegExp(r'\$(\d+)'), (m) {
+          final index = int.tryParse(m.group(1) ?? '');
+          if (index == null || index < 0 || index > match.groupCount) {
+            return m.group(0) ?? '';
+          }
+          return _filterString(match.group(index) ?? '', script.trimStrings);
         });
         
         // Substitute macros in the replacement
@@ -168,10 +171,17 @@ class RegexService {
       // Check placement
       if (!script.placement.contains(placement)) continue;
 
-      // Check markdown/prompt only flags
-      if (script.markdownOnly && !isMarkdown) continue;
-      if (script.promptOnly && !isPrompt) continue;
-      if (!script.markdownOnly && !script.promptOnly && (isMarkdown || isPrompt)) continue;
+      // SillyTavern OR semantics:
+      // - markdownOnly: display path only
+      // - promptOnly: prompt path only
+      // - both: display OR prompt (never persist)
+      // - neither: persist path only (not display/prompt)
+      final md = script.markdownOnly;
+      final prompt = script.promptOnly;
+      final applies = (md && isMarkdown) ||
+          (prompt && isPrompt) ||
+          (!md && !prompt && !isMarkdown && !isPrompt);
+      if (!applies) continue;
 
       // Check edit flag
       if (isEdit && !script.runOnEdit) continue;

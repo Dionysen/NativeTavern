@@ -4123,6 +4123,54 @@ abstract class AppLocalizations {
   /// **'Macro Substitution'**
   String get macroSubstitution;
 
+  /// Minimum message depth for regex
+  ///
+  /// In en, this message translates to:
+  /// **'Min Depth'**
+  String get minDepth;
+
+  /// Maximum message depth for regex
+  ///
+  /// In en, this message translates to:
+  /// **'Max Depth'**
+  String get maxDepth;
+
+  /// Hint for optional depth fields
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty for no limit'**
+  String get depthUnlimitedHint;
+
+  /// Strings trimmed from regex matches
+  ///
+  /// In en, this message translates to:
+  /// **'Trim Strings'**
+  String get trimStrings;
+
+  /// Hint for trim strings field
+  ///
+  /// In en, this message translates to:
+  /// **'One per line; removed from matches before replace'**
+  String get trimStringsHint;
+
+  /// Character-scoped regex scripts section
+  ///
+  /// In en, this message translates to:
+  /// **'Character Regex'**
+  String get characterRegexScripts;
+
+  /// Subtitle for character regex section
+  ///
+  /// In en, this message translates to:
+  /// **'Applied with global scripts for this character'**
+  String get characterRegexScriptsHint;
+
+  /// Empty state for character regex list
+  ///
+  /// In en, this message translates to:
+  /// **'No character regex scripts yet'**
+  String get noCharacterRegexScripts;
+
   /// Name and pattern required message
   ///
   /// In en, this message translates to:

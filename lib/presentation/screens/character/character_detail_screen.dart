@@ -12,6 +12,7 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/regex/character_regex_section.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
 /// Character detail screen
@@ -303,6 +304,8 @@ class _CharacterDetailContentState
                   ),
                   const SizedBox(height: 16),
                   _CharacterFriendsList(characterId: character.id),
+                  const SizedBox(height: 16),
+                  CharacterRegexSection(characterId: character.id),
                   const SizedBox(height: 16),
 
                   // Description section

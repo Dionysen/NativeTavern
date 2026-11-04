@@ -2157,6 +2157,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get macroSubstitution => '宏替换';
 
   @override
+  String get minDepth => '最小深度';
+
+  @override
+  String get maxDepth => '最大深度';
+
+  @override
+  String get depthUnlimitedHint => '留空表示不限制';
+
+  @override
+  String get trimStrings => '修剪字符串';
+
+  @override
+  String get trimStringsHint => '每行一个；替换前从匹配中移除';
+
+  @override
+  String get characterRegexScripts => '角色正则';
+
+  @override
+  String get characterRegexScriptsHint => '与此角色的全局脚本一并应用';
+
+  @override
+  String get noCharacterRegexScripts => '暂无角色正则脚本';
+
+  @override
   String get nameAndPatternRequired => '名称和模式不能为空';
 
   @override

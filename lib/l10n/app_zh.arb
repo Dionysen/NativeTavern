@@ -3098,6 +3098,38 @@
   "@macroSubstitution": {
     "description": "Macro substitution label"
   },
+  "minDepth": "最小深度",
+  "@minDepth": {
+    "description": "Minimum message depth for regex"
+  },
+  "maxDepth": "最大深度",
+  "@maxDepth": {
+    "description": "Maximum message depth for regex"
+  },
+  "depthUnlimitedHint": "留空表示不限制",
+  "@depthUnlimitedHint": {
+    "description": "Hint for optional depth fields"
+  },
+  "trimStrings": "修剪字符串",
+  "@trimStrings": {
+    "description": "Strings trimmed from regex matches"
+  },
+  "trimStringsHint": "每行一个；替换前从匹配中移除",
+  "@trimStringsHint": {
+    "description": "Hint for trim strings field"
+  },
+  "characterRegexScripts": "角色正则",
+  "@characterRegexScripts": {
+    "description": "Character-scoped regex scripts section"
+  },
+  "characterRegexScriptsHint": "与此角色的全局脚本一并应用",
+  "@characterRegexScriptsHint": {
+    "description": "Subtitle for character regex section"
+  },
+  "noCharacterRegexScripts": "暂无角色正则脚本",
+  "@noCharacterRegexScripts": {
+    "description": "Empty state for character regex list"
+  },
   "nameAndPatternRequired": "名称和模式不能为空",
   "@nameAndPatternRequired": {
     "description": "Name and pattern required message"

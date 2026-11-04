@@ -31,10 +31,12 @@ import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/quick_reply_providers.dart';
 import 'package:native_tavern/presentation/providers/rpg_chat_providers.dart';
+import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/providers/story_providers.dart';
 import 'package:native_tavern/presentation/providers/tts_providers.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';
+import 'package:native_tavern/data/models/regex_script.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
@@ -2032,6 +2034,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             message: message,
             messageIndex:
                 actualIndex, // Use actual index for bookmarks and other features
+            messageDepth: chatState.messages.length - 1 - actualIndex,
             chatId: widget.chatId,
             character: chatState.characterForMessage(message),
             isGenerating: chatState.generatingMessageIds.contains(message.id) ||
@@ -3259,9 +3262,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 }
 
-class _MessageBubble extends StatefulWidget {
+class _MessageBubble extends ConsumerStatefulWidget {
   final ChatMessage message;
   final int messageIndex;
+  final int messageDepth;
   final String chatId;
   final Character? character;
   final bool isGenerating;
@@ -3284,6 +3288,7 @@ class _MessageBubble extends StatefulWidget {
     super.key,
     required this.message,
     required this.messageIndex,
+    required this.messageDepth,
     required this.chatId,
     required this.character,
     required this.isGenerating,
@@ -3304,10 +3309,10 @@ class _MessageBubble extends StatefulWidget {
   });
 
   @override
-  State<_MessageBubble> createState() => _MessageBubbleState();
+  ConsumerState<_MessageBubble> createState() => _MessageBubbleState();
 }
 
-class _MessageBubbleState extends State<_MessageBubble> {
+class _MessageBubbleState extends ConsumerState<_MessageBubble> {
   bool _isEditing = false;
   late TextEditingController _editController;
 
@@ -3321,6 +3326,24 @@ class _MessageBubbleState extends State<_MessageBubble> {
   void dispose() {
     _editController.dispose();
     super.dispose();
+  }
+
+  /// Display regex only after streaming completes (avoids flicker / partial HTML).
+  String _displayContent() {
+    final raw = widget.message.content;
+    if (widget.isGenerating || raw.isEmpty) return raw;
+    final placement = widget.message.role == MessageRole.user
+        ? RegexPlacement.userInput
+        : RegexPlacement.aiOutput;
+    final characterId =
+        widget.character?.id ?? widget.message.characterId;
+    return ref.read(chatRegexFacadeProvider(characterId)).applyForDisplay(
+          raw,
+          placement: placement,
+          depth: widget.messageDepth,
+          characterName:
+              widget.character?.name ?? widget.message.characterName,
+        );
   }
 
   @override
@@ -3366,7 +3389,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
                                 const _TypingIndicator()
                               else
                                 MessageContentWidget(
-                                  content: widget.message.content,
+                                  content: _displayContent(),
                                   textColor: isUser
                                       ? Colors.white
                                       : AppTheme.textPrimary,

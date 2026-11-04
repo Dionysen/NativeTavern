@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/chat.dart';
 import 'package:native_tavern/data/models/character.dart';
+import 'package:native_tavern/data/models/regex_script.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/chat/message_content_widget.dart';
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
@@ -209,6 +211,10 @@ class _VisualNovelMessageViewState
     final hasSwipes = message.swipes.length > 1;
     final isLast =
         widget.messages.isNotEmpty && message == widget.messages.last;
+    final messageIndex = widget.messages.indexWhere((m) => m.id == message.id);
+    final messageDepth = messageIndex >= 0
+        ? widget.messages.length - 1 - messageIndex
+        : 0;
 
     return GestureDetector(
       onLongPress: () => widget.onLongPress(message),
@@ -228,7 +234,7 @@ class _VisualNovelMessageViewState
               _buildTypingIndicator()
             else
               MessageContentWidget(
-                content: message.content,
+                content: _displayContent(message, isGenerating, messageDepth),
                 textColor: Colors.white,
                 selectable: true,
                 onLongPress: () => widget.onLongPress(message),
@@ -243,6 +249,26 @@ class _VisualNovelMessageViewState
         ),
       ),
     );
+  }
+
+  String _displayContent(
+    ChatMessage message,
+    bool isGenerating,
+    int messageDepth,
+  ) {
+    final raw = message.content;
+    if (isGenerating || raw.isEmpty) return raw;
+    final placement = message.role == MessageRole.user
+        ? RegexPlacement.userInput
+        : RegexPlacement.aiOutput;
+    final character = widget.characterForMessage?.call(message) ??
+        widget.character;
+    return ref.read(chatRegexFacadeProvider(character?.id)).applyForDisplay(
+          raw,
+          placement: placement,
+          depth: messageDepth,
+          characterName: character?.name ?? message.characterName,
+        );
   }
 
   /// Build the reasoning/thinking section for AI messages

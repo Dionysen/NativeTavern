@@ -3098,6 +3098,38 @@
   "@macroSubstitution": {
     "description": "Macro substitution label"
   },
+  "minDepth": "Min Depth",
+  "@minDepth": {
+    "description": "Minimum message depth for regex"
+  },
+  "maxDepth": "Max Depth",
+  "@maxDepth": {
+    "description": "Maximum message depth for regex"
+  },
+  "depthUnlimitedHint": "Leave empty for no limit",
+  "@depthUnlimitedHint": {
+    "description": "Hint for optional depth fields"
+  },
+  "trimStrings": "Trim Strings",
+  "@trimStrings": {
+    "description": "Strings trimmed from regex matches"
+  },
+  "trimStringsHint": "One per line; removed from matches before replace",
+  "@trimStringsHint": {
+    "description": "Hint for trim strings field"
+  },
+  "characterRegexScripts": "Character Regex",
+  "@characterRegexScripts": {
+    "description": "Character-scoped regex scripts section"
+  },
+  "characterRegexScriptsHint": "Applied with global scripts for this character",
+  "@characterRegexScriptsHint": {
+    "description": "Subtitle for character regex section"
+  },
+  "noCharacterRegexScripts": "No character regex scripts yet",
+  "@noCharacterRegexScripts": {
+    "description": "Empty state for character regex list"
+  },
   "nameAndPatternRequired": "Name and pattern are required",
   "@nameAndPatternRequired": {
     "description": "Name and pattern required message"
