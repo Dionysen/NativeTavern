@@ -7,6 +7,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/mcp_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:uuid/uuid.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 class McpSettingsScreen extends ConsumerWidget {
@@ -391,7 +392,7 @@ class _ToolTile extends StatelessWidget {
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
       ),
-      trailing: PopupMenuButton<McpToolPermission>(
+      trailing: AdaptivePopupMenuButton<McpToolPermission>(
         key: Key('mcp-permission-${tool.serverId}-${tool.name}'),
         tooltip: l10n.mcpToolPermission,
         initialValue: permission,
@@ -401,35 +402,20 @@ class _ToolTile extends StatelessWidget {
           () => controller.setToolPermission(tool.serverId, tool.name, value),
         ),
         itemBuilder: (_) => [
-          PopupMenuItem(
+          adaptivePopupMenuItem(
             value: McpToolPermission.askEveryTime,
-            child: Row(
-              children: [
-                const Icon(Icons.help_outline),
-                const SizedBox(width: 12),
-                Text(l10n.mcpAskEveryTime),
-              ],
-            ),
+            leading: const Icon(Icons.help_outline),
+            title: Text(l10n.mcpAskEveryTime),
           ),
-          PopupMenuItem(
+          adaptivePopupMenuItem(
             value: McpToolPermission.alwaysAllow,
-            child: Row(
-              children: [
-                const Icon(Icons.verified_user_outlined),
-                const SizedBox(width: 12),
-                Text(l10n.mcpAlwaysAllow),
-              ],
-            ),
+            leading: const Icon(Icons.verified_user_outlined),
+            title: Text(l10n.mcpAlwaysAllow),
           ),
-          PopupMenuItem(
+          adaptivePopupMenuItem(
             value: McpToolPermission.denied,
-            child: Row(
-              children: [
-                const Icon(Icons.block),
-                const SizedBox(width: 12),
-                Text(l10n.mcpDenied),
-              ],
-            ),
+            leading: const Icon(Icons.block),
+            title: Text(l10n.mcpDenied),
           ),
         ],
       ),

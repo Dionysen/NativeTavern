@@ -7,6 +7,7 @@ import 'package:native_tavern/domain/services/rpg_game_session_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/rpg_chat_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 
 class RpgGamePanel extends ConsumerWidget {
   const RpgGamePanel({
@@ -496,7 +497,7 @@ class _LogView extends ConsumerWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            trailing: PopupMenuButton<String>(
+            trailing: AdaptivePopupMenuButton<String>(
               key: Key('rpg-snapshot-${snapshot.metadata.id}'),
               tooltip: l10n.rpgSnapshotActions,
               enabled: snapshot.metadata.id != session.snapshot.metadata.id,

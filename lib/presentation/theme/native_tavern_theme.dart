@@ -21,7 +21,16 @@ abstract final class ChromeControls {
   static const double menuInsets = 4;
   static const double borderWidth = 1;
   static const double settingsSwitchScale = 0.82;
-  static const double menuItemHeight = 36;
+  /// Shared height for all popup menu rows (single- and two-line).
+  static const double menuItemHeight = 48;
+  static const double menuItemHeightWithSubtitle = menuItemHeight;
+  static const double menuIconSize = 20;
+  static const double menuTitleGap = 12;
+  static const double menuLeadingWidth = 28;
+  static const EdgeInsets menuItemPadding =
+      EdgeInsets.symmetric(horizontal: 12);
+  static const VisualDensity menuVisualDensity =
+      VisualDensity(horizontal: 0, vertical: -4);
 
   static bool isCircularRadius(double radius) => radius >= buttonSize / 2;
 

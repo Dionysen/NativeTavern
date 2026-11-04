@@ -1331,186 +1331,144 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
         AdaptivePopupMenuButton<String>(
           itemBuilder: (context) => [
-            PopupMenuItem(
+            adaptivePopupMenuItem(
               value: chatState.isGroupChat ? 'group' : 'character',
-              child: ListTile(
-                leading: Icon(
-                  chatState.isGroupChat ? Icons.groups : Icons.person,
-                ),
-                title: Text(
-                  chatState.isGroupChat ? l10n.editGroup : l10n.viewCharacter,
-                ),
-                contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                chatState.isGroupChat ? Icons.groups : Icons.person,
+              ),
+              title: Text(
+                chatState.isGroupChat ? l10n.editGroup : l10n.viewCharacter,
               ),
             ),
             if (chatState.character != null)
-              const PopupMenuItem(
+              adaptivePopupMenuItem(
                 value: 'live2d',
-                child: ListTile(
-                  leading: Icon(Icons.animation),
-                  title: Text('Live2D'),
-                  contentPadding: EdgeInsets.zero,
-                ),
+                leading: const Icon(Icons.animation),
+                title: const Text('Live2D'),
               ),
-            PopupMenuItem(
+            adaptivePopupMenuItem(
               value: 'author_note',
-              child: ListTile(
-                leading: Icon(
-                  Icons.note_alt,
-                  color: hasAuthorNote ? AppTheme.accentColor : null,
-                ),
-                title: Text(l10n.authorsNote),
-                subtitle: Text(
-                  hasAuthorNote ? l10n.enabled : l10n.disabled,
-                  style: TextStyle(
-                    color: hasAuthorNote
-                        ? AppTheme.accentColor
-                        : AppTheme.textMuted,
-                    fontSize: 12,
-                  ),
-                ),
-                contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                Icons.note_alt,
+                color: hasAuthorNote ? AppTheme.accentColor : null,
               ),
-            ),
-            PopupMenuItem(
-              value: 'start_reply_with',
-              child: ListTile(
-                leading: Icon(
-                  Icons.format_quote,
-                  color: (ref
-                              .read(activeChatProvider)
-                              .chat
-                              ?.startReplyWith
-                              .isNotEmpty ??
-                          false)
+              title: Text(l10n.authorsNote),
+              subtitle: Text(
+                hasAuthorNote ? l10n.enabled : l10n.disabled,
+                style: TextStyle(
+                  color: hasAuthorNote
                       ? AppTheme.accentColor
-                      : null,
+                      : AppTheme.textMuted,
+                  fontSize: 12,
                 ),
-                title: Text(l10n.startReplyWith),
-                contentPadding: EdgeInsets.zero,
               ),
             ),
-            PopupMenuItem(
+            adaptivePopupMenuItem(
+              value: 'start_reply_with',
+              leading: Icon(
+                Icons.format_quote,
+                color: (ref
+                            .read(activeChatProvider)
+                            .chat
+                            ?.startReplyWith
+                            .isNotEmpty ??
+                        false)
+                    ? AppTheme.accentColor
+                    : null,
+              ),
+              title: Text(l10n.startReplyWith),
+            ),
+            adaptivePopupMenuItem(
               value: 'impersonate',
-              child: ListTile(
-                leading: const Icon(Icons.theater_comedy),
-                title: Text(l10n.impersonate),
-                subtitle: Text(
-                  l10n.impersonateHint,
-                  style: const TextStyle(fontSize: 12),
-                ),
-                contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.theater_comedy),
+              title: Text(l10n.impersonate),
+              subtitle: Text(
+                l10n.impersonateHint,
+                style: const TextStyle(fontSize: 12),
               ),
             ),
-            PopupMenuItem(
+            adaptivePopupMenuItem(
               key: const Key('moments-in-chat-menu'),
               value: 'moments_in_chat',
-              child: ListTile(
-                leading: Icon(
-                  Icons.dynamic_feed_outlined,
+              leading: Icon(
+                Icons.dynamic_feed_outlined,
+                color: chatState.chat?.momentsInChat == true
+                    ? AppTheme.accentColor
+                    : null,
+              ),
+              title: Text(l10n.momentsInChat),
+              subtitle: Text(
+                chatState.chat?.momentsInChat == true
+                    ? l10n.enabled
+                    : l10n.disabled,
+                style: TextStyle(
                   color: chatState.chat?.momentsInChat == true
                       ? AppTheme.accentColor
-                      : null,
+                      : AppTheme.textMuted,
+                  fontSize: 12,
                 ),
-                title: Text(l10n.momentsInChat),
-                subtitle: Text(
-                  chatState.chat?.momentsInChat == true
-                      ? l10n.enabled
-                      : l10n.disabled,
-                  style: TextStyle(
-                    color: chatState.chat?.momentsInChat == true
-                        ? AppTheme.accentColor
-                        : AppTheme.textMuted,
-                    fontSize: 12,
-                  ),
-                ),
-                contentPadding: EdgeInsets.zero,
               ),
             ),
-            PopupMenuItem(
+            adaptivePopupMenuItem(
               value: 'chat_lorebooks',
-              child: ListTile(
-                leading: Icon(
-                  Icons.public,
-                  color: (ref
-                              .read(activeChatProvider)
-                              .chat
-                              ?.linkedWorldInfoIds
-                              .isNotEmpty ??
-                          false)
-                      ? AppTheme.accentColor
-                      : null,
-                ),
-                title: Text(l10n.chatLorebooks),
-                contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                Icons.public,
+                color: (ref
+                            .read(activeChatProvider)
+                            .chat
+                            ?.linkedWorldInfoIds
+                            .isNotEmpty ??
+                        false)
+                    ? AppTheme.accentColor
+                    : null,
               ),
+              title: Text(l10n.chatLorebooks),
             ),
-            PopupMenuItem(
+            adaptivePopupMenuItem(
               value: 'bookmarks',
-              child: ListTile(
-                leading: const Icon(
-                  Icons.bookmark,
-                  color: AppTheme.accentColor,
-                ),
-                title: Text(l10n.bookmarks),
-                contentPadding: EdgeInsets.zero,
+              leading: const Icon(
+                Icons.bookmark,
+                color: AppTheme.accentColor,
               ),
+              title: Text(l10n.bookmarks),
             ),
             if (hasStory)
-              PopupMenuItem(
+              adaptivePopupMenuItem(
                 value: 'story',
-                child: ListTile(
-                  leading: const Icon(Icons.auto_stories_outlined),
-                  title: Text(l10n.story),
-                  contentPadding: EdgeInsets.zero,
-                ),
+                leading: const Icon(Icons.auto_stories_outlined),
+                title: Text(l10n.story),
               ),
-            PopupMenuItem(
+            adaptivePopupMenuItem(
               key: const Key('memory-usage-menu'),
               value: 'memory_usage',
-              child: ListTile(
-                leading: const Icon(Icons.psychology_outlined),
-                title: Text(l10n.memoryUsed),
-                contentPadding: EdgeInsets.zero,
-              ),
+              leading: const Icon(Icons.psychology_outlined),
+              title: Text(l10n.memoryUsed),
             ),
             if (chatState.hasUnsavedChanges)
-              PopupMenuItem(
+              adaptivePopupMenuItem(
                 value: 'save_chat',
-                child: ListTile(
-                  leading: Icon(
-                    Icons.save_outlined,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  title: Text(l10n.saveChat),
-                  contentPadding: EdgeInsets.zero,
+                leading: Icon(
+                  Icons.save_outlined,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
+                title: Text(l10n.saveChat),
               ),
-            PopupMenuItem(
+            adaptivePopupMenuItem(
               value: 'export',
-              child: ListTile(
-                leading: const Icon(Icons.upload),
-                title: Text(l10n.exportChat),
-                subtitle: Text(l10n.saveAsJsonl),
-                contentPadding: EdgeInsets.zero,
-              ),
+              leading: const Icon(Icons.upload),
+              title: Text(l10n.exportChat),
+              subtitle: Text(l10n.saveAsJsonl),
             ),
-            PopupMenuItem(
+            adaptivePopupMenuItem(
               value: 'import',
-              child: ListTile(
-                leading: const Icon(Icons.download),
-                title: Text(l10n.importChat),
-                subtitle: Text(l10n.chooseFile),
-                contentPadding: EdgeInsets.zero,
-              ),
+              leading: const Icon(Icons.download),
+              title: Text(l10n.importChat),
+              subtitle: Text(l10n.chooseFile),
             ),
-            PopupMenuItem(
+            adaptivePopupMenuItem(
               value: 'clear',
-              child: ListTile(
-                leading: const Icon(Icons.delete_sweep, color: Colors.orange),
-                title: Text(l10n.clearMessages),
-                contentPadding: EdgeInsets.zero,
-              ),
+              leading: const Icon(Icons.delete_sweep, color: Colors.orange),
+              title: Text(l10n.clearMessages),
             ),
           ],
           onSelected: (value) async {

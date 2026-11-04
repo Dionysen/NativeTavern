@@ -13,6 +13,7 @@ import 'package:native_tavern/domain/services/rpg_scenario_package_service.dart'
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/controllers/rpg_scenario_editor_controller.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 
 class RpgScenarioFileData {
   final String name;
@@ -157,7 +158,7 @@ class _RpgScenarioEditorScreenState extends State<RpgScenarioEditorScreen>
             onPressed: _working ? null : _loadDraft,
             icon: const Icon(Icons.history),
           ),
-          PopupMenuButton<RpgScenarioPackageFormat>(
+          AdaptivePopupMenuButton<RpgScenarioPackageFormat>(
             tooltip: l10n.rpgExportScenario,
             icon: const Icon(Icons.file_upload_outlined),
             enabled: !_working && _controller.isValid,
@@ -495,7 +496,7 @@ class _ListItemActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return PopupMenuButton<String>(
+    return AdaptivePopupMenuButton<String>(
       tooltip: l10n.rpgItemActions,
       onSelected: (value) {
         if (value == 'up') onMoveUp?.call();
