@@ -82,10 +82,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         ]),
       ),
       body: const _ChatListView(),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () => context.push(AppRoutes.characters),
-        icon: const Icon(Icons.add),
-        label: Text(l10n.newChat),
+        tooltip: l10n.newChat,
+        child: const Icon(Icons.add),
       ),
     );
   }

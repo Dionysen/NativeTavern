@@ -1,0 +1,41 @@
+---
+description: Keep NativeTavern UI/UX identical across Android, iOS, and desktop
+alwaysApply: true
+---
+
+# Cross-platform UI/UX consistency
+
+NativeTavern ships one product UI. Android, iOS, and desktop (macOS/Windows/Linux)
+must look and behave the same unless a platform API forces a difference
+(file pickers, permissions, Live2D host, system share sheets).
+
+## Do
+
+- Prefer shared widgets and theme tokens (`buildNativeTavernTheme`,
+  `ChromeControls`, `SettingsSection` / `SettingsPageBody`, `spacedAppBarActions`)
+  over per-platform layouts.
+- Fix spacing, density, AppBar actions, FABs, and list chrome in the **theme**
+  or a shared helper so every platform picks up the same change.
+- Use `tooltip` / semantics when a control is icon-only so accessibility stays
+  equivalent without visible labels.
+- When a screen looks wrong on one platform, treat it as a product bug: make
+  the shared UI match the intended design everywhere, do not paper over with
+  `Platform.isX` branches.
+
+## Don't
+
+- Do not add `Platform.isAndroid` / `isIOS` / `isMacOS` (or width hacks that
+  only target desktop) to diverge padding, icon size, FAB style, list density,
+  or navigation chrome.
+- Do not ship desktop-only “compact” chrome or mobile-only oversized rows for
+  the same screen.
+- Do not use `FloatingActionButton.extended` for primary create actions that
+  should be a circular icon FAB on all platforms (e.g. home “new chat”).
+- Do not leave AppBar action IconButtons flush to the trailing edge or packed
+  with zero gap; use theme `actionsPadding` and `spacedAppBarActions`.
+
+## Allowed platform differences
+
+Capability and host integration only: pickers, permissions, Live2D/macOS
+plugins, backup backends, window geometry. Those must not change the visual
+hierarchy or control shapes of shared screens.

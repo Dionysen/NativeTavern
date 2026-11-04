@@ -345,6 +345,12 @@ ThemeData buildNativeTavernTheme(
         end: ChromeControls.appBarActionsEndPadding,
       ),
     ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: accent,
+      foregroundColor: Colors.white,
+      shape: const CircleBorder(),
+      extendedPadding: const EdgeInsets.symmetric(horizontal: 16),
+    ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: cursor,
       selectionColor: accent.withValues(alpha: .35),
