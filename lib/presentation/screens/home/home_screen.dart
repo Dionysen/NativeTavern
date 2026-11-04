@@ -247,7 +247,6 @@ class _ChatListTile extends ConsumerWidget {
                   ),
             ),
             AdaptiveActionMenuButton<String>(
-              density: ChromeIconButtonDensity.compact,
               title: chat.title,
               onSelected: (value) => _handleMenuAction(context, ref, value),
               itemBuilder: (context) => [

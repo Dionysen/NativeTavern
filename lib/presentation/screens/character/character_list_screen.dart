@@ -703,10 +703,10 @@ class _CharacterListTile extends ConsumerWidget {
           character,
         ),
         child: Padding(
-          // Equal vertical insets so text sits evenly in the card.
-          padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+          // Matching vertical insets: title top == tags bottom.
+          padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildListAvatar(),
               const SizedBox(width: 12),
@@ -715,54 +715,15 @@ class _CharacterListTile extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            character.name,
-                            style: theme.textTheme.titleMedium,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        AdaptiveActionMenuButton<String>(
-                          tooltip: l10n.moreOptions,
-                          title: character.name,
-                          density: ChromeIconButtonDensity.compact,
-                          itemBuilder: (context) => [
-                            AdaptiveActionDrawerItem(
-                              value: 'chat',
-                              leading: const Icon(Icons.chat),
-                              title: Text(l10n.startChat),
-                            ),
-                            AdaptiveActionDrawerItem(
-                              value: 'edit',
-                              leading: const Icon(Icons.edit),
-                              title: Text(l10n.edit),
-                            ),
-                            AdaptiveActionDrawerItem(
-                              value: 'export',
-                              leading: const Icon(Icons.file_upload),
-                              title: Text(l10n.exportChat),
-                            ),
-                            AdaptiveActionDrawerItem(
-                              value: 'delete',
-                              leading: const Icon(Icons.delete_outline),
-                              title: Text(l10n.delete),
-                              destructive: true,
-                            ),
-                          ],
-                          onSelected: (value) => _handleCharacterAction(
-                            context,
-                            ref,
-                            character,
-                            value,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      character.name,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        height: 1.25,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       description,
                       style: metaStyle,
@@ -799,6 +760,39 @@ class _CharacterListTile extends ConsumerWidget {
                       ),
                     ],
                   ],
+                ),
+              ),
+              AdaptiveActionMenuButton<String>(
+                tooltip: l10n.moreOptions,
+                title: character.name,
+                itemBuilder: (context) => [
+                  AdaptiveActionDrawerItem(
+                    value: 'chat',
+                    leading: const Icon(Icons.chat),
+                    title: Text(l10n.startChat),
+                  ),
+                  AdaptiveActionDrawerItem(
+                    value: 'edit',
+                    leading: const Icon(Icons.edit),
+                    title: Text(l10n.edit),
+                  ),
+                  AdaptiveActionDrawerItem(
+                    value: 'export',
+                    leading: const Icon(Icons.file_upload),
+                    title: Text(l10n.exportChat),
+                  ),
+                  AdaptiveActionDrawerItem(
+                    value: 'delete',
+                    leading: const Icon(Icons.delete_outline),
+                    title: Text(l10n.delete),
+                    destructive: true,
+                  ),
+                ],
+                onSelected: (value) => _handleCharacterAction(
+                  context,
+                  ref,
+                  character,
+                  value,
                 ),
               ),
             ],
