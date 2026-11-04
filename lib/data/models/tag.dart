@@ -110,4 +110,10 @@ class TagColors {
   static Color getRandomColor() {
     return presetColors[DateTime.now().millisecond % presetColors.length];
   }
+
+  /// Stable color for a free-form label (e.g. character.tags strings).
+  static Color forLabel(String label) {
+    if (label.isEmpty) return presetColors.last;
+    return presetColors[label.hashCode.abs() % presetColors.length];
+  }
 }

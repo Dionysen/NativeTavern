@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:native_tavern/data/models/character.dart';
+import 'package:native_tavern/data/models/tag.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
@@ -254,6 +254,137 @@ int _gridColumns(double width, double minimumTileWidth, double spacing) {
   return count;
 }
 
+List<PopupMenuEntry<String>> _characterActionMenuItems(AppLocalizations l10n) {
+  return [
+    adaptivePopupMenuItem(
+      value: 'chat',
+      leading: const Icon(Icons.chat),
+      title: Text(l10n.startChat),
+    ),
+    adaptivePopupMenuItem(
+      value: 'edit',
+      leading: const Icon(Icons.edit),
+      title: Text(l10n.edit),
+    ),
+    adaptivePopupMenuItem(
+      value: 'export',
+      leading: const Icon(Icons.file_upload),
+      title: Text(l10n.exportChat),
+    ),
+    adaptivePopupMenuItem(
+      value: 'delete',
+      leading: const Icon(Icons.delete, color: Colors.red),
+      title: Text(l10n.delete, style: const TextStyle(color: Colors.red)),
+      titleColor: Colors.red,
+      iconColor: Colors.red,
+    ),
+  ];
+}
+
+Future<void> _handleCharacterAction(
+  BuildContext context,
+  WidgetRef ref,
+  Character character,
+  String action,
+) async {
+  switch (action) {
+    case 'chat':
+      await _startCharacterChat(context, ref, character);
+    case 'edit':
+      if (context.mounted) {
+        context.push('/characters/${character.id}/edit');
+      }
+    case 'export':
+      break;
+    case 'delete':
+      await _confirmDeleteCharacter(context, ref, character);
+  }
+}
+
+Future<void> _showCharacterActionMenu(
+  BuildContext context,
+  WidgetRef ref,
+  Character character, {
+  Offset? globalPosition,
+}) async {
+  final l10n = AppLocalizations.of(context);
+  final overlay = Overlay.of(context).context.findRenderObject()! as RenderBox;
+  final theme = Theme.of(context);
+
+  final Offset anchor;
+  if (globalPosition != null) {
+    anchor = globalPosition;
+  } else {
+    final box = context.findRenderObject() as RenderBox?;
+    anchor = box != null
+        ? box.localToGlobal(box.size.center(Offset.zero))
+        : Offset(overlay.size.width / 2, overlay.size.height / 2);
+  }
+
+  final selected = await showMenu<String>(
+    context: context,
+    position: RelativeRect.fromRect(
+      Rect.fromLTWH(anchor.dx, anchor.dy, 0, 0),
+      Offset.zero & overlay.size,
+    ),
+    items: _characterActionMenuItems(l10n),
+    shape: ChromeControls.menuShapeFor(
+      theme.extension<AppShapeTheme>()?.cornerRadius ??
+          ChromeControls.defaultCornerRadius,
+    ),
+  );
+  if (selected == null || !context.mounted) return;
+  await _handleCharacterAction(context, ref, character, selected);
+}
+
+Future<void> _startCharacterChat(
+  BuildContext context,
+  WidgetRef ref,
+  Character character,
+) async {
+  final l10n = AppLocalizations.of(context);
+
+  try {
+    final chatId =
+        await ref.read(activeChatProvider.notifier).createChat(character.id);
+    if (chatId != null && context.mounted) {
+      context.push('/chat/$chatId');
+    } else if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.error)),
+      );
+    }
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${l10n.error}: $e')),
+      );
+    }
+  }
+}
+
+Future<void> _confirmDeleteCharacter(
+  BuildContext context,
+  WidgetRef ref,
+  Character character,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final confirmed = await confirmDestructiveAction(
+    context,
+    ref,
+    title: l10n.deleteCharacter,
+    body: l10n.deleteCharacterConfirmation(character.name),
+  );
+  if (!confirmed) return;
+
+  ref.read(characterListProvider.notifier).deleteCharacter(character.id);
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.characterDeleted)),
+    );
+  }
+}
+
 class _EmptyState extends StatelessWidget {
   const _EmptyState();
 
@@ -318,6 +449,17 @@ class _CharacterGridCard extends ConsumerWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => context.push('/characters/${character.id}'),
+        onLongPress: () => _showCharacterActionMenu(
+          context,
+          ref,
+          character,
+        ),
+        onSecondaryTapDown: (details) => _showCharacterActionMenu(
+          context,
+          ref,
+          character,
+          globalPosition: details.globalPosition,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -432,6 +574,17 @@ class _CharacterCompactGridCard extends ConsumerWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => context.push('/characters/${character.id}'),
+        onLongPress: () => _showCharacterActionMenu(
+          context,
+          ref,
+          character,
+        ),
+        onSecondaryTapDown: (details) => _showCharacterActionMenu(
+          context,
+          ref,
+          character,
+          globalPosition: details.globalPosition,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -533,114 +686,79 @@ class _CharacterListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final metaStyle = theme.textTheme.labelSmall?.copyWith(
+      fontSize: 11,
+      height: 1.3,
+      color: scheme.onSurfaceVariant,
+    );
+    final description = character.description.isNotEmpty
+        ? character.description
+        : l10n.description;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: _buildListAvatar(),
-        title: Text(character.name),
-        subtitle: Text(
-          character.description.isNotEmpty
-              ? character.description
-              : l10n.description,
-          maxLines: 2,
+        title: Text(
+          character.name,
+          maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        trailing: AdaptivePopupMenuButton<String>(
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: 'chat',
-              child: ListTile(
-                leading: const Icon(Icons.chat),
-                title: Text(l10n.startChat),
-                contentPadding: EdgeInsets.zero,
-              ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              description,
+              style: metaStyle,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
-            PopupMenuItem(
-              value: 'edit',
-              child: ListTile(
-                leading: const Icon(Icons.edit),
-                title: Text(l10n.edit),
-                contentPadding: EdgeInsets.zero,
+            if (character.tags.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 4,
+                runSpacing: 4,
+                children: character.tags
+                    .map((tag) {
+                      final color = TagColors.forLabel(tag);
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 1,
+                        ),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: color.withValues(alpha: 0.55),
+                          ),
+                        ),
+                        child: Text(
+                          tag,
+                          style: metaStyle?.copyWith(color: color),
+                        ),
+                      );
+                    })
+                    .toList(growable: false),
               ),
-            ),
-            PopupMenuItem(
-              value: 'export',
-              child: ListTile(
-                leading: const Icon(Icons.file_upload),
-                title: Text(l10n.exportChat),
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
-            PopupMenuItem(
-              value: 'delete',
-              child: ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: Text(l10n.delete,
-                    style: const TextStyle(color: Colors.red)),
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
+            ],
           ],
-          onSelected: (value) {
-            switch (value) {
-              case 'chat':
-                _startChat(context, ref);
-                break;
-              case 'edit':
-                context.push('/characters/${character.id}/edit');
-                break;
-              case 'export':
-                break;
-              case 'delete':
-                _confirmDelete(context, ref);
-                break;
-            }
-          },
+        ),
+        trailing: AdaptivePopupMenuButton<String>(
+          itemBuilder: (_) => _characterActionMenuItems(l10n),
+          onSelected: (value) =>
+              _handleCharacterAction(context, ref, character, value),
         ),
         onTap: () => context.push('/characters/${character.id}'),
+        onLongPress: () => _showCharacterActionMenu(
+          context,
+          ref,
+          character,
+        ),
       ),
     );
-  }
-
-  Future<void> _startChat(BuildContext context, WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context);
-
-    try {
-      final chatId =
-          await ref.read(activeChatProvider.notifier).createChat(character.id);
-      if (chatId != null && context.mounted) {
-        context.push('/chat/$chatId');
-      } else if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.error)),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.error}: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context);
-    final confirmed = await confirmDestructiveAction(
-      context,
-      ref,
-      title: l10n.deleteCharacter,
-      body: l10n.deleteCharacterConfirmation(character.name),
-    );
-    if (!confirmed) return;
-
-    ref.read(characterListProvider.notifier).deleteCharacter(character.id);
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.characterDeleted)),
-      );
-    }
   }
 
   Widget _buildListAvatar() {
