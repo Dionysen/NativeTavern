@@ -3415,6 +3415,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                                     Theme.of(context).colorScheme,
                                     isUser: isUser,
                                   ),
+                                  isUser: isUser,
                                   selectable: true,
                                   onLongPress: () =>
                                       _showMessageOptions(context),

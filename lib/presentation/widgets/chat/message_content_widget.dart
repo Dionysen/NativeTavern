@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
+import 'package:native_tavern/presentation/widgets/chat/dialogue_quote_style.dart';
 import 'package:native_tavern/presentation/widgets/chat/html_webview_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -28,6 +30,9 @@ class MessageContentWidget extends StatefulWidget {
   final bool isStreaming;
   /// Optional message ID for tracking content changes and forcing re-renders
   final String? messageId;
+  /// When true, quoted dialogue uses [ZephyrChatChrome.dialogueTextColor] for
+  /// user bubbles; otherwise assistant styling is used.
+  final bool isUser;
 
   const MessageContentWidget({
     super.key,
@@ -40,6 +45,7 @@ class MessageContentWidget extends StatefulWidget {
     this.onLongPress,
     this.isStreaming = false,
     this.messageId,
+    this.isUser = false,
   });
 
   @override
@@ -58,6 +64,7 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
   String? _cachedContent;
   bool? _cachedStreaming;
   Color? _cachedColor;
+  bool? _cachedIsUser;
   int? _cachedVersion;
   Brightness? _cachedBrightness;
 
@@ -197,6 +204,7 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
         _cachedContent == widget.content &&
         _cachedStreaming == widget.isStreaming &&
         _cachedColor == widget.textColor &&
+        _cachedIsUser == widget.isUser &&
         _cachedVersion == _contentVersion &&
         _cachedBrightness == brightness) {
       return _cachedWidget!;
@@ -207,6 +215,7 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
     _cachedContent = widget.content;
     _cachedStreaming = widget.isStreaming;
     _cachedColor = widget.textColor;
+    _cachedIsUser = widget.isUser;
     _cachedVersion = _contentVersion;
     _cachedBrightness = brightness;
     return result;
@@ -214,6 +223,10 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
 
   Widget _buildContent(BuildContext context) {
     final hasHtml = _containsHtml(widget.content);
+    final dialogueColor = ZephyrChatChrome.dialogueTextColor(
+      Theme.of(context).colorScheme,
+      isUser: widget.isUser,
+    );
 
     Widget contentWidget;
     
@@ -222,11 +235,14 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
     // rendering issues with constantly updating content.
     if (hasHtml && !widget.isStreaming && isComplexHtml(widget.content)) {
       // Generate a content key that changes when streaming ends, forcing a re-render
-      final contentKey = '${widget.messageId ?? widget.content.hashCode}_v$_contentVersion';
+      final contentKey =
+          '${widget.messageId ?? widget.content.hashCode}_v$_contentVersion';
       contentWidget = HtmlWebViewWidget(
         htmlContent: widget.content,
         textColor: widget.textColor,
-        fontSize: widget.fontSize,
+        dialogueColor: dialogueColor,
+        fontSize:
+            widget.fontSize ?? ZephyrChatChrome.messageFontSize(context),
         onLongPress: widget.onLongPress,
         contentKey: contentKey,
       );
@@ -235,7 +251,11 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
     else {
       // Convert HTML to Markdown-friendly format
       final processedContent = hasHtml ? _convertHtmlToMarkdown(widget.content) : widget.content;
-      contentWidget = _buildMarkdownContent(context, processedContent);
+      contentWidget = _buildMarkdownContent(
+        context,
+        processedContent,
+        dialogueColor: dialogueColor,
+      );
     }
 
     // Wrap with gesture detector for context menu (except for WebView which handles its own)
@@ -411,8 +431,17 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
         .replaceAll('&trade;', '™');
   }
 
-  Widget _buildMarkdownContent(BuildContext context, String content) {
-    final effectiveFontSize = widget.fontSize ?? 14.0;
+  Widget _buildMarkdownContent(
+    BuildContext context,
+    String content, {
+    required Color dialogueColor,
+  }) {
+    final effectiveFontSize =
+        widget.fontSize ?? ZephyrChatChrome.messageFontSize(context);
+    final dialogueStyle = TextStyle(
+      color: dialogueColor,
+      fontSize: effectiveFontSize,
+    );
     
     return SelectionArea(
       onSelectionChanged: (selection) {
@@ -423,6 +452,10 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
         selectable: false, // Must be false when wrapped in SelectionArea to avoid conflict
         shrinkWrap: true,
         softLineBreak: true, // Enable soft line breaks for proper text wrapping
+        inlineSyntaxes: [DialogueQuoteSyntax()],
+        builders: {
+          'dialogue': DialogueQuoteBuilder(dialogueStyle),
+        },
         imageBuilder: (uri, title, alt) {
           // Custom image builder using CachedNetworkImage
           return Padding(
@@ -558,7 +591,8 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
   }
 
   Widget _buildPlainText(BuildContext context) {
-    final effectiveFontSize = widget.fontSize ?? 14.0;
+    final effectiveFontSize =
+        widget.fontSize ?? ZephyrChatChrome.messageFontSize(context);
     
     if (widget.selectable) {
       return SelectionArea(

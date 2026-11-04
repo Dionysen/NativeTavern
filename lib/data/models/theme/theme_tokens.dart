@@ -54,8 +54,8 @@ class ThemeTokens {
   /// Second accent for section/action differentiation (teal).
   static const defaultSecondaryAccent = 0xFF1ABC9C;
 
-  /// Third accent for section/action differentiation (violet).
-  static const defaultTertiaryAccent = 0xFF9B59B6;
+  /// Third accent for section/action differentiation (soft orange).
+  static const defaultTertiaryAccent = 0xFFE09A5A;
 
   /// Default dark pack (Dark Modern).
   static const defaults = ThemeTokens(

@@ -136,6 +136,7 @@ class _MarkdownInputFieldState extends State<MarkdownInputField> {
             focusNode: _focusNode,
             maxLines: widget.maxLines,
             minLines: widget.minLines,
+            style: ZephyrChatChrome.messageInputStyle(context),
             decoration: widget.decoration ??
                 ZephyrChatChrome.inputFieldDecoration(
                   context,

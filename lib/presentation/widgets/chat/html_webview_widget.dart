@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/chat/dialogue_quote_style.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Widget that renders HTML content using a WebView for full CSS support
@@ -12,6 +13,8 @@ class HtmlWebViewWidget extends StatefulWidget {
   final String htmlContent;
   final Color backgroundColor;
   final Color textColor;
+  /// Color applied to quoted dialogue via `.nt-dialogue` spans.
+  final Color? dialogueColor;
   final double? fontSize;
   final VoidCallback? onLongPress;
   /// Unique key to force rebuild when content changes significantly
@@ -22,6 +25,7 @@ class HtmlWebViewWidget extends StatefulWidget {
     required this.htmlContent,
     this.backgroundColor = Colors.transparent,
     this.textColor = AppTheme.textPrimary,
+    this.dialogueColor,
     this.fontSize,
     this.onLongPress,
     this.contentKey,
@@ -135,9 +139,14 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
   String _buildHtml() {
     final effectiveFontSize = widget.fontSize ?? 14.0;
     final textColorHex = _colorToHex(widget.textColor);
-    final content = widget.htmlContent.replaceAllMapped(
-      RegExp(r'<details\b', caseSensitive: false),
-      (match) => '<details open',
+    final dialogueColorHex = _colorToHex(
+      widget.dialogueColor ?? widget.textColor,
+    );
+    final content = wrapDialogueQuotesInHtml(
+      widget.htmlContent.replaceAllMapped(
+        RegExp(r'<details\b', caseSensitive: false),
+        (match) => '<details open',
+      ),
     );
 
     return '''
@@ -166,6 +175,9 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
       overflow: visible !important;
       word-wrap: break-word;
       overflow-wrap: anywhere;
+    }
+    .nt-dialogue {
+      color: $dialogueColorHex;
     }
     #measure-root {
       display: flow-root;

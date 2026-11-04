@@ -239,6 +239,7 @@ class _VisualNovelMessageViewState
                 content: _displayContent(message, isGenerating, messageDepth),
                 // VN panel is a shared dark overlay — use onSurface, not bubble roles.
                 textColor: Theme.of(context).colorScheme.onSurface,
+                isUser: isUser,
                 selectable: true,
                 onLongPress: () => widget.onLongPress(message),
                 isStreaming: isGenerating,

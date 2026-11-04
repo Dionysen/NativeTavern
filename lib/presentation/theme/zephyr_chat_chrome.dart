@@ -46,10 +46,10 @@ abstract final class ZephyrChatChrome {
     String? hintText,
   }) {
     final scheme = Theme.of(context).colorScheme;
-    final hintStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: scheme.onSurfaceVariant,
-          height: 1.45,
-        );
+    final hintStyle = messageInputStyle(
+      context,
+      color: scheme.onSurfaceVariant,
+    );
     return InputDecoration(
       hintText: hintText,
       hintStyle: hintStyle,
@@ -192,4 +192,29 @@ abstract final class ZephyrChatChrome {
 
   static Color bubbleTextColor(ColorScheme scheme, {required bool isUser}) =>
       isUser ? scheme.onPrimaryContainer : scheme.onSurface;
+
+  /// Quoted speech (`"..."`) inside a bubble — distinct from narration.
+  static Color dialogueTextColor(ColorScheme scheme, {required bool isUser}) {
+    if (isUser) {
+      return Color.lerp(scheme.onPrimaryContainer, scheme.tertiary, 0.55)!;
+    }
+    return scheme.tertiary;
+  }
+
+  /// Shared chat body size for bubbles and the composer input.
+  ///
+  /// Uses [TextTheme.bodyMedium] so theme font-size prefs stay in sync.
+  static double messageFontSize(BuildContext context) =>
+      Theme.of(context).textTheme.bodyMedium?.fontSize ?? 14;
+
+  /// Shared chat body text style for the composer field.
+  static TextStyle messageInputStyle(BuildContext context, {Color? color}) {
+    final theme = Theme.of(context);
+    final base = theme.textTheme.bodyMedium;
+    return (base ?? const TextStyle(fontSize: 14, height: 1.4)).copyWith(
+      color: color ?? theme.colorScheme.onSurface,
+      fontSize: messageFontSize(context),
+      height: base?.height ?? 1.4,
+    );
+  }
 }

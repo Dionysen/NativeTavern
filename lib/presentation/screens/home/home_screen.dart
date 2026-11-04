@@ -111,7 +111,7 @@ class _ChatListView extends ConsumerWidget {
             Text(l10n.errorLoadingChats(error.toString())),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => ref.invalidate(allChatsProvider),
+              onPressed: () => ref.invalidate(pagedChatsProvider),
               child: Text(l10n.retry),
             ),
           ],
@@ -331,7 +331,9 @@ class _ChatListTile extends ConsumerWidget {
     if (!confirmed) return;
 
     await ref.read(chatRepositoryProvider).deleteChat(chat.id);
+    ref.invalidate(pagedChatsProvider);
     ref.invalidate(allChatsProvider);
+    ref.invalidate(_lastMessageProvider(chat.id));
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.chatDeleted)),
