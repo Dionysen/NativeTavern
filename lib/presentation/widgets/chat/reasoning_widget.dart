@@ -219,41 +219,53 @@ class _ReasoningWidgetState extends State<ReasoningWidget>
   }
 }
 
-/// A streaming version of the reasoning widget that shows content as it arrives
+/// A streaming version of the reasoning widget that shows content as it arrives.
+///
+/// Collapsed by default (header only); tap to expand the thinking body.
 class StreamingReasoningWidget extends StatefulWidget {
   /// The reasoning/thinking content being streamed
   final String reasoning;
-  
+
   /// Whether streaming is still in progress
   final bool isStreaming;
-  
+
   /// Optional label for the reasoning section
   final String label;
+
+  /// Whether the body starts expanded. Defaults to collapsed.
+  final bool initiallyExpanded;
 
   const StreamingReasoningWidget({
     super.key,
     required this.reasoning,
     this.isStreaming = false,
     this.label = 'Thinking',
+    this.initiallyExpanded = false,
   });
 
   @override
-  State<StreamingReasoningWidget> createState() => _StreamingReasoningWidgetState();
+  State<StreamingReasoningWidget> createState() =>
+      _StreamingReasoningWidgetState();
 }
 
 class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  late AnimationController _expandController;
+  late Animation<double> _expandAnimation;
+  late Animation<double> _rotationAnimation;
+  late bool _isExpanded;
 
   @override
   void initState() {
     super.initState();
+    _isExpanded = widget.initiallyExpanded;
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _pulseAnimation = Tween<double>(
       begin: 0.5,
       end: 1.0,
@@ -261,7 +273,20 @@ class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
       parent: _pulseController,
       curve: Curves.easeInOut,
     ));
-    
+
+    _expandController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+      value: _isExpanded ? 1.0 : 0.0,
+    );
+    _expandAnimation = CurvedAnimation(
+      parent: _expandController,
+      curve: Curves.easeInOut,
+    );
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 0.5).animate(
+      _expandAnimation,
+    );
+
     if (widget.isStreaming) {
       _pulseController.repeat(reverse: true);
     }
@@ -281,7 +306,19 @@ class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
   @override
   void dispose() {
     _pulseController.dispose();
+    _expandController.dispose();
     super.dispose();
+  }
+
+  void _toggleExpanded() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+      if (_isExpanded) {
+        _expandController.forward();
+      } else {
+        _expandController.reverse();
+      }
+    });
   }
 
   @override
@@ -303,103 +340,112 @@ class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Row(
-              children: [
-                // Animated thinking icon
-                AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (context, child) {
-                    return Opacity(
-                      opacity: widget.isStreaming ? _pulseAnimation.value : 1.0,
-                      child: Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: _getAccentColor().withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Icon(
-                          Icons.psychology,
-                          size: 16,
-                          color: _getAccentColor(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(width: 8),
-                // Label with streaming indicator
-                Expanded(
-                  child: Row(
-                    children: [
-                      Text(
-                        widget.label,
-                        style: TextStyle(
-                          color: _getAccentColor(),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                      if (widget.isStreaming) ...[
-                        const SizedBox(width: 8),
-                        SizedBox(
-                          width: 12,
-                          height: 12,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
+          InkWell(
+            onTap: _toggleExpanded,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                children: [
+                  AnimatedBuilder(
+                    animation: _pulseAnimation,
+                    builder: (context, child) {
+                      return Opacity(
+                        opacity: widget.isStreaming ? _pulseAnimation.value : 1.0,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: _getAccentColor().withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Icon(
+                            Icons.psychology,
+                            size: 16,
                             color: _getAccentColor(),
                           ),
                         ),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Text(
+                          widget.label,
+                          style: TextStyle(
+                            color: _getAccentColor(),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        if (widget.isStreaming) ...[
+                          const SizedBox(width: 8),
+                          SizedBox(
+                            width: 12,
+                            height: 12,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: _getAccentColor(),
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
+                  Text(
+                    AppLocalizations.of(context)!
+                        .charsCount(widget.reasoning.length),
+                    style: TextStyle(
+                      color: AppTheme.textMuted,
+                      fontSize: 11,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  RotationTransition(
+                    turns: _rotationAnimation,
+                    child: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: _getAccentColor(),
+                      size: 20,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizeTransition(
+            sizeFactor: _expandAnimation,
+            axisAlignment: -1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Divider(
+                  height: 1,
+                  color: _getAccentColor().withValues(alpha: 0.2),
                 ),
-                // Character count
-                Text(
-                  AppLocalizations.of(context)!.charsCount(widget.reasoning.length),
-                  style: TextStyle(
-                    color: AppTheme.textMuted,
-                    fontSize: 11,
-                  ),
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: widget.reasoning.isNotEmpty
+                      ? MessageContentWidget(
+                          content: widget.reasoning,
+                          textColor: AppTheme.textSecondary,
+                          fontSize: 13,
+                          selectable: true,
+                        )
+                      : Text(
+                          AppLocalizations.of(context)!.thinking,
+                          style: TextStyle(
+                            color: AppTheme.textMuted,
+                            fontStyle: FontStyle.italic,
+                            fontSize: 13,
+                          ),
+                        ),
                 ),
               ],
             ),
           ),
-          // Content (always visible during streaming)
-          if (widget.reasoning.isNotEmpty) ...[
-            Divider(
-              height: 1,
-              color: _getAccentColor().withValues(alpha: 0.2),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: MessageContentWidget(
-                content: widget.reasoning,
-                textColor: AppTheme.textSecondary,
-                fontSize: 13,
-                selectable: true,
-              ),
-            ),
-          ] else if (widget.isStreaming) ...[
-            Divider(
-              height: 1,
-              color: _getAccentColor().withValues(alpha: 0.2),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(
-                AppLocalizations.of(context)!.thinking,
-                style: TextStyle(
-                  color: AppTheme.textMuted,
-                  fontStyle: FontStyle.italic,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );

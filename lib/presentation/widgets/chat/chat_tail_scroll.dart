@@ -1,17 +1,13 @@
 import 'package:flutter/widgets.dart';
 
-/// Scroll controller that can pin to the chat "tail" (newest messages) while
-/// content grows during streaming — ported from Zephyr's AI chat view.
+/// Scroll controller that pins to the chat tail while content grows during
+/// streaming — matched to Zephyr's `_AiChatTailScrollController`.
 ///
-/// When [reverse] is true (NativeTavern message list), the visual bottom is
-/// [ScrollPosition.minScrollExtent] (typically 0). When false, the bottom is
-/// [ScrollPosition.maxScrollExtent].
+/// Expects a **non-reverse** scroll view where the newest messages sit at
+/// [ScrollPosition.maxScrollExtent]. Keeping [pixels] unchanged while scrolled
+/// up naturally freezes the viewport; sticking only runs when already at the
+/// end.
 class ChatTailScrollController extends ScrollController {
-  ChatTailScrollController({this.reverse = true});
-
-  /// Whether the owning [ListView] / [ScrollView] uses `reverse: true`.
-  final bool reverse;
-
   /// When true, dimension growth keeps the viewport glued to the tail.
   bool Function() followTail = () => false;
 
@@ -25,24 +21,21 @@ class ChatTailScrollController extends ScrollController {
       physics: physics,
       context: context,
       oldPosition: oldPosition,
-      reverse: reverse,
       followTail: () => followTail(),
     );
   }
 }
 
-/// Pins to the newest-message edge when [followTail] is active and the user
-/// was already at that edge before content grew.
+/// Pins to [ScrollMetrics.maxScrollExtent] when [followTail] is active and the
+/// user was already at that edge before content grew.
 class ChatTailScrollPosition extends ScrollPositionWithSingleContext {
   ChatTailScrollPosition({
     required super.physics,
     required super.context,
     super.oldPosition,
-    required this.reverse,
     required this.followTail,
   });
 
-  final bool reverse;
   final bool Function() followTail;
 
   @override
@@ -50,19 +43,16 @@ class ChatTailScrollPosition extends ScrollPositionWithSingleContext {
     ScrollMetrics oldPosition,
     ScrollMetrics newPosition,
   ) {
-    final distanceFromBottom = reverse
-        ? oldPosition.pixels - oldPosition.minScrollExtent
-        : oldPosition.maxScrollExtent - oldPosition.pixels;
+    final distanceFromEnd = oldPosition.maxScrollExtent - oldPosition.pixels;
     // A thumb-drag jumpTo runs before this correction, while [oldPosition]
     // can still be the pre-jump metrics parked at the end. Only keep the tail
     // when the live offset has not moved away from that end.
     final pixelsUnchanged = (pixels - oldPosition.pixels).abs() <= 1;
-    final stick = followTail() && distanceFromBottom <= 1 && pixelsUnchanged;
+    final stick = followTail() && distanceFromEnd <= 1 && pixelsUnchanged;
     if (!stick) {
       return super.correctForNewDimensions(oldPosition, newPosition);
     }
-    final target =
-        reverse ? newPosition.minScrollExtent : newPosition.maxScrollExtent;
+    final target = newPosition.maxScrollExtent;
     if ((target - pixels).abs() <= 0.5) return true;
     correctPixels(target);
     return false;

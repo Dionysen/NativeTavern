@@ -101,10 +101,10 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   static final Object _importRpg = Object();
+  /// Soft pin / explicit follow threshold (Zephyr AI chat uses 72).
   static const double _followSlop = 72.0;
   final TextEditingController _messageController = TextEditingController();
-  final ChatTailScrollController _scrollController =
-      ChatTailScrollController(reverse: true);
+  final ChatTailScrollController _scrollController = ChatTailScrollController();
   final FocusNode _focusNode = FocusNode();
   bool _showSlashSuggestions = false;
   bool _showInputMenu = false;
@@ -124,10 +124,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   /// Finger is dragging the list; blocks tail anchoring (Zephyr AI chat).
   bool _userInteractingWithScroll = false;
 
+  /// Metrics captured before older messages are prepended so we can keep the
+  /// same visual anchor after the list grows upward.
+  double? _pendingOlderScrollPixels;
+  double? _pendingOlderMaxExtent;
+
   @override
   void initState() {
     super.initState();
     _stopTts = ref.read(ttsStopProvider);
+    // Match Zephyr: followTail only tracks interaction. Stick-to-end itself is
+    // gated by distanceFromEnd <= 1 inside ChatTailScrollPosition.
     _scrollController.followTail = () => !_userInteractingWithScroll;
     // Load chat and bookmarks when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -179,10 +186,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _initialMessageJumpScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted || !_scrollController.hasClients) return;
-      final reversedIndex = messages.length - 1 - actualIndex;
       final denominator = math.max(1, messages.length - 1);
       final estimatedOffset = _scrollController.position.maxScrollExtent *
-          reversedIndex /
+          actualIndex /
           denominator;
       _scrollController.jumpTo(
         estimatedOffset.clamp(
@@ -247,8 +253,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _isNearListBottom() {
     if (!_scrollController.hasClients) return true;
     final position = _scrollController.position;
-    // reverse: true → visual bottom is minScrollExtent (typically 0).
-    return position.pixels <= position.minScrollExtent + _followSlop;
+    return position.pixels >= position.maxScrollExtent - _followSlop;
   }
 
   bool _canPinStreamTail({bool force = false}) {
@@ -270,34 +275,62 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  /// Scroll to bottom with animation (for new messages).
+  /// Scroll to the newest messages (Zephyr `_scrollToEnd`).
   ///
-  /// With reverse: true ListView, position 0 is the bottom (newest messages).
   /// Pass [force] for user-initiated actions (send / import); otherwise only
-  /// follows when the viewport is already near the bottom (Zephyr-style).
-  void _scrollToBottom({bool force = false}) {
+  /// follows when the viewport is already near the bottom.
+  void _scrollToBottom({bool animate = true, bool force = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_canPinStreamTail(force: force)) return;
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          0, // With reverse: true, position 0 is the bottom
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
+      if (!mounted) return;
+      _scrollToBottomNow(animate: animate, force: force);
+      // Second pass after layout settles (Zephyr does the same).
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _scrollToBottomNow(animate: false, force: force);
+      });
     });
   }
 
-  /// Scroll to bottom immediately without animation (for initial load).
-  /// With reverse: true ListView, position 0 is the bottom (newest messages).
   void _scrollToBottomImmediate({bool force = false}) {
+    _scrollToBottom(animate: false, force: force);
+  }
+
+  void _scrollToBottomNow({required bool animate, bool force = false}) {
+    if (!_canPinStreamTail(force: force)) return;
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    final target = position.maxScrollExtent;
+    if (animate) {
+      unawaited(
+        position.animateTo(
+          target,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+        ),
+      );
+      return;
+    }
+    if (position.pixels != target) {
+      position.jumpTo(target);
+    }
+  }
+
+  void _preserveScrollAfterOlderMessagesLoaded() {
+    final pixels = _pendingOlderScrollPixels;
+    final oldMax = _pendingOlderMaxExtent;
+    _pendingOlderScrollPixels = null;
+    _pendingOlderMaxExtent = null;
+    if (pixels == null || oldMax == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_canPinStreamTail(force: force)) return;
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(
-          0,
-        ); // With reverse: true, position 0 is the bottom
-      }
+      if (!mounted || !_scrollController.hasClients) return;
+      final delta = _scrollController.position.maxScrollExtent - oldMax;
+      if (delta.abs() <= 0.5) return;
+      _scrollController.jumpTo(
+        (pixels + delta).clamp(
+          _scrollController.position.minScrollExtent,
+          _scrollController.position.maxScrollExtent,
+        ),
+      );
     });
   }
 
@@ -456,10 +489,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     // Hide keyboard on mobile platforms
     _focusNode.unfocus();
 
+    // Pin once when sending starts; do not force-jump after generation ends
+    // (user may have scrolled up to read history during the stream).
+    _scrollToBottom(force: true);
     await ref
         .read(activeChatProvider.notifier)
         .sendMessage(content, config, attachments: attachments);
-    _scrollToBottom(force: true);
   }
 
   Future<void> _toggleRpgMode() async {
@@ -601,8 +636,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       // Hide keyboard on mobile platforms
       _focusNode.unfocus();
 
-      await ref.read(activeChatProvider.notifier).sendMessage(input, config);
       _scrollToBottom(force: true);
+      await ref.read(activeChatProvider.notifier).sendMessage(input, config);
       return;
     }
 
@@ -635,8 +670,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           _showApiConfigurationDialog();
           return;
         }
-        await chatNotifier.continueGeneration(config);
         _scrollToBottom(force: true);
+        await chatNotifier.continueGeneration(config);
         break;
 
       case 'regenerate':
@@ -644,8 +679,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           _showApiConfigurationDialog();
           return;
         }
-        await chatNotifier.regenerateLastMessage(config);
         _scrollToBottom(force: true);
+        await chatNotifier.regenerateLastMessage(config);
         break;
 
       case 'swipe':
@@ -1043,8 +1078,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
 
     await ref.read(ttsStopProvider)(ownerId: widget.chatId);
-    await ref.read(activeChatProvider.notifier).regenerateLastMessage(config);
     _scrollToBottom(force: true);
+    await ref.read(activeChatProvider.notifier).regenerateLastMessage(config);
   }
 
   void _handleChatTTSChange(ActiveChatState? previous, ActiveChatState next) {
@@ -1095,9 +1130,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           next.isLoading == false &&
           next.messages.isNotEmpty;
 
-      if (loadingFinished) {
+      if (olderMessagesLoaded) {
+        _preserveScrollAfterOlderMessagesLoaded();
+      } else if (loadingFinished) {
         _scrollToBottomImmediate(force: true);
-      } else if (messageCountChanged && !olderMessagesLoaded) {
+      } else if (messageCountChanged) {
         // Soft pin: follow only when already near bottom / not dragging.
         _scrollToBottomImmediate();
       }
@@ -1985,6 +2022,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             .any((message) => message.id == widget.initialMessageId) &&
         chatState.hasOlderMessages &&
         !chatState.isLoadingOlderMessages) {
+      if (_scrollController.hasClients) {
+        _pendingOlderScrollPixels = _scrollController.position.pixels;
+        _pendingOlderMaxExtent = _scrollController.position.maxScrollExtent;
+      }
       unawaited(ref.read(activeChatProvider.notifier).loadOlderMessages());
     }
     _scheduleInitialMessageJump(chatState.messages);
@@ -1996,6 +2037,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final hasBackground = background.type != BackgroundType.none ||
         chatState.character?.assets?.live2d?.enabled == true;
 
+    final showOlderLoader =
+        chatState.hasOlderMessages || chatState.isLoadingOlderMessages;
+
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         _handleListScrollNotification(notification);
@@ -2005,9 +2049,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             chatState.isLoadingOlderMessages) {
           return false;
         }
-        // With reverse=true, maxScrollExtent is the oldest-message end.
-        if (notification.metrics.pixels >=
-            notification.metrics.maxScrollExtent - 160) {
+        // Non-reverse list: oldest messages / loader sit at the top.
+        if (notification.metrics.pixels <= 160) {
+          if (_scrollController.hasClients) {
+            _pendingOlderScrollPixels = _scrollController.position.pixels;
+            _pendingOlderMaxExtent =
+                _scrollController.position.maxScrollExtent;
+          }
           unawaited(
             ref.read(activeChatProvider.notifier).loadOlderMessages(),
           );
@@ -2016,18 +2064,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       },
       child: ListView.builder(
         controller: _scrollController,
-        reverse:
-            true, // Build from bottom up - newest messages at bottom, always visible
+        // Chronological list like Zephyr: newest at maxScrollExtent.
         physics: const AlwaysScrollableScrollPhysics(
           parent: ClampingScrollPhysics(),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: chatState.messages.length +
-            (chatState.hasOlderMessages || chatState.isLoadingOlderMessages
-                ? 1
-                : 0),
+        itemCount: chatState.messages.length + (showOlderLoader ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == chatState.messages.length) {
+          if (showOlderLoader && index == 0) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Center(
@@ -2041,9 +2085,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             );
           }
-          // With reverse: true, we need to reverse the index to maintain correct message order
-          // index 0 in reversed list = last message (newest) = should be at bottom
-          final actualIndex = chatState.messages.length - 1 - index;
+          final actualIndex = showOlderLoader ? index - 1 : index;
           final message = chatState.messages[actualIndex];
           final isLast = actualIndex == chatState.messages.length - 1;
 

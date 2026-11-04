@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:native_tavern/presentation/widgets/chat/chat_tail_scroll.dart';
 
 void main() {
-  testWidgets('reverse tail sticks while followTail is true', (tester) async {
-    final controller = ChatTailScrollController(reverse: true);
+  testWidgets('sticks to max extent while followTail is true', (tester) async {
+    final controller = ChatTailScrollController();
     var follow = true;
     controller.followTail = () => follow;
 
@@ -18,10 +18,44 @@ void main() {
             builder: (context, h, _) {
               return ListView(
                 controller: controller,
-                reverse: true,
                 children: [
-                  SizedBox(height: h, child: const Text('growing')),
                   const SizedBox(height: 800, child: Text('older')),
+                  SizedBox(height: h, child: const Text('growing')),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    controller.jumpTo(controller.position.maxScrollExtent);
+    await tester.pumpAndSettle();
+
+    final before = controller.offset;
+    height.value = 400;
+    await tester.pumpAndSettle();
+    expect(controller.offset, closeTo(controller.position.maxScrollExtent, 0.5));
+    expect(controller.offset, greaterThan(before));
+  });
+
+  testWidgets('keeps older content fixed when not following', (tester) async {
+    final controller = ChatTailScrollController();
+    controller.followTail = () => false;
+
+    final height = ValueNotifier<double>(200);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ValueListenableBuilder<double>(
+            valueListenable: height,
+            builder: (context, h, _) {
+              return ListView(
+                controller: controller,
+                children: [
+                  const SizedBox(height: 800, child: Text('older')),
+                  SizedBox(height: h, child: const Text('growing')),
                 ],
               );
             },
@@ -31,27 +65,20 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(controller.offset, closeTo(0, 0.5));
-
-    height.value = 400;
-    await tester.pumpAndSettle();
-    expect(controller.offset, closeTo(0, 0.5));
-
-    // Scroll away from the bottom (reverse: higher offset = older content).
-    follow = false;
+    // Park away from the tail.
     controller.jumpTo(120);
     await tester.pumpAndSettle();
     expect(controller.offset, closeTo(120, 0.5));
 
-    height.value = 600;
+    height.value = 400;
     await tester.pumpAndSettle();
-    // Must not yank back to the tail while followTail is false.
-    expect(controller.offset, greaterThan(50));
+    // Non-reverse default keeps pixels — no yank to the tail.
+    expect(controller.offset, closeTo(120, 1.0));
   });
 
-  testWidgets('reverse tail resumes stick after returning to bottom',
-      (tester) async {
-    final controller = ChatTailScrollController(reverse: true);
+  testWidgets('resumes stick after returning to bottom', (tester) async {
+    final controller = ChatTailScrollController();
+    // Zephyr: followTail is interaction-only; distanceFromEnd gates stick.
     controller.followTail = () => true;
 
     final height = ValueNotifier<double>(200);
@@ -64,10 +91,9 @@ void main() {
             builder: (context, h, _) {
               return ListView(
                 controller: controller,
-                reverse: true,
                 children: [
-                  SizedBox(height: h, child: const Text('growing')),
                   const SizedBox(height: 800, child: Text('older')),
+                  SizedBox(height: h, child: const Text('growing')),
                 ],
               );
             },
@@ -81,12 +107,12 @@ void main() {
     await tester.pumpAndSettle();
     height.value = 350;
     await tester.pumpAndSettle();
-    expect(controller.offset, greaterThan(50));
+    expect(controller.offset, closeTo(150, 1.0));
 
-    controller.jumpTo(0);
+    controller.jumpTo(controller.position.maxScrollExtent);
     await tester.pumpAndSettle();
     height.value = 500;
     await tester.pumpAndSettle();
-    expect(controller.offset, closeTo(0, 0.5));
+    expect(controller.offset, closeTo(controller.position.maxScrollExtent, 0.5));
   });
 }
