@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../../data/models/quick_reply.dart';
 import '../../providers/quick_reply_providers.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for managing quick replies
@@ -278,23 +278,18 @@ class _QuickReplyTile extends StatelessWidget {
               value: reply.enabled,
               onChanged: (_) => onToggle(),
             ),
-            AdaptivePopupMenuButton<String>(
+            AdaptiveActionMenuButton<String>(
               itemBuilder: (context) => [
-                PopupMenuItem(
+                AdaptiveActionDrawerItem(
                   value: 'edit',
-                  child: ListTile(
-                    leading: const Icon(Icons.edit),
-                    title: Text(AppLocalizations.of(context)!.edit),
-                    contentPadding: EdgeInsets.zero,
-                  ),
+                  leading: const Icon(Icons.edit),
+                  title: Text(AppLocalizations.of(context)!.edit),
                 ),
-                PopupMenuItem(
+                AdaptiveActionDrawerItem(
                   value: 'delete',
-                  child: ListTile(
-                    leading: const Icon(Icons.delete),
-                    title: Text(AppLocalizations.of(context)!.delete),
-                    contentPadding: EdgeInsets.zero,
-                  ),
+                  leading: const Icon(Icons.delete),
+                  title: Text(AppLocalizations.of(context)!.delete),
+                  destructive: true,
                 ),
               ],
               onSelected: (value) {

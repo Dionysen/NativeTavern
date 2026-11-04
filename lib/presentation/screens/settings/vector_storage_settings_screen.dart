@@ -6,7 +6,7 @@ import 'package:native_tavern/data/models/vector_storage.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/providers/vector_storage_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
@@ -535,7 +535,7 @@ class _CollectionsSection extends StatelessWidget {
               onPressed: enabled ? onCreateCollection : null,
               tooltip: l10n.createCollection,
             ),
-            AdaptivePopupMenuButton<String>(
+            AdaptiveActionMenuButton<String>(
               icon: const Icon(Icons.more_vert),
               enabled: enabled,
               onSelected: (action) {
@@ -546,13 +546,10 @@ class _CollectionsSection extends StatelessWidget {
                 }
               },
               itemBuilder: (context) => [
-                PopupMenuItem(
+                AdaptiveActionDrawerItem(
                   value: 'import',
-                  child: ListTile(
-                    leading: const Icon(Icons.file_download),
-                    title: Text(l10n.importCollection),
-                    contentPadding: EdgeInsets.zero,
-                  ),
+                  leading: const Icon(Icons.file_download),
+                  title: Text(l10n.importCollection),
                 ),
               ],
             ),

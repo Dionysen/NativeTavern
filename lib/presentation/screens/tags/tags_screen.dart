@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/tag.dart';
 import 'package:native_tavern/presentation/providers/tag_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
 /// Screen for managing tags
@@ -222,7 +222,8 @@ class _TagListItem extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            AdaptivePopupMenuButton<String>(
+            AdaptiveActionMenuButton<String>(
+              title: tag.name,
               onSelected: (value) {
                 switch (value) {
                   case 'edit':
@@ -233,25 +234,23 @@ class _TagListItem extends StatelessWidget {
                     break;
                 }
               },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'edit',
-                  child: ListTile(
+              itemBuilder: (context) {
+                final l10n = AppLocalizations.of(context)!;
+                return [
+                  AdaptiveActionDrawerItem(
+                    value: 'edit',
                     leading: const Icon(Icons.edit),
-                    title: Text(AppLocalizations.of(context)!.edit),
-                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.edit),
                   ),
-                ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: ListTile(
-                    leading: const Icon(Icons.delete, color: Colors.red),
-                    title: Text(AppLocalizations.of(context)!.delete,
-                        style: const TextStyle(color: Colors.red)),
-                    contentPadding: EdgeInsets.zero,
+                  AdaptiveActionDrawerItem(
+                    value: 'delete',
+                    leading: const Icon(Icons.delete),
+                    title: Text(l10n.delete),
+                    destructive: true,
+                    showDividerAbove: true,
                   ),
-                ),
-              ],
+                ];
+              },
             ),
           ],
         ),

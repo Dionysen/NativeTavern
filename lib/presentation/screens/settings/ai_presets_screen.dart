@@ -9,7 +9,7 @@ import 'package:native_tavern/core/utils/share_utils.dart';
 import '../../../data/models/ai_preset.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../providers/ai_preset_providers.dart';
-import '../../widgets/common/adaptive_popup_menu.dart';
+import '../../widgets/common/adaptive_action_drawer.dart';
 import '../../widgets/settings/settings_widgets.dart';
 
 /// Screen for managing AI presets
@@ -498,7 +498,7 @@ class _PresetCard extends StatelessWidget {
               ),
               // Actions
               if (!preset.isBuiltIn)
-                AdaptivePopupMenuButton<String>(
+                AdaptiveActionMenuButton<String>(
                   icon: const Icon(Icons.more_vert),
                   onSelected: (value) {
                     if (value == 'export') onExport?.call();
@@ -507,21 +507,16 @@ class _PresetCard extends StatelessWidget {
                   itemBuilder: (context) {
                     final l10n = AppLocalizations.of(context);
                     return [
-                      PopupMenuItem(
+                      AdaptiveActionDrawerItem(
                         value: 'export',
-                        child: ListTile(
-                          leading: const Icon(Icons.file_upload),
-                          title: Text(l10n.export),
-                          contentPadding: EdgeInsets.zero,
-                        ),
+                        leading: const Icon(Icons.file_upload),
+                        title: Text(l10n.export),
                       ),
-                      PopupMenuItem(
+                      AdaptiveActionDrawerItem(
                         value: 'delete',
-                        child: ListTile(
-                          leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(l10n.delete, style: const TextStyle(color: Colors.red)),
-                          contentPadding: EdgeInsets.zero,
-                        ),
+                        leading: const Icon(Icons.delete),
+                        title: Text(l10n.delete),
+                        destructive: true,
                       ),
                     ];
                   },

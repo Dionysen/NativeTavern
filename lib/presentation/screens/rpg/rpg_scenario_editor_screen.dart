@@ -13,6 +13,7 @@ import 'package:native_tavern/domain/services/rpg_scenario_package_service.dart'
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/controllers/rpg_scenario_editor_controller.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 
 class RpgScenarioFileData {
@@ -496,7 +497,7 @@ class _ListItemActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return AdaptivePopupMenuButton<String>(
+    return AdaptiveActionMenuButton<String>(
       tooltip: l10n.rpgItemActions,
       onSelected: (value) {
         if (value == 'up') onMoveUp?.call();
@@ -504,16 +505,22 @@ class _ListItemActions extends StatelessWidget {
         if (value == 'delete') onDelete();
       },
       itemBuilder: (context) => [
-        PopupMenuItem(
-            value: 'up',
-            enabled: onMoveUp != null,
-            child: Text(l10n.rpgMoveUp)),
-        PopupMenuItem(
-            value: 'down',
-            enabled: onMoveDown != null,
-            child: Text(l10n.rpgMoveDown)),
-        const PopupMenuDivider(),
-        PopupMenuItem(value: 'delete', child: Text(l10n.delete)),
+        AdaptiveActionDrawerItem(
+          value: 'up',
+          enabled: onMoveUp != null,
+          title: Text(l10n.rpgMoveUp),
+        ),
+        AdaptiveActionDrawerItem(
+          value: 'down',
+          enabled: onMoveDown != null,
+          title: Text(l10n.rpgMoveDown),
+        ),
+        AdaptiveActionDrawerItem(
+          value: 'delete',
+          title: Text(l10n.delete),
+          destructive: true,
+          showDividerAbove: true,
+        ),
       ],
     );
   }

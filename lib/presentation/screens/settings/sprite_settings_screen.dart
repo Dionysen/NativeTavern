@@ -7,6 +7,7 @@ import 'package:native_tavern/presentation/providers/sprite_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/chat/sprite_display.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Screen for managing sprite settings
@@ -238,22 +239,20 @@ class _CharacterSpritesScreenState
             tooltip: l10n.importFromFolder,
             onPressed: _importFromFolder,
           ),
-          PopupMenuButton(
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'delete_all',
-                child: ListTile(
-                  leading: const Icon(Icons.delete_sweep, color: Colors.red),
-                  title: Text(l10n.deleteAllSprites),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ],
+          AdaptiveActionMenuButton<String>(
             onSelected: (value) {
               if (value == 'delete_all') {
                 _confirmDeleteAll();
               }
             },
+            itemBuilder: (context) => [
+              AdaptiveActionDrawerItem(
+                value: 'delete_all',
+                leading: const Icon(Icons.delete_sweep),
+                title: Text(l10n.deleteAllSprites),
+                destructive: true,
+              ),
+            ],
           ),
         ],
       ),

@@ -10,7 +10,7 @@ import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/regex/character_regex_section.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
@@ -238,25 +238,27 @@ class _CharacterDetailContentState
                 onPressed: () =>
                     context.push('/characters/${character.id}/edit'),
               ),
-              AdaptivePopupMenuButton<String>(
+              AdaptiveActionMenuButton<String>(
+                title: character.name,
                 onSelected: (value) => _handleMenuAction(value, character),
                 itemBuilder: (context) => [
-                  PopupMenuItem(
+                  AdaptiveActionDrawerItem(
                     value: 'export',
-                    child: Text(l10n.exportAsPng),
+                    title: Text(l10n.exportAsPng),
                   ),
-                  PopupMenuItem(
+                  AdaptiveActionDrawerItem(
                     value: 'export_charx',
-                    child: Text(l10n.exportAsCharx),
+                    title: Text(l10n.exportAsCharx),
                   ),
-                  PopupMenuItem(
+                  AdaptiveActionDrawerItem(
                     value: 'duplicate',
-                    child: Text(l10n.duplicate),
+                    title: Text(l10n.duplicate),
                   ),
-                  PopupMenuItem(
+                  AdaptiveActionDrawerItem(
                     value: 'delete',
-                    child: Text(l10n.delete,
-                        style: TextStyle(color: scheme.error)),
+                    title: Text(l10n.delete),
+                    destructive: true,
+                    showDividerAbove: true,
                   ),
                 ],
               ),

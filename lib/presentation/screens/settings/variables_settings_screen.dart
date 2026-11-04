@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/variables_service.dart';
 import 'package:native_tavern/presentation/providers/variables_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
@@ -32,25 +32,21 @@ class VariablesSettingsScreen extends ConsumerWidget {
             tooltip: l10n.addVariable,
             onPressed: () => _showAddVariableDialog(context, ref),
           ),
-          AdaptivePopupMenuButton<String>(
+          AdaptiveActionMenuButton<String>(
             onSelected: (value) => _handleMenuAction(context, ref, value),
             itemBuilder: (context) => [
-              PopupMenuItem(
+              AdaptiveActionDrawerItem(
                 value: 'clear_global',
-                child: ListTile(
-                  leading: const Icon(Icons.delete_sweep),
-                  title: Text(l10n.clearGlobalVariables),
-                  contentPadding: EdgeInsets.zero,
-                ),
+                leading: const Icon(Icons.delete_sweep),
+                title: Text(l10n.clearGlobalVariables),
+                destructive: true,
               ),
               if (chatId != null)
-                PopupMenuItem(
+                AdaptiveActionDrawerItem(
                   value: 'clear_local',
-                  child: ListTile(
-                    leading: const Icon(Icons.delete_sweep),
-                    title: Text(l10n.clearLocalVariables),
-                    contentPadding: EdgeInsets.zero,
-                  ),
+                  leading: const Icon(Icons.delete_sweep),
+                  title: Text(l10n.clearLocalVariables),
+                  destructive: true,
                 ),
             ],
           ),

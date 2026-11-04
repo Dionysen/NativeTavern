@@ -8,6 +8,7 @@ import '../../../data/models/theme/theme_tokens.dart';
 import '../../../data/models/theme/ui_preferences.dart';
 import '../../providers/theme_providers.dart';
 import '../../theme/native_tavern_theme.dart';
+import '../../widgets/common/adaptive_action_drawer.dart';
 import '../../widgets/settings/settings_widgets.dart';
 import '../../widgets/settings/theme_color_picker.dart';
 
@@ -101,43 +102,27 @@ class _ThemeSettingsScreenState extends ConsumerState<ThemeSettingsScreen> {
   Future<void> _showCustomPackMenu(ThemeColorPack pack) async {
     if (pack.isBuiltIn) return;
     final l10n = AppLocalizations.of(context);
-    final action = await showModalBottomSheet<_PackMenuAction>(
+    final action = await showAdaptiveActionDrawer<_PackMenuAction>(
       context: context,
-      showDragHandle: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(context.appCornerRadius + 4),
+      title: pack.name,
+      actions: [
+        AdaptiveActionDrawerItem(
+          value: _PackMenuAction.rename,
+          leading: const Icon(Icons.drive_file_rename_outline),
+          title: Text(l10n.rename),
         ),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                child: Text(pack.name, style: Theme.of(context).textTheme.titleMedium),
-              ),
-              ListTile(
-                leading: const Icon(Icons.drive_file_rename_outline),
-                title: Text(l10n.rename),
-                onTap: () => Navigator.pop(context, _PackMenuAction.rename),
-              ),
-              ListTile(
-                leading: const Icon(Icons.copy_outlined),
-                title: Text(l10n.copy),
-                onTap: () => Navigator.pop(context, _PackMenuAction.copy),
-              ),
-              ListTile(
-                leading: Icon(Icons.delete_outline,
-                    color: Theme.of(context).colorScheme.error),
-                title: Text(l10n.delete),
-                onTap: () => Navigator.pop(context, _PackMenuAction.delete),
-              ),
-            ],
-          ),
-        );
-      },
+        AdaptiveActionDrawerItem(
+          value: _PackMenuAction.copy,
+          leading: const Icon(Icons.copy_outlined),
+          title: Text(l10n.copy),
+        ),
+        AdaptiveActionDrawerItem(
+          value: _PackMenuAction.delete,
+          leading: const Icon(Icons.delete_outline),
+          title: Text(l10n.delete),
+          destructive: true,
+        ),
+      ],
     );
     if (action == null || !mounted) return;
     final notifier = _notifier;

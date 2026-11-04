@@ -50,7 +50,7 @@ import 'package:native_tavern/presentation/widgets/chat/chat_voice_input_button.
 import 'package:native_tavern/presentation/widgets/chat/message_content_widget.dart';
 import 'package:native_tavern/presentation/widgets/chat/memory_context_usage_sheet.dart';
 import 'package:native_tavern/presentation/widgets/chat/quick_reply_bar.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_scaffold.dart';
 import 'package:native_tavern/presentation/widgets/play/ai_play_feature_gate.dart';
 import 'package:native_tavern/presentation/widgets/chat/markdown_input_field.dart';
@@ -1317,9 +1317,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             tooltip: l10n.regenerate,
             onPressed: _regenerateMessage,
           ),
-        AdaptivePopupMenuButton<String>(
+        AdaptiveActionMenuButton<String>(
           itemBuilder: (context) => [
-            adaptivePopupMenuItem(
+            AdaptiveActionDrawerItem(
               value: chatState.isGroupChat ? 'group' : 'character',
               leading: Icon(
                 chatState.isGroupChat ? Icons.groups : Icons.person,
@@ -1329,13 +1329,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             ),
             if (chatState.character != null)
-              adaptivePopupMenuItem(
+              AdaptiveActionDrawerItem(
                 value: 'live2d',
                 leading: const Icon(Icons.animation),
                 title: const Text('Live2D'),
               ),
-            adaptivePopupMenuItem(
+            AdaptiveActionDrawerItem(
               value: 'author_note',
+              showDividerAbove: true,
               leading: Icon(
                 Icons.note_alt,
                 color: hasAuthorNote ? AppTheme.accentColor : null,
@@ -1351,7 +1352,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
               ),
             ),
-            adaptivePopupMenuItem(
+            AdaptiveActionDrawerItem(
               value: 'start_reply_with',
               leading: Icon(
                 Icons.format_quote,
@@ -1366,7 +1367,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
               title: Text(l10n.startReplyWith),
             ),
-            adaptivePopupMenuItem(
+            AdaptiveActionDrawerItem(
               value: 'impersonate',
               leading: const Icon(Icons.theater_comedy),
               title: Text(l10n.impersonate),
@@ -1375,8 +1376,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 style: const TextStyle(fontSize: 12),
               ),
             ),
-            adaptivePopupMenuItem(
-              key: const Key('moments-in-chat-menu'),
+            AdaptiveActionDrawerItem(
               value: 'moments_in_chat',
               leading: Icon(
                 Icons.dynamic_feed_outlined,
@@ -1397,8 +1397,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
               ),
             ),
-            adaptivePopupMenuItem(
+            AdaptiveActionDrawerItem(
               value: 'chat_lorebooks',
+              showDividerAbove: true,
               leading: Icon(
                 Icons.public,
                 color: (ref
@@ -1412,7 +1413,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
               title: Text(l10n.chatLorebooks),
             ),
-            adaptivePopupMenuItem(
+            AdaptiveActionDrawerItem(
               value: 'bookmarks',
               leading: const Icon(
                 Icons.bookmark,
@@ -1421,19 +1422,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               title: Text(l10n.bookmarks),
             ),
             if (hasStory)
-              adaptivePopupMenuItem(
+              AdaptiveActionDrawerItem(
                 value: 'story',
                 leading: const Icon(Icons.auto_stories_outlined),
                 title: Text(l10n.story),
               ),
-            adaptivePopupMenuItem(
-              key: const Key('memory-usage-menu'),
+            AdaptiveActionDrawerItem(
               value: 'memory_usage',
               leading: const Icon(Icons.psychology_outlined),
               title: Text(l10n.memoryUsed),
             ),
             if (chatState.hasUnsavedChanges)
-              adaptivePopupMenuItem(
+              AdaptiveActionDrawerItem(
                 value: 'save_chat',
                 leading: Icon(
                   Icons.save_outlined,
@@ -1441,22 +1441,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
                 title: Text(l10n.saveChat),
               ),
-            adaptivePopupMenuItem(
+            AdaptiveActionDrawerItem(
               value: 'export',
+              showDividerAbove: true,
               leading: const Icon(Icons.upload),
               title: Text(l10n.exportChat),
               subtitle: Text(l10n.saveAsJsonl),
             ),
-            adaptivePopupMenuItem(
+            AdaptiveActionDrawerItem(
               value: 'import',
               leading: const Icon(Icons.download),
               title: Text(l10n.importChat),
               subtitle: Text(l10n.chooseFile),
             ),
-            adaptivePopupMenuItem(
+            AdaptiveActionDrawerItem(
               value: 'clear',
-              leading: const Icon(Icons.delete_sweep, color: Colors.orange),
+              leading: const Icon(Icons.delete_sweep),
               title: Text(l10n.clearMessages),
+              destructive: true,
             ),
           ],
           onSelected: (value) async {

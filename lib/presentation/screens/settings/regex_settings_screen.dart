@@ -7,7 +7,7 @@ import 'package:native_tavern/data/models/regex_script.dart';
 import 'package:native_tavern/domain/services/regex_service.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/regex/regex_script_widgets.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
@@ -31,44 +31,35 @@ class RegexSettingsScreen extends ConsumerWidget {
             tooltip: AppLocalizations.of(context)!.addScript,
             onPressed: () => _showScriptEditor(context, ref, null),
           ),
-          AdaptivePopupMenuButton<String>(
+          AdaptiveActionMenuButton<String>(
             onSelected: (value) => _handleMenuAction(context, ref, value),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'add_presets',
-                child: ListTile(
+            itemBuilder: (context) {
+              final l10n = AppLocalizations.of(context)!;
+              return [
+                AdaptiveActionDrawerItem(
+                  value: 'add_presets',
                   leading: const Icon(Icons.auto_awesome),
-                  title: Text(AppLocalizations.of(context)!.addPresets),
-                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.addPresets),
                 ),
-              ),
-              PopupMenuItem(
-                value: 'import',
-                child: ListTile(
+                AdaptiveActionDrawerItem(
+                  value: 'import',
                   leading: const Icon(Icons.file_download),
-                  title: Text(AppLocalizations.of(context)!.import),
-                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.import),
                 ),
-              ),
-              PopupMenuItem(
-                value: 'export',
-                child: ListTile(
+                AdaptiveActionDrawerItem(
+                  value: 'export',
                   leading: const Icon(Icons.file_upload),
-                  title: Text(AppLocalizations.of(context)!.export),
-                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.export),
                 ),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'clear_all',
-                child: ListTile(
-                  leading: const Icon(Icons.delete_sweep, color: Colors.red),
-                  title: Text(AppLocalizations.of(context)!.clearAll,
-                      style: const TextStyle(color: Colors.red)),
-                  contentPadding: EdgeInsets.zero,
+                AdaptiveActionDrawerItem(
+                  value: 'clear_all',
+                  leading: const Icon(Icons.delete_sweep),
+                  title: Text(l10n.clearAll),
+                  destructive: true,
+                  showDividerAbove: true,
                 ),
-              ),
-            ],
+              ];
+            },
           ),
         ]),
       ),

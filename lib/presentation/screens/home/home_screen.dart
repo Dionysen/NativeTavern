@@ -15,7 +15,7 @@ import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/widgets/common/group_avatar.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 
 /// Home screen showing recent chats
 class HomeScreen extends ConsumerStatefulWidget {
@@ -245,21 +245,17 @@ class _ChatListTile extends ConsumerWidget {
                     color: AppTheme.textMuted,
                   ),
             ),
-            AdaptivePopupMenuButton<String>(
+            AdaptiveActionMenuButton<String>(
               icon: const Icon(Icons.more_vert, size: 20),
               padding: EdgeInsets.zero,
+              title: chat.title,
               onSelected: (value) => _handleMenuAction(context, ref, value),
               itemBuilder: (context) => [
-                PopupMenuItem(
+                AdaptiveActionDrawerItem(
                   value: 'delete',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.delete, color: Colors.red),
-                      const SizedBox(width: 8),
-                      Text(l10n.delete,
-                          style: const TextStyle(color: Colors.red)),
-                    ],
-                  ),
+                  leading: const Icon(Icons.delete),
+                  title: Text(l10n.delete),
+                  destructive: true,
                 ),
               ],
             ),

@@ -12,7 +12,7 @@ import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 
 /// Screen for managing user personas
 class PersonasScreen extends ConsumerWidget {
@@ -279,8 +279,10 @@ class _PersonaCard extends StatelessWidget {
                   ],
                 ),
               ),
-              AdaptivePopupMenuButton<String>(
+              const SizedBox(width: 8),
+              AdaptiveActionMenuButton<String>(
                 icon: Icon(Icons.more_vert, color: muted),
+                title: persona.name,
                 onSelected: (value) {
                   switch (value) {
                     case 'edit':
@@ -295,32 +297,24 @@ class _PersonaCard extends StatelessWidget {
                   }
                 },
                 itemBuilder: (context) => [
-                  PopupMenuItem(
+                  AdaptiveActionDrawerItem(
                     value: 'edit',
-                    child: ListTile(
-                      leading: const Icon(Icons.edit),
-                      title: Text(l10n.edit),
-                      contentPadding: EdgeInsets.zero,
-                    ),
+                    leading: const Icon(Icons.edit),
+                    title: Text(l10n.edit),
                   ),
                   if (onSetDefault != null)
-                    PopupMenuItem(
+                    AdaptiveActionDrawerItem(
                       value: 'default',
-                      child: ListTile(
-                        leading: const Icon(Icons.star),
-                        title: Text(l10n.setAsDefault),
-                        contentPadding: EdgeInsets.zero,
-                      ),
+                      leading: const Icon(Icons.star),
+                      title: Text(l10n.setAsDefault),
                     ),
                   if (onDelete != null)
-                    PopupMenuItem(
+                    AdaptiveActionDrawerItem(
                       value: 'delete',
-                      child: ListTile(
-                        leading: Icon(Icons.delete, color: scheme.error),
-                        title: Text(l10n.delete,
-                            style: TextStyle(color: scheme.error)),
-                        contentPadding: EdgeInsets.zero,
-                      ),
+                      leading: const Icon(Icons.delete),
+                      title: Text(l10n.delete),
+                      destructive: true,
+                      showDividerAbove: onSetDefault != null,
                     ),
                 ],
               ),
@@ -333,7 +327,7 @@ class _PersonaCard extends StatelessWidget {
 
   Widget _statusBadge(String label, Color color) {
     return Container(
-      margin: const EdgeInsets.only(left: 4),
+      margin: const EdgeInsets.only(left: 8),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),

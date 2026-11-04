@@ -7,7 +7,7 @@ import 'package:native_tavern/domain/services/rpg_game_session_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/rpg_chat_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 
 class RpgGamePanel extends ConsumerWidget {
   const RpgGamePanel({
@@ -497,15 +497,19 @@ class _LogView extends ConsumerWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            trailing: AdaptivePopupMenuButton<String>(
+            trailing: AdaptiveActionMenuButton<String>(
               key: Key('rpg-snapshot-${snapshot.metadata.id}'),
               tooltip: l10n.rpgSnapshotActions,
               enabled: snapshot.metadata.id != session.snapshot.metadata.id,
               itemBuilder: (_) => [
-                PopupMenuItem(
-                    value: 'restore', child: Text(l10n.rpgRestoreSnapshot)),
-                PopupMenuItem(
-                    value: 'fork', child: Text(l10n.rpgForkNewBranch)),
+                AdaptiveActionDrawerItem(
+                  value: 'restore',
+                  title: Text(l10n.rpgRestoreSnapshot),
+                ),
+                AdaptiveActionDrawerItem(
+                  value: 'fork',
+                  title: Text(l10n.rpgForkNewBranch),
+                ),
               ],
               onSelected: (value) async {
                 final controller = ref.read(rpgChatProvider(chatId).notifier);

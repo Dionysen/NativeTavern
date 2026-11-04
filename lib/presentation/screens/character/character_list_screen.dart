@@ -12,6 +12,7 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'character_view_mode.dart';
 
 /// Character list screen
@@ -279,56 +280,32 @@ Future<void> _showCharacterActionMenu(
   Character character,
 ) async {
   final l10n = AppLocalizations.of(context);
-  final scheme = Theme.of(context).colorScheme;
-  final selected = await showModalBottomSheet<String>(
+  final selected = await showAdaptiveActionDrawer<String>(
     context: context,
-    showDragHandle: true,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(context.appCornerRadius + 4),
+    title: character.name,
+    actions: [
+      AdaptiveActionDrawerItem(
+        value: 'chat',
+        leading: const Icon(Icons.chat),
+        title: Text(l10n.startChat),
       ),
-    ),
-    builder: (sheetContext) {
-      return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  character.name,
-                  style: Theme.of(sheetContext).textTheme.titleMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.chat, color: scheme.onSurfaceVariant),
-              title: Text(l10n.startChat),
-              onTap: () => Navigator.pop(sheetContext, 'chat'),
-            ),
-            ListTile(
-              leading: Icon(Icons.edit, color: scheme.onSurfaceVariant),
-              title: Text(l10n.edit),
-              onTap: () => Navigator.pop(sheetContext, 'edit'),
-            ),
-            ListTile(
-              leading: Icon(Icons.file_upload, color: scheme.onSurfaceVariant),
-              title: Text(l10n.exportChat),
-              onTap: () => Navigator.pop(sheetContext, 'export'),
-            ),
-            ListTile(
-              leading: Icon(Icons.delete_outline, color: scheme.error),
-              title: Text(l10n.delete),
-              onTap: () => Navigator.pop(sheetContext, 'delete'),
-            ),
-          ],
-        ),
-      );
-    },
+      AdaptiveActionDrawerItem(
+        value: 'edit',
+        leading: const Icon(Icons.edit),
+        title: Text(l10n.edit),
+      ),
+      AdaptiveActionDrawerItem(
+        value: 'export',
+        leading: const Icon(Icons.file_upload),
+        title: Text(l10n.exportChat),
+      ),
+      AdaptiveActionDrawerItem(
+        value: 'delete',
+        leading: const Icon(Icons.delete_outline),
+        title: Text(l10n.delete),
+        destructive: true,
+      ),
+    ],
   );
   if (selected == null || !context.mounted) return;
   await _handleCharacterAction(context, ref, character, selected);
@@ -726,12 +703,13 @@ class _CharacterListTile extends ConsumerWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        IconButton(
+                        AdaptiveActionMenuButton<String>(
                           icon: const Icon(
                             Icons.more_vert,
                             size: ChromeControls.menuIconSize,
                           ),
                           tooltip: l10n.moreOptions,
+                          title: character.name,
                           visualDensity: VisualDensity.compact,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(
@@ -741,10 +719,34 @@ class _CharacterListTile extends ConsumerWidget {
                           style: IconButton.styleFrom(
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          onPressed: () => _showCharacterActionMenu(
+                          itemBuilder: (context) => [
+                            AdaptiveActionDrawerItem(
+                              value: 'chat',
+                              leading: const Icon(Icons.chat),
+                              title: Text(l10n.startChat),
+                            ),
+                            AdaptiveActionDrawerItem(
+                              value: 'edit',
+                              leading: const Icon(Icons.edit),
+                              title: Text(l10n.edit),
+                            ),
+                            AdaptiveActionDrawerItem(
+                              value: 'export',
+                              leading: const Icon(Icons.file_upload),
+                              title: Text(l10n.exportChat),
+                            ),
+                            AdaptiveActionDrawerItem(
+                              value: 'delete',
+                              leading: const Icon(Icons.delete_outline),
+                              title: Text(l10n.delete),
+                              destructive: true,
+                            ),
+                          ],
+                          onSelected: (value) => _handleCharacterAction(
                             context,
                             ref,
                             character,
+                            value,
                           ),
                         ),
                       ],

@@ -6,7 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:native_tavern/core/utils/share_utils.dart';
 import 'package:native_tavern/data/models/prompt_manager.dart';
 import 'package:native_tavern/presentation/providers/prompt_manager_providers.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -26,83 +26,62 @@ class PromptManagerScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.promptManager),
         actions: [
-          AdaptivePopupMenuButton<String>(
+          AdaptiveActionMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             tooltip: AppLocalizations.of(context)!.moreOptions,
             onSelected: (value) {
               switch (value) {
                 case 'presets':
                   _showPresetsDialog(context, ref, allPresets);
-                  break;
                 case 'import':
                   _importPreset(context, ref);
-                  break;
                 case 'export':
                   _exportPreset(context, ref);
-                  break;
                 case 'save':
                   _saveAsPreset(context, ref);
-                  break;
                 case 'reset':
                   _showResetConfirmation(context, ref);
-                  break;
                 case 'help':
                   _showHelpDialog(context);
-                  break;
               }
             },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'presets',
-                child: ListTile(
+            itemBuilder: (context) {
+              final l10n = AppLocalizations.of(context)!;
+              return [
+                AdaptiveActionDrawerItem(
+                  value: 'presets',
                   leading: const Icon(Icons.list),
-                  title: Text(AppLocalizations.of(context)!.loadPreset),
-                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.loadPreset),
                 ),
-              ),
-              PopupMenuItem(
-                value: 'save',
-                child: ListTile(
+                AdaptiveActionDrawerItem(
+                  value: 'save',
                   leading: const Icon(Icons.save),
-                  title: Text(AppLocalizations.of(context)!.saveAsPresetLabel),
-                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.saveAsPresetLabel),
                 ),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'import',
-                child: ListTile(
+                AdaptiveActionDrawerItem(
+                  value: 'import',
                   leading: const Icon(Icons.file_download),
-                  title: Text(AppLocalizations.of(context)!.importPresetLabel),
-                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.importPresetLabel),
+                  showDividerAbove: true,
                 ),
-              ),
-              PopupMenuItem(
-                value: 'export',
-                child: ListTile(
+                AdaptiveActionDrawerItem(
+                  value: 'export',
                   leading: const Icon(Icons.file_upload),
-                  title: Text(AppLocalizations.of(context)!.exportPreset),
-                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.exportPreset),
                 ),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'reset',
-                child: ListTile(
+                AdaptiveActionDrawerItem(
+                  value: 'reset',
                   leading: const Icon(Icons.restore),
-                  title: Text(AppLocalizations.of(context)!.resetToDefault),
-                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.resetToDefault),
+                  showDividerAbove: true,
                 ),
-              ),
-              PopupMenuItem(
-                value: 'help',
-                child: ListTile(
+                AdaptiveActionDrawerItem(
+                  value: 'help',
                   leading: const Icon(Icons.help_outline),
-                  title: Text(AppLocalizations.of(context)!.help),
-                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.help),
                 ),
-              ),
-            ],
+              ];
+            },
           ),
         ],
       ),

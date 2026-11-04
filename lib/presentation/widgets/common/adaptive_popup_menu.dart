@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
-/// Keeps overflow actions anchored to their trigger on every platform.
+/// Compact value-picker popup anchored to its trigger.
+///
+/// Use this for sort / enum / format selection. For action lists (edit /
+/// delete / import / export), use [showAdaptiveActionDrawer] /
+/// [AdaptiveActionMenuButton] instead.
 ///
 /// Flutter 3.44.9 or newer is required because older releases could interpret
 /// an iPadOS top-bar tap twice and immediately dismiss the opened menu.
-///
-/// Menu rows use a shared compact [ListTile] density so AppBar / overflow
-/// menus look the same height everywhere.
 class AdaptivePopupMenuButton<T> extends StatelessWidget {
   const AdaptivePopupMenuButton({
     super.key,

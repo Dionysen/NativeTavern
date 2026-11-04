@@ -12,7 +12,7 @@ import 'package:native_tavern/presentation/widgets/common/character_avatar_image
 import 'package:native_tavern/presentation/widgets/common/group_avatar.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 
 /// Groups list screen
 class GroupsScreen extends ConsumerWidget {
@@ -164,34 +164,30 @@ class _GroupCard extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  AdaptivePopupMenuButton<String>(
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'chat',
-                        child: ListTile(
+                  AdaptiveActionMenuButton<String>(
+                    title: group.name,
+                    itemBuilder: (context) {
+                      final l10n = AppLocalizations.of(context)!;
+                      return [
+                        AdaptiveActionDrawerItem(
+                          value: 'chat',
                           leading: const Icon(Icons.chat),
-                          title: Text(AppLocalizations.of(context)!.startChat),
-                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.startChat),
                         ),
-                      ),
-                      PopupMenuItem(
-                        value: 'edit',
-                        child: ListTile(
+                        AdaptiveActionDrawerItem(
+                          value: 'edit',
                           leading: const Icon(Icons.edit),
-                          title: Text(AppLocalizations.of(context)!.edit),
-                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.edit),
                         ),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: ListTile(
-                          leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(AppLocalizations.of(context)!.delete,
-                              style: const TextStyle(color: Colors.red)),
-                          contentPadding: EdgeInsets.zero,
+                        AdaptiveActionDrawerItem(
+                          value: 'delete',
+                          leading: const Icon(Icons.delete),
+                          title: Text(l10n.delete),
+                          destructive: true,
+                          showDividerAbove: true,
                         ),
-                      ),
-                    ],
+                      ];
+                    },
                     onSelected: (value) {
                       switch (value) {
                         case 'chat':
