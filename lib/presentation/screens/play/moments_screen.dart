@@ -500,46 +500,19 @@ class _CommentButton extends ConsumerWidget {
     WidgetRef ref,
     AppLocalizations l10n,
   ) async {
-    final controller = TextEditingController();
-    final submitted = await showModalBottomSheet<bool>(
+    final body = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: palette.cell,
-      builder: (sheetContext) {
-        return Padding(
-          padding: EdgeInsets.fromLTRB(
-            12,
-            10,
-            12,
-            10 + MediaQuery.viewInsetsOf(sheetContext).bottom,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  key: const Key('moment-comment-body'),
-                  controller: controller,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    hintText: l10n.momentsComment,
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              TextButton(
-                onPressed: () => Navigator.pop(sheetContext, true),
-                child: Text(l10n.send),
-              ),
-            ],
-          ),
-        );
-      },
+      builder: (sheetContext) => _MomentCommentComposerSheet(
+        fieldKey: const Key('moment-comment-body'),
+        hintText: l10n.momentsComment,
+        sendLabel: l10n.send,
+        backgroundColor: palette.cell,
+      ),
     );
-    final body = controller.text.trim();
-    controller.dispose();
-    if (submitted != true || body.isEmpty) return;
+    if (body == null || body.isEmpty) return;
     final comment = await ref.read(momentServiceProvider).comment(
           postId: post.id,
           body: body,
@@ -635,41 +608,19 @@ class _CommentLine extends StatelessWidget {
   }
 
   Future<void> _reply(BuildContext context) async {
-    final controller = TextEditingController();
-    final submit = await showModalBottomSheet<bool>(
+    final l10n = AppLocalizations.of(context);
+    final body = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
-      builder: (sheetContext) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          12,
-          10,
-          12,
-          10 + MediaQuery.viewInsetsOf(sheetContext).bottom,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                autofocus: true,
-                decoration: InputDecoration(
-                  isDense: true,
-                  hintText: 'Reply to ${comment.authorName}',
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(sheetContext, true),
-              child: const Text('Send'),
-            ),
-          ],
-        ),
+      useSafeArea: true,
+      backgroundColor: palette.cell,
+      builder: (sheetContext) => _MomentCommentComposerSheet(
+        hintText: 'Reply to ${comment.authorName}',
+        sendLabel: l10n.send,
+        backgroundColor: palette.cell,
       ),
     );
-    final body = controller.text.trim();
-    controller.dispose();
-    if (submit != true || body.isEmpty || !context.mounted) return;
+    if (body == null || body.isEmpty || !context.mounted) return;
     await ProviderScope.containerOf(context, listen: false)
         .read(momentServiceProvider)
         .reply(postId: postId, parentCommentId: comment.id, body: body);
@@ -698,6 +649,100 @@ class _CommentLine extends StatelessWidget {
         .read(momentServiceProvider)
         .deleteComment(comment.id, authorId: MomentService.userAuthorId);
     onChanged();
+  }
+}
+
+/// Owns the [TextEditingController] for the sheet lifetime so dispose does not
+/// race the closing animation (avoids `_dependents.isEmpty` crashes).
+class _MomentCommentComposerSheet extends StatefulWidget {
+  const _MomentCommentComposerSheet({
+    this.fieldKey,
+    required this.hintText,
+    required this.sendLabel,
+    required this.backgroundColor,
+  });
+
+  final Key? fieldKey;
+  final String hintText;
+  final String sendLabel;
+  final Color backgroundColor;
+
+  @override
+  State<_MomentCommentComposerSheet> createState() =>
+      _MomentCommentComposerSheetState();
+}
+
+class _MomentCommentComposerSheetState
+    extends State<_MomentCommentComposerSheet> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    Navigator.pop(context, _controller.text.trim());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final scheme = Theme.of(context).colorScheme;
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: Material(
+        color: widget.backgroundColor,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: TextField(
+                    key: widget.fieldKey,
+                    controller: _controller,
+                    autofocus: true,
+                    minLines: 1,
+                    maxLines: 4,
+                    textInputAction: TextInputAction.newline,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: widget.hintText,
+                      filled: true,
+                      fillColor: scheme.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: _submit,
+                  child: Text(widget.sendLabel),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -863,16 +908,27 @@ class _SquareAvatar extends StatelessWidget {
     } else {
       child = _Initial(initial);
     }
-    return Container(
+    // Border and clip must be separate layers or rounded corners look broken.
+    final borderWidth = border is Border ? border!.top.width : 0.0;
+    return SizedBox(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius),
-        border: border,
-        color: const Color(0xFFB7C4D6),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(radius),
+          border: border,
+          color: const Color(0xFFB7C4D6),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(borderWidth),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(
+              (radius - borderWidth).clamp(0, radius),
+            ),
+            child: child,
+          ),
+        ),
       ),
-      clipBehavior: Clip.antiAlias,
-      child: child,
     );
   }
 }

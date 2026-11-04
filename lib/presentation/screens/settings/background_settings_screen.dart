@@ -488,26 +488,35 @@ class _BackgroundSettingsScreenState
           itemBuilder: (context, index) {
             final image = visibleImages[index];
             final isActive = _currentBackground.imagePath == image.path;
+            final borderWidth = isActive ? 2.0 : 0.0;
             return GestureDetector(
               onTap: () => _applyGalleryImage(image),
               onLongPress: () => _showGalleryImageOptions(image),
-              child: Container(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   border: isActive
-                      ? Border.all(color: AppTheme.accentColor, width: 2)
+                      ? Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: borderWidth,
+                        )
                       : null,
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    File(image.path),
-                    fit: BoxFit.cover,
-                    cacheWidth: 300,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: AppTheme.darkCard,
-                      child: const Icon(Icons.broken_image,
-                          color: AppTheme.textMuted),
+                child: Padding(
+                  padding: EdgeInsets.all(borderWidth),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      (8 - borderWidth).clamp(0, 8),
+                    ),
+                    child: Image.file(
+                      File(image.path),
+                      fit: BoxFit.cover,
+                      cacheWidth: 300,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: AppTheme.darkCard,
+                        child: const Icon(Icons.broken_image,
+                            color: AppTheme.textMuted),
+                      ),
                     ),
                   ),
                 ),

@@ -215,19 +215,36 @@ class BackgroundPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    const radius = 8.0;
+    final borderWidth = selected ? 3.0 : 1.0;
+    // Keep border and clip on separate layers — clipping the same box that
+    // paints the border leaves gaps at rounded corners.
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: SizedBox(
         width: size,
         height: size,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: selected
-              ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
-              : Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(radius),
+            border: Border.all(
+              color: selected
+                  ? scheme.primary
+                  : scheme.outline.withValues(alpha: 0.35),
+              width: borderWidth,
+            ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(borderWidth),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(
+                (radius - borderWidth).clamp(0, radius),
+              ),
+              child: _buildPreview(),
+            ),
+          ),
         ),
-        clipBehavior: Clip.antiAlias,
-        child: _buildPreview(),
       ),
     );
   }
