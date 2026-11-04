@@ -205,19 +205,24 @@ class _CharacterDetailContentState
             expandedHeight: expandedHeight,
             pinned: true,
             stretch: true,
+            // Collapsed toolbar title: AppBar lays this out between leading
+            // and actions, so it never overlaps Live2D / edit / overflow.
+            centerTitle: true,
+            title: _CharacterDetailAppBarTitle(
+              name: character.name,
+              collapsed: true,
+            ),
             flexibleSpace: FlexibleSpaceBar(
               stretchModes: const [
                 StretchMode.zoomBackground,
                 StretchMode.fadeTitle,
               ],
-              title: Text(
-                character.name,
-                style: TextStyle(
-                  color: scheme.onSurface,
-                  shadows: const [
-                    Shadow(color: Colors.black54, blurRadius: 4),
-                  ],
-                ),
+              centerTitle: true,
+              titlePadding: const EdgeInsets.fromLTRB(40, 0, 40, 16),
+              // Expanded hero title: may wrap; fades out as the bar collapses.
+              title: _CharacterDetailAppBarTitle(
+                name: character.name,
+                collapsed: false,
               ),
               background: _buildAvatarBackground(character, scheme),
             ),
@@ -440,11 +445,12 @@ class _CharacterDetailContentState
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: _isCreatingChat ? null : _startChat,
         backgroundColor: scheme.primary,
         foregroundColor: scheme.onPrimary,
-        icon: _isCreatingChat
+        tooltip: l10n.startChat,
+        child: _isCreatingChat
             ? SizedBox(
                 width: 20,
                 height: 20,
@@ -454,7 +460,6 @@ class _CharacterDetailContentState
                 ),
               )
             : const Icon(Icons.chat),
-        label: Text(_isCreatingChat ? l10n.creating : l10n.startChat),
       ),
     );
   }
@@ -470,7 +475,6 @@ class _CharacterDetailContentState
             alignment: Alignment.topCenter,
             errorBuilder: (_, __, ___) => _defaultBackground(scheme),
           ),
-          // Gradient overlay for better text readability
           DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -500,6 +504,64 @@ class _CharacterDetailContentState
         ),
       ),
     );
+  }
+}
+
+/// Character name for the detail [SliverAppBar].
+///
+/// [collapsed] true → single-line toolbar title (opacity rises as the bar
+/// pins). false → expanded FlexibleSpaceBar title that may wrap (opacity
+/// falls as the bar pins).
+class _CharacterDetailAppBarTitle extends StatelessWidget {
+  const _CharacterDetailAppBarTitle({
+    required this.name,
+    required this.collapsed,
+  });
+
+  final String name;
+  final bool collapsed;
+
+  @override
+  Widget build(BuildContext context) {
+    final settings =
+        context.dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
+    final double t;
+    if (settings == null) {
+      t = collapsed ? 1.0 : 0.0;
+    } else {
+      final delta = settings.maxExtent - settings.minExtent;
+      t = delta <= 0
+          ? 1.0
+          : (1.0 - (settings.currentExtent - settings.minExtent) / delta)
+              .clamp(0.0, 1.0);
+    }
+
+    // Cross-fade once the bar is mostly pinned so the expanded wrap title
+    // does not linger inside the toolbar row.
+    final pinnedFade =
+        const Interval(0.55, 1.0, curve: Curves.easeInOut).transform(t);
+    final opacity = collapsed ? pinnedFade : 1.0 - pinnedFade;
+
+    if (opacity <= 0.0) {
+      return const SizedBox.shrink();
+    }
+
+    final scheme = Theme.of(context).colorScheme;
+    final text = Text(
+      name,
+      maxLines: collapsed ? 1 : 2,
+      overflow: TextOverflow.ellipsis,
+      softWrap: !collapsed,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        color: scheme.onSurface,
+        shadows: collapsed
+            ? null
+            : const [Shadow(color: Colors.black54, blurRadius: 4)],
+      ),
+    );
+
+    return Opacity(opacity: opacity, child: text);
   }
 }
 
