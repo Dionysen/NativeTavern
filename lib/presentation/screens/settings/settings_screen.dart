@@ -34,34 +34,6 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: SettingsPageBody(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.language),
-                    label: Text(l10n.officialWebsite),
-                    onPressed: () => launchUrl(
-                      Uri.parse('https://nativetavern.com'),
-                      mode: LaunchMode.externalApplication,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.forum),
-                    label: const Text('Discord'),
-                    onPressed: () => launchUrl(
-                      Uri.parse('https://discord.com/invite/URQvW2FvZa'),
-                      mode: LaunchMode.externalApplication,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           SettingsSection(
             icon: Icons.person_outline,
             title: l10n.user,
@@ -282,6 +254,24 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   );
                 },
+              ),
+              SettingsValueTile(
+                icon: Icons.language,
+                title: l10n.officialWebsite,
+                valueText: '',
+                onTap: () => launchUrl(
+                  Uri.parse('https://nativetavern.com'),
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
+              SettingsValueTile(
+                icon: Icons.forum,
+                title: 'Discord',
+                valueText: '',
+                onTap: () => launchUrl(
+                  Uri.parse('https://discord.com/invite/URQvW2FvZa'),
+                  mode: LaunchMode.externalApplication,
+                ),
               ),
               SettingsListTile(
                 icon: Icons.description,
