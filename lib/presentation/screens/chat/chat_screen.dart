@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -44,6 +45,7 @@ import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/chat/author_note_dialog.dart';
 import 'package:native_tavern/presentation/widgets/chat/bookmark_dialog.dart';
+import 'package:native_tavern/presentation/widgets/chat/chat_tail_scroll.dart';
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
 import 'package:native_tavern/presentation/widgets/chat/chat_background_widget.dart';
 import 'package:native_tavern/presentation/widgets/chat/chat_voice_input_button.dart';
@@ -99,8 +101,10 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   static final Object _importRpg = Object();
+  static const double _followSlop = 72.0;
   final TextEditingController _messageController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
+  final ChatTailScrollController _scrollController =
+      ChatTailScrollController(reverse: true);
   final FocusNode _focusNode = FocusNode();
   bool _showSlashSuggestions = false;
   bool _showInputMenu = false;
@@ -117,10 +121,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _initialMessageJumpScheduled = false;
   String? _highlightedMessageId;
 
+  /// Finger is dragging the list; blocks tail anchoring (Zephyr AI chat).
+  bool _userInteractingWithScroll = false;
+
   @override
   void initState() {
     super.initState();
     _stopTts = ref.read(ttsStopProvider);
+    _scrollController.followTail = () => !_userInteractingWithScroll;
     // Load chat and bookmarks when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -236,10 +244,40 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.dispose();
   }
 
-  /// Scroll to bottom with animation (for new messages)
-  /// With reverse: true ListView, position 0 is the bottom (newest messages)
-  void _scrollToBottom() {
+  bool _isNearListBottom() {
+    if (!_scrollController.hasClients) return true;
+    final position = _scrollController.position;
+    // reverse: true → visual bottom is minScrollExtent (typically 0).
+    return position.pixels <= position.minScrollExtent + _followSlop;
+  }
+
+  bool _canPinStreamTail({bool force = false}) {
+    if (force) return true;
+    if (_userInteractingWithScroll) return false;
+    return _isNearListBottom();
+  }
+
+  void _handleListScrollNotification(ScrollNotification notification) {
+    if (notification.depth != 0) return;
+    if (notification is ScrollStartNotification &&
+        notification.dragDetails != null) {
+      _userInteractingWithScroll = true;
+    } else if (notification is UserScrollNotification) {
+      _userInteractingWithScroll =
+          notification.direction != ScrollDirection.idle;
+    } else if (notification is ScrollEndNotification) {
+      _userInteractingWithScroll = false;
+    }
+  }
+
+  /// Scroll to bottom with animation (for new messages).
+  ///
+  /// With reverse: true ListView, position 0 is the bottom (newest messages).
+  /// Pass [force] for user-initiated actions (send / import); otherwise only
+  /// follows when the viewport is already near the bottom (Zephyr-style).
+  void _scrollToBottom({bool force = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_canPinStreamTail(force: force)) return;
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           0, // With reverse: true, position 0 is the bottom
@@ -250,10 +288,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
   }
 
-  /// Scroll to bottom immediately without animation (for initial load)
-  /// With reverse: true ListView, position 0 is the bottom (newest messages)
-  void _scrollToBottomImmediate() {
+  /// Scroll to bottom immediately without animation (for initial load).
+  /// With reverse: true ListView, position 0 is the bottom (newest messages).
+  void _scrollToBottomImmediate({bool force = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_canPinStreamTail(force: force)) return;
       if (_scrollController.hasClients) {
         _scrollController.jumpTo(
           0,
@@ -420,7 +459,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     await ref
         .read(activeChatProvider.notifier)
         .sendMessage(content, config, attachments: attachments);
-    _scrollToBottom();
+    _scrollToBottom(force: true);
   }
 
   Future<void> _toggleRpgMode() async {
@@ -563,7 +602,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _focusNode.unfocus();
 
       await ref.read(activeChatProvider.notifier).sendMessage(input, config);
-      _scrollToBottom();
+      _scrollToBottom(force: true);
       return;
     }
 
@@ -597,7 +636,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           return;
         }
         await chatNotifier.continueGeneration(config);
-        _scrollToBottom();
+        _scrollToBottom(force: true);
         break;
 
       case 'regenerate':
@@ -606,7 +645,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           return;
         }
         await chatNotifier.regenerateLastMessage(config);
-        _scrollToBottom();
+        _scrollToBottom(force: true);
         break;
 
       case 'swipe':
@@ -737,7 +776,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             attachments: attachments,
           );
       _showSnackBar('${l10n.generationComplete} (${attachments.length})');
-      _scrollToBottom();
+      _scrollToBottom(force: true);
     } catch (error) {
       _showCommandError(l10n.failedToSaveImage('$error'));
     }
@@ -1005,7 +1044,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     await ref.read(ttsStopProvider)(ownerId: widget.chatId);
     await ref.read(activeChatProvider.notifier).regenerateLastMessage(config);
-    _scrollToBottom();
+    _scrollToBottom(force: true);
   }
 
   void _handleChatTTSChange(ActiveChatState? previous, ActiveChatState next) {
@@ -1056,7 +1095,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           next.isLoading == false &&
           next.messages.isNotEmpty;
 
-      if ((messageCountChanged && !olderMessagesLoaded) || loadingFinished) {
+      if (loadingFinished) {
+        _scrollToBottomImmediate(force: true);
+      } else if (messageCountChanged && !olderMessagesLoaded) {
+        // Soft pin: follow only when already near bottom / not dragging.
         _scrollToBottomImmediate();
       }
       _handleChatTTSChange(previous, next);
@@ -1956,6 +1998,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
+        _handleListScrollNotification(notification);
         if (notification.depth != 0 ||
             notification.metrics.axis != Axis.vertical ||
             !chatState.hasOlderMessages ||
@@ -1975,6 +2018,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         controller: _scrollController,
         reverse:
             true, // Build from bottom up - newest messages at bottom, always visible
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: ClampingScrollPhysics(),
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: chatState.messages.length +
             (chatState.hasOlderMessages || chatState.isLoadingOlderMessages
@@ -2144,7 +2190,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             attachments: attachments,
           );
       _showSnackBar('${l10n.generationComplete} (${attachments.length})');
-      _scrollToBottom();
+      _scrollToBottom(force: true);
     } catch (error) {
       _showCommandError(l10n.failedToSaveImage('$error'));
     }
@@ -2304,12 +2350,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       // Empty message means "continue" - just generate without user message
       _focusNode.unfocus(); // Hide keyboard
       ref.read(activeChatProvider.notifier).continueGeneration(config);
-      _scrollToBottom();
+      _scrollToBottom(force: true);
     } else if (autoSend) {
       // Auto-send: send the message immediately
       _focusNode.unfocus(); // Hide keyboard
       ref.read(activeChatProvider.notifier).sendMessage(message, config);
-      _scrollToBottom();
+      _scrollToBottom(force: true);
     } else {
       // Fill input field
       _messageController.text = message;
@@ -3203,7 +3249,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
 
       _showSnackBar(l10n.importedMessages(importedCount));
-      _scrollToBottom();
+      _scrollToBottom(force: true);
     } catch (e) {
       _showSnackBar(l10n.importFailed(e.toString()));
     }
