@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:native_tavern/presentation/widgets/chat/dialogue_quote_style.dart';
 
@@ -34,6 +35,33 @@ void main() {
         dialogueQuoteColor(scheme, isUser: true),
         isNot(scheme.onPrimaryContainer),
       );
+    });
+  });
+
+  group('DialogueQuoteBuilder', () {
+    testWidgets('renders quoted dialogue without null-check crash',
+        (tester) async {
+      // Adjacent plain text + quoted dialogue forces flutter_markdown to merge
+      // inline Text widgets via textSpan!; Text(data) would throw here.
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: MarkdownBody(
+              data: 'She smiled. "Hello there!" Then she waved.',
+              inlineSyntaxes: [DialogueQuoteSyntax()],
+              builders: {
+                'dialogue': DialogueQuoteBuilder(
+                  const TextStyle(color: Colors.amber),
+                ),
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.textContaining('Hello there!', findRichText: true),
+          findsOneWidget);
     });
   });
 }

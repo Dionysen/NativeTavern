@@ -39,9 +39,14 @@ class DialogueQuoteBuilder extends MarkdownElementBuilder {
 
   @override
   Widget? visitElementAfter(md.Element element, TextStyle? preferredStyle) {
-    return Text(
-      element.textContent,
-      style: (preferredStyle ?? const TextStyle()).merge(style),
+    // Must use Text.rich so textSpan is non-null. flutter_markdown's
+    // _mergeInlineChildren does `last.textSpan!` when combining adjacent
+    // inline widgets; Text(data) leaves textSpan null and crashes.
+    return Text.rich(
+      TextSpan(
+        text: element.textContent,
+        style: (preferredStyle ?? const TextStyle()).merge(style),
+      ),
     );
   }
 }
