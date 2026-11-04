@@ -1,10 +1,10 @@
 # Voice Integration Device Gate
 
 This gate covers the device-only behavior that cannot be proven by Dart tests.
-Run it when the iOS or Android runner is assembled for a release. The current
-repository does not contain committed `ios/`, `android/`, or `macos/` runner
-directories, so platform manifests are intentionally not added by the voice
-feature change.
+Run it when the iOS or Android runner is assembled for a release. Platform
+runners for Android, iOS, macOS, Linux, and Windows are committed in-repo;
+verify the voice-related manifest and entitlement declarations below against
+those checked-in files.
 
 ## Required platform declarations
 

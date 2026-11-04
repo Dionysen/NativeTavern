@@ -65,9 +65,11 @@ FINAL_AAB="release/NativeTavern_v${VERSION}_Android.aab"
 echo "Cleaning previous Flutter build output..."
 flutter clean
 
-echo "Generating Android platform files..."
-flutter create --platforms=android --org com.miaomiaoxworld .
-restore_flutter_state
+if [ ! -f "android/app/src/main/AndroidManifest.xml" ]; then
+    echo "Committed Android runner missing; generating platform files..."
+    flutter create --platforms=android --org com.miaomiaoxworld .
+    restore_flutter_state
+fi
 
 echo "Restoring committed Flutter dependencies..."
 flutter pub get --offline

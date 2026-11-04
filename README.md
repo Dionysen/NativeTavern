@@ -238,8 +238,11 @@ native_tavern/
 │       ├── png_parser.rs  # PNG 角色卡片解析
 │       ├── charx_parser.rs # CharX 归档处理
 │       └── models.rs      # 数据模型
-├── ios/                    # iOS 平台代码
 ├── android/                # Android 平台代码
+├── ios/                    # iOS 平台代码
+├── macos/                  # macOS 平台代码
+├── linux/                  # Linux 平台代码
+├── windows/                # Windows 平台代码
 └── plans/                  # 架构文档
 ```
 
@@ -249,8 +252,9 @@ native_tavern/
 
 - Flutter SDK >= 3.16.0
 - Rust 工具链（用于原生核心）
-- Xcode（用于 iOS 开发）
+- Xcode（用于 iOS / macOS 开发）
 - Android Studio（用于 Android 开发）
+- Linux / Windows 桌面构建所需的 Flutter 桌面依赖
 
 ### 安装
 

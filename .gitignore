@@ -43,27 +43,19 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-ios
-# Keep the custom Flutter host and its storyboard reproducible in fresh clones.
-!/ios/
-/ios/*
-!/ios/Runner/
-/ios/Runner/*
-!/ios/Runner/AppDelegate.swift
-!/ios/Runner/Info.plist
-!/ios/Runner/NativeTavernViewController.h
-!/ios/Runner/NativeTavernViewController.m
-!/ios/Runner/Base.lproj/
-/ios/Runner/Base.lproj/*
-!/ios/Runner/Base.lproj/Main.storyboard
+
+# Temporary iOS assemble dirs used by packaging helpers
 ios_*
-android
+
+# Web is intentionally not a supported product target yet
 web
+
+# Live2D Cubism proprietary bits stay local
 !packages/native_tavern_live2d_macos/macos/
 !packages/native_tavern_live2d_macos/macos/**
 packages/native_tavern_live2d_macos/macos/CubismCore/
-linux
-windows
+
+# Keep spine_flutter_4_1_compat platform overlays trackable
 !packages/spine_flutter_4_1_compat/android/
 !packages/spine_flutter_4_1_compat/android/**
 !packages/spine_flutter_4_1_compat/ios/
@@ -74,11 +66,13 @@ windows
 !packages/spine_flutter_4_1_compat/macos/**
 !packages/spine_flutter_4_1_compat/windows/
 !packages/spine_flutter_4_1_compat/windows/**
+
 release
 .env
 build_*
 !build_ios.sh
 !build_android.sh
+!build_macos.sh
 !tool/build_android_release.dart
 resize_app_store_images.py
 config
