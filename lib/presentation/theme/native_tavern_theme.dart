@@ -285,6 +285,9 @@ ThemeData buildNativeTavernTheme(
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: primaryText,
+        // Idle fill so outlined actions still read as tappable chips.
+        backgroundColor: control,
+        disabledBackgroundColor: control.withValues(alpha: 0.45),
         iconSize: ChromeControls.iconSize,
         shape: shape.labeledButtonShape.copyWith(side: hairline),
         side: hairline,

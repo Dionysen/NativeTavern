@@ -241,7 +241,7 @@ class BackgroundPreview extends StatelessWidget {
               borderRadius: BorderRadius.circular(
                 (radius - borderWidth).clamp(0, radius),
               ),
-              child: _buildPreview(),
+              child: _buildPreview(scheme),
             ),
           ),
         ),
@@ -249,13 +249,13 @@ class BackgroundPreview extends StatelessWidget {
     );
   }
 
-  Widget _buildPreview() {
+  Widget _buildPreview(ColorScheme scheme) {
     switch (background.type) {
       case BackgroundType.none:
-        return Container(
-          color: Colors.grey[900],
-          child: const Center(
-            child: Icon(Icons.block, color: Colors.grey),
+        return ColoredBox(
+          color: scheme.surfaceContainerHigh,
+          child: Center(
+            child: Icon(Icons.block, color: scheme.onSurfaceVariant),
           ),
         );
 
