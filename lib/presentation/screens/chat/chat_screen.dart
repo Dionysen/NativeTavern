@@ -1208,6 +1208,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   AppBar _buildAppBar(ActiveChatState chatState) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final hasAuthorNote = chatState.chat?.authorNoteEnabled == true &&
         (chatState.chat?.authorNote.isNotEmpty ?? false);
     final llmConfig = ref.watch(llmConfigProvider);
@@ -1217,6 +1218,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             .valueOrNull
             ?.isNotEmpty ==
         true;
+    final modelColor = chatState.isGenerating
+        ? scheme.onSurfaceVariant.withValues(alpha: 0.55)
+        : scheme.onSurfaceVariant;
 
     return AppBar(
       title: Column(
@@ -1235,25 +1239,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
-                    child: Text(
-                  llmConfig.model.isEmpty ? l10n.selectModel : llmConfig.model,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: chatState.isGenerating
-                        ? AppTheme.textMuted
-                        : AppTheme.accentColor,
+                  child: Text(
+                    llmConfig.model.isEmpty
+                        ? l10n.selectModel
+                        : llmConfig.model,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: modelColor),
                   ),
-                )),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.expand_more,
-                  size: 14,
-                  color: chatState.isGenerating
-                      ? AppTheme.textMuted
-                      : AppTheme.accentColor,
                 ),
+                const SizedBox(width: 4),
+                Icon(Icons.expand_more, size: 14, color: modelColor),
               ],
             ),
           ),
@@ -1283,15 +1279,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 rpgState.enabled ? l10n.rpgDisableMode : l10n.rpgEnableMode,
             onPressed: rpgState.isLoading ? null : _toggleRpgMode,
           ),
-        // Author's Note button
-        IconButton(
-          icon: Icon(
-            Icons.note_alt_outlined,
-            color: hasAuthorNote ? AppTheme.accentColor : null,
-          ),
-          tooltip: l10n.authorsNote,
-          onPressed: () => showAuthorNoteDialog(context, widget.chatId),
-        ),
         // Bookmarks button
         IconButton(
           icon: const Icon(Icons.bookmark_border),
