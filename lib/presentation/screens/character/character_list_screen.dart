@@ -12,7 +12,6 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'character_view_mode.dart';
 
 /// Character list screen
@@ -254,33 +253,6 @@ int _gridColumns(double width, double minimumTileWidth, double spacing) {
   return count;
 }
 
-List<PopupMenuEntry<String>> _characterActionMenuItems(AppLocalizations l10n) {
-  return [
-    adaptivePopupMenuItem(
-      value: 'chat',
-      leading: const Icon(Icons.chat),
-      title: Text(l10n.startChat),
-    ),
-    adaptivePopupMenuItem(
-      value: 'edit',
-      leading: const Icon(Icons.edit),
-      title: Text(l10n.edit),
-    ),
-    adaptivePopupMenuItem(
-      value: 'export',
-      leading: const Icon(Icons.file_upload),
-      title: Text(l10n.exportChat),
-    ),
-    adaptivePopupMenuItem(
-      value: 'delete',
-      leading: const Icon(Icons.delete, color: Colors.red),
-      title: Text(l10n.delete, style: const TextStyle(color: Colors.red)),
-      titleColor: Colors.red,
-      iconColor: Colors.red,
-    ),
-  ];
-}
-
 Future<void> _handleCharacterAction(
   BuildContext context,
   WidgetRef ref,
@@ -304,34 +276,59 @@ Future<void> _handleCharacterAction(
 Future<void> _showCharacterActionMenu(
   BuildContext context,
   WidgetRef ref,
-  Character character, {
-  Offset? globalPosition,
-}) async {
+  Character character,
+) async {
   final l10n = AppLocalizations.of(context);
-  final overlay = Overlay.of(context).context.findRenderObject()! as RenderBox;
-  final theme = Theme.of(context);
-
-  final Offset anchor;
-  if (globalPosition != null) {
-    anchor = globalPosition;
-  } else {
-    final box = context.findRenderObject() as RenderBox?;
-    anchor = box != null
-        ? box.localToGlobal(box.size.center(Offset.zero))
-        : Offset(overlay.size.width / 2, overlay.size.height / 2);
-  }
-
-  final selected = await showMenu<String>(
+  final scheme = Theme.of(context).colorScheme;
+  final selected = await showModalBottomSheet<String>(
     context: context,
-    position: RelativeRect.fromRect(
-      Rect.fromLTWH(anchor.dx, anchor.dy, 0, 0),
-      Offset.zero & overlay.size,
+    showDragHandle: true,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(context.appCornerRadius + 4),
+      ),
     ),
-    items: _characterActionMenuItems(l10n),
-    shape: ChromeControls.menuShapeFor(
-      theme.extension<AppShapeTheme>()?.cornerRadius ??
-          ChromeControls.defaultCornerRadius,
-    ),
+    builder: (sheetContext) {
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  character.name,
+                  style: Theme.of(sheetContext).textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.chat, color: scheme.onSurfaceVariant),
+              title: Text(l10n.startChat),
+              onTap: () => Navigator.pop(sheetContext, 'chat'),
+            ),
+            ListTile(
+              leading: Icon(Icons.edit, color: scheme.onSurfaceVariant),
+              title: Text(l10n.edit),
+              onTap: () => Navigator.pop(sheetContext, 'edit'),
+            ),
+            ListTile(
+              leading: Icon(Icons.file_upload, color: scheme.onSurfaceVariant),
+              title: Text(l10n.exportChat),
+              onTap: () => Navigator.pop(sheetContext, 'export'),
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_outline, color: scheme.error),
+              title: Text(l10n.delete),
+              onTap: () => Navigator.pop(sheetContext, 'delete'),
+            ),
+          ],
+        ),
+      );
+    },
   );
   if (selected == null || !context.mounted) return;
   await _handleCharacterAction(context, ref, character, selected);
@@ -454,11 +451,10 @@ class _CharacterGridCard extends ConsumerWidget {
           ref,
           character,
         ),
-        onSecondaryTapDown: (details) => _showCharacterActionMenu(
+        onSecondaryTap: () => _showCharacterActionMenu(
           context,
           ref,
           character,
-          globalPosition: details.globalPosition,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -579,11 +575,10 @@ class _CharacterCompactGridCard extends ConsumerWidget {
           ref,
           character,
         ),
-        onSecondaryTapDown: (details) => _showCharacterActionMenu(
+        onSecondaryTap: () => _showCharacterActionMenu(
           context,
           ref,
           character,
-          globalPosition: details.globalPosition,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -746,10 +741,14 @@ class _CharacterListTile extends ConsumerWidget {
             ],
           ],
         ),
-        trailing: AdaptivePopupMenuButton<String>(
-          itemBuilder: (_) => _characterActionMenuItems(l10n),
-          onSelected: (value) =>
-              _handleCharacterAction(context, ref, character, value),
+        trailing: IconButton(
+          icon: const Icon(Icons.more_vert),
+          tooltip: l10n.moreOptions,
+          onPressed: () => _showCharacterActionMenu(
+            context,
+            ref,
+            character,
+          ),
         ),
         onTap: () => context.push('/characters/${character.id}'),
         onLongPress: () => _showCharacterActionMenu(
