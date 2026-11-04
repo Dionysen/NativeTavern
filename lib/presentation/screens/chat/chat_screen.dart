@@ -1555,26 +1555,44 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final character = chatState.character;
     final group = chatState.group;
 
+    Widget avatar;
+    if (group != null) {
+      avatar = const CircleAvatar(
+        radius: 50,
+        child: Icon(Icons.groups, size: 50),
+      );
+    } else if (character?.assets?.avatarPath != null) {
+      avatar = CharacterAvatarCircle(
+        imagePath: character!.assets!.avatarPath!,
+        radius: 50,
+        errorBuilder: (_, __, ___) => const CircleAvatar(
+          radius: 50,
+          child: Icon(Icons.person, size: 50),
+        ),
+      );
+    } else {
+      avatar = const CircleAvatar(
+        radius: 50,
+        child: Icon(Icons.person, size: 50),
+      );
+    }
+
+    final characterId = character?.id;
+    if (group == null && characterId != null && characterId.isNotEmpty) {
+      avatar = Tooltip(
+        message: l10n.viewCharacter,
+        child: GestureDetector(
+          onTap: () => context.push('/characters/$characterId'),
+          child: avatar,
+        ),
+      );
+    }
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (group != null)
-            const CircleAvatar(
-              radius: 50,
-              child: Icon(Icons.groups, size: 50),
-            )
-          else if (character?.assets?.avatarPath != null)
-            CharacterAvatarCircle(
-              imagePath: character!.assets!.avatarPath!,
-              radius: 50,
-              errorBuilder: (_, __, ___) => const CircleAvatar(
-                radius: 50,
-                child: Icon(Icons.person, size: 50),
-              ),
-            )
-          else
-            const CircleAvatar(radius: 50, child: Icon(Icons.person, size: 50)),
+          avatar,
           const SizedBox(height: 16),
           Text(
             group?.name ?? character?.name ?? l10n.chat,
@@ -3506,15 +3524,32 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
   }
 
   Widget _buildAvatar() {
-    if (widget.character?.assets?.avatarPath != null) {
-      return CharacterAvatarCircle(
-        imagePath: widget.character!.assets!.avatarPath!,
-        radius: 16,
-        errorBuilder: (_, __, ___) =>
-            const CircleAvatar(radius: 16, child: Icon(Icons.person, size: 16)),
-      );
-    }
-    return const CircleAvatar(radius: 16, child: Icon(Icons.person, size: 16));
+    final characterId =
+        widget.character?.id ?? widget.message.characterId;
+    final l10n = AppLocalizations.of(context);
+    final avatar = widget.character?.assets?.avatarPath != null
+        ? CharacterAvatarCircle(
+            imagePath: widget.character!.assets!.avatarPath!,
+            radius: 16,
+            errorBuilder: (_, __, ___) => const CircleAvatar(
+              radius: 16,
+              child: Icon(Icons.person, size: 16),
+            ),
+          )
+        : const CircleAvatar(
+            radius: 16,
+            child: Icon(Icons.person, size: 16),
+          );
+
+    if (characterId == null || characterId.isEmpty) return avatar;
+
+    return Tooltip(
+      message: l10n.viewCharacter,
+      child: GestureDetector(
+        onTap: () => context.push('/characters/$characterId'),
+        child: avatar,
+      ),
+    );
   }
 
   /// Build the reasoning/thinking section for AI messages

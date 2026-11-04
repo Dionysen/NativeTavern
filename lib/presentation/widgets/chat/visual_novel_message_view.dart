@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:native_tavern/data/models/chat.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/regex_script.dart';
@@ -307,31 +308,47 @@ class _VisualNovelMessageViewState
   Widget _buildSpeakerHeader(ChatMessage message, bool isUser) {
     final character =
         widget.characterForMessage?.call(message) ?? widget.character;
+    final characterId = character?.id ?? message.characterId;
+    final l10n = AppLocalizations.of(context);
+
+    Widget avatar;
+    if (!isUser && character?.assets?.avatarPath != null) {
+      avatar = CharacterAvatarCircle(
+        imagePath: character!.assets!.avatarPath!,
+        radius: 18,
+        errorBuilder: (_, __, ___) => CircleAvatar(
+          radius: 18,
+          backgroundColor: AppTheme.accentColor.withValues(alpha: 0.3),
+          child: const Icon(Icons.person, size: 18, color: Colors.white),
+        ),
+      );
+    } else {
+      avatar = CircleAvatar(
+        radius: 18,
+        backgroundColor: isUser
+            ? AppTheme.accentColor.withValues(alpha: 0.5)
+            : AppTheme.accentColor.withValues(alpha: 0.3),
+        child: Icon(
+          isUser ? Icons.person : Icons.smart_toy,
+          size: 18,
+          color: Colors.white,
+        ),
+      );
+    }
+
+    if (!isUser && characterId != null && characterId.isNotEmpty) {
+      avatar = Tooltip(
+        message: l10n.viewCharacter,
+        child: GestureDetector(
+          onTap: () => context.push('/characters/$characterId'),
+          child: avatar,
+        ),
+      );
+    }
+
     return Row(
       children: [
-        // Avatar
-        if (!isUser && character?.assets?.avatarPath != null)
-          CharacterAvatarCircle(
-            imagePath: character!.assets!.avatarPath!,
-            radius: 18,
-            errorBuilder: (_, __, ___) => CircleAvatar(
-              radius: 18,
-              backgroundColor: AppTheme.accentColor.withValues(alpha: 0.3),
-              child: const Icon(Icons.person, size: 18, color: Colors.white),
-            ),
-          )
-        else
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: isUser
-                ? AppTheme.accentColor.withValues(alpha: 0.5)
-                : AppTheme.accentColor.withValues(alpha: 0.3),
-            child: Icon(
-              isUser ? Icons.person : Icons.smart_toy,
-              size: 18,
-              color: Colors.white,
-            ),
-          ),
+        avatar,
         const SizedBox(width: 10),
         // Name
         Text(
