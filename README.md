@@ -211,7 +211,6 @@
 | 状态管理 | Riverpod |
 | 导航 | go_router |
 | 数据库 | SQLite (drift) |
-| 原生核心 | Rust (通过 FFI) |
 | HTTP客户端 | Dio |
 
 ## 项目结构
@@ -233,11 +232,6 @@ native_tavern/
 │       ├── screens/       # 应用界面
 │       ├── widgets/       # 可复用组件
 │       └── theme/         # 主题配置
-├── rust/                   # Rust 原生核心
-│   └── src/
-│       ├── png_parser.rs  # PNG 角色卡片解析
-│       ├── charx_parser.rs # CharX 归档处理
-│       └── models.rs      # 数据模型
 ├── android/                # Android 平台代码
 ├── ios/                    # iOS 平台代码
 ├── macos/                  # macOS 平台代码
@@ -251,7 +245,6 @@ native_tavern/
 ### 前置要求
 
 - Flutter SDK >= 3.16.0
-- Rust 工具链（用于原生核心）
 - Xcode（用于 iOS / macOS 开发）
 - Android Studio（用于 Android 开发）
 - Linux / Windows 桌面构建所需的 Flutter 桌面依赖
@@ -269,13 +262,7 @@ native_tavern/
    flutter pub get
    ```
 
-3. **构建 Rust 核心**（可选，用于原生功能）
-   ```bash
-   cd rust
-   cargo build --release
-   ```
-
-4. **运行应用**
+3. **运行应用**
    ```bash
    flutter run
    ```

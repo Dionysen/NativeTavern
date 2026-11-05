@@ -238,7 +238,6 @@ A native cross-platform mobile application (iOS/Android) that reimplements Silly
 | State Management | Riverpod |
 | Navigation | go_router |
 | Database | SQLite (drift) |
-| Native Core | Rust (via FFI) |
 | HTTP Client | Dio |
 
 ## Project Structure
@@ -260,11 +259,6 @@ native_tavern/
 │       ├── screens/       # App screens
 │       ├── widgets/       # Reusable widgets
 │       └── theme/         # Theme configuration
-├── rust/                   # Rust native core
-│   └── src/
-│       ├── png_parser.rs  # PNG character card parsing
-│       ├── charx_parser.rs # CharX archive handling
-│       └── models.rs      # Data models
 ├── ios/                    # iOS platform code
 ├── android/                # Android platform code
 └── plans/                  # Architecture documentation
@@ -275,7 +269,6 @@ native_tavern/
 ### Prerequisites
 
 - Flutter SDK >= 3.16.0
-- Rust toolchain (for native core)
 - Xcode (for iOS development)
 - Android Studio (for Android development)
 
@@ -292,13 +285,7 @@ native_tavern/
    flutter pub get
    ```
 
-3. **Build Rust core** (optional, for native features)
-   ```bash
-   cd rust
-   cargo build --release
-   ```
-
-4. **Run the app**
+3. **Run the app**
    ```bash
    flutter run
    ```

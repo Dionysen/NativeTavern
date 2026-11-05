@@ -82,4 +82,3 @@ config/*
 assets_for_discord
 scripts
 .wrangler/cache/wrangler-account.json
-rust/target
