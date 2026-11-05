@@ -111,7 +111,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _showSlashSuggestions = false;
   bool _showInputMenu = false;
   bool _showChoicePanel = false;
-  final GlobalKey _formattingMenuButtonKey = GlobalKey();
   final List<ChatAttachment> _pendingAttachments = [];
   final ImagePicker _imagePicker = ImagePicker();
   final ChatTTSAutoPlayController _ttsAutoPlayController =
@@ -2566,7 +2565,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                 size: 22,
                               ),
                             ),
-                            const ContextUsageComposerButton(),
                             Expanded(
                               child: GestureDetector(
                                 behavior: HitTestBehavior.translucent,
@@ -2685,6 +2683,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               // Image attachment
               _InputMenuButton(
@@ -2697,11 +2696,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
               // Markdown formatting
               _InputMenuButton(
-                key: _formattingMenuButtonKey,
                 icon: Icons.text_format,
                 label: AppLocalizations.of(context).formatting,
                 onTap: () => _showFormattingMenu(),
               ),
+              const ContextUsageComposerButton(),
               if (ref.watch(imageGenSettingsProvider).enabled)
                 _InputMenuButton(
                   key: const Key('chat-input-imagine'),
@@ -2757,97 +2756,60 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  /// Show markdown formatting popup menu
-  void _showFormattingMenu() {
-    showMenu<MarkdownFormat>(
+  Future<void> _showFormattingMenu() async {
+    final l10n = AppLocalizations.of(context);
+    final format = await showAdaptiveActionDrawer<MarkdownFormat>(
       context: context,
-      positionBuilder: (context, constraints) {
-        final overlay = Navigator.of(context)
-            .overlay!
-            .context
-            .findRenderObject()! as RenderBox;
-        final target = _formattingMenuButtonKey.currentContext
-            ?.findRenderObject() as RenderBox?;
-        final rect = target != null && target.attached
-            ? Rect.fromPoints(
-                target.localToGlobal(Offset.zero, ancestor: overlay),
-                target.localToGlobal(target.size.bottomRight(Offset.zero),
-                    ancestor: overlay),
-              )
-            : Rect.fromLTWH(16, math.max(0, overlay.size.height - 100), 0, 0);
-        return RelativeRect.fromRect(rect, Offset.zero & overlay.size);
-      },
-      items: [
-        _buildFormattingMenuItem(MarkdownFormat.bold, Icons.format_bold, null),
-        _buildFormattingMenuItem(
-          MarkdownFormat.italic,
-          Icons.format_italic,
-          null,
-        ),
-        _buildFormattingMenuItem(
-          MarkdownFormat.underline,
-          Icons.format_underline,
-          null,
-        ),
-        _buildFormattingMenuItem(
+      title: l10n.formatting,
+      actions: [
+        _formattingDrawerItem(MarkdownFormat.bold, Icons.format_bold),
+        _formattingDrawerItem(MarkdownFormat.italic, Icons.format_italic),
+        _formattingDrawerItem(MarkdownFormat.underline, Icons.format_underline),
+        _formattingDrawerItem(
           MarkdownFormat.strikethrough,
           Icons.strikethrough_s,
-          null,
         ),
-        const PopupMenuDivider(),
-        _buildFormattingMenuItem(MarkdownFormat.inlineCode, Icons.code, null),
-        _buildFormattingMenuItem(
+        _formattingDrawerItem(
+          MarkdownFormat.inlineCode,
+          Icons.code,
+          showDividerAbove: true,
+        ),
+        _formattingDrawerItem(
           MarkdownFormat.codeBlock,
           Icons.integration_instructions,
-          null,
         ),
-        const PopupMenuDivider(),
-        _buildFormattingMenuItem(MarkdownFormat.link, Icons.link, null),
-        _buildFormattingMenuItem(
-          MarkdownFormat.quote,
-          Icons.format_quote,
-          null,
+        _formattingDrawerItem(
+          MarkdownFormat.link,
+          Icons.link,
+          showDividerAbove: true,
         ),
-        const PopupMenuDivider(),
-        _buildFormattingMenuItem(
+        _formattingDrawerItem(MarkdownFormat.quote, Icons.format_quote),
+        _formattingDrawerItem(
           MarkdownFormat.bulletList,
           Icons.format_list_bulleted,
-          null,
+          showDividerAbove: true,
         ),
-        _buildFormattingMenuItem(
+        _formattingDrawerItem(
           MarkdownFormat.numberedList,
           Icons.format_list_numbered,
-          null,
         ),
       ],
-    ).then((format) {
-      if (format != null) {
-        _applyMarkdownFormat(format);
-      }
-    });
+    );
+    if (format != null && mounted) {
+      _applyMarkdownFormat(format);
+    }
   }
 
-  PopupMenuItem<MarkdownFormat> _buildFormattingMenuItem(
+  AdaptiveActionDrawerItem<MarkdownFormat> _formattingDrawerItem(
     MarkdownFormat format,
-    IconData icon,
-    String? shortcut,
-  ) {
-    return PopupMenuItem<MarkdownFormat>(
+    IconData icon, {
+    bool showDividerAbove = false,
+  }) {
+    return AdaptiveActionDrawerItem(
       value: format,
-      child: Row(
-        children: [
-          Icon(icon, size: 18),
-          const SizedBox(width: 12),
-          Text(format.displayName),
-          if (shortcut != null) ...[
-            const Spacer(),
-            Text(
-              shortcut,
-              style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-            ),
-          ],
-        ],
-      ),
+      title: Text(format.displayName),
+      leading: Icon(icon),
+      showDividerAbove: showDividerAbove,
     );
   }
 

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/context_usage_service.dart';
 import 'package:native_tavern/presentation/providers/context_usage_providers.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
-import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
+import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 
 Color contextUsageLevelColor(ContextUsageLevel level) {
   switch (level) {
@@ -42,29 +42,34 @@ class ContextUsageComposerButton extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final trackColor = scheme.onSurface.withValues(alpha: 0.14);
 
-    return ChromeIconButton(
-      density: ChromeIconButtonDensity.compact,
-      tooltip: l10n.contextUsage,
-      onPressed: () => showContextUsageDialog(context),
-      icon: SizedBox(
-        width: 18,
-        height: 18,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            CircularProgressIndicator(
-              value: 1,
-              strokeWidth: 2.5,
-              backgroundColor: trackColor,
-              valueColor: AlwaysStoppedAnimation<Color>(trackColor),
-            ),
-            CircularProgressIndicator(
-              value: (percentage / 100).clamp(0.0, 1.0),
-              strokeWidth: 2.5,
-              valueColor: AlwaysStoppedAnimation<Color>(levelColor),
-            ),
-          ],
-        ),
+    final ring = SizedBox(
+      width: 18,
+      height: 18,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CircularProgressIndicator(
+            value: 1,
+            strokeWidth: 2.5,
+            backgroundColor: trackColor,
+            valueColor: AlwaysStoppedAnimation<Color>(trackColor),
+          ),
+          CircularProgressIndicator(
+            value: (percentage / 100).clamp(0.0, 1.0),
+            strokeWidth: 2.5,
+            valueColor: AlwaysStoppedAnimation<Color>(levelColor),
+          ),
+        ],
+      ),
+    );
+
+    return Tooltip(
+      message: l10n.contextUsage,
+      child: ZephyrChatChrome.tappableMenuChip(
+        context,
+        showBorder: false,
+        onTap: () => showContextUsageDialog(context),
+        child: ring,
       ),
     );
   }
