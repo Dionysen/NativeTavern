@@ -123,6 +123,29 @@ abstract final class ZephyrChatChrome {
     );
   }
 
+  /// Chip-shaped control with visible Material ink splash on tap.
+  static Widget tappableMenuChip(
+    BuildContext context, {
+    required VoidCallback onTap,
+    required Widget child,
+    EdgeInsetsGeometry? padding,
+  }) {
+    final radius = BorderRadius.circular(context.appCornerRadius);
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        child: Ink(
+          decoration: menuChip(context),
+          padding: padding ??
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: child,
+        ),
+      ),
+    );
+  }
+
   /// Continuous-curve pill / rounded rect (Zephyr composer chrome).
   static ShapeDecoration continuousRoundedDecoration({
     required Color color,

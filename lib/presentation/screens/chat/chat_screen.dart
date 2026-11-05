@@ -242,12 +242,39 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     context.push(AppRoutes.replyChoices);
   }
 
+  Future<void> _refreshReplyChoices() async {
+    final choiceConfig = ref.read(chatChoiceConfigProvider);
+    if (!choiceConfig.enabled) return;
+
+    final chatState = ref.read(activeChatProvider);
+    if (chatState.isGenerating) return;
+    if (chatState.messages.isEmpty ||
+        chatState.messages.last.role != MessageRole.assistant) {
+      _showSnackBar(AppLocalizations.of(context).replyChoicesEmpty);
+      return;
+    }
+
+    final llmConfig = ref.read(llmConfigProvider);
+    if (!_isApiConfigured(llmConfig)) {
+      _showApiConfigurationDialog();
+      return;
+    }
+
+    final contextMessages =
+        await ref.read(activeChatProvider.notifier).buildLlmContextForChoices();
+    if (!mounted) return;
+    await ref.read(chatChoiceSessionProvider.notifier).generateForChat(
+          chatId: widget.chatId,
+          config: llmConfig,
+          contextMessages: contextMessages,
+        );
+  }
+
   Future<void> _sendChoiceMessage(String text) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
 
     if (trimmed.startsWith('/')) {
-      _setChoicePanelVisible(false);
       await _handleSlashCommand(trimmed);
       return;
     }
@@ -258,7 +285,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       return;
     }
 
-    _setChoicePanelVisible(false);
     _messageController.clear();
     setState(() {
       _showSlashSuggestions = false;
@@ -2479,6 +2505,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   child: ChatChoicePanel(
                     onSelectChoice: _sendChoiceMessage,
                     onOpenSettings: _openReplyChoicesSettings,
+                    onRefresh: _refreshReplyChoices,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -2724,24 +2751,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       runSpacing: 8,
       children: enabledReplies
           .map(
-            (reply) => InkWell(
+            (reply) => ZephyrChatChrome.tappableMenuChip(
+              context,
               onTap: () {
                 _handleQuickReply(reply.message, reply.autoSend);
                 _setInputMenuVisible(false);
               },
-              borderRadius: BorderRadius.circular(context.appCornerRadius),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                decoration: ZephyrChatChrome.menuChip(context),
-                child: Text(
-                  reply.label,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: scheme.onSurfaceVariant,
-                  ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 8,
+              ),
+              child: Text(
+                reply.label,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: scheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -4287,26 +4311,22 @@ class _InputMenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return InkWell(
+    return ZephyrChatChrome.tappableMenuChip(
+      context,
       onTap: onTap,
-      borderRadius: BorderRadius.circular(context.appCornerRadius),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: ZephyrChatChrome.menuChip(context),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18, color: scheme.primary),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                color: scheme.onSurfaceVariant,
-              ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: scheme.primary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: scheme.onSurfaceVariant,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

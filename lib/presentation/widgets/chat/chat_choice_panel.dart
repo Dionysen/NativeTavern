@@ -11,10 +11,12 @@ class ChatChoicePanel extends ConsumerWidget {
     super.key,
     required this.onSelectChoice,
     required this.onOpenSettings,
+    required this.onRefresh,
   });
 
   final ValueChanged<String> onSelectChoice;
   final VoidCallback onOpenSettings;
+  final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,6 +24,40 @@ class ChatChoicePanel extends ConsumerWidget {
     final config = ref.watch(chatChoiceConfigProvider);
     final session = ref.watch(chatChoiceSessionProvider);
     final scheme = Theme.of(context).colorScheme;
+
+    final canRefresh = config.enabled && !session.isLoading;
+
+    Widget panelHeader() {
+      return Row(
+        children: [
+          Expanded(
+            child: Text(
+              l10n.replyChoices,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+          IconButton(
+            tooltip: l10n.refresh,
+            onPressed: canRefresh ? onRefresh : null,
+            icon: session.isLoading
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: scheme.primary,
+                    ),
+                  )
+                : const Icon(Icons.refresh_rounded, size: 20),
+          ),
+          IconButton(
+            tooltip: l10n.settings,
+            icon: const Icon(Icons.settings_outlined, size: 20),
+            onPressed: onOpenSettings,
+          ),
+        ],
+      );
+    }
 
     if (!config.enabled) {
       return Padding(
@@ -31,9 +67,20 @@ class ChatChoicePanel extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              l10n.replyChoicesDisabledTitle,
-              style: Theme.of(context).textTheme.titleSmall,
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.replyChoicesDisabledTitle,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+                IconButton(
+                  tooltip: l10n.settings,
+                  icon: const Icon(Icons.settings_outlined, size: 20),
+                  onPressed: onOpenSettings,
+                ),
+              ],
             ),
             const SizedBox(height: 6),
             Text(
@@ -72,21 +119,7 @@ class ChatChoicePanel extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.replyChoices,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-              ),
-              IconButton(
-                tooltip: l10n.settings,
-                icon: const Icon(Icons.settings_outlined, size: 20),
-                onPressed: onOpenSettings,
-              ),
-            ],
-          ),
+          panelHeader(),
           const SizedBox(height: 8),
           if (session.isLoading)
             const Padding(
@@ -118,22 +151,18 @@ class ChatChoicePanel extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final choice in session.choices) ...[
-                      InkWell(
+                      ZephyrChatChrome.tappableMenuChip(
+                        context,
                         onTap: () => onSelectChoice(choice),
-                        borderRadius:
-                            BorderRadius.circular(context.appCornerRadius),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          decoration: ZephyrChatChrome.menuChip(context),
-                          child: Text(
-                            choice,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: scheme.onSurface,
-                            ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        child: Text(
+                          choice,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: scheme.onSurface,
                           ),
                         ),
                       ),
