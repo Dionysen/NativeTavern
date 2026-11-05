@@ -2566,23 +2566,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                 size: 22,
                               ),
                             ),
-                            ChromeIconButton(
-                              density: ChromeIconButtonDensity.compact,
-                              onPressed: _onReplyChoicesButtonPressed,
-                              tooltip: l10n.showReplyChoices,
-                              isSelected: _showChoicePanel,
-                              icon: Icon(
-                                Icons.alt_route_outlined,
-                                size: 22,
-                                color: ref.watch(chatChoiceConfigProvider)
-                                        .enabled
-                                    ? null
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.38),
-                              ),
-                            ),
+                            const ContextUsageComposerButton(),
                             Expanded(
                               child: GestureDetector(
                                 behavior: HitTestBehavior.translucent,
@@ -2593,6 +2577,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             ChatVoiceInputButton(
                             controller: _messageController,
                             onAutoSend: _sendMessage,
+                          ),
+                          ChromeIconButton(
+                            density: ChromeIconButtonDensity.compact,
+                            onPressed: _onReplyChoicesButtonPressed,
+                            tooltip: l10n.showReplyChoices,
+                            isSelected: _showChoicePanel,
+                            icon: Icon(
+                              Icons.alt_route_outlined,
+                              size: 22,
+                              color: ref.watch(chatChoiceConfigProvider)
+                                      .enabled
+                                  ? null
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.38),
+                            ),
                           ),
                           const SizedBox(width: 4),
                           Tooltip(
@@ -2711,32 +2712,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     _openImagineFromInput(chatState);
                   },
                 ),
-              // Context usage indicator
-              SizedBox(
-                width: double.infinity,
-                child: ZephyrChatChrome.tappableMenuChip(
-                  context,
-                  onTap: () {
-                    showDialog<void>(
-                      context: context,
-                      builder: (context) => const ContextUsageDialog(),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.analytics_outlined,
-                        size: 18,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 8),
-                      const Expanded(
-                        child: ContextUsageIndicator(enableTap: false),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
           // Row 2: Quick replies (if enabled)

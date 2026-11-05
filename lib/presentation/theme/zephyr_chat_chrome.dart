@@ -120,15 +120,20 @@ abstract final class ZephyrChatChrome {
     return scheme.onSurface.withValues(alpha: isDark ? 0.07 : 0.05);
   }
 
-  static BoxDecoration menuChip(BuildContext context) {
+  static BoxDecoration menuChip(
+    BuildContext context, {
+    bool showBorder = true,
+  }) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return BoxDecoration(
-      color: menuChipFill(context),
+      color: showBorder ? menuChipFill(context) : Colors.transparent,
       borderRadius: BorderRadius.circular(context.appCornerRadius),
-      border: Border.all(
-        color: scheme.outlineVariant.withValues(alpha: isDark ? 0.28 : 0.35),
-      ),
+      border: showBorder
+          ? Border.all(
+              color: scheme.outlineVariant.withValues(alpha: isDark ? 0.28 : 0.35),
+            )
+          : null,
     );
   }
 
@@ -138,6 +143,7 @@ abstract final class ZephyrChatChrome {
     required VoidCallback onTap,
     required Widget child,
     EdgeInsetsGeometry? padding,
+    bool showBorder = true,
   }) {
     final scheme = Theme.of(context).colorScheme;
     final radius = BorderRadius.circular(context.appCornerRadius);
@@ -153,7 +159,7 @@ abstract final class ZephyrChatChrome {
         splashColor: scheme.primary.withValues(alpha: 0.14),
         highlightColor: scheme.onSurface.withValues(alpha: 0.06),
         child: Ink(
-          decoration: menuChip(context),
+          decoration: menuChip(context, showBorder: showBorder),
           padding: padding ??
               const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: child,

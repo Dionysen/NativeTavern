@@ -3,12 +3,83 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/context_usage_service.dart';
 import 'package:native_tavern/presentation/providers/context_usage_providers.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
+
+Color contextUsageLevelColor(ContextUsageLevel level) {
+  switch (level) {
+    case ContextUsageLevel.low:
+      return Colors.green;
+    case ContextUsageLevel.medium:
+      return Colors.amber;
+    case ContextUsageLevel.high:
+      return Colors.orange;
+    case ContextUsageLevel.critical:
+      return Colors.red;
+  }
+}
+
+void showContextUsageDialog(BuildContext context) {
+  showDialog<void>(
+    context: context,
+    builder: (context) => const ContextUsageDialog(),
+  );
+}
+
+/// Circular context-usage ring for the composer toolbar.
+class ContextUsageComposerButton extends ConsumerWidget {
+  const ContextUsageComposerButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final usage = ref.watch(contextUsageProvider);
+    if (usage == null) {
+      return const SizedBox.shrink();
+    }
+
+    final l10n = AppLocalizations.of(context);
+    final percentage = usage.usagePercentage;
+    final levelColor = contextUsageLevelColor(usage.level);
+    final scheme = Theme.of(context).colorScheme;
+    final trackColor = scheme.onSurface.withValues(alpha: 0.14);
+
+    return ChromeIconButton(
+      density: ChromeIconButtonDensity.compact,
+      tooltip: l10n.contextUsage,
+      onPressed: () => showContextUsageDialog(context),
+      icon: SizedBox(
+        width: 18,
+        height: 18,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            CircularProgressIndicator(
+              value: 1,
+              strokeWidth: 2.5,
+              backgroundColor: trackColor,
+              valueColor: AlwaysStoppedAnimation<Color>(trackColor),
+            ),
+            CircularProgressIndicator(
+              value: (percentage / 100).clamp(0.0, 1.0),
+              strokeWidth: 2.5,
+              valueColor: AlwaysStoppedAnimation<Color>(levelColor),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 /// Compact context usage indicator for chat input area
 class ContextUsageIndicator extends ConsumerWidget {
-  const ContextUsageIndicator({super.key, this.enableTap = true});
+  const ContextUsageIndicator({
+    super.key,
+    this.enableTap = true,
+    this.borderlessCompact = false,
+  });
 
   final bool enableTap;
+  final bool borderlessCompact;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,7 +107,64 @@ class ContextUsageIndicator extends ConsumerWidget {
   Widget _buildCompactIndicator(BuildContext context, ContextUsage usage) {
     final percentage = usage.usagePercentage;
     final color = _getUsageColor(usage.level);
-    final trackColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final scheme = Theme.of(context).colorScheme;
+    final trackColor = scheme.surfaceContainerHighest;
+    final labelColor =
+        borderlessCompact ? scheme.onSurfaceVariant : color;
+    final mutedLabel =
+        borderlessCompact ? scheme.onSurfaceVariant.withValues(alpha: 0.85) : color.withOpacity(0.8);
+
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: 16,
+          height: 16,
+          child: Stack(
+            children: [
+              CircularProgressIndicator(
+                value: 1.0,
+                strokeWidth: 2,
+                backgroundColor: trackColor,
+                valueColor: AlwaysStoppedAnimation<Color>(trackColor),
+              ),
+              CircularProgressIndicator(
+                value: (percentage / 100).clamp(0.0, 1.0),
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          '${_formatTokenCount(usage.totalTokens)} / ${_formatTokenCount(usage.maxContext)}',
+          style: TextStyle(
+            fontSize: 11,
+            color: labelColor,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          '(${percentage.toStringAsFixed(0)}%)',
+          style: TextStyle(
+            fontSize: 10,
+            color: mutedLabel,
+          ),
+        ),
+        const SizedBox(width: 2),
+        Icon(
+          Icons.info_outline,
+          size: 12,
+          color: mutedLabel,
+        ),
+      ],
+    );
+
+    if (borderlessCompact) {
+      return content;
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -48,70 +176,12 @@ class ContextUsageIndicator extends ConsumerWidget {
           width: 1,
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Circular progress indicator
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: Stack(
-              children: [
-                CircularProgressIndicator(
-                  value: 1.0,
-                  strokeWidth: 2,
-                  backgroundColor: trackColor,
-                  valueColor: AlwaysStoppedAnimation<Color>(trackColor),
-                ),
-                CircularProgressIndicator(
-                  value: (percentage / 100).clamp(0.0, 1.0),
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(color),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 6),
-          // Token count and percentage
-          Text(
-            '${_formatTokenCount(usage.totalTokens)} / ${_formatTokenCount(usage.maxContext)}',
-            style: TextStyle(
-              fontSize: 11,
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            '(${percentage.toStringAsFixed(0)}%)',
-            style: TextStyle(
-              fontSize: 10,
-              color: color.withOpacity(0.8),
-            ),
-          ),
-          const SizedBox(width: 2),
-          Icon(
-            Icons.info_outline,
-            size: 12,
-            color: color.withOpacity(0.6),
-          ),
-        ],
-      ),
+      child: content,
     );
   }
 
-  Color _getUsageColor(ContextUsageLevel level) {
-    switch (level) {
-      case ContextUsageLevel.low:
-        return Colors.green;
-      case ContextUsageLevel.medium:
-        return Colors.amber;
-      case ContextUsageLevel.high:
-        return Colors.orange;
-      case ContextUsageLevel.critical:
-        return Colors.red;
-    }
-  }
+  Color _getUsageColor(ContextUsageLevel level) =>
+      contextUsageLevelColor(level);
 
   String _formatTokenCount(int count) {
     if (count >= 1000000) {
@@ -123,10 +193,7 @@ class ContextUsageIndicator extends ConsumerWidget {
   }
 
   void _showDetailedUsageDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => const ContextUsageDialog(),
-    );
+    showContextUsageDialog(context);
   }
 }
 
