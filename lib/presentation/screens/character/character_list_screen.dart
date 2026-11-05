@@ -708,6 +708,11 @@ int _gridColumns(double width, double minimumTileWidth, double spacing) {
   return count;
 }
 
+String _creatorLabel(Character character) {
+  final creator = character.creator.trim();
+  return creator.isEmpty ? 'Unknown' : creator;
+}
+
 Future<void> _handleCharacterAction(
   BuildContext context,
   WidgetRef ref,
@@ -932,15 +937,14 @@ class _CharacterGridCard extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (character.creator.isNotEmpty)
-                    Text(
-                      'by ${character.creator}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textMuted,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  Text(
+                    'by ${_creatorLabel(character)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.textMuted,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
@@ -1065,12 +1069,26 @@ class _CharacterCompactGridCard extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(4),
-              child: Text(
-                character.name,
-                style: Theme.of(context).textTheme.bodySmall,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    character.name,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    'by ${_creatorLabel(character)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.textMuted,
+                          fontSize: 10,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
           ],
