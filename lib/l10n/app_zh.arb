@@ -5686,6 +5686,7 @@
   "momentsAuthorMe": "我",
   "momentsAddPhoto": "加张图",
   "momentsChangePhoto": "换一张",
+  "momentsChangeCover": "更换封面",
   "momentsNeedSomething": "先写点什么，或者加张图。",
   "momentsComment": "评论",
   "momentsSavePhoto": "保存图片",

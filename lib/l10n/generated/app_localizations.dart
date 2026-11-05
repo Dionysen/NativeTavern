@@ -7981,6 +7981,12 @@ abstract class AppLocalizations {
   /// **'Change photo'**
   String get momentsChangePhoto;
 
+  /// Button to replace the moments profile cover image
+  ///
+  /// In en, this message translates to:
+  /// **'Change cover'**
+  String get momentsChangeCover;
+
   /// No description provided for @momentsNeedSomething.
   ///
   /// In en, this message translates to:

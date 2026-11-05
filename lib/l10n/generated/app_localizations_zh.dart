@@ -4243,6 +4243,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get momentsChangePhoto => '换一张';
 
   @override
+  String get momentsChangeCover => '更换封面';
+
+  @override
   String get momentsNeedSomething => '先写点什么，或者加张图。';
 
   @override
@@ -10943,6 +10946,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get momentsChangePhoto => '換一張';
+
+  @override
+  String get momentsChangeCover => '更換封面';
 
   @override
   String get momentsNeedSomething => '先寫點什麼，或加張圖。';

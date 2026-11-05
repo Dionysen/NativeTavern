@@ -4361,6 +4361,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get momentsChangePhoto => 'Change photo';
 
   @override
+  String get momentsChangeCover => 'Change cover';
+
+  @override
   String get momentsNeedSomething => 'Write something or add a photo first.';
 
   @override

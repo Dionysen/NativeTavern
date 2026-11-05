@@ -5767,6 +5767,10 @@
   "momentsAuthorMe": "Me",
   "momentsAddPhoto": "Add a photo",
   "momentsChangePhoto": "Change photo",
+  "momentsChangeCover": "Change cover",
+  "@momentsChangeCover": {
+    "description": "Button to replace the moments profile cover image"
+  },
   "momentsNeedSomething": "Write something or add a photo first.",
   "momentsComment": "Comment",
   "momentsSavePhoto": "Save photo",

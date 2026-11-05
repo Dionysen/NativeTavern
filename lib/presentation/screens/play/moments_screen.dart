@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:gal/gal.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/moment/moment_post.dart';
 import 'package:native_tavern/domain/services/moment_service.dart';
+import 'package:native_tavern/domain/services/moments_cover_storage.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/data/models/persona.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
@@ -24,6 +26,10 @@ class MomentsScreen extends ConsumerWidget {
   const MomentsScreen({super.key});
 
   static const _coverHeight = 286.0;
+  static const _expandedCoverHeight = 460.0;
+  static const _profileAvatarSize = 72.0;
+  static const _profileOverlap = _profileAvatarSize / 2;
+  static const _coverExpandDuration = Duration(milliseconds: 320);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,12 +46,12 @@ class MomentsScreen extends ConsumerWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: palette.page,
+        backgroundColor: palette.cell,
         body: !settings.momentsEnabled
             ? Column(
                 children: [
-                  _CoverHeader(
-                    height: _coverHeight,
+                  _DisabledCoverWithProfile(
+                    coverHeight: _coverHeight,
                     topInset: topInset,
                     selfName: selfName,
                     selfAvatarPath: persona?.avatarPath,
@@ -65,94 +71,19 @@ class MomentsScreen extends ConsumerWidget {
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (error, _) => _CenteredMessage(error.toString()),
                 data: (items) {
-                  return NotificationListener<ScrollNotification>(
-                    onNotification: (notification) {
-                      if (notification.metrics.extentAfter < 600) {
-                        ref
-                            .read(pagedMomentFeedProvider.notifier)
-                            .loadMore();
-                      }
-                      return false;
-                    },
-                    child: CustomScrollView(
-                      physics: const BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics(),
-                      ),
-                      slivers: [
-                      SliverAppBar(
-                        pinned: true,
-                        stretch: true,
-                        elevation: 0,
-                        scrolledUnderElevation: 0,
-                        backgroundColor: palette.page,
-                        surfaceTintColor: Colors.transparent,
-                        foregroundColor: Colors.white,
-                        title: Text(l10n.moments),
-                        expandedHeight: _coverHeight + topInset,
-                        leading: ChromeIconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-                          onPressed: () => Navigator.of(context).maybePop(),
-                        ),
-                        actions: [
-                          ChromeIconButton(
-                            key: const Key('moments-compose'),
-                            tooltip: l10n.momentsCompose,
-                            onPressed: () => _compose(context, ref, selfName),
-                            icon: const Icon(Icons.camera_alt_outlined),
-                          ),
-                        ],
-                        flexibleSpace: FlexibleSpaceBar(
-                          collapseMode: CollapseMode.pin,
-                          background: _CoverHeader(
-                            height: _coverHeight + topInset,
-                            topInset: topInset,
-                            selfName: selfName,
-                            selfAvatarPath: persona?.avatarPath,
-                            palette: palette,
-                            showChrome: false,
-                          ),
-                        ),
-                      ),
-                      if (items.isEmpty)
-                        SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: _CenteredMessage(
-                            l10n.momentsEmpty,
-                            key: const Key('moments-empty'),
-                            color: palette.time,
-                          ),
-                        )
-                      else
-                        SliverList.separated(
-                          itemCount: items.length,
-                          separatorBuilder: (_, __) => Divider(
-                            height: 1,
-                            thickness: 0.5,
-                            color: palette.divider,
-                          ),
-                          itemBuilder: (context, index) => _MomentRow(
-                            item: items[index],
-                            character: _authorOf(characters, items[index].post),
-                            persona: persona,
-                            selfName: selfName,
-                            palette: palette,
-                          ),
-                        ),
-                      ],
-                    ),
+                  return _MomentsEnabledFeed(
+                    items: items,
+                    characters: characters,
+                    persona: persona,
+                    selfName: selfName,
+                    palette: palette,
+                    topInset: topInset,
+                    onCompose: () => _compose(context, ref, selfName),
                   );
                 },
               ),
       ),
     );
-  }
-
-  Character? _authorOf(List<Character> characters, MomentPost post) {
-    if (post.origin != MomentPostOrigin.character) return null;
-    for (final character in characters) {
-      if (character.id == post.authorId) return character;
-    }
-    return null;
   }
 
   Future<void> _compose(
@@ -175,96 +106,442 @@ class MomentsScreen extends ConsumerWidget {
     );
     ref.invalidate(pagedMomentFeedProvider);
   }
+
+  static Character? authorOf(List<Character> characters, MomentPost post) {
+    if (post.origin != MomentPostOrigin.character) return null;
+    for (final character in characters) {
+      if (character.id == post.authorId) return character;
+    }
+    return null;
+  }
 }
 
-class _CoverHeader extends StatelessWidget {
-  const _CoverHeader({
-    required this.height,
-    required this.topInset,
+class _MomentsEnabledFeed extends ConsumerStatefulWidget {
+  const _MomentsEnabledFeed({
+    required this.items,
+    required this.characters,
+    required this.persona,
     required this.selfName,
-    this.selfAvatarPath,
     required this.palette,
-    this.onBack,
-    this.showChrome = true,
+    required this.topInset,
+    required this.onCompose,
   });
 
+  final List<MomentFeedItem> items;
+  final List<Character> characters;
+  final Persona? persona;
+  final String selfName;
+  final _MomentsPalette palette;
+  final double topInset;
+  final VoidCallback onCompose;
+
+  @override
+  ConsumerState<_MomentsEnabledFeed> createState() =>
+      _MomentsEnabledFeedState();
+}
+
+class _MomentsEnabledFeedState extends ConsumerState<_MomentsEnabledFeed>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _coverExpandController;
+  late final Animation<double> _coverExpandAnimation;
+  final _scrollController = ScrollController();
+  final _imagePicker = ImagePicker();
+  String? _coverImagePath;
+  String? _loadedPersonaId;
+
+  @override
+  void initState() {
+    super.initState();
+    _coverExpandController = AnimationController(
+      vsync: this,
+      duration: MomentsScreen._coverExpandDuration,
+    );
+    _coverExpandAnimation = CurvedAnimation(
+      parent: _coverExpandController,
+      curve: Curves.easeInOut,
+    );
+    _coverExpandController.addListener(() => setState(() {}));
+    _reloadCoverForPersona();
+  }
+
+  @override
+  void didUpdateWidget(covariant _MomentsEnabledFeed oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.persona?.id != widget.persona?.id) {
+      _coverExpandController.reverse();
+      _reloadCoverForPersona();
+    }
+  }
+
+  @override
+  void dispose() {
+    _coverExpandController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _reloadCoverForPersona() async {
+    final personaId = widget.persona?.id;
+    if (personaId == null) {
+      setState(() {
+        _coverImagePath = null;
+        _loadedPersonaId = null;
+      });
+      return;
+    }
+    final path = await MomentsCoverStorage.existingCoverPath(personaId);
+    if (!mounted) return;
+    setState(() {
+      _coverImagePath = path;
+      _loadedPersonaId = personaId;
+    });
+  }
+
+  double get _collapsedHeaderHeight =>
+      MomentsScreen._coverHeight +
+      widget.topInset +
+      MomentsScreen._profileOverlap;
+
+  double get _expandedHeaderHeight =>
+      MomentsScreen._expandedCoverHeight + widget.topInset;
+
+  double get _headerHeight =>
+      lerpDouble(
+        _collapsedHeaderHeight,
+        _expandedHeaderHeight,
+        _coverExpandAnimation.value,
+      ) ??
+      _collapsedHeaderHeight;
+
+  void _toggleCoverExpansion() {
+    if (_coverExpandController.isAnimating) return;
+    if (_coverExpandController.value == 0) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+      _coverExpandController.forward();
+    } else {
+      _coverExpandController.reverse();
+    }
+  }
+
+  Future<void> _pickCoverImage() async {
+    final personaId = widget.persona?.id;
+    if (personaId == null) return;
+    try {
+      final image = await _imagePicker.pickImage(source: ImageSource.gallery);
+      if (image == null || !mounted) return;
+      final path =
+          await MomentsCoverStorage.saveCover(personaId, image.path);
+      if (!mounted) return;
+      setState(() => _coverImagePath = path);
+    } catch (_) {
+      // Gallery pick or copy failures are non-fatal; user can retry.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final expandT = _coverExpandAnimation.value;
+    final overlapHeight =
+        lerpDouble(MomentsScreen._profileOverlap, 0, expandT) ?? 0;
+    final profileOpacity = (1 - expandT).clamp(0.0, 1.0);
+    final changeCoverOpacity = expandT.clamp(0.0, 1.0);
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification.metrics.extentAfter < 600) {
+          ref.read(pagedMomentFeedProvider.notifier).loadMore();
+        }
+        return false;
+      },
+      child: CustomScrollView(
+        controller: _scrollController,
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            stretch: true,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            backgroundColor: widget.palette.cell,
+            surfaceTintColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            title: Text(l10n.moments),
+            expandedHeight: _headerHeight,
+            toolbarHeight: kToolbarHeight,
+            leading: ChromeIconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
+            actions: [
+              ChromeIconButton(
+                key: const Key('moments-compose'),
+                tooltip: l10n.momentsCompose,
+                onPressed: widget.onCompose,
+                icon: const Icon(Icons.camera_alt_outlined),
+              ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.pin,
+              background: Stack(
+                fit: StackFit.expand,
+                clipBehavior: Clip.none,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          key: const Key('moments-cover-tap'),
+                          behavior: HitTestBehavior.opaque,
+                          onTap: _toggleCoverExpansion,
+                          child: _CoverBackground.expandable(
+                            imagePath: _loadedPersonaId == widget.persona?.id
+                                ? _coverImagePath
+                                : null,
+                          ),
+                        ),
+                      ),
+                      ColoredBox(
+                        color: widget.palette.cell,
+                        child: SizedBox(height: overlapHeight),
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: IgnorePointer(
+                      ignoring: profileOpacity < 0.05,
+                      child: Opacity(
+                        opacity: profileOpacity,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                          child: _ProfileNameAndAvatar(
+                            selfName: widget.selfName,
+                            selfAvatarPath: widget.persona?.avatarPath,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 16,
+                    bottom: 16,
+                    child: IgnorePointer(
+                      ignoring: changeCoverOpacity < 0.5,
+                      child: Opacity(
+                        opacity: changeCoverOpacity,
+                        child: TextButton(
+                          key: const Key('moments-change-cover'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.black45,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          onPressed: _pickCoverImage,
+                          child: Text(l10n.momentsChangeCover),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (widget.items.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _CenteredMessage(
+                l10n.momentsEmpty,
+                key: const Key('moments-empty'),
+                color: widget.palette.time,
+              ),
+            )
+          else
+            SliverList.separated(
+              itemCount: widget.items.length,
+              separatorBuilder: (_, __) => Divider(
+                height: 1,
+                thickness: 0.5,
+                color: widget.palette.divider,
+              ),
+              itemBuilder: (context, index) => _MomentRow(
+                item: widget.items[index],
+                character: MomentsScreen.authorOf(
+                  widget.characters,
+                  widget.items[index].post,
+                ),
+                persona: widget.persona,
+                selfName: widget.selfName,
+                palette: widget.palette,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CoverBackground extends StatelessWidget {
+  const _CoverBackground({
+    required this.height,
+    this.imagePath,
+  })  : expandable = false;
+
+  const _CoverBackground.expandable({this.imagePath})
+      : height = 0,
+        expandable = true;
+
   final double height;
+  final bool expandable;
+  final String? imagePath;
+
+  static const _defaultGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF2B3340),
+      Color(0xFF6B5344),
+      Color(0xFF8A6A4A),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final hasImage =
+        imagePath != null && imagePath!.isNotEmpty && File(imagePath!).existsSync();
+    final cover = DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: hasImage ? null : _defaultGradient,
+        image: hasImage
+            ? DecorationImage(
+                image: FileImage(File(imagePath!)),
+                fit: BoxFit.cover,
+              )
+            : null,
+      ),
+      child: hasImage ? null : CustomPaint(painter: _CoverGrainPainter()),
+    );
+    if (expandable) {
+      return SizedBox(width: double.infinity, child: cover);
+    }
+    return SizedBox(
+      height: height,
+      width: double.infinity,
+      child: cover,
+    );
+  }
+}
+
+class _ProfileNameAndAvatar extends StatelessWidget {
+  const _ProfileNameAndAvatar({
+    required this.selfName,
+    this.selfAvatarPath,
+  });
+
+  final String selfName;
+  final String? selfAvatarPath;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(
+            right: 10,
+            bottom: MomentsScreen._profileOverlap + 6,
+          ),
+          child: Text(
+            selfName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              shadows: [
+                Shadow(color: Colors.black54, blurRadius: 8),
+              ],
+            ),
+          ),
+        ),
+        _SquareAvatar(
+          name: selfName,
+          size: MomentsScreen._profileAvatarSize,
+          radius: 6,
+          imagePath: selfAvatarPath,
+          border: Border.all(color: Colors.white, width: 1.5),
+        ),
+      ],
+    );
+  }
+}
+
+class _DisabledCoverWithProfile extends StatelessWidget {
+  const _DisabledCoverWithProfile({
+    required this.coverHeight,
+    required this.topInset,
+    required this.selfName,
+    required this.palette,
+    this.selfAvatarPath,
+    this.onBack,
+  });
+
+  final double coverHeight;
   final double topInset;
   final String selfName;
   final String? selfAvatarPath;
   final _MomentsPalette palette;
   final VoidCallback? onBack;
-  final bool showChrome;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 36,
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF2B3340),
-                    Color(0xFF6B5344),
-                    Color(0xFF8A6A4A),
-                  ],
-                ),
-              ),
-              child: CustomPaint(painter: _CoverGrainPainter()),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _CoverBackground(height: coverHeight + topInset),
+            ColoredBox(
+              color: palette.cell,
+              child: SizedBox(height: MomentsScreen._profileOverlap),
+            ),
+          ],
+        ),
+        Positioned(
+          top: topInset + 4,
+          left: 4,
+          child: ChromeIconButton(
+            icon: const Icon(Icons.arrow_back_ios_new,
+                size: 18, color: Colors.white),
+            onPressed: onBack,
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          top: coverHeight + topInset - MomentsScreen._profileOverlap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: _ProfileNameAndAvatar(
+              selfName: selfName,
+              selfAvatarPath: selfAvatarPath,
             ),
           ),
-          if (showChrome)
-            Positioned(
-              top: topInset + 4,
-              left: 4,
-              child: ChromeIconButton(
-                icon: const Icon(Icons.arrow_back_ios_new,
-                    size: 18, color: Colors.white),
-                onPressed: onBack,
-              ),
-            ),
-          Positioned(
-            right: 16,
-            bottom: 8,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10, right: 10),
-                  child: Text(
-                    selfName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                      shadows: [
-                        Shadow(color: Colors.black54, blurRadius: 8),
-                      ],
-                    ),
-                  ),
-                ),
-                _SquareAvatar(
-                  name: selfName,
-                  size: 72,
-                  radius: 6,
-                  imagePath: selfAvatarPath,
-                  border: Border.all(color: Colors.white, width: 1.5),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
