@@ -2679,38 +2679,54 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Row 1: Core tools
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            crossAxisAlignment: WrapCrossAlignment.center,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image attachment
-              _InputMenuButton(
-                icon: Icons.image,
-                label: AppLocalizations.of(context).attachImage,
+              Expanded(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    _InputMenuButton(
+                      icon: Icons.image,
+                      label: AppLocalizations.of(context).attachImage,
+                      onTap: () {
+                        _showAttachmentOptions();
+                        _setInputMenuVisible(false);
+                      },
+                    ),
+                    _InputMenuButton(
+                      icon: Icons.text_format,
+                      label: AppLocalizations.of(context).formatting,
+                      onTap: () => _showFormattingMenu(),
+                    ),
+                    const ContextUsageComposerButton(),
+                    if (ref.watch(imageGenSettingsProvider).enabled)
+                      _InputMenuButton(
+                        key: const Key('chat-input-imagine'),
+                        icon: Icons.auto_awesome,
+                        label: AppLocalizations.of(context).imagine,
+                        onTap: () {
+                          _setInputMenuVisible(false);
+                          _openImagineFromInput(chatState);
+                        },
+                      ),
+                  ],
+                ),
+              ),
+              _inputMenuPlainIconChip(
+                tooltip: AppLocalizations.of(context).settings,
+                icon: Icons.settings_outlined,
                 onTap: () {
-                  _showAttachmentOptions();
                   _setInputMenuVisible(false);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      context.push(AppRoutes.settingsPush);
+                    }
+                  });
                 },
               ),
-              // Markdown formatting
-              _InputMenuButton(
-                icon: Icons.text_format,
-                label: AppLocalizations.of(context).formatting,
-                onTap: () => _showFormattingMenu(),
-              ),
-              const ContextUsageComposerButton(),
-              if (ref.watch(imageGenSettingsProvider).enabled)
-                _InputMenuButton(
-                  key: const Key('chat-input-imagine'),
-                  icon: Icons.auto_awesome,
-                  label: AppLocalizations.of(context).imagine,
-                  onTap: () {
-                    _setInputMenuVisible(false);
-                    _openImagineFromInput(chatState);
-                  },
-                ),
             ],
           ),
           // Row 2: Quick replies (if enabled)
@@ -2719,6 +2735,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             _buildQuickRepliesInMenu(),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _inputMenuPlainIconChip({
+    required String tooltip,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: tooltip,
+      child: ZephyrChatChrome.tappableMenuChip(
+        context,
+        showBorder: false,
+        onTap: onTap,
+        child: Icon(
+          icon,
+          size: 18,
+          color: scheme.onSurfaceVariant,
+        ),
       ),
     );
   }

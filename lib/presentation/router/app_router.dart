@@ -59,6 +59,8 @@ abstract class AppRoutes {
   static const characterEdit = '/characters/:id/edit';
   static const chat = '/chat/:id';
   static const settings = '/settings';
+  /// Full-screen settings when opened from chat (root navigator).
+  static const settingsPush = '/settings-push';
   static const appearance = '/appearance';
   static const aiConfig = '/ai-config';
   static const promptManager = '/prompt-manager';
@@ -252,6 +254,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'replyChoices',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const ChatChoiceSettingsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settingsPush,
+        name: 'settingsPush',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.backgroundSettings,
