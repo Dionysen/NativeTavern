@@ -5245,13 +5245,13 @@
   "@googleDriveBackups": {
     "description": "Google Drive backups section title"
   },
-  "bubbleOpacity": "訊息不透明度",
+  "bubbleOpacity": "氣泡與輸入框",
   "@bubbleOpacity": {
-    "description": "Label for message bubble opacity slider"
+    "description": "Label for message bubble and input opacity slider"
   },
-  "bubbleOpacityHelp": "控制啟用背景時訊息泡泡的透明度。",
+  "bubbleOpacityHelp": "有背景圖時，訊息氣泡和輸入框的不透明度。",
   "@bubbleOpacityHelp": {
-    "description": "Helper text for message bubble opacity slider"
+    "description": "Helper text for message bubble and input opacity slider"
   },
   "swipes": "備選回覆",
   "@swipes": {
@@ -5502,8 +5502,8 @@
   "useCharacterImageAsBackgroundHint": "有角色頭像時自動使用",
   "backgroundOpacity": "背景不透明度",
   "backgroundOpacityHint": "套用至自訂背景與角色圖片背景",
-  "enableBackgroundBlur": "啟用背景模糊",
-  "enableBackgroundBlurHint": "對所有圖片背景套用模糊",
+  "enableBackgroundBlur": "背景模糊",
+  "enableBackgroundBlurHint": "給圖片背景加一層模糊。",
   "backgroundPriorityHint": "優先順序：角色背景 > 全域背景 > 角色圖片 > 預設色彩",
   "openRouterUpstreamProvider": "OpenRouter 服務商",
   "automaticRouting": "自動路由",

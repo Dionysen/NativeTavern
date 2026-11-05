@@ -3825,10 +3825,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get googleDriveBackups => 'Google Drive 备份';
 
   @override
-  String get bubbleOpacity => '消息不透明度';
+  String get bubbleOpacity => '气泡与输入框';
 
   @override
-  String get bubbleOpacityHelp => '控制启用背景时消息气泡的透明度。';
+  String get bubbleOpacityHelp => '有背景图时，消息气泡和输入框的不透明度。';
 
   @override
   String get swipes => '备选回复';
@@ -4067,10 +4067,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backgroundOpacityHint => '应用于自定义图片和角色卡图片背景';
 
   @override
-  String get enableBackgroundBlur => '启用背景模糊效果';
+  String get enableBackgroundBlur => '背景模糊';
 
   @override
-  String get enableBackgroundBlurHint => '应用模糊效果到所有图片背景';
+  String get enableBackgroundBlurHint => '给图片背景加一层模糊。';
 
   @override
   String get backgroundPriorityHint => '优先级：角色专属背景 > 全局背景 > 角色卡图片 > 默认颜色';
@@ -10614,10 +10614,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get googleDriveBackups => 'Google 雲端硬碟備份';
 
   @override
-  String get bubbleOpacity => '訊息不透明度';
+  String get bubbleOpacity => '氣泡與輸入框';
 
   @override
-  String get bubbleOpacityHelp => '控制啟用背景時訊息泡泡的透明度。';
+  String get bubbleOpacityHelp => '有背景圖時，訊息氣泡和輸入框的不透明度。';
 
   @override
   String get swipes => '備選回覆';
@@ -10856,10 +10856,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get backgroundOpacityHint => '套用至自訂背景與角色圖片背景';
 
   @override
-  String get enableBackgroundBlur => '啟用背景模糊';
+  String get enableBackgroundBlur => '背景模糊';
 
   @override
-  String get enableBackgroundBlurHint => '對所有圖片背景套用模糊';
+  String get enableBackgroundBlurHint => '給圖片背景加一層模糊。';
 
   @override
   String get backgroundPriorityHint => '優先順序：角色背景 > 全域背景 > 角色圖片 > 預設色彩';

@@ -17,10 +17,14 @@ abstract final class ZephyrChatChrome {
         : Color.lerp(Colors.white, scheme.surface, 0.06)!;
   }
 
-  static List<BoxShadow> composerShadows(Brightness brightness) {
+  static List<BoxShadow> composerShadows(
+    Brightness brightness, {
+    double opacity = 1.0,
+  }) {
+    final o = opacity.clamp(0.0, 1.0);
     final color = brightness == Brightness.dark
-        ? Colors.black.withValues(alpha: 0.35)
-        : Colors.black.withValues(alpha: 0.1);
+        ? Colors.black.withValues(alpha: 0.35 * o)
+        : Colors.black.withValues(alpha: 0.1 * o);
     return [
       BoxShadow(
         color: color,
@@ -31,12 +35,20 @@ abstract final class ZephyrChatChrome {
   }
 
   /// Floating continuous-curve composer shell.
-  static ShapeDecoration composerShell(BuildContext context) {
+  ///
+  /// [opacity] tints the fill when chatting over an image background
+  /// (same slider as message bubbles).
+  static ShapeDecoration composerShell(
+    BuildContext context, {
+    double opacity = 1.0,
+  }) {
     final theme = Theme.of(context);
+    final o = opacity.clamp(0.0, 1.0);
+    final fill = composerFill(theme.colorScheme, theme.brightness);
     return continuousRoundedDecoration(
-      color: composerFill(theme.colorScheme, theme.brightness),
+      color: o >= 1.0 ? fill : fill.withValues(alpha: o),
       radius: composerOuterRadius,
-      shadows: composerShadows(theme.brightness),
+      shadows: composerShadows(theme.brightness, opacity: o),
     );
   }
 

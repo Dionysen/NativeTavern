@@ -131,6 +131,12 @@ class _BackgroundSettingsScreenState
     return bg.copyWith(bubbleOpacity: _currentBackground.bubbleOpacity);
   }
 
+  Future<void> _updateBubbleOpacity(double value) async {
+    await _saveBackground(
+      _currentBackground.copyWith(bubbleOpacity: value),
+    );
+  }
+
   Future<void> _pickCustomColor() async {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
@@ -226,8 +232,10 @@ class _BackgroundSettingsScreenState
             const SizedBox(height: 24),
           ],
 
-          // Adjustments
-          if (_currentBackground.type != BackgroundType.none) ...[
+          // Character-specific: bubble/input opacity lives here (global screen
+          // already exposes it under image background settings).
+          if (isCharacterSpecific &&
+              _currentBackground.type != BackgroundType.none) ...[
             _buildSectionHeader(l10n.adjustments),
             const SizedBox(height: 8),
             _buildAdjustments(),
@@ -283,6 +291,18 @@ class _BackgroundSettingsScreenState
                 .read(appSettingsProvider.notifier)
                 .updateBackgroundOpacity(value);
           },
+        ),
+        SettingsSliderTile(
+          icon: Icons.chat_bubble_outline,
+          title: l10n.bubbleOpacity,
+          subtitle: l10n.bubbleOpacityHelp,
+          value: _currentBackground.bubbleOpacity,
+          min: 0.0,
+          max: 1.0,
+          divisions: 20,
+          valueLabel:
+              '${(_currentBackground.bubbleOpacity * 100).round()}%',
+          onChanged: _updateBubbleOpacity,
         ),
         SettingsSwitchTile(
           icon: Icons.blur_on,
@@ -538,10 +558,7 @@ class _BackgroundSettingsScreenState
               min: 0.0,
               max: 1.0,
               divisions: 20,
-              onChanged: (value) {
-                _saveBackground(
-                    _currentBackground.copyWith(bubbleOpacity: value));
-              },
+              onChanged: _updateBubbleOpacity,
             ),
           ],
         ),

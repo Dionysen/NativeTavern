@@ -3939,11 +3939,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get googleDriveBackups => 'Google Drive Backups';
 
   @override
-  String get bubbleOpacity => 'Message Opacity';
+  String get bubbleOpacity => 'Bubbles & input';
 
   @override
   String get bubbleOpacityHelp =>
-      'Controls the transparency of message bubbles when a background is active.';
+      'Opacity of chat bubbles and the input box over a background image.';
 
   @override
   String get swipes => 'Swipes';
@@ -4191,11 +4191,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Applies to custom and character image backgrounds';
 
   @override
-  String get enableBackgroundBlur => 'Enable background blur';
+  String get enableBackgroundBlur => 'Background blur';
 
   @override
   String get enableBackgroundBlurHint =>
-      'Applies blur to all image backgrounds';
+      'Softens image backgrounds with a blur.';
 
   @override
   String get backgroundPriorityHint =>

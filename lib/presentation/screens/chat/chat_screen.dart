@@ -2425,10 +2425,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
+  /// Composer fill opacity when an image background is active.
+  double _composerShellOpacity(String? characterId) {
+    final background = ref
+            .watch(effectiveBackgroundProvider(characterId))
+            .valueOrNull ??
+        ChatBackground.none;
+    if (background.type != BackgroundType.image) return 1.0;
+    return background.bubbleOpacity.clamp(0.0, 1.0);
+  }
+
   Widget _buildInputArea(ActiveChatState chatState) {
     final scheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
     final isDesktop = !(Platform.isIOS || Platform.isAndroid);
+    final composerOpacity =
+        _composerShellOpacity(chatState.character?.id);
 
     return SafeArea(
       top: false,
@@ -2448,6 +2460,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               if (_showChoicePanel) ...[
                 _composerOptionsDismissable(
                   child: _composerExpansionPanel(
+                    opacity: composerOpacity,
                     child: ChatChoicePanel(
                       onSelectChoice: _sendChoiceMessage,
                       onOpenSettings: _openReplyChoicesSettings,
@@ -2460,6 +2473,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               if (_showInputMenu) ...[
                 _composerOptionsDismissable(
                   child: _composerExpansionPanel(
+                    opacity: composerOpacity,
                     child: _buildInputMenuPanel(
                       _inputMenuShowsQuickReplies(chatState),
                       chatState,
@@ -2472,7 +2486,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 behavior: HitTestBehavior.translucent,
                 onTap: _focusMessageInputAtEnd,
                 child: DecoratedBox(
-                  decoration: ZephyrChatChrome.composerShell(context),
+                  decoration: ZephyrChatChrome.composerShell(
+                    context,
+                    opacity: composerOpacity,
+                  ),
                   child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2617,9 +2634,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _composerExpansionPanel({required Widget child}) {
+  Widget _composerExpansionPanel({
+    required Widget child,
+    double opacity = 1.0,
+  }) {
     return DecoratedBox(
-      decoration: ZephyrChatChrome.composerShell(context),
+      decoration: ZephyrChatChrome.composerShell(
+        context,
+        opacity: opacity,
+      ),
       child: Material(
         type: MaterialType.transparency,
         clipBehavior: Clip.antiAlias,

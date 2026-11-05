@@ -5400,13 +5400,13 @@
   "@googleDriveBackups": {
     "description": "Google Drive backups section title"
   },
-  "bubbleOpacity": "Message Opacity",
+  "bubbleOpacity": "Bubbles & input",
   "@bubbleOpacity": {
-    "description": "Label for message bubble opacity slider"
+    "description": "Label for message bubble and input opacity slider"
   },
-  "bubbleOpacityHelp": "Controls the transparency of message bubbles when a background is active.",
+  "bubbleOpacityHelp": "Opacity of chat bubbles and the input box over a background image.",
   "@bubbleOpacityHelp": {
-    "description": "Helper text for message bubble opacity slider"
+    "description": "Helper text for message bubble and input opacity slider"
   },
   "swipes": "Swipes",
   "@swipes": {
@@ -5654,8 +5654,8 @@
   "useCharacterImageAsBackgroundHint": "Automatically use the character avatar when available",
   "backgroundOpacity": "Background opacity",
   "backgroundOpacityHint": "Applies to custom and character image backgrounds",
-  "enableBackgroundBlur": "Enable background blur",
-  "enableBackgroundBlurHint": "Applies blur to all image backgrounds",
+  "enableBackgroundBlur": "Background blur",
+  "enableBackgroundBlurHint": "Softens image backgrounds with a blur.",
   "backgroundPriorityHint": "Priority: character background > global background > character image > default color",
   "openRouterUpstreamProvider": "OpenRouter provider",
   "automaticRouting": "Automatic routing",

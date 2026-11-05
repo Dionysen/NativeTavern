@@ -7201,16 +7201,16 @@ abstract class AppLocalizations {
   /// **'Google Drive Backups'**
   String get googleDriveBackups;
 
-  /// Label for message bubble opacity slider
+  /// Label for message bubble and input opacity slider
   ///
   /// In en, this message translates to:
-  /// **'Message Opacity'**
+  /// **'Bubbles & input'**
   String get bubbleOpacity;
 
-  /// Helper text for message bubble opacity slider
+  /// Helper text for message bubble and input opacity slider
   ///
   /// In en, this message translates to:
-  /// **'Controls the transparency of message bubbles when a background is active.'**
+  /// **'Opacity of chat bubbles and the input box over a background image.'**
   String get bubbleOpacityHelp;
 
   /// UI label: Swipes
@@ -7648,13 +7648,13 @@ abstract class AppLocalizations {
   /// No description provided for @enableBackgroundBlur.
   ///
   /// In en, this message translates to:
-  /// **'Enable background blur'**
+  /// **'Background blur'**
   String get enableBackgroundBlur;
 
   /// No description provided for @enableBackgroundBlurHint.
   ///
   /// In en, this message translates to:
-  /// **'Applies blur to all image backgrounds'**
+  /// **'Softens image backgrounds with a blur.'**
   String get enableBackgroundBlurHint;
 
   /// No description provided for @backgroundPriorityHint.
