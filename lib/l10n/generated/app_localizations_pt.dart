@@ -6930,6 +6930,21 @@ class AppLocalizationsPt extends AppLocalizations {
   String get tokenCursor => 'Cursor';
 
   @override
+  String get tokenChatBackground => 'Chat background';
+
+  @override
+  String get tokenCharacterBubble => 'Character bubble';
+
+  @override
+  String get tokenUserBubble => 'User bubble';
+
+  @override
+  String get tokenChatText => 'Message text';
+
+  @override
+  String get tokenDialogueText => 'Spoken dialogue';
+
+  @override
   String get tokenEditorSurfaceDescription => 'Main scaffold background.';
 
   @override
@@ -6967,6 +6982,24 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get tokenCursorDescription => 'Caret color in text fields.';
+
+  @override
+  String get tokenChatBackgroundDescription =>
+      'The chat page background when you haven’t set a picture.';
+
+  @override
+  String get tokenCharacterBubbleDescription =>
+      'The bubble behind character messages.';
+
+  @override
+  String get tokenUserBubbleDescription => 'The bubble behind your messages.';
+
+  @override
+  String get tokenChatTextDescription => 'Normal text inside message bubbles.';
+
+  @override
+  String get tokenDialogueTextDescription =>
+      'Quoted speech in messages. Shown in this color and bold.';
 
   @override
   String get themeColorsSectionTitle => 'Theme colors';

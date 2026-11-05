@@ -10,6 +10,7 @@ import '../../../l10n/generated/app_localizations.dart';
 import '../../providers/background_providers.dart';
 import '../../providers/settings_providers.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/native_tavern_theme.dart';
 import '../../theme/zephyr_chat_chrome.dart';
 import '../../widgets/chat/chat_background_widget.dart';
 import '../../widgets/settings/theme_color_picker.dart';
@@ -301,6 +302,7 @@ class _BackgroundSettingsScreenState
 
   Widget _buildPreviewSection() {
     final scheme = Theme.of(context).colorScheme;
+    final chatColors = context.appChatColors;
     final l10n = AppLocalizations.of(context);
     final hasBackground = _currentBackground.type != BackgroundType.none;
     final bubbleOpacity = _currentBackground.bubbleOpacity;
@@ -321,7 +323,7 @@ class _BackgroundSettingsScreenState
           child: Text(
             text,
             style: TextStyle(
-              color: ZephyrChatChrome.bubbleTextColor(scheme, isUser: isUser),
+              color: ZephyrChatChrome.bubbleTextColor(context, isUser: isUser),
             ),
           ),
         ),
@@ -339,7 +341,7 @@ class _BackgroundSettingsScreenState
               _BackgroundPreviewFull(background: _currentBackground)
             else
               ColoredBox(
-                color: scheme.surface,
+                color: chatColors.chatBackground,
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

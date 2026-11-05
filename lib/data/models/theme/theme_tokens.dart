@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-/// Semantic color roles used by the app chrome.
+/// Semantic color roles used by the app chrome and chat surfaces.
 ///
 /// Values are opaque ARGB integers so this model stays independent from
 /// Flutter's rendering library and can be stored by any platform adapter.
@@ -16,6 +16,11 @@ enum ThemeToken {
   secondaryAccent,
   tertiaryAccent,
   cursor,
+  chatBackground,
+  characterBubble,
+  userBubble,
+  chatText,
+  dialogueText,
 }
 
 enum ThemePreset {
@@ -31,7 +36,7 @@ enum ThemePreset {
 }
 
 class ThemeTokens {
-  const ThemeTokens({
+  ThemeTokens({
     required this.editorSurface,
     required this.sidebarSurface,
     required this.controlSurface,
@@ -43,7 +48,22 @@ class ThemeTokens {
     this.secondaryAccent = defaultSecondaryAccent,
     this.tertiaryAccent = defaultTertiaryAccent,
     required this.cursor,
-  });
+    int? chatBackground,
+    int? characterBubble,
+    int? userBubble,
+    int? chatText,
+    int? dialogueText,
+  })  : chatBackground = chatBackground ?? editorSurface,
+        characterBubble = characterBubble ?? controlSurface,
+        userBubble = userBubble ??
+            blendOnto(
+              accent,
+              editorSurface,
+              surfaceLuminanceOf(editorSurface) > 0.5 ? 0.18 : 0.28,
+            ),
+        chatText = chatText ?? primaryText,
+        // Soft orange tertiary keeps quoted speech distinct from narration.
+        dialogueText = dialogueText ?? tertiaryAccent;
 
   /// Accent for light presets — clear blue that reads well on pale chrome.
   static const lightAccent = 0xFF3376CE;
@@ -58,7 +78,7 @@ class ThemeTokens {
   static const defaultTertiaryAccent = 0xFFE09A5A;
 
   /// Default dark pack (Dark Modern).
-  static const defaults = ThemeTokens(
+  static final defaults = ThemeTokens(
     editorSurface: 0xFF1F1F1F,
     sidebarSurface: 0xFF181818,
     controlSurface: 0xFF313131,
@@ -70,7 +90,7 @@ class ThemeTokens {
     cursor: 0xFFFFFFFF,
   );
 
-  static const presets = <ThemePreset, ThemeTokens>{
+  static final presets = <ThemePreset, ThemeTokens>{
     ThemePreset.light: ThemeTokens(
       editorSurface: 0xFFF9F9FA,
       sidebarSurface: 0xFFF1F3F6,
@@ -173,14 +193,23 @@ class ThemeTokens {
   final int secondaryAccent;
   final int tertiaryAccent;
   final int cursor;
+  final int chatBackground;
+  final int characterBubble;
+  final int userBubble;
+  final int chatText;
+  final int dialogueText;
 
   ThemePreset? get preset => ThemePreset.values
       .where((candidate) => presets[candidate] == this)
       .firstOrNull;
 
   /// Relative luminance of [editorSurface] in 0…1 (sRGB).
-  double get surfaceLuminance {
-    final c = editorSurface & 0xFFFFFF;
+  double get surfaceLuminance => surfaceLuminanceOf(editorSurface);
+
+  bool get isLight => surfaceLuminance > 0.5;
+
+  static double surfaceLuminanceOf(int argb) {
+    final c = argb & 0xFFFFFF;
     double linearize(int value) {
       final v = value / 255.0;
       return v <= 0.04045
@@ -194,7 +223,20 @@ class ThemeTokens {
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   }
 
-  bool get isLight => surfaceLuminance > 0.5;
+  /// Opaque alpha-blend of [foreground] onto [background].
+  static int blendOnto(int foreground, int background, double alpha) {
+    final t = alpha.clamp(0.0, 1.0);
+    int channel(int shift) {
+      final fg = (foreground >> shift) & 0xFF;
+      final bg = (background >> shift) & 0xFF;
+      return (fg * t + bg * (1 - t)).round().clamp(0, 255);
+    }
+
+    return 0xFF000000 |
+        (channel(16) << 16) |
+        (channel(8) << 8) |
+        channel(0);
+  }
 
   int valueOf(ThemeToken token) => switch (token) {
         ThemeToken.editorSurface => editorSurface,
@@ -208,6 +250,11 @@ class ThemeTokens {
         ThemeToken.secondaryAccent => secondaryAccent,
         ThemeToken.tertiaryAccent => tertiaryAccent,
         ThemeToken.cursor => cursor,
+        ThemeToken.chatBackground => chatBackground,
+        ThemeToken.characterBubble => characterBubble,
+        ThemeToken.userBubble => userBubble,
+        ThemeToken.chatText => chatText,
+        ThemeToken.dialogueText => dialogueText,
       };
 
   ThemeTokens withValue(ThemeToken token, int value) => switch (token) {
@@ -222,6 +269,11 @@ class ThemeTokens {
         ThemeToken.secondaryAccent => copyWith(secondaryAccent: value),
         ThemeToken.tertiaryAccent => copyWith(tertiaryAccent: value),
         ThemeToken.cursor => copyWith(cursor: value),
+        ThemeToken.chatBackground => copyWith(chatBackground: value),
+        ThemeToken.characterBubble => copyWith(characterBubble: value),
+        ThemeToken.userBubble => copyWith(userBubble: value),
+        ThemeToken.chatText => copyWith(chatText: value),
+        ThemeToken.dialogueText => copyWith(dialogueText: value),
       };
 
   ThemeTokens copyWith({
@@ -236,6 +288,11 @@ class ThemeTokens {
     int? secondaryAccent,
     int? tertiaryAccent,
     int? cursor,
+    int? chatBackground,
+    int? characterBubble,
+    int? userBubble,
+    int? chatText,
+    int? dialogueText,
   }) =>
       ThemeTokens(
         editorSurface: editorSurface ?? this.editorSurface,
@@ -249,6 +306,11 @@ class ThemeTokens {
         secondaryAccent: secondaryAccent ?? this.secondaryAccent,
         tertiaryAccent: tertiaryAccent ?? this.tertiaryAccent,
         cursor: cursor ?? this.cursor,
+        chatBackground: chatBackground ?? this.chatBackground,
+        characterBubble: characterBubble ?? this.characterBubble,
+        userBubble: userBubble ?? this.userBubble,
+        chatText: chatText ?? this.chatText,
+        dialogueText: dialogueText ?? this.dialogueText,
       );
 
   Map<String, dynamic> toJson() => {
@@ -263,22 +325,38 @@ class ThemeTokens {
         'secondaryAccent': secondaryAccent,
         'tertiaryAccent': tertiaryAccent,
         'cursor': cursor,
+        'chatBackground': chatBackground,
+        'characterBubble': characterBubble,
+        'userBubble': userBubble,
+        'chatText': chatText,
+        'dialogueText': dialogueText,
       };
 
-  factory ThemeTokens.fromJson(Map<String, dynamic> json) => ThemeTokens(
-        editorSurface: json['editorSurface'] as int,
-        sidebarSurface: json['sidebarSurface'] as int,
-        controlSurface: json['controlSurface'] as int,
-        border: json['border'] as int,
-        divider: json['divider'] as int,
-        primaryText: json['primaryText'] as int,
-        mutedText: json['mutedText'] as int,
-        accent: json['accent'] as int,
-        secondaryAccent:
-            json['secondaryAccent'] as int? ?? defaultSecondaryAccent,
-        tertiaryAccent: json['tertiaryAccent'] as int? ?? defaultTertiaryAccent,
-        cursor: json['cursor'] as int,
-      );
+  factory ThemeTokens.fromJson(Map<String, dynamic> json) {
+    final editorSurface = json['editorSurface'] as int;
+    final controlSurface = json['controlSurface'] as int;
+    final primaryText = json['primaryText'] as int;
+    final accent = json['accent'] as int;
+    return ThemeTokens(
+      editorSurface: editorSurface,
+      sidebarSurface: json['sidebarSurface'] as int,
+      controlSurface: controlSurface,
+      border: json['border'] as int,
+      divider: json['divider'] as int,
+      primaryText: primaryText,
+      mutedText: json['mutedText'] as int,
+      accent: accent,
+      secondaryAccent:
+          json['secondaryAccent'] as int? ?? defaultSecondaryAccent,
+      tertiaryAccent: json['tertiaryAccent'] as int? ?? defaultTertiaryAccent,
+      cursor: json['cursor'] as int,
+      chatBackground: json['chatBackground'] as int?,
+      characterBubble: json['characterBubble'] as int?,
+      userBubble: json['userBubble'] as int?,
+      chatText: json['chatText'] as int?,
+      dialogueText: json['dialogueText'] as int?,
+    );
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -293,7 +371,12 @@ class ThemeTokens {
       accent == other.accent &&
       secondaryAccent == other.secondaryAccent &&
       tertiaryAccent == other.tertiaryAccent &&
-      cursor == other.cursor;
+      cursor == other.cursor &&
+      chatBackground == other.chatBackground &&
+      characterBubble == other.characterBubble &&
+      userBubble == other.userBubble &&
+      chatText == other.chatText &&
+      dialogueText == other.dialogueText;
 
   @override
   int get hashCode => Object.hash(
@@ -308,5 +391,10 @@ class ThemeTokens {
         secondaryAccent,
         tertiaryAccent,
         cursor,
+        chatBackground,
+        characterBubble,
+        userBubble,
+        chatText,
+        dialogueText,
       );
 }

@@ -25,7 +25,7 @@ void main() {
   });
 
   group('dialogueQuoteColor', () {
-    test('returns theme-derived colors', () {
+    test('returns theme-derived distinctive colors', () {
       const scheme = ColorScheme.dark();
       expect(
         dialogueQuoteColor(scheme, isUser: false),

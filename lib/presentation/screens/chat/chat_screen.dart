@@ -3586,7 +3586,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                                 MessageContentWidget(
                                   content: _displayContent(),
                                   textColor: ZephyrChatChrome.bubbleTextColor(
-                                    Theme.of(context).colorScheme,
+                                    context,
                                     isUser: isUser,
                                   ),
                                   isUser: isUser,

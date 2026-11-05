@@ -12309,46 +12309,76 @@ abstract class AppLocalizations {
   /// **'Cursor'**
   String get tokenCursor;
 
+  /// No description provided for @tokenChatBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat background'**
+  String get tokenChatBackground;
+
+  /// No description provided for @tokenCharacterBubble.
+  ///
+  /// In en, this message translates to:
+  /// **'Character bubble'**
+  String get tokenCharacterBubble;
+
+  /// No description provided for @tokenUserBubble.
+  ///
+  /// In en, this message translates to:
+  /// **'User bubble'**
+  String get tokenUserBubble;
+
+  /// No description provided for @tokenChatText.
+  ///
+  /// In en, this message translates to:
+  /// **'Message text'**
+  String get tokenChatText;
+
+  /// No description provided for @tokenDialogueText.
+  ///
+  /// In en, this message translates to:
+  /// **'Spoken dialogue'**
+  String get tokenDialogueText;
+
   /// No description provided for @tokenEditorSurfaceDescription.
   ///
   /// In en, this message translates to:
-  /// **'Main scaffold background.'**
+  /// **'The main app background.'**
   String get tokenEditorSurfaceDescription;
 
   /// No description provided for @tokenSidebarSurfaceDescription.
   ///
   /// In en, this message translates to:
-  /// **'Background of side panels and drawers.'**
+  /// **'Side panels and drawers.'**
   String get tokenSidebarSurfaceDescription;
 
   /// No description provided for @tokenControlSurfaceDescription.
   ///
   /// In en, this message translates to:
-  /// **'Fill color for fields, menus, and cards.'**
+  /// **'Buttons, menus, and input fields.'**
   String get tokenControlSurfaceDescription;
 
   /// No description provided for @tokenBorderDescription.
   ///
   /// In en, this message translates to:
-  /// **'Outlines around buttons and fields.'**
+  /// **'Borders around buttons and fields.'**
   String get tokenBorderDescription;
 
   /// No description provided for @tokenDividerDescription.
   ///
   /// In en, this message translates to:
-  /// **'List and section separators.'**
+  /// **'Lines between lists and sections.'**
   String get tokenDividerDescription;
 
   /// No description provided for @tokenPrimaryTextDescription.
   ///
   /// In en, this message translates to:
-  /// **'Default title and body copy color.'**
+  /// **'Titles and body text.'**
   String get tokenPrimaryTextDescription;
 
   /// No description provided for @tokenMutedTextDescription.
   ///
   /// In en, this message translates to:
-  /// **'Softer color for hints and captions.'**
+  /// **'Hints and secondary labels.'**
   String get tokenMutedTextDescription;
 
   /// No description provided for @tokenAccentDescription.
@@ -12360,20 +12390,50 @@ abstract class AppLocalizations {
   /// No description provided for @tokenSecondaryAccentDescription.
   ///
   /// In en, this message translates to:
-  /// **'Second accent for section and action contrast.'**
+  /// **'Another highlight color for sections and actions.'**
   String get tokenSecondaryAccentDescription;
 
   /// No description provided for @tokenTertiaryAccentDescription.
   ///
   /// In en, this message translates to:
-  /// **'Third accent for additional section contrast.'**
+  /// **'A third highlight color when you need more contrast.'**
   String get tokenTertiaryAccentDescription;
 
   /// No description provided for @tokenCursorDescription.
   ///
   /// In en, this message translates to:
-  /// **'Caret color in text fields.'**
+  /// **'The blinking cursor in text fields.'**
   String get tokenCursorDescription;
+
+  /// No description provided for @tokenChatBackgroundDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The chat page background when you haven’t set a picture.'**
+  String get tokenChatBackgroundDescription;
+
+  /// No description provided for @tokenCharacterBubbleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The bubble behind character messages.'**
+  String get tokenCharacterBubbleDescription;
+
+  /// No description provided for @tokenUserBubbleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The bubble behind your messages.'**
+  String get tokenUserBubbleDescription;
+
+  /// No description provided for @tokenChatTextDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal text inside message bubbles.'**
+  String get tokenChatTextDescription;
+
+  /// No description provided for @tokenDialogueTextDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Quoted speech in messages. Shown in this color and bold.'**
+  String get tokenDialogueTextDescription;
 
   /// No description provided for @themeColorsSectionTitle.
   ///

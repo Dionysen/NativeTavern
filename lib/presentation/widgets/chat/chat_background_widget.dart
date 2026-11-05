@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/chat_background.dart';
 import '../../../core/utils/path_utils.dart';
 import '../../providers/background_providers.dart';
+import '../../theme/native_tavern_theme.dart';
 import '../common/character_avatar_image.dart';
 
 /// Widget that renders a chat background
@@ -21,23 +22,34 @@ class ChatBackgroundWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final backgroundAsync = ref.watch(effectiveBackgroundProvider(characterId));
+    final chatBackground = context.appChatColors.chatBackground;
+
+    Widget withBase(Widget foreground) => Stack(
+          fit: StackFit.expand,
+          children: [
+            ColoredBox(color: chatBackground),
+            foreground,
+          ],
+        );
 
     return backgroundAsync.when(
       data: (background) {
         if (background.type == BackgroundType.none) {
-          return child;
+          return withBase(child);
         }
 
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            _BackgroundRenderer(background: background),
-            child,
-          ],
+        return withBase(
+          Stack(
+            fit: StackFit.expand,
+            children: [
+              _BackgroundRenderer(background: background),
+              child,
+            ],
+          ),
         );
       },
-      loading: () => child, // Show without background while loading
-      error: (_, __) => child, // Show without background on error
+      loading: () => withBase(child),
+      error: (_, __) => withBase(child),
     );
   }
 }

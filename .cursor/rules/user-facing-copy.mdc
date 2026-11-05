@@ -1,0 +1,37 @@
+---
+description: Keep in-app UI copy user-facing, not developer comments
+alwaysApply: true
+---
+
+# User-facing UI copy
+
+Settings labels, subtitles, helper text, empty states, and dialogs are for
+**end users**. Tell them what the control does in everyday language.
+
+## Do
+
+- Write short, plain copy that answers “what is this for?” / “how do I use it?”
+- Prefer concrete product language: chat, bubble, message, background, highlight
+- Keep descriptions one short sentence when possible
+- Match the user’s locale tone (中文自然口语；English clear and simple)
+
+## Don't
+
+- Do not write like code comments or internal docs
+- Do not expose implementation terms: scaffold, token, ARGB, lerp, ColorScheme,
+  surfaceContainer, accent weight, “defaults to X”, “opaque fill”, “narration”
+- Do not explain architecture, fallbacks, or how the theme engine derives values
+- Do not stack multiple technical clauses with semicolons
+
+## Examples
+
+```text
+❌ Solid fill behind the chat when no image background is set.
+✅ The chat page background when you haven’t set a picture.
+
+❌ Quoted speech color inside bubbles; defaults to a distinct accent and bold weight.
+✅ Quoted speech in messages. Shown in this color and bold.
+
+❌ 气泡内引号对白的颜色；默认使用区分色并加粗
+✅ 引号里说的话会用这个颜色，并加粗显示。
+```

@@ -6665,37 +6665,67 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tokenCursor => '光标';
 
   @override
-  String get tokenEditorSurfaceDescription => '主界面背景色';
+  String get tokenChatBackground => '聊天背景';
 
   @override
-  String get tokenSidebarSurfaceDescription => '侧栏与面板背景色';
+  String get tokenCharacterBubble => '角色气泡背景';
 
   @override
-  String get tokenControlSurfaceDescription => '输入框、菜单与卡片的填充色';
+  String get tokenUserBubble => '用户气泡背景';
 
   @override
-  String get tokenBorderDescription => '按钮和输入框的边框';
+  String get tokenChatText => '文字颜色';
 
   @override
-  String get tokenDividerDescription => '列表与分区分隔线';
+  String get tokenDialogueText => '说话文字颜色';
 
   @override
-  String get tokenPrimaryTextDescription => '默认标题与正文字色';
+  String get tokenEditorSurfaceDescription => '整个应用的底色。';
 
   @override
-  String get tokenMutedTextDescription => '提示与说明文字的较淡色';
+  String get tokenSidebarSurfaceDescription => '侧边栏和弹出面板。';
 
   @override
-  String get tokenAccentDescription => '高亮和选中状态';
+  String get tokenControlSurfaceDescription => '按钮、菜单和输入框。';
 
   @override
-  String get tokenSecondaryAccentDescription => '用于区块与操作区分的第二强调色';
+  String get tokenBorderDescription => '按钮和输入框的描边。';
 
   @override
-  String get tokenTertiaryAccentDescription => '用于额外区块区分的第三强调色';
+  String get tokenDividerDescription => '列表和分区之间的分隔线。';
 
   @override
-  String get tokenCursorDescription => '输入框光标颜色';
+  String get tokenPrimaryTextDescription => '标题和正文。';
+
+  @override
+  String get tokenMutedTextDescription => '提示和说明文字。';
+
+  @override
+  String get tokenAccentDescription => '高亮和选中效果。';
+
+  @override
+  String get tokenSecondaryAccentDescription => '用来区分区块和操作的另一种强调色。';
+
+  @override
+  String get tokenTertiaryAccentDescription => '再一种强调色，用在需要区分的地方。';
+
+  @override
+  String get tokenCursorDescription => '输入时闪烁的光标。';
+
+  @override
+  String get tokenChatBackgroundDescription => '没有设置背景图时，聊天页的底色。';
+
+  @override
+  String get tokenCharacterBubbleDescription => '角色消息气泡的颜色。';
+
+  @override
+  String get tokenUserBubbleDescription => '你发出的消息气泡颜色。';
+
+  @override
+  String get tokenChatTextDescription => '消息里的普通文字。';
+
+  @override
+  String get tokenDialogueTextDescription => '引号里说的话会用这个颜色，并加粗显示。';
 
   @override
   String get themeColorsSectionTitle => '主题颜色';
@@ -13404,28 +13434,43 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get tokenCursor => '游標';
 
   @override
-  String get tokenEditorSurfaceDescription => '主界面背景色';
+  String get tokenChatBackground => '聊天背景';
 
   @override
-  String get tokenSidebarSurfaceDescription => '側欄與面板背景色';
+  String get tokenCharacterBubble => '角色氣泡背景';
 
   @override
-  String get tokenControlSurfaceDescription => '輸入框、選單與卡片的填充色';
+  String get tokenUserBubble => '使用者氣泡背景';
 
   @override
-  String get tokenBorderDescription => '按钮和輸入框的邊框';
+  String get tokenChatText => '文字顏色';
 
   @override
-  String get tokenDividerDescription => '清單與分區分隔线';
+  String get tokenDialogueText => '說話文字顏色';
 
   @override
-  String get tokenPrimaryTextDescription => '預設標題與內文字色';
+  String get tokenEditorSurfaceDescription => '整個應用的底色。';
 
   @override
-  String get tokenMutedTextDescription => '提示與說明文字的較淡色';
+  String get tokenSidebarSurfaceDescription => '側邊欄和彈出面板。';
 
   @override
-  String get tokenAccentDescription => '高亮和選取狀態';
+  String get tokenControlSurfaceDescription => '按鈕、選單和輸入框。';
+
+  @override
+  String get tokenBorderDescription => '按鈕和輸入框的描邊。';
+
+  @override
+  String get tokenDividerDescription => '清單和分區之間的分隔線。';
+
+  @override
+  String get tokenPrimaryTextDescription => '標題和正文。';
+
+  @override
+  String get tokenMutedTextDescription => '提示和說明文字。';
+
+  @override
+  String get tokenAccentDescription => '高亮和選取效果。';
 
   @override
   String get tokenSecondaryAccentDescription => '用於區塊與操作區分的第二強調色';
@@ -13434,7 +13479,22 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get tokenTertiaryAccentDescription => '用於額外區塊區分的第三強調色';
 
   @override
-  String get tokenCursorDescription => '輸入框游標顏色';
+  String get tokenCursorDescription => '輸入時閃爍的游標。';
+
+  @override
+  String get tokenChatBackgroundDescription => '沒有設定背景圖時，聊天頁的底色。';
+
+  @override
+  String get tokenCharacterBubbleDescription => '角色訊息氣泡的顏色。';
+
+  @override
+  String get tokenUserBubbleDescription => '你發出的訊息氣泡顏色。';
+
+  @override
+  String get tokenChatTextDescription => '訊息裡的普通文字。';
+
+  @override
+  String get tokenDialogueTextDescription => '引號裡說的話會用這個顏色，並加粗顯示。';
 
   @override
   String get themeColorsSectionTitle => '主題顏色';

@@ -209,21 +209,17 @@ abstract final class ZephyrChatChrome {
     required bool highlighted,
   }) {
     final scheme = Theme.of(context).colorScheme;
+    final chat = context.appChatColors;
     final radius = context.appChatBubbleCornerRadius;
+    final base = isUser ? chat.userBubble : chat.characterBubble;
 
     final Color fill;
     if (transparent && hasBackground) {
-      fill = isUser
-          ? scheme.primaryContainer.withValues(alpha: 0.55)
-          : scheme.surfaceContainerHigh.withValues(alpha: 0.55);
-    } else if (isUser) {
-      fill = hasBackground
-          ? scheme.primaryContainer.withValues(alpha: bubbleOpacity)
-          : scheme.primaryContainer;
+      fill = base.withValues(alpha: 0.55);
+    } else if (hasBackground) {
+      fill = base.withValues(alpha: bubbleOpacity);
     } else {
-      fill = hasBackground
-          ? scheme.surfaceContainerHigh.withValues(alpha: bubbleOpacity)
-          : scheme.surfaceContainerHigh;
+      fill = base;
     }
 
     return ShapeDecoration(
@@ -237,16 +233,15 @@ abstract final class ZephyrChatChrome {
     );
   }
 
-  static Color bubbleTextColor(ColorScheme scheme, {required bool isUser}) =>
-      isUser ? scheme.onPrimaryContainer : scheme.onSurface;
+  static Color bubbleTextColor(BuildContext context, {required bool isUser}) =>
+      context.appChatColors.chatText;
 
-  /// Quoted speech (`"..."`) inside a bubble — distinct from narration.
-  static Color dialogueTextColor(ColorScheme scheme, {required bool isUser}) {
-    if (isUser) {
-      return Color.lerp(scheme.onPrimaryContainer, scheme.tertiary, 0.55)!;
-    }
-    return scheme.tertiary;
-  }
+  /// Quoted speech (`"..."`) inside a bubble — distinct from narration by default.
+  static Color dialogueTextColor(BuildContext context, {required bool isUser}) =>
+      context.appChatColors.dialogueText;
+
+  /// Quoted speech weight — bold on top of the dialogue color.
+  static FontWeight get dialogueFontWeight => FontWeight.bold;
 
   /// Shared chat body size for bubbles and the composer input.
   ///

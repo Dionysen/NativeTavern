@@ -178,6 +178,7 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
     }
     .nt-dialogue {
       color: $dialogueColorHex;
+      font-weight: 700;
     }
     #measure-root {
       display: flow-root;

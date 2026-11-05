@@ -12,8 +12,10 @@ final RegExp dialogueQuotePattern = RegExp(
 );
 
 /// Theme-aware color for quoted dialogue inside chat bubbles.
+///
+/// Prefer [ZephyrChatChrome.dialogueTextColor]; this helper remains for
+/// call sites that only have a [ColorScheme].
 Color dialogueQuoteColor(ColorScheme scheme, {required bool isUser}) {
-  // Keep speech distinct from narration while still following the active theme.
   if (isUser) {
     return Color.lerp(scheme.onPrimaryContainer, scheme.tertiary, 0.55)!;
   }

@@ -6927,43 +6927,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tokenCursor => 'Cursor';
 
   @override
-  String get tokenEditorSurfaceDescription => 'Main scaffold background.';
+  String get tokenChatBackground => 'Chat background';
 
   @override
-  String get tokenSidebarSurfaceDescription =>
-      'Background of side panels and drawers.';
+  String get tokenCharacterBubble => 'Character bubble';
+
+  @override
+  String get tokenUserBubble => 'User bubble';
+
+  @override
+  String get tokenChatText => 'Message text';
+
+  @override
+  String get tokenDialogueText => 'Spoken dialogue';
+
+  @override
+  String get tokenEditorSurfaceDescription => 'The main app background.';
+
+  @override
+  String get tokenSidebarSurfaceDescription => 'Side panels and drawers.';
 
   @override
   String get tokenControlSurfaceDescription =>
-      'Fill color for fields, menus, and cards.';
+      'Buttons, menus, and input fields.';
 
   @override
-  String get tokenBorderDescription => 'Outlines around buttons and fields.';
+  String get tokenBorderDescription => 'Borders around buttons and fields.';
 
   @override
-  String get tokenDividerDescription => 'List and section separators.';
+  String get tokenDividerDescription => 'Lines between lists and sections.';
 
   @override
-  String get tokenPrimaryTextDescription =>
-      'Default title and body copy color.';
+  String get tokenPrimaryTextDescription => 'Titles and body text.';
 
   @override
-  String get tokenMutedTextDescription =>
-      'Softer color for hints and captions.';
+  String get tokenMutedTextDescription => 'Hints and secondary labels.';
 
   @override
   String get tokenAccentDescription => 'Highlights and selected items.';
 
   @override
   String get tokenSecondaryAccentDescription =>
-      'Second accent for section and action contrast.';
+      'Another highlight color for sections and actions.';
 
   @override
   String get tokenTertiaryAccentDescription =>
-      'Third accent for additional section contrast.';
+      'A third highlight color when you need more contrast.';
 
   @override
-  String get tokenCursorDescription => 'Caret color in text fields.';
+  String get tokenCursorDescription => 'The blinking cursor in text fields.';
+
+  @override
+  String get tokenChatBackgroundDescription =>
+      'The chat page background when you haven’t set a picture.';
+
+  @override
+  String get tokenCharacterBubbleDescription =>
+      'The bubble behind character messages.';
+
+  @override
+  String get tokenUserBubbleDescription => 'The bubble behind your messages.';
+
+  @override
+  String get tokenChatTextDescription => 'Normal text inside message bubbles.';
+
+  @override
+  String get tokenDialogueTextDescription =>
+      'Quoted speech in messages. Shown in this color and bold.';
 
   @override
   String get themeColorsSectionTitle => 'Theme colors';

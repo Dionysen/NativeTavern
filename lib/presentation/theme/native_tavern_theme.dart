@@ -103,10 +103,68 @@ class AppShapeTheme extends ThemeExtension<AppShapeTheme> {
   }
 }
 
+/// Chat surface colors owned by [ThemeTokens] chat roles.
+@immutable
+class AppChatColors extends ThemeExtension<AppChatColors> {
+  const AppChatColors({
+    required this.chatBackground,
+    required this.characterBubble,
+    required this.userBubble,
+    required this.chatText,
+    required this.dialogueText,
+  });
+
+  factory AppChatColors.fromTokens(ThemeTokens tokens) => AppChatColors(
+        chatBackground: Color(tokens.chatBackground),
+        characterBubble: Color(tokens.characterBubble),
+        userBubble: Color(tokens.userBubble),
+        chatText: Color(tokens.chatText),
+        dialogueText: Color(tokens.dialogueText),
+      );
+
+  final Color chatBackground;
+  final Color characterBubble;
+  final Color userBubble;
+  final Color chatText;
+  final Color dialogueText;
+
+  @override
+  AppChatColors copyWith({
+    Color? chatBackground,
+    Color? characterBubble,
+    Color? userBubble,
+    Color? chatText,
+    Color? dialogueText,
+  }) =>
+      AppChatColors(
+        chatBackground: chatBackground ?? this.chatBackground,
+        characterBubble: characterBubble ?? this.characterBubble,
+        userBubble: userBubble ?? this.userBubble,
+        chatText: chatText ?? this.chatText,
+        dialogueText: dialogueText ?? this.dialogueText,
+      );
+
+  @override
+  AppChatColors lerp(ThemeExtension<AppChatColors>? other, double t) {
+    if (other is! AppChatColors) return this;
+    return AppChatColors(
+      chatBackground: Color.lerp(chatBackground, other.chatBackground, t)!,
+      characterBubble: Color.lerp(characterBubble, other.characterBubble, t)!,
+      userBubble: Color.lerp(userBubble, other.userBubble, t)!,
+      chatText: Color.lerp(chatText, other.chatText, t)!,
+      dialogueText: Color.lerp(dialogueText, other.dialogueText, t)!,
+    );
+  }
+}
+
 extension AppThemeContext on BuildContext {
   AppShapeTheme get appShape =>
       Theme.of(this).extension<AppShapeTheme>() ??
       const AppShapeTheme(cornerRadius: ChromeControls.defaultCornerRadius);
+
+  AppChatColors get appChatColors =>
+      Theme.of(this).extension<AppChatColors>() ??
+      AppChatColors.fromTokens(ThemeTokens.defaults);
 
   double get appCornerRadius => appShape.cornerRadius;
 
@@ -178,7 +236,7 @@ ThemeData buildNativeTavernTheme(
     // Keep density identical on phone and desktop; adaptive compact on macOS
     // was shrinking chrome relative to Android.
     visualDensity: VisualDensity.standard,
-    extensions: [shape],
+    extensions: [shape, AppChatColors.fromTokens(tokens)],
     colorScheme: ColorScheme.fromSeed(seedColor: accent, brightness: brightness)
         .copyWith(
       primary: accent,
@@ -196,11 +254,10 @@ ThemeData buildNativeTavernTheme(
         editor,
       ),
       onTertiaryContainer: primaryText,
-      primaryContainer: Color.alphaBlend(
-        accent.withValues(alpha: brightness == Brightness.dark ? .28 : .18),
-        editor,
-      ),
-      onPrimaryContainer: primaryText,
+      // Keep Material roles aligned with dedicated chat tokens so legacy
+      // ColorScheme lookups (menus, highlights) stay coherent.
+      primaryContainer: Color(tokens.userBubble),
+      onPrimaryContainer: Color(tokens.chatText),
       surface: editor,
       onSurface: primaryText,
       surfaceContainerLowest: sidebar,

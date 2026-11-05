@@ -224,7 +224,7 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
   Widget _buildContent(BuildContext context) {
     final hasHtml = _containsHtml(widget.content);
     final dialogueColor = ZephyrChatChrome.dialogueTextColor(
-      Theme.of(context).colorScheme,
+      context,
       isUser: widget.isUser,
     );
 
@@ -441,6 +441,7 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
     final dialogueStyle = TextStyle(
       color: dialogueColor,
       fontSize: effectiveFontSize,
+      fontWeight: ZephyrChatChrome.dialogueFontWeight,
     );
     
     return SelectionArea(

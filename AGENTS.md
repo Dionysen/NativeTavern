@@ -11,3 +11,9 @@ forces a difference (pickers, permissions, Live2D host, share sheets).
 - Prefer circular icon-only FABs with `tooltip` over extended labeled FABs for
   primary create actions (e.g. home new chat).
 - See `.cursor/rules/cross-platform-ui.mdc` for the full rule.
+
+## User-facing UI copy
+
+In-app labels, subtitles, and helpers are for end users: say what the control
+is for in plain language. Do not write like code comments or expose
+implementation terms. See `.cursor/rules/user-facing-copy.mdc`.
