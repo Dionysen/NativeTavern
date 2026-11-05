@@ -815,7 +815,7 @@ class AppSettings {
     this.confirmBeforeDelete = true,
     this.autoSaveChats = true,
     this.enableDebugLog = false,
-    this.useCharacterAvatarAsBackground = true,
+    this.useCharacterAvatarAsBackground = false,
     this.enableBackgroundBlur = false,
     this.backgroundOpacity = 1.0,
     this.chatLayoutMode = 'bubble',
@@ -916,7 +916,7 @@ class AppSettings {
       autoSaveChats: json['autoSaveChats'] as bool? ?? true,
       enableDebugLog: json['enableDebugLog'] as bool? ?? false,
       useCharacterAvatarAsBackground:
-          json['useCharacterAvatarAsBackground'] as bool? ?? true,
+          json['useCharacterAvatarAsBackground'] as bool? ?? false,
       enableBackgroundBlur: json['enableBackgroundBlur'] as bool? ?? false,
       backgroundOpacity: (json['backgroundOpacity'] as num?)?.toDouble() ?? 1.0,
       chatLayoutMode: json['chatLayoutMode'] as String? ?? 'bubble',
