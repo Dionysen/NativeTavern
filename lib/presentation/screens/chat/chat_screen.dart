@@ -2979,17 +2979,35 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ],
                 ),
               ),
-              _inputMenuPlainIconChip(
-                tooltip: AppLocalizations.of(context).settings,
-                icon: Icons.settings_outlined,
-                onTap: () {
-                  _setInputMenuVisible(false);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) {
-                      context.push(AppRoutes.settingsPush);
-                    }
-                  });
-                },
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _inputMenuPlainIconChip(
+                    tooltip: AppLocalizations.of(context).appearanceSectionTitle,
+                    icon: Icons.palette_outlined,
+                    onTap: () {
+                      _setInputMenuVisible(false);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          context.push(AppRoutes.appearancePush);
+                        }
+                      });
+                    },
+                  ),
+                  const SizedBox(width: ChromeControls.appBarActionGap),
+                  _inputMenuPlainIconChip(
+                    tooltip: AppLocalizations.of(context).settings,
+                    icon: Icons.settings_outlined,
+                    onTap: () {
+                      _setInputMenuVisible(false);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) {
+                          context.push(AppRoutes.settingsPush);
+                        }
+                      });
+                    },
+                  ),
+                ],
               ),
             ],
           ),

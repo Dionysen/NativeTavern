@@ -61,6 +61,8 @@ abstract class AppRoutes {
   /// Full-screen settings when opened from chat (root navigator).
   static const settingsPush = '/settings-push';
   static const appearance = '/appearance';
+  /// Full-screen appearance when opened from chat (root navigator).
+  static const appearancePush = '/appearance-push';
   static const aiConfig = '/ai-config';
   static const promptManager = '/prompt-manager';
   static const advancedSettings = '/advanced-settings';
@@ -261,6 +263,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
+        path: AppRoutes.appearancePush,
+        name: 'appearancePush',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AppearanceScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.backgroundSettings,
         name: 'backgroundSettings',
         parentNavigatorKey: _rootNavigatorKey,
@@ -269,7 +277,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.themeSettings,
         name: 'themeSettings',
-        redirect: (context, state) => AppRoutes.appearance,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AppearanceScreen(),
       ),
       GoRoute(
         path: AppRoutes.statistics,
