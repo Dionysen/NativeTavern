@@ -1,7 +1,10 @@
+import 'app_font_family.dart';
+
 /// Shell chrome typography and shape, independent of semantic color tokens.
 class UiPreferences {
   const UiPreferences({
     required this.fontSize,
+    required this.fontFamilyId,
     required this.cornerRadius,
     required this.barCornerRadius,
     required this.chatBubbleCornerRadius,
@@ -10,6 +13,7 @@ class UiPreferences {
 
   static const defaults = UiPreferences(
     fontSize: 16,
+    fontFamilyId: AppFontFamily.system,
     cornerRadius: 4,
     barCornerRadius: 4,
     chatBubbleCornerRadius: 30,
@@ -28,6 +32,9 @@ class UiPreferences {
 
   final double fontSize;
 
+  /// [AppFontFamily] id; system uses the platform default face.
+  final String fontFamilyId;
+
   /// Shared corner radius for chrome controls, menus, cards, and dialogs.
   final double cornerRadius;
 
@@ -42,8 +49,11 @@ class UiPreferences {
 
   double get scale => fontSize / referenceFontSize;
 
+  String? get fontFamily => AppFontFamily.resolve(fontFamilyId);
+
   UiPreferences copyWith({
     double? fontSize,
+    String? fontFamilyId,
     double? cornerRadius,
     double? barCornerRadius,
     double? chatBubbleCornerRadius,
@@ -51,6 +61,7 @@ class UiPreferences {
   }) =>
       UiPreferences(
         fontSize: fontSize ?? this.fontSize,
+        fontFamilyId: fontFamilyId ?? this.fontFamilyId,
         cornerRadius: cornerRadius ?? this.cornerRadius,
         barCornerRadius: barCornerRadius ?? this.barCornerRadius,
         chatBubbleCornerRadius:
@@ -60,6 +71,7 @@ class UiPreferences {
 
   Map<String, dynamic> toJson() => {
         'fontSize': fontSize,
+        'fontFamilyId': fontFamilyId,
         'cornerRadius': cornerRadius,
         'barCornerRadius': barCornerRadius,
         'chatBubbleCornerRadius': chatBubbleCornerRadius,
@@ -68,8 +80,12 @@ class UiPreferences {
 
   factory UiPreferences.fromJson(Map<String, dynamic>? json) {
     if (json == null) return defaults;
+    final rawFamily = json['fontFamilyId'] as String?;
     return UiPreferences(
       fontSize: (json['fontSize'] as num?)?.toDouble() ?? defaults.fontSize,
+      fontFamilyId: AppFontFamily.ids.contains(rawFamily)
+          ? rawFamily!
+          : defaults.fontFamilyId,
       cornerRadius:
           (json['cornerRadius'] as num?)?.toDouble() ?? defaults.cornerRadius,
       barCornerRadius: (json['barCornerRadius'] as num?)?.toDouble() ??

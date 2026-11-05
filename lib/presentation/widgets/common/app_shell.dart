@@ -70,8 +70,11 @@ class _AppNavigation extends StatelessWidget {
     if (location.startsWith('/ai-config')) {
       return 3;
     }
-    if (location.startsWith('/settings')) {
+    if (location.startsWith('/appearance')) {
       return 4;
+    }
+    if (location.startsWith('/settings')) {
+      return 5;
     }
     return 0;
   }
@@ -91,6 +94,9 @@ class _AppNavigation extends StatelessWidget {
         context.go(AppRoutes.aiConfig);
         break;
       case 4:
+        context.go(AppRoutes.appearance);
+        break;
+      case 5:
         context.go(AppRoutes.settings);
         break;
     }
@@ -121,6 +127,11 @@ class _AppNavigation extends StatelessWidget {
         icon: const Icon(Icons.auto_awesome_outlined),
         selectedIcon: const Icon(Icons.auto_awesome),
         label: l10n.aiConfig,
+      ),
+      NavigationDestination(
+        icon: const Icon(Icons.palette_outlined),
+        selectedIcon: const Icon(Icons.palette),
+        label: l10n.appearanceSectionTitle,
       ),
       NavigationDestination(
         icon: const Icon(Icons.settings_outlined),

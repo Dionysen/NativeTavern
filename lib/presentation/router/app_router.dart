@@ -7,6 +7,7 @@ import 'package:native_tavern/presentation/screens/chat/chat_screen.dart';
 import 'package:native_tavern/presentation/screens/character/character_list_screen.dart';
 import 'package:native_tavern/presentation/screens/character/character_detail_screen.dart';
 import 'package:native_tavern/presentation/screens/character_editor/character_editor_screen.dart';
+import 'package:native_tavern/presentation/screens/settings/appearance_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/settings_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/prompt_manager_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/advanced_settings_screen.dart';
@@ -57,6 +58,7 @@ abstract class AppRoutes {
   static const characterEdit = '/characters/:id/edit';
   static const chat = '/chat/:id';
   static const settings = '/settings';
+  static const appearance = '/appearance';
   static const aiConfig = '/ai-config';
   static const promptManager = '/prompt-manager';
   static const advancedSettings = '/advanced-settings';
@@ -101,7 +103,7 @@ abstract class AppRoutes {
 
   /// These routes provide bars that can share UIKit's vertical status column.
   static bool sharesVerticalBar(Uri uri) =>
-      const {home, characters, play, worldInfo, aiConfig, settings}
+      const {home, characters, play, worldInfo, aiConfig, appearance, settings}
           .contains(uri.path) ||
       RegExp(r'^/chat/[^/]+$').hasMatch(uri.path);
 }
@@ -155,6 +157,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             name: 'aiConfig',
             pageBuilder: (context, state) => const NoTransitionPage(
               child: AIConfigScreen(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.appearance,
+            name: 'appearance',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: AppearanceScreen(),
             ),
           ),
           GoRoute(

@@ -307,6 +307,9 @@ class ThemeAppearanceNotifier extends StateNotifier<ThemeState> {
   void updateFontSize(double value) =>
       updateUi(state.ui.copyWith(fontSize: value));
 
+  void updateFontFamilyId(String id) =>
+      updateUi(state.ui.copyWith(fontFamilyId: id));
+
   void updateCornerRadius(double value) =>
       updateUi(state.ui.copyWith(cornerRadius: value));
 

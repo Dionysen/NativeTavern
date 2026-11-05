@@ -6396,6 +6396,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get uiFontSizeDescription => '设置与界面文字大小';
 
   @override
+  String get uiFontFamilyTitle => '字体';
+
+  @override
+  String get uiFontFamilyDescription => '应用界面使用的字体';
+
+  @override
+  String get uiFontFamilySystem => '系统默认';
+
+  @override
+  String get uiFontFamilySerif => '衬线体';
+
+  @override
+  String get uiFontFamilyMonospace => '等宽字体';
+
+  @override
   String get cornerRadiusTitle => '圆角';
 
   @override
@@ -12959,6 +12974,21 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get uiFontSizeDescription => '設定與界面文字大小';
+
+  @override
+  String get uiFontFamilyTitle => '字體';
+
+  @override
+  String get uiFontFamilyDescription => '應用程式介面使用的字體';
+
+  @override
+  String get uiFontFamilySystem => '系統預設';
+
+  @override
+  String get uiFontFamilySerif => '襯線體';
+
+  @override
+  String get uiFontFamilyMonospace => '等寬字體';
 
   @override
   String get cornerRadiusTitle => '圓角';

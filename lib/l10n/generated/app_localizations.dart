@@ -11805,6 +11805,36 @@ abstract class AppLocalizations {
   /// **'Size of text in settings and the rest of the interface.'**
   String get uiFontSizeDescription;
 
+  /// No description provided for @uiFontFamilyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Font'**
+  String get uiFontFamilyTitle;
+
+  /// No description provided for @uiFontFamilyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Typeface used across the app interface.'**
+  String get uiFontFamilyDescription;
+
+  /// No description provided for @uiFontFamilySystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get uiFontFamilySystem;
+
+  /// No description provided for @uiFontFamilySerif.
+  ///
+  /// In en, this message translates to:
+  /// **'Serif'**
+  String get uiFontFamilySerif;
+
+  /// No description provided for @uiFontFamilyMonospace.
+  ///
+  /// In en, this message translates to:
+  /// **'Monospace'**
+  String get uiFontFamilyMonospace;
+
   /// No description provided for @cornerRadiusTitle.
   ///
   /// In en, this message translates to:

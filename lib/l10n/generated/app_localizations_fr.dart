@@ -6652,6 +6652,22 @@ class AppLocalizationsFr extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
+  String get uiFontFamilyTitle => 'Font';
+
+  @override
+  String get uiFontFamilyDescription =>
+      'Typeface used across the app interface.';
+
+  @override
+  String get uiFontFamilySystem => 'System default';
+
+  @override
+  String get uiFontFamilySerif => 'Serif';
+
+  @override
+  String get uiFontFamilyMonospace => 'Monospace';
+
+  @override
   String get cornerRadiusTitle => 'Corner radius';
 
   @override
