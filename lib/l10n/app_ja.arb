@@ -7029,5 +7029,244 @@
   "discardChanges": "Discard",
   "@discardChanges": {
     "description": "Discard unsaved chat changes"
-  }
+  },
+  "backgroundColorImageMutexHint": "単色／グラデーションと背景画像は同時に使えません。一方を選ぶともう一方は置き換わります。",
+  "@backgroundColorImageMutexHint": {
+    "description": "Hint that color/gradient backgrounds cannot be used with an image background"
+  },
+  "branchChatCreated": "新しい分岐チャットを開きました",
+  "@branchChatCreated": {
+    "description": "SnackBar after successfully creating a branch chat"
+  },
+  "branchChatTitle": "{title}（分岐）",
+  "@branchChatTitle": {
+    "description": "Title for a chat created by branching from a message",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Chat with Alice"
+      }
+    }
+  },
+  "characterAvatarShapeCircle": "円形アバター",
+  "@characterAvatarShapeCircle": {
+    "description": "Character list avatar shape: circle"
+  },
+  "characterAvatarShapeRectangle": "長方形アバター",
+  "@characterAvatarShapeRectangle": {
+    "description": "Character list avatar shape: portrait rectangle"
+  },
+  "characterAvatarShapeSquare": "正方形アバター",
+  "@characterAvatarShapeSquare": {
+    "description": "Character list avatar shape: square"
+  },
+  "characterFolderCount": "{count} キャラクター",
+  "@characterFolderCount": {
+    "description": "Character count shown on a folder tile",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "characterFolderNameLabel": "フォルダ名",
+  "@characterFolderNameLabel": {
+    "description": "Label for character folder name field"
+  },
+  "characterFolderRoot": "ライブラリのルート",
+  "@characterFolderRoot": {
+    "description": "Move characters out of folders to the main list"
+  },
+  "characterFoldersSection": "フォルダ",
+  "@characterFoldersSection": {
+    "description": "Section title above character folders on the list screen"
+  },
+  "characterListSelectMode": "選択",
+  "@characterListSelectMode": {
+    "description": "Enter multi-select mode on the character list"
+  },
+  "characterRegexScripts": "キャラクター正規表現",
+  "@characterRegexScripts": {
+    "description": "Character-scoped regex scripts section"
+  },
+  "characterRegexScriptsHint": "このキャラクターのグローバルスクリプトと一緒に適用されます",
+  "@characterRegexScriptsHint": {
+    "description": "Subtitle for character regex section"
+  },
+  "characterSearchScopeFolder": "このフォルダのみ検索",
+  "@characterSearchScopeFolder": {
+    "description": "Tooltip when character search is limited to the open folder"
+  },
+  "characterSearchScopeGlobal": "ライブラリ全体を検索",
+  "@characterSearchScopeGlobal": {
+    "description": "Tooltip when character search includes all characters"
+  },
+  "charactersMovedToFolder": "キャラクターを移動しました",
+  "@charactersMovedToFolder": {
+    "description": "Snack bar after moving characters into a folder"
+  },
+  "createCharacterFolder": "新しいフォルダ",
+  "@createCharacterFolder": {
+    "description": "Create an empty character folder"
+  },
+  "createFolderFromSelection": "選択からフォルダを作成",
+  "@createFolderFromSelection": {
+    "description": "Create a folder and move selected characters into it"
+  },
+  "customBackgroundColor": "カスタムカラー",
+  "@customBackgroundColor": {
+    "description": "Custom solid background color picker label"
+  },
+  "depthUnlimitedHint": "空欄で制限なし",
+  "@depthUnlimitedHint": {
+    "description": "Hint for optional depth fields"
+  },
+  "dissolveCharacterFolder": "フォルダを解散",
+  "@dissolveCharacterFolder": {
+    "description": "Remove folder and keep characters in the library"
+  },
+  "dissolveCharacterFolderBody": "「{name}」を解散しますか？キャラクターはライブラリに残り、削除されません。",
+  "@dissolveCharacterFolderBody": {
+    "description": "Confirm dissolving a character folder",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "enableReplyChoices": "返信選択肢を有効化",
+  "@enableReplyChoices": {
+    "description": "Toggle to generate choices after AI replies"
+  },
+  "enableReplyChoicesHint": "AIの各メッセージ後に、タップして送信できる選択肢を提案します",
+  "@enableReplyChoicesHint": {
+    "description": "Subtitle for reply choices toggle"
+  },
+  "fontDeleteDialogBody": "空き容量のため、アプリのフォントライブラリから「{family}」を削除しますか？",
+  "@fontDeleteDialogBody": {
+    "placeholders": {
+      "family": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteDialogTitle": "フォントを削除しますか？",
+  "fontDeleteFailure": "そのフォントを削除できませんでした。",
+  "fontDeleteFromLibrary": "ライブラリから削除",
+  "fontDeleteSuccess": "アプリのフォントライブラリから削除しました。",
+  "fontImportFailure": "そのフォントファイルを読み込めませんでした。",
+  "fontImportFromFile": "フォントファイルを選択…",
+  "fontImportSuccess": "フォントをアプリライブラリに取り込みました。",
+  "fontImportedBadge": "取り込み済み",
+  "fontSearchHint": "フォントを検索",
+  "maxDepth": "最大深度",
+  "@maxDepth": {
+    "description": "Maximum message depth for regex"
+  },
+  "minDepth": "最小深度",
+  "@minDepth": {
+    "description": "Minimum message depth for regex"
+  },
+  "momentsChangeCover": "カバーを変更",
+  "@momentsChangeCover": {
+    "description": "Button to replace the moments profile cover image"
+  },
+  "moveCharactersToFolder": "フォルダへ移動",
+  "@moveCharactersToFolder": {
+    "description": "Title for move characters sheet"
+  },
+  "newBranchChat": "新しい分岐を開始",
+  "@newBranchChat": {
+    "description": "Message menu: open a new chat branched from this point"
+  },
+  "newBranchChatHint": "このチャットは残し、ここまでの履歴を新しいチャットにコピーします",
+  "@newBranchChatHint": {
+    "description": "Subtitle for starting a new branch chat from a message"
+  },
+  "noCharacterRegexScripts": "キャラクター正規表現スクリプトはまだありません",
+  "@noCharacterRegexScripts": {
+    "description": "Empty state for character regex list"
+  },
+  "openReplyChoicesSettings": "設定を開く",
+  "@openReplyChoicesSettings": {
+    "description": "Button to open reply choice settings"
+  },
+  "renameCharacterFolder": "フォルダ名を変更",
+  "@renameCharacterFolder": {
+    "description": "Rename character folder dialog title"
+  },
+  "replyChoiceCount": "選択肢の数",
+  "@replyChoiceCount": {
+    "description": "How many options to generate"
+  },
+  "replyChoiceMaxChars": "選択肢あたりの最大文字数",
+  "@replyChoiceMaxChars": {
+    "description": "Character limit for each option text"
+  },
+  "replyChoicePromptPlaceholders": "プレースホルダー：count、max_chars、option_lines、tendency_1 … tendency_N（テンプレートでは二重の波括弧で囲む）",
+  "@replyChoicePromptPlaceholders": {
+    "description": "Help text for prompt template placeholders"
+  },
+  "replyChoicePromptTemplate": "プロンプトテンプレート",
+  "@replyChoicePromptTemplate": {
+    "description": "Settings section for choice generation prompt"
+  },
+  "replyChoiceTendencies": "選択肢の傾向",
+  "@replyChoiceTendencies": {
+    "description": "Per-option guidance section title"
+  },
+  "replyChoiceTendencyHint": "例：慎重、いちゃつく、質問する",
+  "@replyChoiceTendencyHint": {
+    "description": "Hint for tendency input"
+  },
+  "replyChoiceTendencyLabel": "選択肢 {index} の傾向",
+  "@replyChoiceTendencyLabel": {
+    "description": "Label for one option tendency field",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "replyChoices": "返信選択肢",
+  "@replyChoices": {
+    "description": "AI-generated reply choice feature title"
+  },
+  "replyChoicesDisabledHint": "設定でオンにすると、各メッセージ後にAIの提案返信が表示されます。",
+  "@replyChoicesDisabledHint": {
+    "description": "Panel body when feature disabled"
+  },
+  "replyChoicesDisabledTitle": "返信選択肢はオフです",
+  "@replyChoicesDisabledTitle": {
+    "description": "Panel title when feature disabled"
+  },
+  "replyChoicesEmpty": "まだ選択肢がありません。キャラクターの返信後に表示されます。",
+  "@replyChoicesEmpty": {
+    "description": "Empty state in choice panel"
+  },
+  "replyChoicesGenerateFailed": "選択肢を生成できませんでした。次の返信のあとにもう一度お試しください。",
+  "@replyChoicesGenerateFailed": {
+    "description": "Error when choice generation fails"
+  },
+  "showReplyChoices": "返信選択肢",
+  "@showReplyChoices": {
+    "description": "Chat composer button tooltip"
+  },
+  "tokenSecondaryAccent": "セカンダリアクセント",
+  "tokenSecondaryAccentDescription": "セクションと操作の対比用の第2アクセント。",
+  "tokenTertiaryAccent": "ターシャリアクセント",
+  "tokenTertiaryAccentDescription": "追加のセクション対比用の第3アクセント。",
+  "trimStrings": "文字列をトリム",
+  "@trimStrings": {
+    "description": "Strings trimmed from regex matches"
+  },
+  "trimStringsHint": "1行に1つ；置換前に一致から削除されます",
+  "@trimStringsHint": {
+    "description": "Hint for trim strings field"
+  },
+  "uiFontFamilyDescription": "タップしてフォントを選びます。パソコンではインストール済みフォントが表示され、スマホではフォントファイルを取り込めます。",
+  "uiFontFamilySystem": "システム既定",
+  "uiFontFamilyTitle": "フォント"
 }

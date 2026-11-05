@@ -7029,5 +7029,244 @@
   "discardChanges": "Discard",
   "@discardChanges": {
     "description": "Discard unsaved chat changes"
-  }
+  },
+  "backgroundColorImageMutexHint": "Warna solid / gradien dan gambar latar saling eksklusif — memilih salah satu akan menggantikan yang lain.",
+  "@backgroundColorImageMutexHint": {
+    "description": "Hint that color/gradient backgrounds cannot be used with an image background"
+  },
+  "branchChatCreated": "Obrolan cabang baru dibuka",
+  "@branchChatCreated": {
+    "description": "SnackBar after successfully creating a branch chat"
+  },
+  "branchChatTitle": "{title} (cabang)",
+  "@branchChatTitle": {
+    "description": "Title for a chat created by branching from a message",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Chat with Alice"
+      }
+    }
+  },
+  "characterAvatarShapeCircle": "Avatar lingkaran",
+  "@characterAvatarShapeCircle": {
+    "description": "Character list avatar shape: circle"
+  },
+  "characterAvatarShapeRectangle": "Avatar persegi panjang",
+  "@characterAvatarShapeRectangle": {
+    "description": "Character list avatar shape: portrait rectangle"
+  },
+  "characterAvatarShapeSquare": "Avatar persegi",
+  "@characterAvatarShapeSquare": {
+    "description": "Character list avatar shape: square"
+  },
+  "characterFolderCount": "{count} karakter",
+  "@characterFolderCount": {
+    "description": "Character count shown on a folder tile",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "characterFolderNameLabel": "Nama folder",
+  "@characterFolderNameLabel": {
+    "description": "Label for character folder name field"
+  },
+  "characterFolderRoot": "Akar pustaka",
+  "@characterFolderRoot": {
+    "description": "Move characters out of folders to the main list"
+  },
+  "characterFoldersSection": "Folder",
+  "@characterFoldersSection": {
+    "description": "Section title above character folders on the list screen"
+  },
+  "characterListSelectMode": "Pilih",
+  "@characterListSelectMode": {
+    "description": "Enter multi-select mode on the character list"
+  },
+  "characterRegexScripts": "Regex karakter",
+  "@characterRegexScripts": {
+    "description": "Character-scoped regex scripts section"
+  },
+  "characterRegexScriptsHint": "Diterapkan bersama skrip global untuk karakter ini",
+  "@characterRegexScriptsHint": {
+    "description": "Subtitle for character regex section"
+  },
+  "characterSearchScopeFolder": "Cari hanya di folder ini",
+  "@characterSearchScopeFolder": {
+    "description": "Tooltip when character search is limited to the open folder"
+  },
+  "characterSearchScopeGlobal": "Cari seluruh pustaka",
+  "@characterSearchScopeGlobal": {
+    "description": "Tooltip when character search includes all characters"
+  },
+  "charactersMovedToFolder": "Karakter dipindahkan",
+  "@charactersMovedToFolder": {
+    "description": "Snack bar after moving characters into a folder"
+  },
+  "createCharacterFolder": "Folder baru",
+  "@createCharacterFolder": {
+    "description": "Create an empty character folder"
+  },
+  "createFolderFromSelection": "Folder dari pilihan",
+  "@createFolderFromSelection": {
+    "description": "Create a folder and move selected characters into it"
+  },
+  "customBackgroundColor": "Warna kustom",
+  "@customBackgroundColor": {
+    "description": "Custom solid background color picker label"
+  },
+  "depthUnlimitedHint": "Biarkan kosong untuk tanpa batas",
+  "@depthUnlimitedHint": {
+    "description": "Hint for optional depth fields"
+  },
+  "dissolveCharacterFolder": "Bubarkan folder",
+  "@dissolveCharacterFolder": {
+    "description": "Remove folder and keep characters in the library"
+  },
+  "dissolveCharacterFolderBody": "Bubarkan \"{name}\"? Karakter tetap di pustaka dan tidak dihapus.",
+  "@dissolveCharacterFolderBody": {
+    "description": "Confirm dissolving a character folder",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "enableReplyChoices": "Aktifkan pilihan balasan",
+  "@enableReplyChoices": {
+    "description": "Toggle to generate choices after AI replies"
+  },
+  "enableReplyChoicesHint": "Setelah setiap pesan AI, sarankan opsi yang bisa diketuk untuk dikirim",
+  "@enableReplyChoicesHint": {
+    "description": "Subtitle for reply choices toggle"
+  },
+  "fontDeleteDialogBody": "Hapus \"{family}\" dari pustaka font aplikasi untuk menghemat ruang?",
+  "@fontDeleteDialogBody": {
+    "placeholders": {
+      "family": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteDialogTitle": "Hapus font?",
+  "fontDeleteFailure": "Tidak dapat menghapus font itu.",
+  "fontDeleteFromLibrary": "Hapus dari pustaka",
+  "fontDeleteSuccess": "Dihapus dari pustaka font aplikasi.",
+  "fontImportFailure": "Tidak dapat mengimpor file font itu.",
+  "fontImportFromFile": "Pilih file font…",
+  "fontImportSuccess": "Font diimpor ke pustaka aplikasi.",
+  "fontImportedBadge": "Diimpor",
+  "fontSearchHint": "Cari font",
+  "maxDepth": "Kedalaman maks.",
+  "@maxDepth": {
+    "description": "Maximum message depth for regex"
+  },
+  "minDepth": "Kedalaman min.",
+  "@minDepth": {
+    "description": "Minimum message depth for regex"
+  },
+  "momentsChangeCover": "Ganti sampul",
+  "@momentsChangeCover": {
+    "description": "Button to replace the moments profile cover image"
+  },
+  "moveCharactersToFolder": "Pindahkan ke folder",
+  "@moveCharactersToFolder": {
+    "description": "Title for move characters sheet"
+  },
+  "newBranchChat": "Mulai cabang baru",
+  "@newBranchChat": {
+    "description": "Message menu: open a new chat branched from this point"
+  },
+  "newBranchChatHint": "Pertahankan obrolan ini; salin riwayat sampai di sini ke yang baru",
+  "@newBranchChatHint": {
+    "description": "Subtitle for starting a new branch chat from a message"
+  },
+  "noCharacterRegexScripts": "Belum ada skrip regex karakter",
+  "@noCharacterRegexScripts": {
+    "description": "Empty state for character regex list"
+  },
+  "openReplyChoicesSettings": "Buka pengaturan",
+  "@openReplyChoicesSettings": {
+    "description": "Button to open reply choice settings"
+  },
+  "renameCharacterFolder": "Ganti nama folder",
+  "@renameCharacterFolder": {
+    "description": "Rename character folder dialog title"
+  },
+  "replyChoiceCount": "Jumlah pilihan",
+  "@replyChoiceCount": {
+    "description": "How many options to generate"
+  },
+  "replyChoiceMaxChars": "Maks. karakter per pilihan",
+  "@replyChoiceMaxChars": {
+    "description": "Character limit for each option text"
+  },
+  "replyChoicePromptPlaceholders": "Placeholder: count, max_chars, option_lines, tendency_1 … tendency_N (masing-masing dibungkus kurung kurawal ganda di templat Anda)",
+  "@replyChoicePromptPlaceholders": {
+    "description": "Help text for prompt template placeholders"
+  },
+  "replyChoicePromptTemplate": "Templat prompt",
+  "@replyChoicePromptTemplate": {
+    "description": "Settings section for choice generation prompt"
+  },
+  "replyChoiceTendencies": "Kecenderungan opsi",
+  "@replyChoiceTendencies": {
+    "description": "Per-option guidance section title"
+  },
+  "replyChoiceTendencyHint": "mis. hati-hati, menggoda, ajukan pertanyaan",
+  "@replyChoiceTendencyHint": {
+    "description": "Hint for tendency input"
+  },
+  "replyChoiceTendencyLabel": "Kecenderungan opsi {index}",
+  "@replyChoiceTendencyLabel": {
+    "description": "Label for one option tendency field",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "replyChoices": "Pilihan balasan",
+  "@replyChoices": {
+    "description": "AI-generated reply choice feature title"
+  },
+  "replyChoicesDisabledHint": "Aktifkan di pengaturan untuk mendapat saran balasan AI setelah setiap pesan.",
+  "@replyChoicesDisabledHint": {
+    "description": "Panel body when feature disabled"
+  },
+  "replyChoicesDisabledTitle": "Pilihan balasan nonaktif",
+  "@replyChoicesDisabledTitle": {
+    "description": "Panel title when feature disabled"
+  },
+  "replyChoicesEmpty": "Belum ada pilihan. Muncul setelah karakter membalas.",
+  "@replyChoicesEmpty": {
+    "description": "Empty state in choice panel"
+  },
+  "replyChoicesGenerateFailed": "Tidak dapat membuat pilihan. Coba lagi setelah balasan berikutnya.",
+  "@replyChoicesGenerateFailed": {
+    "description": "Error when choice generation fails"
+  },
+  "showReplyChoices": "Pilihan balasan",
+  "@showReplyChoices": {
+    "description": "Chat composer button tooltip"
+  },
+  "tokenSecondaryAccent": "Aksen sekunder",
+  "tokenSecondaryAccentDescription": "Aksen kedua untuk kontras bagian dan tindakan.",
+  "tokenTertiaryAccent": "Aksen tersier",
+  "tokenTertiaryAccentDescription": "Aksen ketiga untuk kontras bagian tambahan.",
+  "trimStrings": "Pangkas string",
+  "@trimStrings": {
+    "description": "Strings trimmed from regex matches"
+  },
+  "trimStringsHint": "Satu per baris; dihapus dari kecocokan sebelum diganti",
+  "@trimStringsHint": {
+    "description": "Hint for trim strings field"
+  },
+  "uiFontFamilyDescription": "Ketuk untuk memilih font. Komputer menampilkan font terpasang; di ponsel Anda dapat mengimpor file font.",
+  "uiFontFamilySystem": "Default sistem",
+  "uiFontFamilyTitle": "Font"
 }

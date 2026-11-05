@@ -7029,5 +7029,244 @@
   "discardChanges": "Discard",
   "@discardChanges": {
     "description": "Discard unsaved chat changes"
-  }
+  },
+  "backgroundColorImageMutexHint": "단색/그라데이션과 배경 이미지는 동시에 사용할 수 없습니다. 하나를 선택하면 다른 쪽이 대체됩니다.",
+  "@backgroundColorImageMutexHint": {
+    "description": "Hint that color/gradient backgrounds cannot be used with an image background"
+  },
+  "branchChatCreated": "새 분기 채팅을 열었습니다",
+  "@branchChatCreated": {
+    "description": "SnackBar after successfully creating a branch chat"
+  },
+  "branchChatTitle": "{title} (분기)",
+  "@branchChatTitle": {
+    "description": "Title for a chat created by branching from a message",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Chat with Alice"
+      }
+    }
+  },
+  "characterAvatarShapeCircle": "원형 아바타",
+  "@characterAvatarShapeCircle": {
+    "description": "Character list avatar shape: circle"
+  },
+  "characterAvatarShapeRectangle": "직사각형 아바타",
+  "@characterAvatarShapeRectangle": {
+    "description": "Character list avatar shape: portrait rectangle"
+  },
+  "characterAvatarShapeSquare": "정사각형 아바타",
+  "@characterAvatarShapeSquare": {
+    "description": "Character list avatar shape: square"
+  },
+  "characterFolderCount": "캐릭터 {count}명",
+  "@characterFolderCount": {
+    "description": "Character count shown on a folder tile",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "characterFolderNameLabel": "폴더 이름",
+  "@characterFolderNameLabel": {
+    "description": "Label for character folder name field"
+  },
+  "characterFolderRoot": "라이브러리 루트",
+  "@characterFolderRoot": {
+    "description": "Move characters out of folders to the main list"
+  },
+  "characterFoldersSection": "폴더",
+  "@characterFoldersSection": {
+    "description": "Section title above character folders on the list screen"
+  },
+  "characterListSelectMode": "선택",
+  "@characterListSelectMode": {
+    "description": "Enter multi-select mode on the character list"
+  },
+  "characterRegexScripts": "캐릭터 정규식",
+  "@characterRegexScripts": {
+    "description": "Character-scoped regex scripts section"
+  },
+  "characterRegexScriptsHint": "이 캐릭터의 전역 스크립트와 함께 적용됩니다",
+  "@characterRegexScriptsHint": {
+    "description": "Subtitle for character regex section"
+  },
+  "characterSearchScopeFolder": "이 폴더만 검색",
+  "@characterSearchScopeFolder": {
+    "description": "Tooltip when character search is limited to the open folder"
+  },
+  "characterSearchScopeGlobal": "전체 라이브러리 검색",
+  "@characterSearchScopeGlobal": {
+    "description": "Tooltip when character search includes all characters"
+  },
+  "charactersMovedToFolder": "캐릭터를 이동했습니다",
+  "@charactersMovedToFolder": {
+    "description": "Snack bar after moving characters into a folder"
+  },
+  "createCharacterFolder": "새 폴더",
+  "@createCharacterFolder": {
+    "description": "Create an empty character folder"
+  },
+  "createFolderFromSelection": "선택으로 폴더 만들기",
+  "@createFolderFromSelection": {
+    "description": "Create a folder and move selected characters into it"
+  },
+  "customBackgroundColor": "사용자 지정 색상",
+  "@customBackgroundColor": {
+    "description": "Custom solid background color picker label"
+  },
+  "depthUnlimitedHint": "비워 두면 제한 없음",
+  "@depthUnlimitedHint": {
+    "description": "Hint for optional depth fields"
+  },
+  "dissolveCharacterFolder": "폴더 해체",
+  "@dissolveCharacterFolder": {
+    "description": "Remove folder and keep characters in the library"
+  },
+  "dissolveCharacterFolderBody": "\"{name}\"을(를) 해체할까요? 캐릭터는 라이브러리에 남으며 삭제되지 않습니다.",
+  "@dissolveCharacterFolderBody": {
+    "description": "Confirm dissolving a character folder",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "enableReplyChoices": "답변 선택지 사용",
+  "@enableReplyChoices": {
+    "description": "Toggle to generate choices after AI replies"
+  },
+  "enableReplyChoicesHint": "AI 메시지마다 탭하여 보낼 수 있는 선택지를 제안합니다",
+  "@enableReplyChoicesHint": {
+    "description": "Subtitle for reply choices toggle"
+  },
+  "fontDeleteDialogBody": "공간을 확보하려면 앱 글꼴 라이브러리에서 \"{family}\"을(를) 제거할까요?",
+  "@fontDeleteDialogBody": {
+    "placeholders": {
+      "family": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteDialogTitle": "글꼴을 삭제할까요?",
+  "fontDeleteFailure": "해당 글꼴을 삭제할 수 없습니다.",
+  "fontDeleteFromLibrary": "라이브러리에서 제거",
+  "fontDeleteSuccess": "앱 글꼴 라이브러리에서 제거했습니다.",
+  "fontImportFailure": "해당 글꼴 파일을 가져올 수 없습니다.",
+  "fontImportFromFile": "글꼴 파일 선택…",
+  "fontImportSuccess": "글꼴을 앱 라이브러리로 가져왔습니다.",
+  "fontImportedBadge": "가져옴",
+  "fontSearchHint": "글꼴 검색",
+  "maxDepth": "최대 깊이",
+  "@maxDepth": {
+    "description": "Maximum message depth for regex"
+  },
+  "minDepth": "최소 깊이",
+  "@minDepth": {
+    "description": "Minimum message depth for regex"
+  },
+  "momentsChangeCover": "커버 변경",
+  "@momentsChangeCover": {
+    "description": "Button to replace the moments profile cover image"
+  },
+  "moveCharactersToFolder": "폴더로 이동",
+  "@moveCharactersToFolder": {
+    "description": "Title for move characters sheet"
+  },
+  "newBranchChat": "새 분기 시작",
+  "@newBranchChat": {
+    "description": "Message menu: open a new chat branched from this point"
+  },
+  "newBranchChatHint": "이 채팅은 유지하고, 여기까지의 기록을 새 채팅으로 복사합니다",
+  "@newBranchChatHint": {
+    "description": "Subtitle for starting a new branch chat from a message"
+  },
+  "noCharacterRegexScripts": "아직 캐릭터 정규식 스크립트가 없습니다",
+  "@noCharacterRegexScripts": {
+    "description": "Empty state for character regex list"
+  },
+  "openReplyChoicesSettings": "설정 열기",
+  "@openReplyChoicesSettings": {
+    "description": "Button to open reply choice settings"
+  },
+  "renameCharacterFolder": "폴더 이름 바꾸기",
+  "@renameCharacterFolder": {
+    "description": "Rename character folder dialog title"
+  },
+  "replyChoiceCount": "선택지 개수",
+  "@replyChoiceCount": {
+    "description": "How many options to generate"
+  },
+  "replyChoiceMaxChars": "선택지당 최대 글자 수",
+  "@replyChoiceMaxChars": {
+    "description": "Character limit for each option text"
+  },
+  "replyChoicePromptPlaceholders": "자리 표시자: count, max_chars, option_lines, tendency_1 … tendency_N (템플릿에서 각각 이중 중괄호로 감쌈)",
+  "@replyChoicePromptPlaceholders": {
+    "description": "Help text for prompt template placeholders"
+  },
+  "replyChoicePromptTemplate": "프롬프트 템플릿",
+  "@replyChoicePromptTemplate": {
+    "description": "Settings section for choice generation prompt"
+  },
+  "replyChoiceTendencies": "선택지 경향",
+  "@replyChoiceTendencies": {
+    "description": "Per-option guidance section title"
+  },
+  "replyChoiceTendencyHint": "예: 신중함, 플러팅, 질문하기",
+  "@replyChoiceTendencyHint": {
+    "description": "Hint for tendency input"
+  },
+  "replyChoiceTendencyLabel": "선택지 {index} 경향",
+  "@replyChoiceTendencyLabel": {
+    "description": "Label for one option tendency field",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "replyChoices": "답변 선택지",
+  "@replyChoices": {
+    "description": "AI-generated reply choice feature title"
+  },
+  "replyChoicesDisabledHint": "설정에서 켜면 메시지마다 AI 제안 답변이 표시됩니다.",
+  "@replyChoicesDisabledHint": {
+    "description": "Panel body when feature disabled"
+  },
+  "replyChoicesDisabledTitle": "답변 선택지가 꺼져 있습니다",
+  "@replyChoicesDisabledTitle": {
+    "description": "Panel title when feature disabled"
+  },
+  "replyChoicesEmpty": "아직 선택지가 없습니다. 캐릭터가 답한 뒤에 나타납니다.",
+  "@replyChoicesEmpty": {
+    "description": "Empty state in choice panel"
+  },
+  "replyChoicesGenerateFailed": "선택지를 생성하지 못했습니다. 다음 답변 후에 다시 시도하세요.",
+  "@replyChoicesGenerateFailed": {
+    "description": "Error when choice generation fails"
+  },
+  "showReplyChoices": "답변 선택지",
+  "@showReplyChoices": {
+    "description": "Chat composer button tooltip"
+  },
+  "tokenSecondaryAccent": "보조 강조색",
+  "tokenSecondaryAccentDescription": "섹션과 동작 대비를 위한 두 번째 강조색.",
+  "tokenTertiaryAccent": "3차 강조색",
+  "tokenTertiaryAccentDescription": "추가 섹션 대비를 위한 세 번째 강조색.",
+  "trimStrings": "문자열 다듬기",
+  "@trimStrings": {
+    "description": "Strings trimmed from regex matches"
+  },
+  "trimStringsHint": "한 줄에 하나; 바꾸기 전에 일치에서 제거됩니다",
+  "@trimStringsHint": {
+    "description": "Hint for trim strings field"
+  },
+  "uiFontFamilyDescription": "탭하여 글꼴을 선택하세요. 컴퓨터에는 설치된 글꼴이 표시되고, 휴대폰에서는 글꼴 파일을 가져올 수 있습니다.",
+  "uiFontFamilySystem": "시스템 기본값",
+  "uiFontFamilyTitle": "글꼴"
 }

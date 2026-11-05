@@ -618,60 +618,59 @@ class AppLocalizationsVi extends AppLocalizations {
   String get quickReplies => 'Trả lời nhanh';
 
   @override
-  String get replyChoices => 'Reply choices';
+  String get replyChoices => 'Lựa chọn trả lời';
 
   @override
-  String get enableReplyChoices => 'Enable reply choices';
+  String get enableReplyChoices => 'Bật lựa chọn trả lời';
 
   @override
   String get enableReplyChoicesHint =>
-      'After each AI message, suggest options you can tap to send';
+      'Sau mỗi tin nhắn AI, gợi ý các tùy chọn bạn có thể chạm để gửi';
 
   @override
-  String get replyChoiceCount => 'Number of choices';
+  String get replyChoiceCount => 'Số lựa chọn';
 
   @override
-  String get replyChoiceMaxChars => 'Max characters per choice';
+  String get replyChoiceMaxChars => 'Số ký tự tối đa mỗi lựa chọn';
 
   @override
-  String get replyChoicePromptTemplate => 'Prompt template';
+  String get replyChoicePromptTemplate => 'Mẫu prompt';
 
   @override
   String get replyChoicePromptPlaceholders =>
-      'Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (each wrapped in double curly braces in your template)';
+      'Phần giữ chỗ: count, max_chars, option_lines, tendency_1 … tendency_N (mỗi cái bọc trong dấu ngoặc nhọn kép trong mẫu của bạn)';
 
   @override
-  String get replyChoiceTendencies => 'Option tendencies';
+  String get replyChoiceTendencies => 'Xu hướng tùy chọn';
 
   @override
   String replyChoiceTendencyLabel(int index) {
-    return 'Option $index tendency';
+    return 'Xu hướng tùy chọn $index';
   }
 
   @override
-  String get replyChoiceTendencyHint =>
-      'e.g. cautious, flirtatious, ask a question';
+  String get replyChoiceTendencyHint => 'vd. thận trọng, tán tỉnh, đặt câu hỏi';
 
   @override
-  String get replyChoicesDisabledTitle => 'Reply choices are off';
+  String get replyChoicesDisabledTitle => 'Lựa chọn trả lời đang tắt';
 
   @override
   String get replyChoicesDisabledHint =>
-      'Turn on in settings to get AI-suggested replies after each message.';
+      'Bật trong cài đặt để nhận gợi ý trả lời AI sau mỗi tin nhắn.';
 
   @override
-  String get openReplyChoicesSettings => 'Open settings';
+  String get openReplyChoicesSettings => 'Mở cài đặt';
 
   @override
   String get replyChoicesGenerateFailed =>
-      'Could not generate choices. Try again after the next reply.';
+      'Không tạo được lựa chọn. Thử lại sau lần trả lời tiếp theo.';
 
   @override
   String get replyChoicesEmpty =>
-      'No choices yet. They appear after the character replies.';
+      'Chưa có lựa chọn. Chúng xuất hiện sau khi nhân vật trả lời.';
 
   @override
-  String get showReplyChoices => 'Reply choices';
+  String get showReplyChoices => 'Lựa chọn trả lời';
 
   @override
   String get createQuickReply => 'Tạo trả lời nhanh';
@@ -813,13 +812,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get gridView => 'Xem lưới';
 
   @override
-  String get characterAvatarShapeCircle => 'Circular avatar';
+  String get characterAvatarShapeCircle => 'Ảnh đại diện tròn';
 
   @override
-  String get characterAvatarShapeSquare => 'Square avatar';
+  String get characterAvatarShapeSquare => 'Ảnh đại diện vuông';
 
   @override
-  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+  String get characterAvatarShapeRectangle => 'Ảnh đại diện chữ nhật';
 
   @override
   String get search => 'Tìm kiếm';
@@ -1250,53 +1249,53 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get characterFolderNameLabel => 'Folder name';
+  String get characterFolderNameLabel => 'Tên thư mục';
 
   @override
-  String get createCharacterFolder => 'New folder';
+  String get createCharacterFolder => 'Thư mục mới';
 
   @override
-  String get createFolderFromSelection => 'Folder from selection';
+  String get createFolderFromSelection => 'Thư mục từ lựa chọn';
 
   @override
-  String get moveCharactersToFolder => 'Move to folder';
+  String get moveCharactersToFolder => 'Chuyển vào thư mục';
 
   @override
   String get moveToFolder => 'Move to folder';
 
   @override
-  String get characterFolderRoot => 'Library root';
+  String get characterFolderRoot => 'Gốc thư viện';
 
   @override
   String characterFolderCount(int count) {
-    return '$count character(s)';
+    return '$count nhân vật';
   }
 
   @override
-  String get charactersMovedToFolder => 'Characters moved';
+  String get charactersMovedToFolder => 'Đã chuyển nhân vật';
 
   @override
-  String get dissolveCharacterFolder => 'Dissolve folder';
+  String get dissolveCharacterFolder => 'Giải tán thư mục';
 
   @override
   String dissolveCharacterFolderBody(String name) {
-    return 'Dissolve \"$name\"? Characters stay in your library and are not deleted.';
+    return 'Giải tán \"$name\"? Nhân vật vẫn ở trong thư viện và không bị xóa.';
   }
 
   @override
-  String get renameCharacterFolder => 'Rename folder';
+  String get renameCharacterFolder => 'Đổi tên thư mục';
 
   @override
-  String get characterFoldersSection => 'Folders';
+  String get characterFoldersSection => 'Thư mục';
 
   @override
-  String get characterListSelectMode => 'Select';
+  String get characterListSelectMode => 'Chọn';
 
   @override
-  String get characterSearchScopeFolder => 'Search this folder only';
+  String get characterSearchScopeFolder => 'Chỉ tìm trong thư mục này';
 
   @override
-  String get characterSearchScopeGlobal => 'Search entire library';
+  String get characterSearchScopeGlobal => 'Tìm toàn bộ thư viện';
 
   @override
   String get create => 'Create';
@@ -1584,11 +1583,11 @@ class AppLocalizationsVi extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get customBackgroundColor => 'Custom color';
+  String get customBackgroundColor => 'Màu tùy chỉnh';
 
   @override
   String get backgroundColorImageMutexHint =>
-      'Solid color / gradient and background image are mutually exclusive — choosing one replaces the other.';
+      'Màu đặc / gradient và ảnh nền loại trừ lẫn nhau — chọn cái này sẽ thay cái kia.';
 
   @override
   String get customImage => 'Custom Image';
@@ -2325,30 +2324,30 @@ class AppLocalizationsVi extends AppLocalizations {
   String get macroSubstitution => 'Macro Substitution';
 
   @override
-  String get minDepth => 'Min Depth';
+  String get minDepth => 'Độ sâu tối thiểu';
 
   @override
-  String get maxDepth => 'Max Depth';
+  String get maxDepth => 'Độ sâu tối đa';
 
   @override
-  String get depthUnlimitedHint => 'Leave empty for no limit';
+  String get depthUnlimitedHint => 'Để trống nếu không giới hạn';
 
   @override
-  String get trimStrings => 'Trim Strings';
+  String get trimStrings => 'Cắt chuỗi';
 
   @override
   String get trimStringsHint =>
-      'One per line; removed from matches before replace';
+      'Mỗi dòng một mục; bị gỡ khỏi khớp trước khi thay thế';
 
   @override
-  String get characterRegexScripts => 'Character Regex';
+  String get characterRegexScripts => 'Regex nhân vật';
 
   @override
   String get characterRegexScriptsHint =>
-      'Applied with global scripts for this character';
+      'Áp dụng cùng các script toàn cục của nhân vật này';
 
   @override
-  String get noCharacterRegexScripts => 'No character regex scripts yet';
+  String get noCharacterRegexScripts => 'Chưa có script regex nhân vật';
 
   @override
   String get nameAndPatternRequired => 'Name and pattern are required';
@@ -3568,19 +3567,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get branchFromHere => 'Branch from here';
 
   @override
-  String get newBranchChat => 'Start a new branch';
+  String get newBranchChat => 'Bắt đầu nhánh mới';
 
   @override
   String get newBranchChatHint =>
-      'Keep this chat; copy history up to here into a new one';
+      'Giữ cuộc trò chuyện này; sao chép lịch sử đến đây sang cuộc mới';
 
   @override
   String branchChatTitle(String title) {
-    return '$title (branch)';
+    return '$title (nhánh)';
   }
 
   @override
-  String get branchChatCreated => 'Opened a new branch chat';
+  String get branchChatCreated => 'Đã mở cuộc trò chuyện nhánh mới';
 
   @override
   String previewBookmark(String name) {
@@ -4375,7 +4374,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get momentsChangePhoto => 'Change photo';
 
   @override
-  String get momentsChangeCover => 'Change cover';
+  String get momentsChangeCover => 'Đổi ảnh bìa';
 
   @override
   String get momentsNeedSomething => 'Write something or add a photo first.';
@@ -6751,46 +6750,46 @@ class AppLocalizationsVi extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get uiFontFamilyTitle => 'Font';
+  String get uiFontFamilyTitle => 'Phông chữ';
 
   @override
   String get uiFontFamilyDescription =>
-      'Tap to choose a font. Your computer shows installed fonts; on phone you can import a font file.';
+      'Chạm để chọn phông chữ. Máy tính hiện phông đã cài; trên điện thoại bạn có thể nhập tệp phông chữ.';
 
   @override
-  String get uiFontFamilySystem => 'System default';
+  String get uiFontFamilySystem => 'Mặc định hệ thống';
 
   @override
-  String get fontImportSuccess => 'Font imported into the app library.';
+  String get fontImportSuccess => 'Đã nhập phông chữ vào thư viện ứng dụng.';
 
   @override
-  String get fontImportFailure => 'Could not import that font file.';
+  String get fontImportFailure => 'Không thể nhập tệp phông chữ đó.';
 
   @override
-  String get fontDeleteSuccess => 'Removed from the app font library.';
+  String get fontDeleteSuccess => 'Đã gỡ khỏi thư viện phông chữ ứng dụng.';
 
   @override
-  String get fontDeleteFailure => 'Could not delete that font.';
+  String get fontDeleteFailure => 'Không thể xóa phông chữ đó.';
 
   @override
-  String get fontImportFromFile => 'Choose font file…';
+  String get fontImportFromFile => 'Chọn tệp phông chữ…';
 
   @override
-  String get fontDeleteFromLibrary => 'Remove from library';
+  String get fontDeleteFromLibrary => 'Gỡ khỏi thư viện';
 
   @override
-  String get fontDeleteDialogTitle => 'Delete font?';
+  String get fontDeleteDialogTitle => 'Xóa phông chữ?';
 
   @override
   String fontDeleteDialogBody(String family) {
-    return 'Remove \"$family\" from the app font library to free space?';
+    return 'Gỡ \"$family\" khỏi thư viện phông chữ ứng dụng để giải phóng dung lượng?';
   }
 
   @override
-  String get fontImportedBadge => 'Imported';
+  String get fontImportedBadge => 'Đã nhập';
 
   @override
-  String get fontSearchHint => 'Search fonts';
+  String get fontSearchHint => 'Tìm phông chữ';
 
   @override
   String get cornerRadiusTitle => 'Corner radius';
@@ -6923,10 +6922,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get tokenAccent => 'Accent';
 
   @override
-  String get tokenSecondaryAccent => 'Secondary accent';
+  String get tokenSecondaryAccent => 'Nhấn phụ';
 
   @override
-  String get tokenTertiaryAccent => 'Tertiary accent';
+  String get tokenTertiaryAccent => 'Nhấn thứ ba';
 
   @override
   String get tokenCursor => 'Cursor';
@@ -6961,11 +6960,11 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get tokenSecondaryAccentDescription =>
-      'Second accent for section and action contrast.';
+      'Màu nhấn thứ hai cho độ tương phản phần và hành động.';
 
   @override
   String get tokenTertiaryAccentDescription =>
-      'Third accent for additional section contrast.';
+      'Màu nhấn thứ ba cho độ tương phản phần bổ sung.';
 
   @override
   String get tokenCursorDescription => 'Caret color in text fields.';

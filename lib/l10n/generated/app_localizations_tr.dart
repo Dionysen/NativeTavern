@@ -619,60 +619,59 @@ class AppLocalizationsTr extends AppLocalizations {
   String get quickReplies => 'Hızlı Yanıtlar';
 
   @override
-  String get replyChoices => 'Reply choices';
+  String get replyChoices => 'Yanıt seçenekleri';
 
   @override
-  String get enableReplyChoices => 'Enable reply choices';
+  String get enableReplyChoices => 'Yanıt seçeneklerini etkinleştir';
 
   @override
   String get enableReplyChoicesHint =>
-      'After each AI message, suggest options you can tap to send';
+      'Her yapay zekâ mesajından sonra dokunup gönderebileceğiniz seçenekler öner';
 
   @override
-  String get replyChoiceCount => 'Number of choices';
+  String get replyChoiceCount => 'Seçenek sayısı';
 
   @override
-  String get replyChoiceMaxChars => 'Max characters per choice';
+  String get replyChoiceMaxChars => 'Seçenek başına maks. karakter';
 
   @override
-  String get replyChoicePromptTemplate => 'Prompt template';
+  String get replyChoicePromptTemplate => 'İstem şablonu';
 
   @override
   String get replyChoicePromptPlaceholders =>
-      'Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (each wrapped in double curly braces in your template)';
+      'Yer tutucular: count, max_chars, option_lines, tendency_1 … tendency_N (şablonunuzda her biri çift süslü ayraç içinde)';
 
   @override
-  String get replyChoiceTendencies => 'Option tendencies';
+  String get replyChoiceTendencies => 'Seçenek eğilimleri';
 
   @override
   String replyChoiceTendencyLabel(int index) {
-    return 'Option $index tendency';
+    return 'Seçenek $index eğilimi';
   }
 
   @override
-  String get replyChoiceTendencyHint =>
-      'e.g. cautious, flirtatious, ask a question';
+  String get replyChoiceTendencyHint => 'ör. temkinli, flörtöz, soru sor';
 
   @override
-  String get replyChoicesDisabledTitle => 'Reply choices are off';
+  String get replyChoicesDisabledTitle => 'Yanıt seçenekleri kapalı';
 
   @override
   String get replyChoicesDisabledHint =>
-      'Turn on in settings to get AI-suggested replies after each message.';
+      'Her mesajdan sonra yapay zekâ önerileri için ayarlardan açın.';
 
   @override
-  String get openReplyChoicesSettings => 'Open settings';
+  String get openReplyChoicesSettings => 'Ayarları aç';
 
   @override
   String get replyChoicesGenerateFailed =>
-      'Could not generate choices. Try again after the next reply.';
+      'Seçenekler oluşturulamadı. Sonraki yanıttan sonra tekrar deneyin.';
 
   @override
   String get replyChoicesEmpty =>
-      'No choices yet. They appear after the character replies.';
+      'Henüz seçenek yok. Karakter yanıtladıktan sonra görünür.';
 
   @override
-  String get showReplyChoices => 'Reply choices';
+  String get showReplyChoices => 'Yanıt seçenekleri';
 
   @override
   String get createQuickReply => 'Hızlı Yanıt Oluştur';
@@ -814,13 +813,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get gridView => 'Izgara Görünümü';
 
   @override
-  String get characterAvatarShapeCircle => 'Circular avatar';
+  String get characterAvatarShapeCircle => 'Dairesel avatar';
 
   @override
-  String get characterAvatarShapeSquare => 'Square avatar';
+  String get characterAvatarShapeSquare => 'Kare avatar';
 
   @override
-  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+  String get characterAvatarShapeRectangle => 'Dikdörtgen avatar';
 
   @override
   String get search => 'Ara';
@@ -1251,53 +1250,53 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get characterFolderNameLabel => 'Folder name';
+  String get characterFolderNameLabel => 'Klasör adı';
 
   @override
-  String get createCharacterFolder => 'New folder';
+  String get createCharacterFolder => 'Yeni klasör';
 
   @override
-  String get createFolderFromSelection => 'Folder from selection';
+  String get createFolderFromSelection => 'Seçimden klasör';
 
   @override
-  String get moveCharactersToFolder => 'Move to folder';
+  String get moveCharactersToFolder => 'Klasöre taşı';
 
   @override
   String get moveToFolder => 'Move to folder';
 
   @override
-  String get characterFolderRoot => 'Library root';
+  String get characterFolderRoot => 'Kitaplık kökü';
 
   @override
   String characterFolderCount(int count) {
-    return '$count character(s)';
+    return '$count karakter';
   }
 
   @override
-  String get charactersMovedToFolder => 'Characters moved';
+  String get charactersMovedToFolder => 'Karakterler taşındı';
 
   @override
-  String get dissolveCharacterFolder => 'Dissolve folder';
+  String get dissolveCharacterFolder => 'Klasörü dağıt';
 
   @override
   String dissolveCharacterFolderBody(String name) {
-    return 'Dissolve \"$name\"? Characters stay in your library and are not deleted.';
+    return '\"$name\" dağıtılsın mı? Karakterler kitaplığınızda kalır ve silinmez.';
   }
 
   @override
-  String get renameCharacterFolder => 'Rename folder';
+  String get renameCharacterFolder => 'Klasörü yeniden adlandır';
 
   @override
-  String get characterFoldersSection => 'Folders';
+  String get characterFoldersSection => 'Klasörler';
 
   @override
-  String get characterListSelectMode => 'Select';
+  String get characterListSelectMode => 'Seç';
 
   @override
-  String get characterSearchScopeFolder => 'Search this folder only';
+  String get characterSearchScopeFolder => 'Yalnızca bu klasörde ara';
 
   @override
-  String get characterSearchScopeGlobal => 'Search entire library';
+  String get characterSearchScopeGlobal => 'Tüm kitaplığı ara';
 
   @override
   String get create => 'Create';
@@ -1585,11 +1584,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get customBackgroundColor => 'Custom color';
+  String get customBackgroundColor => 'Özel renk';
 
   @override
   String get backgroundColorImageMutexHint =>
-      'Solid color / gradient and background image are mutually exclusive — choosing one replaces the other.';
+      'Düz renk / gradyan ile arka plan görseli birbirini dışlar — birini seçmek diğerinin yerine geçer.';
 
   @override
   String get customImage => 'Custom Image';
@@ -2326,30 +2325,30 @@ class AppLocalizationsTr extends AppLocalizations {
   String get macroSubstitution => 'Macro Substitution';
 
   @override
-  String get minDepth => 'Min Depth';
+  String get minDepth => 'Min. derinlik';
 
   @override
-  String get maxDepth => 'Max Depth';
+  String get maxDepth => 'Maks. derinlik';
 
   @override
-  String get depthUnlimitedHint => 'Leave empty for no limit';
+  String get depthUnlimitedHint => 'Sınır yoksa boş bırakın';
 
   @override
-  String get trimStrings => 'Trim Strings';
+  String get trimStrings => 'Dizeleri kırp';
 
   @override
   String get trimStringsHint =>
-      'One per line; removed from matches before replace';
+      'Satır başına bir; değiştirmeden önce eşleşmelerden kaldırılır';
 
   @override
-  String get characterRegexScripts => 'Character Regex';
+  String get characterRegexScripts => 'Karakter Regex';
 
   @override
   String get characterRegexScriptsHint =>
-      'Applied with global scripts for this character';
+      'Bu karakterin genel betikleriyle birlikte uygulanır';
 
   @override
-  String get noCharacterRegexScripts => 'No character regex scripts yet';
+  String get noCharacterRegexScripts => 'Henüz karakter regex betiği yok';
 
   @override
   String get nameAndPatternRequired => 'Name and pattern are required';
@@ -3569,19 +3568,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String get branchFromHere => 'Branch from here';
 
   @override
-  String get newBranchChat => 'Start a new branch';
+  String get newBranchChat => 'Yeni dal başlat';
 
   @override
   String get newBranchChatHint =>
-      'Keep this chat; copy history up to here into a new one';
+      'Bu sohbeti koru; buraya kadarki geçmişi yenisine kopyala';
 
   @override
   String branchChatTitle(String title) {
-    return '$title (branch)';
+    return '$title (dal)';
   }
 
   @override
-  String get branchChatCreated => 'Opened a new branch chat';
+  String get branchChatCreated => 'Yeni bir dal sohbeti açıldı';
 
   @override
   String previewBookmark(String name) {
@@ -4376,7 +4375,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get momentsChangePhoto => 'Change photo';
 
   @override
-  String get momentsChangeCover => 'Change cover';
+  String get momentsChangeCover => 'Kapağı değiştir';
 
   @override
   String get momentsNeedSomething => 'Write something or add a photo first.';
@@ -6753,46 +6752,47 @@ class AppLocalizationsTr extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get uiFontFamilyTitle => 'Font';
+  String get uiFontFamilyTitle => 'Yazı tipi';
 
   @override
   String get uiFontFamilyDescription =>
-      'Tap to choose a font. Your computer shows installed fonts; on phone you can import a font file.';
+      'Yazı tipi seçmek için dokunun. Bilgisayar yüklü yazı tiplerini gösterir; telefonda bir yazı tipi dosyası içe aktarabilirsiniz.';
 
   @override
-  String get uiFontFamilySystem => 'System default';
+  String get uiFontFamilySystem => 'Sistem varsayılanı';
 
   @override
-  String get fontImportSuccess => 'Font imported into the app library.';
+  String get fontImportSuccess => 'Yazı tipi uygulama kitaplığına aktarıldı.';
 
   @override
-  String get fontImportFailure => 'Could not import that font file.';
+  String get fontImportFailure => 'Bu yazı tipi dosyası içe aktarılamadı.';
 
   @override
-  String get fontDeleteSuccess => 'Removed from the app font library.';
+  String get fontDeleteSuccess =>
+      'Uygulama yazı tipi kitaplığından kaldırıldı.';
 
   @override
-  String get fontDeleteFailure => 'Could not delete that font.';
+  String get fontDeleteFailure => 'Bu yazı tipi silinemedi.';
 
   @override
-  String get fontImportFromFile => 'Choose font file…';
+  String get fontImportFromFile => 'Yazı tipi dosyası seç…';
 
   @override
-  String get fontDeleteFromLibrary => 'Remove from library';
+  String get fontDeleteFromLibrary => 'Kitaplıktan kaldır';
 
   @override
-  String get fontDeleteDialogTitle => 'Delete font?';
+  String get fontDeleteDialogTitle => 'Yazı tipi silinsin mi?';
 
   @override
   String fontDeleteDialogBody(String family) {
-    return 'Remove \"$family\" from the app font library to free space?';
+    return 'Alan açmak için \"$family\" uygulamanın yazı tipi kitaplığından kaldırılsın mı?';
   }
 
   @override
-  String get fontImportedBadge => 'Imported';
+  String get fontImportedBadge => 'İçe aktarıldı';
 
   @override
-  String get fontSearchHint => 'Search fonts';
+  String get fontSearchHint => 'Yazı tipi ara';
 
   @override
   String get cornerRadiusTitle => 'Corner radius';
@@ -6925,10 +6925,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get tokenAccent => 'Accent';
 
   @override
-  String get tokenSecondaryAccent => 'Secondary accent';
+  String get tokenSecondaryAccent => 'İkincil vurgu';
 
   @override
-  String get tokenTertiaryAccent => 'Tertiary accent';
+  String get tokenTertiaryAccent => 'Üçüncül vurgu';
 
   @override
   String get tokenCursor => 'Cursor';
@@ -6963,11 +6963,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get tokenSecondaryAccentDescription =>
-      'Second accent for section and action contrast.';
+      'Bölüm ve eylem kontrastı için ikinci vurgu.';
 
   @override
   String get tokenTertiaryAccentDescription =>
-      'Third accent for additional section contrast.';
+      'Ek bölüm kontrastı için üçüncü vurgu.';
 
   @override
   String get tokenCursorDescription => 'Caret color in text fields.';

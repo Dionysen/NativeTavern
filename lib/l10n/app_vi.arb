@@ -7029,5 +7029,244 @@
   "discardChanges": "Discard",
   "@discardChanges": {
     "description": "Discard unsaved chat changes"
-  }
+  },
+  "backgroundColorImageMutexHint": "Màu đặc / gradient và ảnh nền loại trừ lẫn nhau — chọn cái này sẽ thay cái kia.",
+  "@backgroundColorImageMutexHint": {
+    "description": "Hint that color/gradient backgrounds cannot be used with an image background"
+  },
+  "branchChatCreated": "Đã mở cuộc trò chuyện nhánh mới",
+  "@branchChatCreated": {
+    "description": "SnackBar after successfully creating a branch chat"
+  },
+  "branchChatTitle": "{title} (nhánh)",
+  "@branchChatTitle": {
+    "description": "Title for a chat created by branching from a message",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Chat with Alice"
+      }
+    }
+  },
+  "characterAvatarShapeCircle": "Ảnh đại diện tròn",
+  "@characterAvatarShapeCircle": {
+    "description": "Character list avatar shape: circle"
+  },
+  "characterAvatarShapeRectangle": "Ảnh đại diện chữ nhật",
+  "@characterAvatarShapeRectangle": {
+    "description": "Character list avatar shape: portrait rectangle"
+  },
+  "characterAvatarShapeSquare": "Ảnh đại diện vuông",
+  "@characterAvatarShapeSquare": {
+    "description": "Character list avatar shape: square"
+  },
+  "characterFolderCount": "{count} nhân vật",
+  "@characterFolderCount": {
+    "description": "Character count shown on a folder tile",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "characterFolderNameLabel": "Tên thư mục",
+  "@characterFolderNameLabel": {
+    "description": "Label for character folder name field"
+  },
+  "characterFolderRoot": "Gốc thư viện",
+  "@characterFolderRoot": {
+    "description": "Move characters out of folders to the main list"
+  },
+  "characterFoldersSection": "Thư mục",
+  "@characterFoldersSection": {
+    "description": "Section title above character folders on the list screen"
+  },
+  "characterListSelectMode": "Chọn",
+  "@characterListSelectMode": {
+    "description": "Enter multi-select mode on the character list"
+  },
+  "characterRegexScripts": "Regex nhân vật",
+  "@characterRegexScripts": {
+    "description": "Character-scoped regex scripts section"
+  },
+  "characterRegexScriptsHint": "Áp dụng cùng các script toàn cục của nhân vật này",
+  "@characterRegexScriptsHint": {
+    "description": "Subtitle for character regex section"
+  },
+  "characterSearchScopeFolder": "Chỉ tìm trong thư mục này",
+  "@characterSearchScopeFolder": {
+    "description": "Tooltip when character search is limited to the open folder"
+  },
+  "characterSearchScopeGlobal": "Tìm toàn bộ thư viện",
+  "@characterSearchScopeGlobal": {
+    "description": "Tooltip when character search includes all characters"
+  },
+  "charactersMovedToFolder": "Đã chuyển nhân vật",
+  "@charactersMovedToFolder": {
+    "description": "Snack bar after moving characters into a folder"
+  },
+  "createCharacterFolder": "Thư mục mới",
+  "@createCharacterFolder": {
+    "description": "Create an empty character folder"
+  },
+  "createFolderFromSelection": "Thư mục từ lựa chọn",
+  "@createFolderFromSelection": {
+    "description": "Create a folder and move selected characters into it"
+  },
+  "customBackgroundColor": "Màu tùy chỉnh",
+  "@customBackgroundColor": {
+    "description": "Custom solid background color picker label"
+  },
+  "depthUnlimitedHint": "Để trống nếu không giới hạn",
+  "@depthUnlimitedHint": {
+    "description": "Hint for optional depth fields"
+  },
+  "dissolveCharacterFolder": "Giải tán thư mục",
+  "@dissolveCharacterFolder": {
+    "description": "Remove folder and keep characters in the library"
+  },
+  "dissolveCharacterFolderBody": "Giải tán \"{name}\"? Nhân vật vẫn ở trong thư viện và không bị xóa.",
+  "@dissolveCharacterFolderBody": {
+    "description": "Confirm dissolving a character folder",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "enableReplyChoices": "Bật lựa chọn trả lời",
+  "@enableReplyChoices": {
+    "description": "Toggle to generate choices after AI replies"
+  },
+  "enableReplyChoicesHint": "Sau mỗi tin nhắn AI, gợi ý các tùy chọn bạn có thể chạm để gửi",
+  "@enableReplyChoicesHint": {
+    "description": "Subtitle for reply choices toggle"
+  },
+  "fontDeleteDialogBody": "Gỡ \"{family}\" khỏi thư viện phông chữ ứng dụng để giải phóng dung lượng?",
+  "@fontDeleteDialogBody": {
+    "placeholders": {
+      "family": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteDialogTitle": "Xóa phông chữ?",
+  "fontDeleteFailure": "Không thể xóa phông chữ đó.",
+  "fontDeleteFromLibrary": "Gỡ khỏi thư viện",
+  "fontDeleteSuccess": "Đã gỡ khỏi thư viện phông chữ ứng dụng.",
+  "fontImportFailure": "Không thể nhập tệp phông chữ đó.",
+  "fontImportFromFile": "Chọn tệp phông chữ…",
+  "fontImportSuccess": "Đã nhập phông chữ vào thư viện ứng dụng.",
+  "fontImportedBadge": "Đã nhập",
+  "fontSearchHint": "Tìm phông chữ",
+  "maxDepth": "Độ sâu tối đa",
+  "@maxDepth": {
+    "description": "Maximum message depth for regex"
+  },
+  "minDepth": "Độ sâu tối thiểu",
+  "@minDepth": {
+    "description": "Minimum message depth for regex"
+  },
+  "momentsChangeCover": "Đổi ảnh bìa",
+  "@momentsChangeCover": {
+    "description": "Button to replace the moments profile cover image"
+  },
+  "moveCharactersToFolder": "Chuyển vào thư mục",
+  "@moveCharactersToFolder": {
+    "description": "Title for move characters sheet"
+  },
+  "newBranchChat": "Bắt đầu nhánh mới",
+  "@newBranchChat": {
+    "description": "Message menu: open a new chat branched from this point"
+  },
+  "newBranchChatHint": "Giữ cuộc trò chuyện này; sao chép lịch sử đến đây sang cuộc mới",
+  "@newBranchChatHint": {
+    "description": "Subtitle for starting a new branch chat from a message"
+  },
+  "noCharacterRegexScripts": "Chưa có script regex nhân vật",
+  "@noCharacterRegexScripts": {
+    "description": "Empty state for character regex list"
+  },
+  "openReplyChoicesSettings": "Mở cài đặt",
+  "@openReplyChoicesSettings": {
+    "description": "Button to open reply choice settings"
+  },
+  "renameCharacterFolder": "Đổi tên thư mục",
+  "@renameCharacterFolder": {
+    "description": "Rename character folder dialog title"
+  },
+  "replyChoiceCount": "Số lựa chọn",
+  "@replyChoiceCount": {
+    "description": "How many options to generate"
+  },
+  "replyChoiceMaxChars": "Số ký tự tối đa mỗi lựa chọn",
+  "@replyChoiceMaxChars": {
+    "description": "Character limit for each option text"
+  },
+  "replyChoicePromptPlaceholders": "Phần giữ chỗ: count, max_chars, option_lines, tendency_1 … tendency_N (mỗi cái bọc trong dấu ngoặc nhọn kép trong mẫu của bạn)",
+  "@replyChoicePromptPlaceholders": {
+    "description": "Help text for prompt template placeholders"
+  },
+  "replyChoicePromptTemplate": "Mẫu prompt",
+  "@replyChoicePromptTemplate": {
+    "description": "Settings section for choice generation prompt"
+  },
+  "replyChoiceTendencies": "Xu hướng tùy chọn",
+  "@replyChoiceTendencies": {
+    "description": "Per-option guidance section title"
+  },
+  "replyChoiceTendencyHint": "vd. thận trọng, tán tỉnh, đặt câu hỏi",
+  "@replyChoiceTendencyHint": {
+    "description": "Hint for tendency input"
+  },
+  "replyChoiceTendencyLabel": "Xu hướng tùy chọn {index}",
+  "@replyChoiceTendencyLabel": {
+    "description": "Label for one option tendency field",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "replyChoices": "Lựa chọn trả lời",
+  "@replyChoices": {
+    "description": "AI-generated reply choice feature title"
+  },
+  "replyChoicesDisabledHint": "Bật trong cài đặt để nhận gợi ý trả lời AI sau mỗi tin nhắn.",
+  "@replyChoicesDisabledHint": {
+    "description": "Panel body when feature disabled"
+  },
+  "replyChoicesDisabledTitle": "Lựa chọn trả lời đang tắt",
+  "@replyChoicesDisabledTitle": {
+    "description": "Panel title when feature disabled"
+  },
+  "replyChoicesEmpty": "Chưa có lựa chọn. Chúng xuất hiện sau khi nhân vật trả lời.",
+  "@replyChoicesEmpty": {
+    "description": "Empty state in choice panel"
+  },
+  "replyChoicesGenerateFailed": "Không tạo được lựa chọn. Thử lại sau lần trả lời tiếp theo.",
+  "@replyChoicesGenerateFailed": {
+    "description": "Error when choice generation fails"
+  },
+  "showReplyChoices": "Lựa chọn trả lời",
+  "@showReplyChoices": {
+    "description": "Chat composer button tooltip"
+  },
+  "tokenSecondaryAccent": "Nhấn phụ",
+  "tokenSecondaryAccentDescription": "Màu nhấn thứ hai cho độ tương phản phần và hành động.",
+  "tokenTertiaryAccent": "Nhấn thứ ba",
+  "tokenTertiaryAccentDescription": "Màu nhấn thứ ba cho độ tương phản phần bổ sung.",
+  "trimStrings": "Cắt chuỗi",
+  "@trimStrings": {
+    "description": "Strings trimmed from regex matches"
+  },
+  "trimStringsHint": "Mỗi dòng một mục; bị gỡ khỏi khớp trước khi thay thế",
+  "@trimStringsHint": {
+    "description": "Hint for trim strings field"
+  },
+  "uiFontFamilyDescription": "Chạm để chọn phông chữ. Máy tính hiện phông đã cài; trên điện thoại bạn có thể nhập tệp phông chữ.",
+  "uiFontFamilySystem": "Mặc định hệ thống",
+  "uiFontFamilyTitle": "Phông chữ"
 }

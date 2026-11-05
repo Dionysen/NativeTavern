@@ -53,6 +53,23 @@ add_subdirectory(${FLUTTER_MANAGED_DIR})
 add_subdirectory("runner")
 
 
+# flutter_inappwebview_windows 0.6.0 passes DEPENDS to add_custom_command(TARGET),
+# which CMake 3.30+ warns about (CMP0175). Remove once pub resolves a fixed release.
+set(_flutter_inappwebview_windows_cmake
+  "${FLUTTER_MANAGED_DIR}/ephemeral/.plugin_symlinks/flutter_inappwebview_windows/windows/CMakeLists.txt")
+if(EXISTS "${_flutter_inappwebview_windows_cmake}")
+  file(READ "${_flutter_inappwebview_windows_cmake}" _flutter_inappwebview_windows_cmake_contents)
+  if(_flutter_inappwebview_windows_cmake_contents MATCHES "TARGET[ \t\n\r]+[^ \t\n\r]+[ \t\n\r]+PRE_BUILD")
+    string(REGEX REPLACE "[ \t]*DEPENDS \\$\\{NUGET\\}[ \t]*(\r?\n)" "\\1"
+      _flutter_inappwebview_windows_cmake_contents
+      "${_flutter_inappwebview_windows_cmake_contents}")
+    file(WRITE "${_flutter_inappwebview_windows_cmake}"
+      "${_flutter_inappwebview_windows_cmake_contents}")
+  endif()
+  unset(_flutter_inappwebview_windows_cmake_contents)
+endif()
+unset(_flutter_inappwebview_windows_cmake)
+
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
 include(flutter/generated_plugins.cmake)

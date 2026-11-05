@@ -7540,6 +7540,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get gridView => '格狀檢視';
 
   @override
+  String get characterAvatarShapeCircle => '圓形頭像';
+
+  @override
+  String get characterAvatarShapeSquare => '方形頭像';
+
+  @override
+  String get characterAvatarShapeRectangle => '矩形頭像';
+
+  @override
   String get search => '搜尋';
 
   @override
@@ -8281,6 +8290,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get solidColors => '純色';
 
   @override
+  String get customBackgroundColor => '自訂顏色';
+
+  @override
+  String get backgroundColorImageMutexHint => '純色 / 漸層與背景圖片互斥，選擇其一會取代另一種。';
+
+  @override
   String get customImage => '自訂圖片';
 
   @override
@@ -8999,6 +9014,30 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get macroSubstitution => '巨集取代';
+
+  @override
+  String get minDepth => '最小深度';
+
+  @override
+  String get maxDepth => '最大深度';
+
+  @override
+  String get depthUnlimitedHint => '留空表示不限制';
+
+  @override
+  String get trimStrings => '修剪字串';
+
+  @override
+  String get trimStringsHint => '每行一個；替換前從相符內容中移除';
+
+  @override
+  String get characterRegexScripts => '角色正則';
+
+  @override
+  String get characterRegexScriptsHint => '與此角色的全域腳本一併套用';
+
+  @override
+  String get noCharacterRegexScripts => '尚無角色正則腳本';
 
   @override
   String get nameAndPatternRequired => '名稱與模式不能為空';
@@ -13368,6 +13407,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get tokenAccent => '強調色';
 
   @override
+  String get tokenSecondaryAccent => '次強調色';
+
+  @override
+  String get tokenTertiaryAccent => '第三強調色';
+
+  @override
   String get tokenCursor => '游標';
 
   @override
@@ -13393,6 +13438,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get tokenAccentDescription => '高亮和選取狀態';
+
+  @override
+  String get tokenSecondaryAccentDescription => '用於區塊與操作區分的第二強調色';
+
+  @override
+  String get tokenTertiaryAccentDescription => '用於額外區塊區分的第三強調色';
 
   @override
   String get tokenCursorDescription => '輸入框游標顏色';

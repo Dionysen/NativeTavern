@@ -620,60 +620,60 @@ class AppLocalizationsNl extends AppLocalizations {
   String get quickReplies => 'Snelle Antwoorden';
 
   @override
-  String get replyChoices => 'Reply choices';
+  String get replyChoices => 'Antwoordkeuzes';
 
   @override
-  String get enableReplyChoices => 'Enable reply choices';
+  String get enableReplyChoices => 'Antwoordkeuzes inschakelen';
 
   @override
   String get enableReplyChoicesHint =>
-      'After each AI message, suggest options you can tap to send';
+      'Na elk AI-bericht opties voorstellen die je kunt tikken om te versturen';
 
   @override
-  String get replyChoiceCount => 'Number of choices';
+  String get replyChoiceCount => 'Aantal keuzes';
 
   @override
-  String get replyChoiceMaxChars => 'Max characters per choice';
+  String get replyChoiceMaxChars => 'Max. tekens per keuze';
 
   @override
-  String get replyChoicePromptTemplate => 'Prompt template';
+  String get replyChoicePromptTemplate => 'Prompt-sjabloon';
 
   @override
   String get replyChoicePromptPlaceholders =>
-      'Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (each wrapped in double curly braces in your template)';
+      'Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (elk tussen dubbele accolades in je sjabloon)';
 
   @override
-  String get replyChoiceTendencies => 'Option tendencies';
+  String get replyChoiceTendencies => 'Optietendensen';
 
   @override
   String replyChoiceTendencyLabel(int index) {
-    return 'Option $index tendency';
+    return 'Tendens optie $index';
   }
 
   @override
   String get replyChoiceTendencyHint =>
-      'e.g. cautious, flirtatious, ask a question';
+      'bijv. voorzichtig, flirtend, een vraag stellen';
 
   @override
-  String get replyChoicesDisabledTitle => 'Reply choices are off';
+  String get replyChoicesDisabledTitle => 'Antwoordkeuzes staan uit';
 
   @override
   String get replyChoicesDisabledHint =>
-      'Turn on in settings to get AI-suggested replies after each message.';
+      'Schakel in bij Instellingen om na elk bericht AI-voorstellen te krijgen.';
 
   @override
-  String get openReplyChoicesSettings => 'Open settings';
+  String get openReplyChoicesSettings => 'Instellingen openen';
 
   @override
   String get replyChoicesGenerateFailed =>
-      'Could not generate choices. Try again after the next reply.';
+      'Keuzes konden niet worden gegenereerd. Probeer opnieuw na het volgende antwoord.';
 
   @override
   String get replyChoicesEmpty =>
-      'No choices yet. They appear after the character replies.';
+      'Nog geen keuzes. Ze verschijnen nadat het personage antwoordt.';
 
   @override
-  String get showReplyChoices => 'Reply choices';
+  String get showReplyChoices => 'Antwoordkeuzes';
 
   @override
   String get createQuickReply => 'Snel Antwoord Maken';
@@ -815,13 +815,13 @@ class AppLocalizationsNl extends AppLocalizations {
   String get gridView => 'Rasterweergave';
 
   @override
-  String get characterAvatarShapeCircle => 'Circular avatar';
+  String get characterAvatarShapeCircle => 'Ronde avatar';
 
   @override
-  String get characterAvatarShapeSquare => 'Square avatar';
+  String get characterAvatarShapeSquare => 'Vierkante avatar';
 
   @override
-  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+  String get characterAvatarShapeRectangle => 'Rechthoekige avatar';
 
   @override
   String get search => 'Zoeken';
@@ -1252,53 +1252,53 @@ class AppLocalizationsNl extends AppLocalizations {
   }
 
   @override
-  String get characterFolderNameLabel => 'Folder name';
+  String get characterFolderNameLabel => 'Mapnaam';
 
   @override
-  String get createCharacterFolder => 'New folder';
+  String get createCharacterFolder => 'Nieuwe map';
 
   @override
-  String get createFolderFromSelection => 'Folder from selection';
+  String get createFolderFromSelection => 'Map uit selectie';
 
   @override
-  String get moveCharactersToFolder => 'Move to folder';
+  String get moveCharactersToFolder => 'Verplaatsen naar map';
 
   @override
   String get moveToFolder => 'Move to folder';
 
   @override
-  String get characterFolderRoot => 'Library root';
+  String get characterFolderRoot => 'Bibliotheekhoofdmap';
 
   @override
   String characterFolderCount(int count) {
-    return '$count character(s)';
+    return '$count personage(s)';
   }
 
   @override
-  String get charactersMovedToFolder => 'Characters moved';
+  String get charactersMovedToFolder => 'Personages verplaatst';
 
   @override
-  String get dissolveCharacterFolder => 'Dissolve folder';
+  String get dissolveCharacterFolder => 'Map ontbinden';
 
   @override
   String dissolveCharacterFolderBody(String name) {
-    return 'Dissolve \"$name\"? Characters stay in your library and are not deleted.';
+    return '\"$name\" ontbinden? Personages blijven in je bibliotheek en worden niet verwijderd.';
   }
 
   @override
-  String get renameCharacterFolder => 'Rename folder';
+  String get renameCharacterFolder => 'Map hernoemen';
 
   @override
-  String get characterFoldersSection => 'Folders';
+  String get characterFoldersSection => 'Mappen';
 
   @override
-  String get characterListSelectMode => 'Select';
+  String get characterListSelectMode => 'Selecteren';
 
   @override
-  String get characterSearchScopeFolder => 'Search this folder only';
+  String get characterSearchScopeFolder => 'Alleen deze map doorzoeken';
 
   @override
-  String get characterSearchScopeGlobal => 'Search entire library';
+  String get characterSearchScopeGlobal => 'Hele bibliotheek doorzoeken';
 
   @override
   String get create => 'Create';
@@ -1586,11 +1586,11 @@ class AppLocalizationsNl extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get customBackgroundColor => 'Custom color';
+  String get customBackgroundColor => 'Aangepaste kleur';
 
   @override
   String get backgroundColorImageMutexHint =>
-      'Solid color / gradient and background image are mutually exclusive — choosing one replaces the other.';
+      'Effen kleur / verloop en achtergrondafbeelding sluiten elkaar uit — de ene keuze vervangt de andere.';
 
   @override
   String get customImage => 'Custom Image';
@@ -2327,30 +2327,30 @@ class AppLocalizationsNl extends AppLocalizations {
   String get macroSubstitution => 'Macro Substitution';
 
   @override
-  String get minDepth => 'Min Depth';
+  String get minDepth => 'Min. diepte';
 
   @override
-  String get maxDepth => 'Max Depth';
+  String get maxDepth => 'Max. diepte';
 
   @override
-  String get depthUnlimitedHint => 'Leave empty for no limit';
+  String get depthUnlimitedHint => 'Laat leeg voor geen limiet';
 
   @override
-  String get trimStrings => 'Trim Strings';
+  String get trimStrings => 'Tekenreeksen inkorten';
 
   @override
   String get trimStringsHint =>
-      'One per line; removed from matches before replace';
+      'Eén per regel; vóór vervangen uit matches verwijderd';
 
   @override
-  String get characterRegexScripts => 'Character Regex';
+  String get characterRegexScripts => 'Personage-regex';
 
   @override
   String get characterRegexScriptsHint =>
-      'Applied with global scripts for this character';
+      'Toegepast samen met globale scripts voor dit personage';
 
   @override
-  String get noCharacterRegexScripts => 'No character regex scripts yet';
+  String get noCharacterRegexScripts => 'Nog geen personage-regexscripts';
 
   @override
   String get nameAndPatternRequired => 'Name and pattern are required';
@@ -3570,19 +3570,19 @@ class AppLocalizationsNl extends AppLocalizations {
   String get branchFromHere => 'Branch from here';
 
   @override
-  String get newBranchChat => 'Start a new branch';
+  String get newBranchChat => 'Nieuwe tak starten';
 
   @override
   String get newBranchChatHint =>
-      'Keep this chat; copy history up to here into a new one';
+      'Behoud deze chat; kopieer de geschiedenis tot hier naar een nieuwe';
 
   @override
   String branchChatTitle(String title) {
-    return '$title (branch)';
+    return '$title (tak)';
   }
 
   @override
-  String get branchChatCreated => 'Opened a new branch chat';
+  String get branchChatCreated => 'Nieuwe vertakkingschat geopend';
 
   @override
   String previewBookmark(String name) {
@@ -4377,7 +4377,7 @@ class AppLocalizationsNl extends AppLocalizations {
   String get momentsChangePhoto => 'Change photo';
 
   @override
-  String get momentsChangeCover => 'Change cover';
+  String get momentsChangeCover => 'Omslag wijzigen';
 
   @override
   String get momentsNeedSomething => 'Write something or add a photo first.';
@@ -6753,46 +6753,49 @@ class AppLocalizationsNl extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get uiFontFamilyTitle => 'Font';
+  String get uiFontFamilyTitle => 'Lettertype';
 
   @override
   String get uiFontFamilyDescription =>
-      'Tap to choose a font. Your computer shows installed fonts; on phone you can import a font file.';
+      'Tik om een lettertype te kiezen. De computer toont geïnstalleerde lettertypen; op de telefoon kun je een lettertypebestand importeren.';
 
   @override
-  String get uiFontFamilySystem => 'System default';
+  String get uiFontFamilySystem => 'Systeemstandaard';
 
   @override
-  String get fontImportSuccess => 'Font imported into the app library.';
+  String get fontImportSuccess =>
+      'Lettertype geïmporteerd in de app-bibliotheek.';
 
   @override
-  String get fontImportFailure => 'Could not import that font file.';
+  String get fontImportFailure =>
+      'Dat lettertypebestand kon niet worden geïmporteerd.';
 
   @override
-  String get fontDeleteSuccess => 'Removed from the app font library.';
+  String get fontDeleteSuccess =>
+      'Verwijderd uit de app-lettertypebibliotheek.';
 
   @override
-  String get fontDeleteFailure => 'Could not delete that font.';
+  String get fontDeleteFailure => 'Dat lettertype kon niet worden verwijderd.';
 
   @override
-  String get fontImportFromFile => 'Choose font file…';
+  String get fontImportFromFile => 'Lettertypebestand kiezen…';
 
   @override
-  String get fontDeleteFromLibrary => 'Remove from library';
+  String get fontDeleteFromLibrary => 'Uit bibliotheek verwijderen';
 
   @override
-  String get fontDeleteDialogTitle => 'Delete font?';
+  String get fontDeleteDialogTitle => 'Lettertype verwijderen?';
 
   @override
   String fontDeleteDialogBody(String family) {
-    return 'Remove \"$family\" from the app font library to free space?';
+    return '\"$family\" uit de app-lettertypebibliotheek verwijderen om ruimte vrij te maken?';
   }
 
   @override
-  String get fontImportedBadge => 'Imported';
+  String get fontImportedBadge => 'Geïmporteerd';
 
   @override
-  String get fontSearchHint => 'Search fonts';
+  String get fontSearchHint => 'Lettertypen zoeken';
 
   @override
   String get cornerRadiusTitle => 'Corner radius';
@@ -6925,10 +6928,10 @@ class AppLocalizationsNl extends AppLocalizations {
   String get tokenAccent => 'Accent';
 
   @override
-  String get tokenSecondaryAccent => 'Secondary accent';
+  String get tokenSecondaryAccent => 'Secundair accent';
 
   @override
-  String get tokenTertiaryAccent => 'Tertiary accent';
+  String get tokenTertiaryAccent => 'Tertiair accent';
 
   @override
   String get tokenCursor => 'Cursor';
@@ -6963,11 +6966,11 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get tokenSecondaryAccentDescription =>
-      'Second accent for section and action contrast.';
+      'Tweede accent voor contrast van secties en acties.';
 
   @override
   String get tokenTertiaryAccentDescription =>
-      'Third accent for additional section contrast.';
+      'Derde accent voor extra sectiecontrast.';
 
   @override
   String get tokenCursorDescription => 'Caret color in text fields.';

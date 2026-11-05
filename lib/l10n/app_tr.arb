@@ -7029,5 +7029,244 @@
   "discardChanges": "Discard",
   "@discardChanges": {
     "description": "Discard unsaved chat changes"
-  }
+  },
+  "backgroundColorImageMutexHint": "Düz renk / gradyan ile arka plan görseli birbirini dışlar — birini seçmek diğerinin yerine geçer.",
+  "@backgroundColorImageMutexHint": {
+    "description": "Hint that color/gradient backgrounds cannot be used with an image background"
+  },
+  "branchChatCreated": "Yeni bir dal sohbeti açıldı",
+  "@branchChatCreated": {
+    "description": "SnackBar after successfully creating a branch chat"
+  },
+  "branchChatTitle": "{title} (dal)",
+  "@branchChatTitle": {
+    "description": "Title for a chat created by branching from a message",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Chat with Alice"
+      }
+    }
+  },
+  "characterAvatarShapeCircle": "Dairesel avatar",
+  "@characterAvatarShapeCircle": {
+    "description": "Character list avatar shape: circle"
+  },
+  "characterAvatarShapeRectangle": "Dikdörtgen avatar",
+  "@characterAvatarShapeRectangle": {
+    "description": "Character list avatar shape: portrait rectangle"
+  },
+  "characterAvatarShapeSquare": "Kare avatar",
+  "@characterAvatarShapeSquare": {
+    "description": "Character list avatar shape: square"
+  },
+  "characterFolderCount": "{count} karakter",
+  "@characterFolderCount": {
+    "description": "Character count shown on a folder tile",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "characterFolderNameLabel": "Klasör adı",
+  "@characterFolderNameLabel": {
+    "description": "Label for character folder name field"
+  },
+  "characterFolderRoot": "Kitaplık kökü",
+  "@characterFolderRoot": {
+    "description": "Move characters out of folders to the main list"
+  },
+  "characterFoldersSection": "Klasörler",
+  "@characterFoldersSection": {
+    "description": "Section title above character folders on the list screen"
+  },
+  "characterListSelectMode": "Seç",
+  "@characterListSelectMode": {
+    "description": "Enter multi-select mode on the character list"
+  },
+  "characterRegexScripts": "Karakter Regex",
+  "@characterRegexScripts": {
+    "description": "Character-scoped regex scripts section"
+  },
+  "characterRegexScriptsHint": "Bu karakterin genel betikleriyle birlikte uygulanır",
+  "@characterRegexScriptsHint": {
+    "description": "Subtitle for character regex section"
+  },
+  "characterSearchScopeFolder": "Yalnızca bu klasörde ara",
+  "@characterSearchScopeFolder": {
+    "description": "Tooltip when character search is limited to the open folder"
+  },
+  "characterSearchScopeGlobal": "Tüm kitaplığı ara",
+  "@characterSearchScopeGlobal": {
+    "description": "Tooltip when character search includes all characters"
+  },
+  "charactersMovedToFolder": "Karakterler taşındı",
+  "@charactersMovedToFolder": {
+    "description": "Snack bar after moving characters into a folder"
+  },
+  "createCharacterFolder": "Yeni klasör",
+  "@createCharacterFolder": {
+    "description": "Create an empty character folder"
+  },
+  "createFolderFromSelection": "Seçimden klasör",
+  "@createFolderFromSelection": {
+    "description": "Create a folder and move selected characters into it"
+  },
+  "customBackgroundColor": "Özel renk",
+  "@customBackgroundColor": {
+    "description": "Custom solid background color picker label"
+  },
+  "depthUnlimitedHint": "Sınır yoksa boş bırakın",
+  "@depthUnlimitedHint": {
+    "description": "Hint for optional depth fields"
+  },
+  "dissolveCharacterFolder": "Klasörü dağıt",
+  "@dissolveCharacterFolder": {
+    "description": "Remove folder and keep characters in the library"
+  },
+  "dissolveCharacterFolderBody": "\"{name}\" dağıtılsın mı? Karakterler kitaplığınızda kalır ve silinmez.",
+  "@dissolveCharacterFolderBody": {
+    "description": "Confirm dissolving a character folder",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "enableReplyChoices": "Yanıt seçeneklerini etkinleştir",
+  "@enableReplyChoices": {
+    "description": "Toggle to generate choices after AI replies"
+  },
+  "enableReplyChoicesHint": "Her yapay zekâ mesajından sonra dokunup gönderebileceğiniz seçenekler öner",
+  "@enableReplyChoicesHint": {
+    "description": "Subtitle for reply choices toggle"
+  },
+  "fontDeleteDialogBody": "Alan açmak için \"{family}\" uygulamanın yazı tipi kitaplığından kaldırılsın mı?",
+  "@fontDeleteDialogBody": {
+    "placeholders": {
+      "family": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteDialogTitle": "Yazı tipi silinsin mi?",
+  "fontDeleteFailure": "Bu yazı tipi silinemedi.",
+  "fontDeleteFromLibrary": "Kitaplıktan kaldır",
+  "fontDeleteSuccess": "Uygulama yazı tipi kitaplığından kaldırıldı.",
+  "fontImportFailure": "Bu yazı tipi dosyası içe aktarılamadı.",
+  "fontImportFromFile": "Yazı tipi dosyası seç…",
+  "fontImportSuccess": "Yazı tipi uygulama kitaplığına aktarıldı.",
+  "fontImportedBadge": "İçe aktarıldı",
+  "fontSearchHint": "Yazı tipi ara",
+  "maxDepth": "Maks. derinlik",
+  "@maxDepth": {
+    "description": "Maximum message depth for regex"
+  },
+  "minDepth": "Min. derinlik",
+  "@minDepth": {
+    "description": "Minimum message depth for regex"
+  },
+  "momentsChangeCover": "Kapağı değiştir",
+  "@momentsChangeCover": {
+    "description": "Button to replace the moments profile cover image"
+  },
+  "moveCharactersToFolder": "Klasöre taşı",
+  "@moveCharactersToFolder": {
+    "description": "Title for move characters sheet"
+  },
+  "newBranchChat": "Yeni dal başlat",
+  "@newBranchChat": {
+    "description": "Message menu: open a new chat branched from this point"
+  },
+  "newBranchChatHint": "Bu sohbeti koru; buraya kadarki geçmişi yenisine kopyala",
+  "@newBranchChatHint": {
+    "description": "Subtitle for starting a new branch chat from a message"
+  },
+  "noCharacterRegexScripts": "Henüz karakter regex betiği yok",
+  "@noCharacterRegexScripts": {
+    "description": "Empty state for character regex list"
+  },
+  "openReplyChoicesSettings": "Ayarları aç",
+  "@openReplyChoicesSettings": {
+    "description": "Button to open reply choice settings"
+  },
+  "renameCharacterFolder": "Klasörü yeniden adlandır",
+  "@renameCharacterFolder": {
+    "description": "Rename character folder dialog title"
+  },
+  "replyChoiceCount": "Seçenek sayısı",
+  "@replyChoiceCount": {
+    "description": "How many options to generate"
+  },
+  "replyChoiceMaxChars": "Seçenek başına maks. karakter",
+  "@replyChoiceMaxChars": {
+    "description": "Character limit for each option text"
+  },
+  "replyChoicePromptPlaceholders": "Yer tutucular: count, max_chars, option_lines, tendency_1 … tendency_N (şablonunuzda her biri çift süslü ayraç içinde)",
+  "@replyChoicePromptPlaceholders": {
+    "description": "Help text for prompt template placeholders"
+  },
+  "replyChoicePromptTemplate": "İstem şablonu",
+  "@replyChoicePromptTemplate": {
+    "description": "Settings section for choice generation prompt"
+  },
+  "replyChoiceTendencies": "Seçenek eğilimleri",
+  "@replyChoiceTendencies": {
+    "description": "Per-option guidance section title"
+  },
+  "replyChoiceTendencyHint": "ör. temkinli, flörtöz, soru sor",
+  "@replyChoiceTendencyHint": {
+    "description": "Hint for tendency input"
+  },
+  "replyChoiceTendencyLabel": "Seçenek {index} eğilimi",
+  "@replyChoiceTendencyLabel": {
+    "description": "Label for one option tendency field",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "replyChoices": "Yanıt seçenekleri",
+  "@replyChoices": {
+    "description": "AI-generated reply choice feature title"
+  },
+  "replyChoicesDisabledHint": "Her mesajdan sonra yapay zekâ önerileri için ayarlardan açın.",
+  "@replyChoicesDisabledHint": {
+    "description": "Panel body when feature disabled"
+  },
+  "replyChoicesDisabledTitle": "Yanıt seçenekleri kapalı",
+  "@replyChoicesDisabledTitle": {
+    "description": "Panel title when feature disabled"
+  },
+  "replyChoicesEmpty": "Henüz seçenek yok. Karakter yanıtladıktan sonra görünür.",
+  "@replyChoicesEmpty": {
+    "description": "Empty state in choice panel"
+  },
+  "replyChoicesGenerateFailed": "Seçenekler oluşturulamadı. Sonraki yanıttan sonra tekrar deneyin.",
+  "@replyChoicesGenerateFailed": {
+    "description": "Error when choice generation fails"
+  },
+  "showReplyChoices": "Yanıt seçenekleri",
+  "@showReplyChoices": {
+    "description": "Chat composer button tooltip"
+  },
+  "tokenSecondaryAccent": "İkincil vurgu",
+  "tokenSecondaryAccentDescription": "Bölüm ve eylem kontrastı için ikinci vurgu.",
+  "tokenTertiaryAccent": "Üçüncül vurgu",
+  "tokenTertiaryAccentDescription": "Ek bölüm kontrastı için üçüncü vurgu.",
+  "trimStrings": "Dizeleri kırp",
+  "@trimStrings": {
+    "description": "Strings trimmed from regex matches"
+  },
+  "trimStringsHint": "Satır başına bir; değiştirmeden önce eşleşmelerden kaldırılır",
+  "@trimStringsHint": {
+    "description": "Hint for trim strings field"
+  },
+  "uiFontFamilyDescription": "Yazı tipi seçmek için dokunun. Bilgisayar yüklü yazı tiplerini gösterir; telefonda bir yazı tipi dosyası içe aktarabilirsiniz.",
+  "uiFontFamilySystem": "Sistem varsayılanı",
+  "uiFontFamilyTitle": "Yazı tipi"
 }

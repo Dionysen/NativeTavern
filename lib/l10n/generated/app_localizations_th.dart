@@ -616,60 +616,58 @@ class AppLocalizationsTh extends AppLocalizations {
   String get quickReplies => 'ตอบกลับด่วน';
 
   @override
-  String get replyChoices => 'Reply choices';
+  String get replyChoices => 'ตัวเลือกการตอบ';
 
   @override
-  String get enableReplyChoices => 'Enable reply choices';
+  String get enableReplyChoices => 'เปิดตัวเลือกการตอบ';
 
   @override
   String get enableReplyChoicesHint =>
-      'After each AI message, suggest options you can tap to send';
+      'หลังข้อความ AI แต่ละครั้ง แนะนำตัวเลือกที่แตะเพื่อส่งได้';
 
   @override
-  String get replyChoiceCount => 'Number of choices';
+  String get replyChoiceCount => 'จำนวนตัวเลือก';
 
   @override
-  String get replyChoiceMaxChars => 'Max characters per choice';
+  String get replyChoiceMaxChars => 'จำนวนอักขระสูงสุดต่อตัวเลือก';
 
   @override
-  String get replyChoicePromptTemplate => 'Prompt template';
+  String get replyChoicePromptTemplate => 'เทมเพลตพรอมต์';
 
   @override
   String get replyChoicePromptPlaceholders =>
-      'Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (each wrapped in double curly braces in your template)';
+      'ตัวยึด: count, max_chars, option_lines, tendency_1 … tendency_N (แต่ละตัวห่อด้วยวงเล็บปีกกาคู่ในเทมเพลต)';
 
   @override
-  String get replyChoiceTendencies => 'Option tendencies';
+  String get replyChoiceTendencies => 'แนวโน้มของตัวเลือก';
 
   @override
   String replyChoiceTendencyLabel(int index) {
-    return 'Option $index tendency';
+    return 'แนวโน้มตัวเลือก $index';
   }
 
   @override
-  String get replyChoiceTendencyHint =>
-      'e.g. cautious, flirtatious, ask a question';
+  String get replyChoiceTendencyHint => 'เช่น ระมัดระวัง, หยอด, ถามคำถาม';
 
   @override
-  String get replyChoicesDisabledTitle => 'Reply choices are off';
+  String get replyChoicesDisabledTitle => 'ตัวเลือกการตอบปิดอยู่';
 
   @override
   String get replyChoicesDisabledHint =>
-      'Turn on in settings to get AI-suggested replies after each message.';
+      'เปิดในการตั้งค่าเพื่อรับคำตอบที่ AI แนะนำหลังข้อความแต่ละครั้ง';
 
   @override
-  String get openReplyChoicesSettings => 'Open settings';
+  String get openReplyChoicesSettings => 'เปิดการตั้งค่า';
 
   @override
   String get replyChoicesGenerateFailed =>
-      'Could not generate choices. Try again after the next reply.';
+      'สร้างตัวเลือกไม่ได้ ลองอีกครั้งหลังการตอบครั้งถัดไป';
 
   @override
-  String get replyChoicesEmpty =>
-      'No choices yet. They appear after the character replies.';
+  String get replyChoicesEmpty => 'ยังไม่มีตัวเลือก จะปรากฏหลังตัวละครตอบ';
 
   @override
-  String get showReplyChoices => 'Reply choices';
+  String get showReplyChoices => 'ตัวเลือกการตอบ';
 
   @override
   String get createQuickReply => 'สร้างการตอบกลับด่วน';
@@ -811,13 +809,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get gridView => 'มุมมองตาราง';
 
   @override
-  String get characterAvatarShapeCircle => 'Circular avatar';
+  String get characterAvatarShapeCircle => 'อวาตาร์วงกลม';
 
   @override
-  String get characterAvatarShapeSquare => 'Square avatar';
+  String get characterAvatarShapeSquare => 'อวาตาร์สี่เหลี่ยมจัตุรัส';
 
   @override
-  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+  String get characterAvatarShapeRectangle => 'อวาตาร์สี่เหลี่ยมผืนผ้า';
 
   @override
   String get search => 'ค้นหา';
@@ -1248,53 +1246,53 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get characterFolderNameLabel => 'Folder name';
+  String get characterFolderNameLabel => 'ชื่อโฟลเดอร์';
 
   @override
-  String get createCharacterFolder => 'New folder';
+  String get createCharacterFolder => 'โฟลเดอร์ใหม่';
 
   @override
-  String get createFolderFromSelection => 'Folder from selection';
+  String get createFolderFromSelection => 'โฟลเดอร์จากการเลือก';
 
   @override
-  String get moveCharactersToFolder => 'Move to folder';
+  String get moveCharactersToFolder => 'ย้ายไปโฟลเดอร์';
 
   @override
   String get moveToFolder => 'Move to folder';
 
   @override
-  String get characterFolderRoot => 'Library root';
+  String get characterFolderRoot => 'รากไลบรารี';
 
   @override
   String characterFolderCount(int count) {
-    return '$count character(s)';
+    return '$count ตัวละคร';
   }
 
   @override
-  String get charactersMovedToFolder => 'Characters moved';
+  String get charactersMovedToFolder => 'ย้ายตัวละครแล้ว';
 
   @override
-  String get dissolveCharacterFolder => 'Dissolve folder';
+  String get dissolveCharacterFolder => 'ยุบโฟลเดอร์';
 
   @override
   String dissolveCharacterFolderBody(String name) {
-    return 'Dissolve \"$name\"? Characters stay in your library and are not deleted.';
+    return 'ยุบ \"$name\"? ตัวละครยังอยู่ในไลบรารีและจะไม่ถูกลบ';
   }
 
   @override
-  String get renameCharacterFolder => 'Rename folder';
+  String get renameCharacterFolder => 'เปลี่ยนชื่อโฟลเดอร์';
 
   @override
-  String get characterFoldersSection => 'Folders';
+  String get characterFoldersSection => 'โฟลเดอร์';
 
   @override
-  String get characterListSelectMode => 'Select';
+  String get characterListSelectMode => 'เลือก';
 
   @override
-  String get characterSearchScopeFolder => 'Search this folder only';
+  String get characterSearchScopeFolder => 'ค้นหาเฉพาะโฟลเดอร์นี้';
 
   @override
-  String get characterSearchScopeGlobal => 'Search entire library';
+  String get characterSearchScopeGlobal => 'ค้นหาทั้งไลบรารี';
 
   @override
   String get create => 'Create';
@@ -1582,11 +1580,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get customBackgroundColor => 'Custom color';
+  String get customBackgroundColor => 'สีกำหนดเอง';
 
   @override
   String get backgroundColorImageMutexHint =>
-      'Solid color / gradient and background image are mutually exclusive — choosing one replaces the other.';
+      'สีทึบ / ไล่เฉดกับภาพพื้นหลังใช้ร่วมกันไม่ได้ — เลือกอย่างหนึ่งจะแทนที่อีกอย่าง';
 
   @override
   String get customImage => 'Custom Image';
@@ -2323,30 +2321,30 @@ class AppLocalizationsTh extends AppLocalizations {
   String get macroSubstitution => 'Macro Substitution';
 
   @override
-  String get minDepth => 'Min Depth';
+  String get minDepth => 'ความลึกต่ำสุด';
 
   @override
-  String get maxDepth => 'Max Depth';
+  String get maxDepth => 'ความลึกสูงสุด';
 
   @override
-  String get depthUnlimitedHint => 'Leave empty for no limit';
+  String get depthUnlimitedHint => 'เว้นว่างหากไม่จำกัด';
 
   @override
-  String get trimStrings => 'Trim Strings';
+  String get trimStrings => 'ตัดสตริง';
 
   @override
   String get trimStringsHint =>
-      'One per line; removed from matches before replace';
+      'หนึ่งรายการต่อบรรทัด; ลบออกจากผลที่ตรงก่อนแทนที่';
 
   @override
-  String get characterRegexScripts => 'Character Regex';
+  String get characterRegexScripts => 'เร็กซ์ตัวละคร';
 
   @override
   String get characterRegexScriptsHint =>
-      'Applied with global scripts for this character';
+      'ใช้ร่วมกับสคริปต์ส่วนกลางของตัวละครนี้';
 
   @override
-  String get noCharacterRegexScripts => 'No character regex scripts yet';
+  String get noCharacterRegexScripts => 'ยังไม่มีสคริปต์เร็กซ์ตัวละคร';
 
   @override
   String get nameAndPatternRequired => 'Name and pattern are required';
@@ -3566,19 +3564,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String get branchFromHere => 'Branch from here';
 
   @override
-  String get newBranchChat => 'Start a new branch';
+  String get newBranchChat => 'เริ่มสาขาใหม่';
 
   @override
   String get newBranchChatHint =>
-      'Keep this chat; copy history up to here into a new one';
+      'เก็บแชทนี้ไว้; คัดลอกประวัติถึงจุดนี้ไปยังแชทใหม่';
 
   @override
   String branchChatTitle(String title) {
-    return '$title (branch)';
+    return '$title (สาขา)';
   }
 
   @override
-  String get branchChatCreated => 'Opened a new branch chat';
+  String get branchChatCreated => 'เปิดแชทสาขาใหม่แล้ว';
 
   @override
   String previewBookmark(String name) {
@@ -4373,7 +4371,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get momentsChangePhoto => 'Change photo';
 
   @override
-  String get momentsChangeCover => 'Change cover';
+  String get momentsChangeCover => 'เปลี่ยนปก';
 
   @override
   String get momentsNeedSomething => 'Write something or add a photo first.';
@@ -6749,46 +6747,46 @@ class AppLocalizationsTh extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get uiFontFamilyTitle => 'Font';
+  String get uiFontFamilyTitle => 'ฟอนต์';
 
   @override
   String get uiFontFamilyDescription =>
-      'Tap to choose a font. Your computer shows installed fonts; on phone you can import a font file.';
+      'แตะเพื่อเลือกฟอนต์ คอมพิวเตอร์จะแสดงฟอนต์ที่ติดตั้ง; บนโทรศัพท์สามารถนำเข้าไฟล์ฟอนต์ได้';
 
   @override
-  String get uiFontFamilySystem => 'System default';
+  String get uiFontFamilySystem => 'ค่าเริ่มต้นของระบบ';
 
   @override
-  String get fontImportSuccess => 'Font imported into the app library.';
+  String get fontImportSuccess => 'นำเข้าฟอนต์ไปยังคลังแอปแล้ว';
 
   @override
-  String get fontImportFailure => 'Could not import that font file.';
+  String get fontImportFailure => 'นำเข้าไฟล์ฟอนต์นั้นไม่ได้';
 
   @override
-  String get fontDeleteSuccess => 'Removed from the app font library.';
+  String get fontDeleteSuccess => 'นำออกจากคลังฟอนต์แอปแล้ว';
 
   @override
-  String get fontDeleteFailure => 'Could not delete that font.';
+  String get fontDeleteFailure => 'ลบฟอนต์นั้นไม่ได้';
 
   @override
-  String get fontImportFromFile => 'Choose font file…';
+  String get fontImportFromFile => 'เลือกไฟล์ฟอนต์…';
 
   @override
-  String get fontDeleteFromLibrary => 'Remove from library';
+  String get fontDeleteFromLibrary => 'นำออกจากคลัง';
 
   @override
-  String get fontDeleteDialogTitle => 'Delete font?';
+  String get fontDeleteDialogTitle => 'ลบฟอนต์?';
 
   @override
   String fontDeleteDialogBody(String family) {
-    return 'Remove \"$family\" from the app font library to free space?';
+    return 'นำ \"$family\" ออกจากคลังฟอนต์แอปเพื่อเพิ่มพื้นที่ว่างหรือไม่?';
   }
 
   @override
-  String get fontImportedBadge => 'Imported';
+  String get fontImportedBadge => 'นำเข้าแล้ว';
 
   @override
-  String get fontSearchHint => 'Search fonts';
+  String get fontSearchHint => 'ค้นหาฟอนต์';
 
   @override
   String get cornerRadiusTitle => 'Corner radius';
@@ -6921,10 +6919,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get tokenAccent => 'Accent';
 
   @override
-  String get tokenSecondaryAccent => 'Secondary accent';
+  String get tokenSecondaryAccent => 'สีเน้นรอง';
 
   @override
-  String get tokenTertiaryAccent => 'Tertiary accent';
+  String get tokenTertiaryAccent => 'สีเน้นที่สาม';
 
   @override
   String get tokenCursor => 'Cursor';
@@ -6959,11 +6957,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get tokenSecondaryAccentDescription =>
-      'Second accent for section and action contrast.';
+      'สีเน้นที่สองสำหรับคอนทราสต์ของส่วนและการกระทำ';
 
   @override
   String get tokenTertiaryAccentDescription =>
-      'Third accent for additional section contrast.';
+      'สีเน้นที่สามสำหรับคอนทราสต์ส่วนเพิ่มเติม';
 
   @override
   String get tokenCursorDescription => 'Caret color in text fields.';

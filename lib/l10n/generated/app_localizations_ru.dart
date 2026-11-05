@@ -619,60 +619,60 @@ class AppLocalizationsRu extends AppLocalizations {
   String get quickReplies => 'Быстрые ответы';
 
   @override
-  String get replyChoices => 'Reply choices';
+  String get replyChoices => 'Варианты ответа';
 
   @override
-  String get enableReplyChoices => 'Enable reply choices';
+  String get enableReplyChoices => 'Включить варианты ответа';
 
   @override
   String get enableReplyChoicesHint =>
-      'After each AI message, suggest options you can tap to send';
+      'После каждого сообщения ИИ предлагать варианты, которые можно нажать для отправки';
 
   @override
-  String get replyChoiceCount => 'Number of choices';
+  String get replyChoiceCount => 'Число вариантов';
 
   @override
-  String get replyChoiceMaxChars => 'Max characters per choice';
+  String get replyChoiceMaxChars => 'Макс. символов на вариант';
 
   @override
-  String get replyChoicePromptTemplate => 'Prompt template';
+  String get replyChoicePromptTemplate => 'Шаблон промпта';
 
   @override
   String get replyChoicePromptPlaceholders =>
-      'Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (each wrapped in double curly braces in your template)';
+      'Плейсхолдеры: count, max_chars, option_lines, tendency_1 … tendency_N (каждый в двойных фигурных скобках в шаблоне)';
 
   @override
-  String get replyChoiceTendencies => 'Option tendencies';
+  String get replyChoiceTendencies => 'Тенденции вариантов';
 
   @override
   String replyChoiceTendencyLabel(int index) {
-    return 'Option $index tendency';
+    return 'Тенденция варианта $index';
   }
 
   @override
   String get replyChoiceTendencyHint =>
-      'e.g. cautious, flirtatious, ask a question';
+      'напр. осторожный, флирт, задать вопрос';
 
   @override
-  String get replyChoicesDisabledTitle => 'Reply choices are off';
+  String get replyChoicesDisabledTitle => 'Варианты ответа выключены';
 
   @override
   String get replyChoicesDisabledHint =>
-      'Turn on in settings to get AI-suggested replies after each message.';
+      'Включите в настройках, чтобы после каждого сообщения получать подсказки ИИ.';
 
   @override
-  String get openReplyChoicesSettings => 'Open settings';
+  String get openReplyChoicesSettings => 'Открыть настройки';
 
   @override
   String get replyChoicesGenerateFailed =>
-      'Could not generate choices. Try again after the next reply.';
+      'Не удалось создать варианты. Попробуйте после следующего ответа.';
 
   @override
   String get replyChoicesEmpty =>
-      'No choices yet. They appear after the character replies.';
+      'Вариантов пока нет. Они появляются после ответа персонажа.';
 
   @override
-  String get showReplyChoices => 'Reply choices';
+  String get showReplyChoices => 'Варианты ответа';
 
   @override
   String get createQuickReply => 'Создать быстрый ответ';
@@ -814,13 +814,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get gridView => 'Сетка';
 
   @override
-  String get characterAvatarShapeCircle => 'Circular avatar';
+  String get characterAvatarShapeCircle => 'Круглый аватар';
 
   @override
-  String get characterAvatarShapeSquare => 'Square avatar';
+  String get characterAvatarShapeSquare => 'Квадратный аватар';
 
   @override
-  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+  String get characterAvatarShapeRectangle => 'Прямоугольный аватар';
 
   @override
   String get search => 'Поиск';
@@ -1251,53 +1251,53 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get characterFolderNameLabel => 'Folder name';
+  String get characterFolderNameLabel => 'Имя папки';
 
   @override
-  String get createCharacterFolder => 'New folder';
+  String get createCharacterFolder => 'Новая папка';
 
   @override
-  String get createFolderFromSelection => 'Folder from selection';
+  String get createFolderFromSelection => 'Папка из выбора';
 
   @override
-  String get moveCharactersToFolder => 'Move to folder';
+  String get moveCharactersToFolder => 'Переместить в папку';
 
   @override
   String get moveToFolder => 'Move to folder';
 
   @override
-  String get characterFolderRoot => 'Library root';
+  String get characterFolderRoot => 'Корень библиотеки';
 
   @override
   String characterFolderCount(int count) {
-    return '$count character(s)';
+    return '$count персонаж(ей)';
   }
 
   @override
-  String get charactersMovedToFolder => 'Characters moved';
+  String get charactersMovedToFolder => 'Персонажи перемещены';
 
   @override
-  String get dissolveCharacterFolder => 'Dissolve folder';
+  String get dissolveCharacterFolder => 'Распустить папку';
 
   @override
   String dissolveCharacterFolderBody(String name) {
-    return 'Dissolve \"$name\"? Characters stay in your library and are not deleted.';
+    return 'Распустить «$name»? Персонажи останутся в библиотеке и не будут удалены.';
   }
 
   @override
-  String get renameCharacterFolder => 'Rename folder';
+  String get renameCharacterFolder => 'Переименовать папку';
 
   @override
-  String get characterFoldersSection => 'Folders';
+  String get characterFoldersSection => 'Папки';
 
   @override
-  String get characterListSelectMode => 'Select';
+  String get characterListSelectMode => 'Выбрать';
 
   @override
-  String get characterSearchScopeFolder => 'Search this folder only';
+  String get characterSearchScopeFolder => 'Искать только в этой папке';
 
   @override
-  String get characterSearchScopeGlobal => 'Search entire library';
+  String get characterSearchScopeGlobal => 'Искать по всей библиотеке';
 
   @override
   String get create => 'Create';
@@ -1585,11 +1585,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get customBackgroundColor => 'Custom color';
+  String get customBackgroundColor => 'Свой цвет';
 
   @override
   String get backgroundColorImageMutexHint =>
-      'Solid color / gradient and background image are mutually exclusive — choosing one replaces the other.';
+      'Сплошной цвет / градиент и фоновое изображение взаимоисключающи — выбор одного заменяет другое.';
 
   @override
   String get customImage => 'Custom Image';
@@ -2326,30 +2326,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String get macroSubstitution => 'Macro Substitution';
 
   @override
-  String get minDepth => 'Min Depth';
+  String get minDepth => 'Мин. глубина';
 
   @override
-  String get maxDepth => 'Max Depth';
+  String get maxDepth => 'Макс. глубина';
 
   @override
-  String get depthUnlimitedHint => 'Leave empty for no limit';
+  String get depthUnlimitedHint => 'Оставьте пустым без ограничения';
 
   @override
-  String get trimStrings => 'Trim Strings';
+  String get trimStrings => 'Обрезать строки';
 
   @override
   String get trimStringsHint =>
-      'One per line; removed from matches before replace';
+      'По одной на строку; удаляются из совпадений перед заменой';
 
   @override
-  String get characterRegexScripts => 'Character Regex';
+  String get characterRegexScripts => 'Regex персонажа';
 
   @override
   String get characterRegexScriptsHint =>
-      'Applied with global scripts for this character';
+      'Применяется вместе с глобальными скриптами этого персонажа';
 
   @override
-  String get noCharacterRegexScripts => 'No character regex scripts yet';
+  String get noCharacterRegexScripts => 'Пока нет regex-скриптов персонажа';
 
   @override
   String get nameAndPatternRequired => 'Name and pattern are required';
@@ -3569,19 +3569,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get branchFromHere => 'Branch from here';
 
   @override
-  String get newBranchChat => 'Start a new branch';
+  String get newBranchChat => 'Начать новую ветку';
 
   @override
   String get newBranchChatHint =>
-      'Keep this chat; copy history up to here into a new one';
+      'Сохранить этот чат; скопировать историю досюда в новый';
 
   @override
   String branchChatTitle(String title) {
-    return '$title (branch)';
+    return '$title (ветка)';
   }
 
   @override
-  String get branchChatCreated => 'Opened a new branch chat';
+  String get branchChatCreated => 'Открыт новый чат-ветка';
 
   @override
   String previewBookmark(String name) {
@@ -4376,7 +4376,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get momentsChangePhoto => 'Change photo';
 
   @override
-  String get momentsChangeCover => 'Change cover';
+  String get momentsChangeCover => 'Сменить обложку';
 
   @override
   String get momentsNeedSomething => 'Write something or add a photo first.';
@@ -6753,46 +6753,46 @@ class AppLocalizationsRu extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get uiFontFamilyTitle => 'Font';
+  String get uiFontFamilyTitle => 'Шрифт';
 
   @override
   String get uiFontFamilyDescription =>
-      'Tap to choose a font. Your computer shows installed fonts; on phone you can import a font file.';
+      'Нажмите, чтобы выбрать шрифт. На компьютере показаны установленные шрифты; на телефоне можно импортировать файл шрифта.';
 
   @override
-  String get uiFontFamilySystem => 'System default';
+  String get uiFontFamilySystem => 'Системный по умолчанию';
 
   @override
-  String get fontImportSuccess => 'Font imported into the app library.';
+  String get fontImportSuccess => 'Шрифт импортирован в библиотеку приложения.';
 
   @override
-  String get fontImportFailure => 'Could not import that font file.';
+  String get fontImportFailure => 'Не удалось импортировать этот файл шрифта.';
 
   @override
-  String get fontDeleteSuccess => 'Removed from the app font library.';
+  String get fontDeleteSuccess => 'Удалён из библиотеки шрифтов приложения.';
 
   @override
-  String get fontDeleteFailure => 'Could not delete that font.';
+  String get fontDeleteFailure => 'Не удалось удалить этот шрифт.';
 
   @override
-  String get fontImportFromFile => 'Choose font file…';
+  String get fontImportFromFile => 'Выбрать файл шрифта…';
 
   @override
-  String get fontDeleteFromLibrary => 'Remove from library';
+  String get fontDeleteFromLibrary => 'Удалить из библиотеки';
 
   @override
-  String get fontDeleteDialogTitle => 'Delete font?';
+  String get fontDeleteDialogTitle => 'Удалить шрифт?';
 
   @override
   String fontDeleteDialogBody(String family) {
-    return 'Remove \"$family\" from the app font library to free space?';
+    return 'Удалить «$family» из библиотеки шрифтов приложения, чтобы освободить место?';
   }
 
   @override
-  String get fontImportedBadge => 'Imported';
+  String get fontImportedBadge => 'Импортирован';
 
   @override
-  String get fontSearchHint => 'Search fonts';
+  String get fontSearchHint => 'Поиск шрифтов';
 
   @override
   String get cornerRadiusTitle => 'Corner radius';
@@ -6925,10 +6925,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tokenAccent => 'Accent';
 
   @override
-  String get tokenSecondaryAccent => 'Secondary accent';
+  String get tokenSecondaryAccent => 'Вторичный акцент';
 
   @override
-  String get tokenTertiaryAccent => 'Tertiary accent';
+  String get tokenTertiaryAccent => 'Третичный акцент';
 
   @override
   String get tokenCursor => 'Cursor';
@@ -6963,11 +6963,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tokenSecondaryAccentDescription =>
-      'Second accent for section and action contrast.';
+      'Второй акцент для контраста разделов и действий.';
 
   @override
   String get tokenTertiaryAccentDescription =>
-      'Third accent for additional section contrast.';
+      'Третий акцент для дополнительного контраста разделов.';
 
   @override
   String get tokenCursorDescription => 'Caret color in text fields.';

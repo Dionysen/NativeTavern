@@ -5375,7 +5375,6 @@
   "@setAsBackground": {
     "description": "UI label: Set as background"
   },
-  "moveToFolder": "移動到資料夾",
   "@moveToFolder": {
     "description": "UI label: Move to folder"
   },
@@ -7103,5 +7102,61 @@
   "discardChanges": "捨棄",
   "@discardChanges": {
     "description": "Discard unsaved chat changes"
+  },
+  "backgroundColorImageMutexHint": "純色 / 漸層與背景圖片互斥，選擇其一會取代另一種。",
+  "@backgroundColorImageMutexHint": {
+    "description": "Hint that color/gradient backgrounds cannot be used with an image background"
+  },
+  "characterAvatarShapeCircle": "圓形頭像",
+  "@characterAvatarShapeCircle": {
+    "description": "Character list avatar shape: circle"
+  },
+  "characterAvatarShapeRectangle": "矩形頭像",
+  "@characterAvatarShapeRectangle": {
+    "description": "Character list avatar shape: portrait rectangle"
+  },
+  "characterAvatarShapeSquare": "方形頭像",
+  "@characterAvatarShapeSquare": {
+    "description": "Character list avatar shape: square"
+  },
+  "characterRegexScripts": "角色正則",
+  "@characterRegexScripts": {
+    "description": "Character-scoped regex scripts section"
+  },
+  "characterRegexScriptsHint": "與此角色的全域腳本一併套用",
+  "@characterRegexScriptsHint": {
+    "description": "Subtitle for character regex section"
+  },
+  "customBackgroundColor": "自訂顏色",
+  "@customBackgroundColor": {
+    "description": "Custom solid background color picker label"
+  },
+  "depthUnlimitedHint": "留空表示不限制",
+  "@depthUnlimitedHint": {
+    "description": "Hint for optional depth fields"
+  },
+  "maxDepth": "最大深度",
+  "@maxDepth": {
+    "description": "Maximum message depth for regex"
+  },
+  "minDepth": "最小深度",
+  "@minDepth": {
+    "description": "Minimum message depth for regex"
+  },
+  "noCharacterRegexScripts": "尚無角色正則腳本",
+  "@noCharacterRegexScripts": {
+    "description": "Empty state for character regex list"
+  },
+  "tokenSecondaryAccent": "次強調色",
+  "tokenSecondaryAccentDescription": "用於區塊與操作區分的第二強調色",
+  "tokenTertiaryAccent": "第三強調色",
+  "tokenTertiaryAccentDescription": "用於額外區塊區分的第三強調色",
+  "trimStrings": "修剪字串",
+  "@trimStrings": {
+    "description": "Strings trimmed from regex matches"
+  },
+  "trimStringsHint": "每行一個；替換前從相符內容中移除",
+  "@trimStringsHint": {
+    "description": "Hint for trim strings field"
   }
 }

@@ -610,60 +610,56 @@ class AppLocalizationsJa extends AppLocalizations {
   String get quickReplies => 'クイック返信';
 
   @override
-  String get replyChoices => 'Reply choices';
+  String get replyChoices => '返信選択肢';
 
   @override
-  String get enableReplyChoices => 'Enable reply choices';
+  String get enableReplyChoices => '返信選択肢を有効化';
 
   @override
-  String get enableReplyChoicesHint =>
-      'After each AI message, suggest options you can tap to send';
+  String get enableReplyChoicesHint => 'AIの各メッセージ後に、タップして送信できる選択肢を提案します';
 
   @override
-  String get replyChoiceCount => 'Number of choices';
+  String get replyChoiceCount => '選択肢の数';
 
   @override
-  String get replyChoiceMaxChars => 'Max characters per choice';
+  String get replyChoiceMaxChars => '選択肢あたりの最大文字数';
 
   @override
-  String get replyChoicePromptTemplate => 'Prompt template';
+  String get replyChoicePromptTemplate => 'プロンプトテンプレート';
 
   @override
   String get replyChoicePromptPlaceholders =>
-      'Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (each wrapped in double curly braces in your template)';
+      'プレースホルダー：count、max_chars、option_lines、tendency_1 … tendency_N（テンプレートでは二重の波括弧で囲む）';
 
   @override
-  String get replyChoiceTendencies => 'Option tendencies';
+  String get replyChoiceTendencies => '選択肢の傾向';
 
   @override
   String replyChoiceTendencyLabel(int index) {
-    return 'Option $index tendency';
+    return '選択肢 $index の傾向';
   }
 
   @override
-  String get replyChoiceTendencyHint =>
-      'e.g. cautious, flirtatious, ask a question';
+  String get replyChoiceTendencyHint => '例：慎重、いちゃつく、質問する';
 
   @override
-  String get replyChoicesDisabledTitle => 'Reply choices are off';
+  String get replyChoicesDisabledTitle => '返信選択肢はオフです';
 
   @override
-  String get replyChoicesDisabledHint =>
-      'Turn on in settings to get AI-suggested replies after each message.';
+  String get replyChoicesDisabledHint => '設定でオンにすると、各メッセージ後にAIの提案返信が表示されます。';
 
   @override
-  String get openReplyChoicesSettings => 'Open settings';
+  String get openReplyChoicesSettings => '設定を開く';
 
   @override
   String get replyChoicesGenerateFailed =>
-      'Could not generate choices. Try again after the next reply.';
+      '選択肢を生成できませんでした。次の返信のあとにもう一度お試しください。';
 
   @override
-  String get replyChoicesEmpty =>
-      'No choices yet. They appear after the character replies.';
+  String get replyChoicesEmpty => 'まだ選択肢がありません。キャラクターの返信後に表示されます。';
 
   @override
-  String get showReplyChoices => 'Reply choices';
+  String get showReplyChoices => '返信選択肢';
 
   @override
   String get createQuickReply => 'クイック返信を作成';
@@ -805,13 +801,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get gridView => 'グリッド表示';
 
   @override
-  String get characterAvatarShapeCircle => 'Circular avatar';
+  String get characterAvatarShapeCircle => '円形アバター';
 
   @override
-  String get characterAvatarShapeSquare => 'Square avatar';
+  String get characterAvatarShapeSquare => '正方形アバター';
 
   @override
-  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+  String get characterAvatarShapeRectangle => '長方形アバター';
 
   @override
   String get search => '検索';
@@ -1241,53 +1237,53 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get characterFolderNameLabel => 'Folder name';
+  String get characterFolderNameLabel => 'フォルダ名';
 
   @override
-  String get createCharacterFolder => 'New folder';
+  String get createCharacterFolder => '新しいフォルダ';
 
   @override
-  String get createFolderFromSelection => 'Folder from selection';
+  String get createFolderFromSelection => '選択からフォルダを作成';
 
   @override
-  String get moveCharactersToFolder => 'Move to folder';
+  String get moveCharactersToFolder => 'フォルダへ移動';
 
   @override
   String get moveToFolder => 'フォルダに移動';
 
   @override
-  String get characterFolderRoot => 'Library root';
+  String get characterFolderRoot => 'ライブラリのルート';
 
   @override
   String characterFolderCount(int count) {
-    return '$count character(s)';
+    return '$count キャラクター';
   }
 
   @override
-  String get charactersMovedToFolder => 'Characters moved';
+  String get charactersMovedToFolder => 'キャラクターを移動しました';
 
   @override
-  String get dissolveCharacterFolder => 'Dissolve folder';
+  String get dissolveCharacterFolder => 'フォルダを解散';
 
   @override
   String dissolveCharacterFolderBody(String name) {
-    return 'Dissolve \"$name\"? Characters stay in your library and are not deleted.';
+    return '「$name」を解散しますか？キャラクターはライブラリに残り、削除されません。';
   }
 
   @override
-  String get renameCharacterFolder => 'Rename folder';
+  String get renameCharacterFolder => 'フォルダ名を変更';
 
   @override
-  String get characterFoldersSection => 'Folders';
+  String get characterFoldersSection => 'フォルダ';
 
   @override
-  String get characterListSelectMode => 'Select';
+  String get characterListSelectMode => '選択';
 
   @override
-  String get characterSearchScopeFolder => 'Search this folder only';
+  String get characterSearchScopeFolder => 'このフォルダのみ検索';
 
   @override
-  String get characterSearchScopeGlobal => 'Search entire library';
+  String get characterSearchScopeGlobal => 'ライブラリ全体を検索';
 
   @override
   String get create => 'Create';
@@ -1575,11 +1571,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get customBackgroundColor => 'Custom color';
+  String get customBackgroundColor => 'カスタムカラー';
 
   @override
   String get backgroundColorImageMutexHint =>
-      'Solid color / gradient and background image are mutually exclusive — choosing one replaces the other.';
+      '単色／グラデーションと背景画像は同時に使えません。一方を選ぶともう一方は置き換わります。';
 
   @override
   String get customImage => 'Custom Image';
@@ -2316,30 +2312,28 @@ class AppLocalizationsJa extends AppLocalizations {
   String get macroSubstitution => 'Macro Substitution';
 
   @override
-  String get minDepth => 'Min Depth';
+  String get minDepth => '最小深度';
 
   @override
-  String get maxDepth => 'Max Depth';
+  String get maxDepth => '最大深度';
 
   @override
-  String get depthUnlimitedHint => 'Leave empty for no limit';
+  String get depthUnlimitedHint => '空欄で制限なし';
 
   @override
-  String get trimStrings => 'Trim Strings';
+  String get trimStrings => '文字列をトリム';
 
   @override
-  String get trimStringsHint =>
-      'One per line; removed from matches before replace';
+  String get trimStringsHint => '1行に1つ；置換前に一致から削除されます';
 
   @override
-  String get characterRegexScripts => 'Character Regex';
+  String get characterRegexScripts => 'キャラクター正規表現';
 
   @override
-  String get characterRegexScriptsHint =>
-      'Applied with global scripts for this character';
+  String get characterRegexScriptsHint => 'このキャラクターのグローバルスクリプトと一緒に適用されます';
 
   @override
-  String get noCharacterRegexScripts => 'No character regex scripts yet';
+  String get noCharacterRegexScripts => 'キャラクター正規表現スクリプトはまだありません';
 
   @override
   String get nameAndPatternRequired => 'Name and pattern are required';
@@ -3559,19 +3553,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get branchFromHere => 'Branch from here';
 
   @override
-  String get newBranchChat => 'Start a new branch';
+  String get newBranchChat => '新しい分岐を開始';
 
   @override
-  String get newBranchChatHint =>
-      'Keep this chat; copy history up to here into a new one';
+  String get newBranchChatHint => 'このチャットは残し、ここまでの履歴を新しいチャットにコピーします';
 
   @override
   String branchChatTitle(String title) {
-    return '$title (branch)';
+    return '$title（分岐）';
   }
 
   @override
-  String get branchChatCreated => 'Opened a new branch chat';
+  String get branchChatCreated => '新しい分岐チャットを開きました';
 
   @override
   String previewBookmark(String name) {
@@ -4363,7 +4356,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get momentsChangePhoto => 'Change photo';
 
   @override
-  String get momentsChangeCover => 'Change cover';
+  String get momentsChangeCover => 'カバーを変更';
 
   @override
   String get momentsNeedSomething => 'Write something or add a photo first.';
@@ -6737,46 +6730,46 @@ class AppLocalizationsJa extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get uiFontFamilyTitle => 'Font';
+  String get uiFontFamilyTitle => 'フォント';
 
   @override
   String get uiFontFamilyDescription =>
-      'Tap to choose a font. Your computer shows installed fonts; on phone you can import a font file.';
+      'タップしてフォントを選びます。パソコンではインストール済みフォントが表示され、スマホではフォントファイルを取り込めます。';
 
   @override
-  String get uiFontFamilySystem => 'System default';
+  String get uiFontFamilySystem => 'システム既定';
 
   @override
-  String get fontImportSuccess => 'Font imported into the app library.';
+  String get fontImportSuccess => 'フォントをアプリライブラリに取り込みました。';
 
   @override
-  String get fontImportFailure => 'Could not import that font file.';
+  String get fontImportFailure => 'そのフォントファイルを読み込めませんでした。';
 
   @override
-  String get fontDeleteSuccess => 'Removed from the app font library.';
+  String get fontDeleteSuccess => 'アプリのフォントライブラリから削除しました。';
 
   @override
-  String get fontDeleteFailure => 'Could not delete that font.';
+  String get fontDeleteFailure => 'そのフォントを削除できませんでした。';
 
   @override
-  String get fontImportFromFile => 'Choose font file…';
+  String get fontImportFromFile => 'フォントファイルを選択…';
 
   @override
-  String get fontDeleteFromLibrary => 'Remove from library';
+  String get fontDeleteFromLibrary => 'ライブラリから削除';
 
   @override
-  String get fontDeleteDialogTitle => 'Delete font?';
+  String get fontDeleteDialogTitle => 'フォントを削除しますか？';
 
   @override
   String fontDeleteDialogBody(String family) {
-    return 'Remove \"$family\" from the app font library to free space?';
+    return '空き容量のため、アプリのフォントライブラリから「$family」を削除しますか？';
   }
 
   @override
-  String get fontImportedBadge => 'Imported';
+  String get fontImportedBadge => '取り込み済み';
 
   @override
-  String get fontSearchHint => 'Search fonts';
+  String get fontSearchHint => 'フォントを検索';
 
   @override
   String get cornerRadiusTitle => 'Corner radius';
@@ -6909,10 +6902,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tokenAccent => 'Accent';
 
   @override
-  String get tokenSecondaryAccent => 'Secondary accent';
+  String get tokenSecondaryAccent => 'セカンダリアクセント';
 
   @override
-  String get tokenTertiaryAccent => 'Tertiary accent';
+  String get tokenTertiaryAccent => 'ターシャリアクセント';
 
   @override
   String get tokenCursor => 'Cursor';
@@ -6946,12 +6939,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tokenAccentDescription => 'Highlights and selected items.';
 
   @override
-  String get tokenSecondaryAccentDescription =>
-      'Second accent for section and action contrast.';
+  String get tokenSecondaryAccentDescription => 'セクションと操作の対比用の第2アクセント。';
 
   @override
-  String get tokenTertiaryAccentDescription =>
-      'Third accent for additional section contrast.';
+  String get tokenTertiaryAccentDescription => '追加のセクション対比用の第3アクセント。';
 
   @override
   String get tokenCursorDescription => 'Caret color in text fields.';

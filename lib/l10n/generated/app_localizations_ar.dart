@@ -615,60 +615,58 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quickReplies => 'الردود السريعة';
 
   @override
-  String get replyChoices => 'Reply choices';
+  String get replyChoices => 'خيارات الرد';
 
   @override
-  String get enableReplyChoices => 'Enable reply choices';
+  String get enableReplyChoices => 'تفعيل خيارات الرد';
 
   @override
   String get enableReplyChoicesHint =>
-      'After each AI message, suggest options you can tap to send';
+      'بعد كل رسالة من الذكاء الاصطناعي، اقترح خيارات يمكن النقر لإرسالها';
 
   @override
-  String get replyChoiceCount => 'Number of choices';
+  String get replyChoiceCount => 'عدد الخيارات';
 
   @override
-  String get replyChoiceMaxChars => 'Max characters per choice';
+  String get replyChoiceMaxChars => 'أقصى أحرف لكل خيار';
 
   @override
-  String get replyChoicePromptTemplate => 'Prompt template';
+  String get replyChoicePromptTemplate => 'قالب المطالبة';
 
   @override
   String get replyChoicePromptPlaceholders =>
-      'Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (each wrapped in double curly braces in your template)';
+      'العناصر النائبة: count وmax_chars وoption_lines وtendency_1 … tendency_N (كل منها داخل أقواس مزدوجة معقوفة في قالبك)';
 
   @override
-  String get replyChoiceTendencies => 'Option tendencies';
+  String get replyChoiceTendencies => 'اتجاهات الخيارات';
 
   @override
   String replyChoiceTendencyLabel(int index) {
-    return 'Option $index tendency';
+    return 'اتجاه الخيار $index';
   }
 
   @override
-  String get replyChoiceTendencyHint =>
-      'e.g. cautious, flirtatious, ask a question';
+  String get replyChoiceTendencyHint => 'مثلًا: حذر، غزلي، اطرح سؤالًا';
 
   @override
-  String get replyChoicesDisabledTitle => 'Reply choices are off';
+  String get replyChoicesDisabledTitle => 'خيارات الرد متوقفة';
 
   @override
   String get replyChoicesDisabledHint =>
-      'Turn on in settings to get AI-suggested replies after each message.';
+      'فعّلها في الإعدادات للحصول على ردود مقترحة بعد كل رسالة.';
 
   @override
-  String get openReplyChoicesSettings => 'Open settings';
+  String get openReplyChoicesSettings => 'فتح الإعدادات';
 
   @override
   String get replyChoicesGenerateFailed =>
-      'Could not generate choices. Try again after the next reply.';
+      'تعذر إنشاء الخيارات. حاول بعد الرد التالي.';
 
   @override
-  String get replyChoicesEmpty =>
-      'No choices yet. They appear after the character replies.';
+  String get replyChoicesEmpty => 'لا خيارات بعد. تظهر بعد رد الشخصية.';
 
   @override
-  String get showReplyChoices => 'Reply choices';
+  String get showReplyChoices => 'خيارات الرد';
 
   @override
   String get createQuickReply => 'إنشاء رد سريع';
@@ -810,13 +808,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get gridView => 'عرض الشبكة';
 
   @override
-  String get characterAvatarShapeCircle => 'Circular avatar';
+  String get characterAvatarShapeCircle => 'صورة رمزية دائرية';
 
   @override
-  String get characterAvatarShapeSquare => 'Square avatar';
+  String get characterAvatarShapeSquare => 'صورة رمزية مربعة';
 
   @override
-  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+  String get characterAvatarShapeRectangle => 'صورة رمزية مستطيلة';
 
   @override
   String get search => 'بحث';
@@ -1247,53 +1245,53 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get characterFolderNameLabel => 'Folder name';
+  String get characterFolderNameLabel => 'اسم المجلد';
 
   @override
-  String get createCharacterFolder => 'New folder';
+  String get createCharacterFolder => 'مجلد جديد';
 
   @override
-  String get createFolderFromSelection => 'Folder from selection';
+  String get createFolderFromSelection => 'مجلد من التحديد';
 
   @override
-  String get moveCharactersToFolder => 'Move to folder';
+  String get moveCharactersToFolder => 'نقل إلى مجلد';
 
   @override
   String get moveToFolder => 'Move to folder';
 
   @override
-  String get characterFolderRoot => 'Library root';
+  String get characterFolderRoot => 'جذر المكتبة';
 
   @override
   String characterFolderCount(int count) {
-    return '$count character(s)';
+    return '$count شخصية';
   }
 
   @override
-  String get charactersMovedToFolder => 'Characters moved';
+  String get charactersMovedToFolder => 'تم نقل الشخصيات';
 
   @override
-  String get dissolveCharacterFolder => 'Dissolve folder';
+  String get dissolveCharacterFolder => 'حل المجلد';
 
   @override
   String dissolveCharacterFolderBody(String name) {
-    return 'Dissolve \"$name\"? Characters stay in your library and are not deleted.';
+    return 'حل \"$name\"؟ تبقى الشخصيات في مكتبتك ولن تُحذف.';
   }
 
   @override
-  String get renameCharacterFolder => 'Rename folder';
+  String get renameCharacterFolder => 'إعادة تسمية المجلد';
 
   @override
-  String get characterFoldersSection => 'Folders';
+  String get characterFoldersSection => 'المجلدات';
 
   @override
-  String get characterListSelectMode => 'Select';
+  String get characterListSelectMode => 'تحديد';
 
   @override
-  String get characterSearchScopeFolder => 'Search this folder only';
+  String get characterSearchScopeFolder => 'البحث في هذا المجلد فقط';
 
   @override
-  String get characterSearchScopeGlobal => 'Search entire library';
+  String get characterSearchScopeGlobal => 'البحث في المكتبة بالكامل';
 
   @override
   String get create => 'Create';
@@ -1581,11 +1579,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get customBackgroundColor => 'Custom color';
+  String get customBackgroundColor => 'لون مخصص';
 
   @override
   String get backgroundColorImageMutexHint =>
-      'Solid color / gradient and background image are mutually exclusive — choosing one replaces the other.';
+      'اللون الصلب / التدرج وصورة الخلفية متنافيان — اختيار أحدهما يستبدل الآخر.';
 
   @override
   String get customImage => 'Custom Image';
@@ -2322,30 +2320,31 @@ class AppLocalizationsAr extends AppLocalizations {
   String get macroSubstitution => 'Macro Substitution';
 
   @override
-  String get minDepth => 'Min Depth';
+  String get minDepth => 'أدنى عمق';
 
   @override
-  String get maxDepth => 'Max Depth';
+  String get maxDepth => 'أقصى عمق';
 
   @override
-  String get depthUnlimitedHint => 'Leave empty for no limit';
+  String get depthUnlimitedHint => 'اتركه فارغًا بلا حد';
 
   @override
-  String get trimStrings => 'Trim Strings';
+  String get trimStrings => 'اقتطاع السلاسل';
 
   @override
   String get trimStringsHint =>
-      'One per line; removed from matches before replace';
+      'واحد لكل سطر؛ يُزال من المطابقات قبل الاستبدال';
 
   @override
-  String get characterRegexScripts => 'Character Regex';
+  String get characterRegexScripts => 'تعبيرات منتظمة للشخصية';
 
   @override
   String get characterRegexScriptsHint =>
-      'Applied with global scripts for this character';
+      'تُطبَّق مع السكربتات العامة لهذه الشخصية';
 
   @override
-  String get noCharacterRegexScripts => 'No character regex scripts yet';
+  String get noCharacterRegexScripts =>
+      'لا توجد سكربتات تعبير منتظم للشخصية بعد';
 
   @override
   String get nameAndPatternRequired => 'Name and pattern are required';
@@ -3565,19 +3564,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get branchFromHere => 'Branch from here';
 
   @override
-  String get newBranchChat => 'Start a new branch';
+  String get newBranchChat => 'بدء فرع جديد';
 
   @override
   String get newBranchChatHint =>
-      'Keep this chat; copy history up to here into a new one';
+      'أبقِ هذه المحادثة؛ انسخ السجل حتى هنا إلى محادثة جديدة';
 
   @override
   String branchChatTitle(String title) {
-    return '$title (branch)';
+    return '$title (فرع)';
   }
 
   @override
-  String get branchChatCreated => 'Opened a new branch chat';
+  String get branchChatCreated => 'تم فتح محادثة فرع جديدة';
 
   @override
   String previewBookmark(String name) {
@@ -4372,7 +4371,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get momentsChangePhoto => 'Change photo';
 
   @override
-  String get momentsChangeCover => 'Change cover';
+  String get momentsChangeCover => 'تغيير الغلاف';
 
   @override
   String get momentsNeedSomething => 'Write something or add a photo first.';
@@ -6750,46 +6749,46 @@ class AppLocalizationsAr extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get uiFontFamilyTitle => 'Font';
+  String get uiFontFamilyTitle => 'الخط';
 
   @override
   String get uiFontFamilyDescription =>
-      'Tap to choose a font. Your computer shows installed fonts; on phone you can import a font file.';
+      'انقر لاختيار خط. يظهر الكمبيوتر الخطوط المثبتة؛ على الهاتف يمكنك استيراد ملف خط.';
 
   @override
-  String get uiFontFamilySystem => 'System default';
+  String get uiFontFamilySystem => 'افتراضي النظام';
 
   @override
-  String get fontImportSuccess => 'Font imported into the app library.';
+  String get fontImportSuccess => 'تم استيراد الخط إلى مكتبة التطبيق.';
 
   @override
-  String get fontImportFailure => 'Could not import that font file.';
+  String get fontImportFailure => 'تعذر استيراد ملف الخط.';
 
   @override
-  String get fontDeleteSuccess => 'Removed from the app font library.';
+  String get fontDeleteSuccess => 'تمت الإزالة من مكتبة خطوط التطبيق.';
 
   @override
-  String get fontDeleteFailure => 'Could not delete that font.';
+  String get fontDeleteFailure => 'تعذر حذف هذا الخط.';
 
   @override
-  String get fontImportFromFile => 'Choose font file…';
+  String get fontImportFromFile => 'اختر ملف خط…';
 
   @override
-  String get fontDeleteFromLibrary => 'Remove from library';
+  String get fontDeleteFromLibrary => 'إزالة من المكتبة';
 
   @override
-  String get fontDeleteDialogTitle => 'Delete font?';
+  String get fontDeleteDialogTitle => 'حذف الخط؟';
 
   @override
   String fontDeleteDialogBody(String family) {
-    return 'Remove \"$family\" from the app font library to free space?';
+    return 'إزالة \"$family\" من مكتبة خطوط التطبيق لتفريغ مساحة؟';
   }
 
   @override
-  String get fontImportedBadge => 'Imported';
+  String get fontImportedBadge => 'مستورد';
 
   @override
-  String get fontSearchHint => 'Search fonts';
+  String get fontSearchHint => 'بحث عن خطوط';
 
   @override
   String get cornerRadiusTitle => 'Corner radius';
@@ -6922,10 +6921,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tokenAccent => 'Accent';
 
   @override
-  String get tokenSecondaryAccent => 'Secondary accent';
+  String get tokenSecondaryAccent => 'لون تمييز ثانوي';
 
   @override
-  String get tokenTertiaryAccent => 'Tertiary accent';
+  String get tokenTertiaryAccent => 'لون تمييز ثالث';
 
   @override
   String get tokenCursor => 'Cursor';
@@ -6960,11 +6959,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tokenSecondaryAccentDescription =>
-      'Second accent for section and action contrast.';
+      'لون تمييز ثانٍ لتباين الأقسام والإجراءات.';
 
   @override
   String get tokenTertiaryAccentDescription =>
-      'Third accent for additional section contrast.';
+      'لون تمييز ثالث لتباين إضافي بين الأقسام.';
 
   @override
   String get tokenCursorDescription => 'Caret color in text fields.';

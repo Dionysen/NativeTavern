@@ -608,60 +608,56 @@ class AppLocalizationsKo extends AppLocalizations {
   String get quickReplies => '빠른 답장';
 
   @override
-  String get replyChoices => 'Reply choices';
+  String get replyChoices => '답변 선택지';
 
   @override
-  String get enableReplyChoices => 'Enable reply choices';
+  String get enableReplyChoices => '답변 선택지 사용';
 
   @override
-  String get enableReplyChoicesHint =>
-      'After each AI message, suggest options you can tap to send';
+  String get enableReplyChoicesHint => 'AI 메시지마다 탭하여 보낼 수 있는 선택지를 제안합니다';
 
   @override
-  String get replyChoiceCount => 'Number of choices';
+  String get replyChoiceCount => '선택지 개수';
 
   @override
-  String get replyChoiceMaxChars => 'Max characters per choice';
+  String get replyChoiceMaxChars => '선택지당 최대 글자 수';
 
   @override
-  String get replyChoicePromptTemplate => 'Prompt template';
+  String get replyChoicePromptTemplate => '프롬프트 템플릿';
 
   @override
   String get replyChoicePromptPlaceholders =>
-      'Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (each wrapped in double curly braces in your template)';
+      '자리 표시자: count, max_chars, option_lines, tendency_1 … tendency_N (템플릿에서 각각 이중 중괄호로 감쌈)';
 
   @override
-  String get replyChoiceTendencies => 'Option tendencies';
+  String get replyChoiceTendencies => '선택지 경향';
 
   @override
   String replyChoiceTendencyLabel(int index) {
-    return 'Option $index tendency';
+    return '선택지 $index 경향';
   }
 
   @override
-  String get replyChoiceTendencyHint =>
-      'e.g. cautious, flirtatious, ask a question';
+  String get replyChoiceTendencyHint => '예: 신중함, 플러팅, 질문하기';
 
   @override
-  String get replyChoicesDisabledTitle => 'Reply choices are off';
+  String get replyChoicesDisabledTitle => '답변 선택지가 꺼져 있습니다';
 
   @override
-  String get replyChoicesDisabledHint =>
-      'Turn on in settings to get AI-suggested replies after each message.';
+  String get replyChoicesDisabledHint => '설정에서 켜면 메시지마다 AI 제안 답변이 표시됩니다.';
 
   @override
-  String get openReplyChoicesSettings => 'Open settings';
+  String get openReplyChoicesSettings => '설정 열기';
 
   @override
   String get replyChoicesGenerateFailed =>
-      'Could not generate choices. Try again after the next reply.';
+      '선택지를 생성하지 못했습니다. 다음 답변 후에 다시 시도하세요.';
 
   @override
-  String get replyChoicesEmpty =>
-      'No choices yet. They appear after the character replies.';
+  String get replyChoicesEmpty => '아직 선택지가 없습니다. 캐릭터가 답한 뒤에 나타납니다.';
 
   @override
-  String get showReplyChoices => 'Reply choices';
+  String get showReplyChoices => '답변 선택지';
 
   @override
   String get createQuickReply => '빠른 답장 만들기';
@@ -803,13 +799,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get gridView => '그리드 보기';
 
   @override
-  String get characterAvatarShapeCircle => 'Circular avatar';
+  String get characterAvatarShapeCircle => '원형 아바타';
 
   @override
-  String get characterAvatarShapeSquare => 'Square avatar';
+  String get characterAvatarShapeSquare => '정사각형 아바타';
 
   @override
-  String get characterAvatarShapeRectangle => 'Rectangular avatar';
+  String get characterAvatarShapeRectangle => '직사각형 아바타';
 
   @override
   String get search => '검색';
@@ -1239,53 +1235,53 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get characterFolderNameLabel => 'Folder name';
+  String get characterFolderNameLabel => '폴더 이름';
 
   @override
-  String get createCharacterFolder => 'New folder';
+  String get createCharacterFolder => '새 폴더';
 
   @override
-  String get createFolderFromSelection => 'Folder from selection';
+  String get createFolderFromSelection => '선택으로 폴더 만들기';
 
   @override
-  String get moveCharactersToFolder => 'Move to folder';
+  String get moveCharactersToFolder => '폴더로 이동';
 
   @override
   String get moveToFolder => '폴더로 이동';
 
   @override
-  String get characterFolderRoot => 'Library root';
+  String get characterFolderRoot => '라이브러리 루트';
 
   @override
   String characterFolderCount(int count) {
-    return '$count character(s)';
+    return '캐릭터 $count명';
   }
 
   @override
-  String get charactersMovedToFolder => 'Characters moved';
+  String get charactersMovedToFolder => '캐릭터를 이동했습니다';
 
   @override
-  String get dissolveCharacterFolder => 'Dissolve folder';
+  String get dissolveCharacterFolder => '폴더 해체';
 
   @override
   String dissolveCharacterFolderBody(String name) {
-    return 'Dissolve \"$name\"? Characters stay in your library and are not deleted.';
+    return '\"$name\"을(를) 해체할까요? 캐릭터는 라이브러리에 남으며 삭제되지 않습니다.';
   }
 
   @override
-  String get renameCharacterFolder => 'Rename folder';
+  String get renameCharacterFolder => '폴더 이름 바꾸기';
 
   @override
-  String get characterFoldersSection => 'Folders';
+  String get characterFoldersSection => '폴더';
 
   @override
-  String get characterListSelectMode => 'Select';
+  String get characterListSelectMode => '선택';
 
   @override
-  String get characterSearchScopeFolder => 'Search this folder only';
+  String get characterSearchScopeFolder => '이 폴더만 검색';
 
   @override
-  String get characterSearchScopeGlobal => 'Search entire library';
+  String get characterSearchScopeGlobal => '전체 라이브러리 검색';
 
   @override
   String get create => 'Create';
@@ -1573,11 +1569,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get customBackgroundColor => 'Custom color';
+  String get customBackgroundColor => '사용자 지정 색상';
 
   @override
   String get backgroundColorImageMutexHint =>
-      'Solid color / gradient and background image are mutually exclusive — choosing one replaces the other.';
+      '단색/그라데이션과 배경 이미지는 동시에 사용할 수 없습니다. 하나를 선택하면 다른 쪽이 대체됩니다.';
 
   @override
   String get customImage => 'Custom Image';
@@ -2314,30 +2310,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get macroSubstitution => 'Macro Substitution';
 
   @override
-  String get minDepth => 'Min Depth';
+  String get minDepth => '최소 깊이';
 
   @override
-  String get maxDepth => 'Max Depth';
+  String get maxDepth => '최대 깊이';
 
   @override
-  String get depthUnlimitedHint => 'Leave empty for no limit';
+  String get depthUnlimitedHint => '비워 두면 제한 없음';
 
   @override
-  String get trimStrings => 'Trim Strings';
+  String get trimStrings => '문자열 다듬기';
 
   @override
-  String get trimStringsHint =>
-      'One per line; removed from matches before replace';
+  String get trimStringsHint => '한 줄에 하나; 바꾸기 전에 일치에서 제거됩니다';
 
   @override
-  String get characterRegexScripts => 'Character Regex';
+  String get characterRegexScripts => '캐릭터 정규식';
 
   @override
-  String get characterRegexScriptsHint =>
-      'Applied with global scripts for this character';
+  String get characterRegexScriptsHint => '이 캐릭터의 전역 스크립트와 함께 적용됩니다';
 
   @override
-  String get noCharacterRegexScripts => 'No character regex scripts yet';
+  String get noCharacterRegexScripts => '아직 캐릭터 정규식 스크립트가 없습니다';
 
   @override
   String get nameAndPatternRequired => 'Name and pattern are required';
@@ -3557,19 +3551,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get branchFromHere => 'Branch from here';
 
   @override
-  String get newBranchChat => 'Start a new branch';
+  String get newBranchChat => '새 분기 시작';
 
   @override
-  String get newBranchChatHint =>
-      'Keep this chat; copy history up to here into a new one';
+  String get newBranchChatHint => '이 채팅은 유지하고, 여기까지의 기록을 새 채팅으로 복사합니다';
 
   @override
   String branchChatTitle(String title) {
-    return '$title (branch)';
+    return '$title (분기)';
   }
 
   @override
-  String get branchChatCreated => 'Opened a new branch chat';
+  String get branchChatCreated => '새 분기 채팅을 열었습니다';
 
   @override
   String previewBookmark(String name) {
@@ -4361,7 +4354,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get momentsChangePhoto => 'Change photo';
 
   @override
-  String get momentsChangeCover => 'Change cover';
+  String get momentsChangeCover => '커버 변경';
 
   @override
   String get momentsNeedSomething => 'Write something or add a photo first.';
@@ -6735,46 +6728,46 @@ class AppLocalizationsKo extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get uiFontFamilyTitle => 'Font';
+  String get uiFontFamilyTitle => '글꼴';
 
   @override
   String get uiFontFamilyDescription =>
-      'Tap to choose a font. Your computer shows installed fonts; on phone you can import a font file.';
+      '탭하여 글꼴을 선택하세요. 컴퓨터에는 설치된 글꼴이 표시되고, 휴대폰에서는 글꼴 파일을 가져올 수 있습니다.';
 
   @override
-  String get uiFontFamilySystem => 'System default';
+  String get uiFontFamilySystem => '시스템 기본값';
 
   @override
-  String get fontImportSuccess => 'Font imported into the app library.';
+  String get fontImportSuccess => '글꼴을 앱 라이브러리로 가져왔습니다.';
 
   @override
-  String get fontImportFailure => 'Could not import that font file.';
+  String get fontImportFailure => '해당 글꼴 파일을 가져올 수 없습니다.';
 
   @override
-  String get fontDeleteSuccess => 'Removed from the app font library.';
+  String get fontDeleteSuccess => '앱 글꼴 라이브러리에서 제거했습니다.';
 
   @override
-  String get fontDeleteFailure => 'Could not delete that font.';
+  String get fontDeleteFailure => '해당 글꼴을 삭제할 수 없습니다.';
 
   @override
-  String get fontImportFromFile => 'Choose font file…';
+  String get fontImportFromFile => '글꼴 파일 선택…';
 
   @override
-  String get fontDeleteFromLibrary => 'Remove from library';
+  String get fontDeleteFromLibrary => '라이브러리에서 제거';
 
   @override
-  String get fontDeleteDialogTitle => 'Delete font?';
+  String get fontDeleteDialogTitle => '글꼴을 삭제할까요?';
 
   @override
   String fontDeleteDialogBody(String family) {
-    return 'Remove \"$family\" from the app font library to free space?';
+    return '공간을 확보하려면 앱 글꼴 라이브러리에서 \"$family\"을(를) 제거할까요?';
   }
 
   @override
-  String get fontImportedBadge => 'Imported';
+  String get fontImportedBadge => '가져옴';
 
   @override
-  String get fontSearchHint => 'Search fonts';
+  String get fontSearchHint => '글꼴 검색';
 
   @override
   String get cornerRadiusTitle => 'Corner radius';
@@ -6907,10 +6900,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tokenAccent => 'Accent';
 
   @override
-  String get tokenSecondaryAccent => 'Secondary accent';
+  String get tokenSecondaryAccent => '보조 강조색';
 
   @override
-  String get tokenTertiaryAccent => 'Tertiary accent';
+  String get tokenTertiaryAccent => '3차 강조색';
 
   @override
   String get tokenCursor => 'Cursor';
@@ -6944,12 +6937,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tokenAccentDescription => 'Highlights and selected items.';
 
   @override
-  String get tokenSecondaryAccentDescription =>
-      'Second accent for section and action contrast.';
+  String get tokenSecondaryAccentDescription => '섹션과 동작 대비를 위한 두 번째 강조색.';
 
   @override
-  String get tokenTertiaryAccentDescription =>
-      'Third accent for additional section contrast.';
+  String get tokenTertiaryAccentDescription => '추가 섹션 대비를 위한 세 번째 강조색.';
 
   @override
   String get tokenCursorDescription => 'Caret color in text fields.';
