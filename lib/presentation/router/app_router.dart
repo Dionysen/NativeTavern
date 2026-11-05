@@ -14,7 +14,6 @@ import 'package:native_tavern/presentation/screens/settings/advanced_settings_sc
 import 'package:native_tavern/presentation/screens/settings/quick_reply_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/chat_choice_settings_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/background_settings_screen.dart';
-import 'package:native_tavern/presentation/screens/settings/theme_settings_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/statistics_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/ai_presets_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/sprite_settings_screen.dart';
@@ -270,8 +269,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.themeSettings,
         name: 'themeSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const ThemeSettingsScreen(),
+        redirect: (context, state) => AppRoutes.appearance,
       ),
       GoRoute(
         path: AppRoutes.statistics,

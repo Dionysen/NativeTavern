@@ -5,23 +5,22 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import '../../../data/models/theme/app_theme_mode.dart';
 import '../../../data/models/theme/theme_color_pack.dart';
 import '../../../data/models/theme/theme_tokens.dart';
-import '../../../data/models/theme/ui_preferences.dart';
 import '../../providers/theme_providers.dart';
 import '../../theme/native_tavern_theme.dart';
 import '../../widgets/common/adaptive_action_drawer.dart';
 import '../../widgets/settings/settings_widgets.dart';
 import '../../widgets/settings/theme_color_picker.dart';
 
-/// Theme / appearance settings — layout and spacing aligned with Zephyr.
-class ThemeSettingsScreen extends ConsumerStatefulWidget {
-  const ThemeSettingsScreen({super.key});
+/// Theme colors and layout controls for the appearance settings page.
+class ThemeSettingsPanels extends ConsumerStatefulWidget {
+  const ThemeSettingsPanels({super.key});
 
   @override
-  ConsumerState<ThemeSettingsScreen> createState() =>
-      _ThemeSettingsScreenState();
+  ConsumerState<ThemeSettingsPanels> createState() =>
+      _ThemeSettingsPanelsState();
 }
 
-class _ThemeSettingsScreenState extends ConsumerState<ThemeSettingsScreen> {
+class _ThemeSettingsPanelsState extends ConsumerState<ThemeSettingsPanels> {
   var _customColorsExpanded = false;
   var _presetsExpanded = false;
 
@@ -167,20 +166,14 @@ class _ThemeSettingsScreenState extends ConsumerState<ThemeSettingsScreen> {
     final activePack = themeState.activePack;
     final activeMatches =
         activePack != null && activePack.tokens == themeState.tokens;
-    const defaults = UiPreferences.defaults;
     final currentThemeLabel = activeMatches
         ? l10n.themeCurrentPreset(_packTitle(l10n, activePack))
         : l10n.themeCurrentCustom;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.themes)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-        children: [
-          SettingsSection(
-            icon: Icons.palette_outlined,
-            title: l10n.themeColorsSectionTitle,
-            children: [
+    return SettingsSection(
+      icon: Icons.palette_outlined,
+      title: l10n.themeColorsSectionTitle,
+      children: [
               SettingsChoiceTile<AppThemeMode>(
                 icon: Icons.brightness_6_outlined,
                 title: l10n.themeModeTitle,
@@ -277,76 +270,7 @@ class _ThemeSettingsScreenState extends ConsumerState<ThemeSettingsScreen> {
                     ),
                   ],
                 ),
-            ],
-          ),
-          SettingsSection(
-            icon: Icons.tune,
-            title: l10n.appearanceSectionTitle,
-            children: [
-              SettingsNumberTile(
-                icon: Icons.format_size,
-                title: l10n.uiFontSizeTitle,
-                subtitle: l10n.uiFontSizeDescription,
-                value: themeState.ui.fontSize,
-                min: UiPreferences.minFontSize,
-                max: UiPreferences.maxFontSize,
-                defaultValue: defaults.fontSize,
-                suffix: 'px',
-                divisions: 7,
-                defaultLabelBuilder: l10n.numberPickerDefaultLabel,
-                onChanged: _notifier.updateFontSize,
-              ),
-              SettingsNumberTile(
-                icon: Icons.rounded_corner,
-                title: l10n.cornerRadiusTitle,
-                subtitle: l10n.cornerRadiusDescription,
-                value: themeState.ui.cornerRadius,
-                min: UiPreferences.minCornerRadius,
-                max: UiPreferences.maxCornerRadius,
-                defaultValue: defaults.cornerRadius,
-                suffix: 'px',
-                divisions: 20,
-                defaultLabelBuilder: l10n.numberPickerDefaultLabel,
-                onChanged: _notifier.updateCornerRadius,
-              ),
-              SettingsNumberTile(
-                icon: Icons.crop_landscape,
-                title: l10n.barCornerRadiusTitle,
-                subtitle: l10n.barCornerRadiusDescription,
-                value: themeState.ui.barCornerRadius,
-                min: UiPreferences.minBarCornerRadius,
-                max: UiPreferences.maxBarCornerRadius,
-                defaultValue: defaults.barCornerRadius,
-                suffix: 'px',
-                divisions: 24,
-                defaultLabelBuilder: l10n.numberPickerDefaultLabel,
-                onChanged: _notifier.updateBarCornerRadius,
-              ),
-              SettingsNumberTile(
-                icon: Icons.chat_bubble_outline,
-                title: l10n.chatBubbleCornerRadiusTitle,
-                subtitle: l10n.chatBubbleCornerRadiusDescription,
-                value: themeState.ui.chatBubbleCornerRadius,
-                min: UiPreferences.minChatBubbleCornerRadius,
-                max: UiPreferences.maxChatBubbleCornerRadius,
-                defaultValue: defaults.chatBubbleCornerRadius,
-                suffix: 'px',
-                divisions: 50,
-                defaultLabelBuilder: l10n.numberPickerDefaultLabel,
-                onChanged: _notifier.updateChatBubbleCornerRadius,
-              ),
-              SettingsSwitchTile(
-                icon: Icons.border_style,
-                title: l10n.showBordersTitle,
-                subtitle: l10n.showBordersSubtitle,
-                value: themeState.ui.showBorders,
-                showDivider: false,
-                onChanged: _notifier.updateShowBorders,
-              ),
-            ],
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

@@ -7012,7 +7012,7 @@
   "themeModeSystem": "跟随系统",
   "themeModeLight": "浅色",
   "themeModeDark": "深色",
-  "uiFontSizeTitle": "UI 字体大小",
+  "uiFontSizeTitle": "字体大小",
   "uiFontSizeDescription": "设置与界面文字大小",
   "uiFontFamilyTitle": "字体",
   "uiFontFamilyDescription": "点按选择字体；电脑会列出本机已安装的字体，手机可导入字体文件。",

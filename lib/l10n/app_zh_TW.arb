@@ -6960,7 +6960,7 @@
   "themeModeSystem": "跟隨系統",
   "themeModeLight": "淺色",
   "themeModeDark": "深色",
-  "uiFontSizeTitle": "UI 字體大小",
+  "uiFontSizeTitle": "字體大小",
   "uiFontSizeDescription": "設定與界面文字大小",
   "uiFontFamilyTitle": "字體",
   "uiFontFamilyDescription": "點按選擇字體；電腦會列出本機已安裝的字體，手機可匯入字體檔案。",

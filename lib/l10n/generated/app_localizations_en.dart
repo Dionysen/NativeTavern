@@ -6743,7 +6743,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeModeDark => 'Dark';
 
   @override
-  String get uiFontSizeTitle => 'UI font size';
+  String get uiFontSizeTitle => 'Font size';
 
   @override
   String get uiFontSizeDescription =>

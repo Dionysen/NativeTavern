@@ -6487,7 +6487,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get themeModeDark => '深色';
 
   @override
-  String get uiFontSizeTitle => 'UI 字体大小';
+  String get uiFontSizeTitle => '字体大小';
 
   @override
   String get uiFontSizeDescription => '设置与界面文字大小';
@@ -13190,7 +13190,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get themeModeDark => '深色';
 
   @override
-  String get uiFontSizeTitle => 'UI 字體大小';
+  String get uiFontSizeTitle => '字體大小';
 
   @override
   String get uiFontSizeDescription => '設定與界面文字大小';

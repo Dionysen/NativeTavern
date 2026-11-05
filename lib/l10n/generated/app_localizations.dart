@@ -11976,7 +11976,7 @@ abstract class AppLocalizations {
   /// No description provided for @uiFontSizeTitle.
   ///
   /// In en, this message translates to:
-  /// **'UI font size'**
+  /// **'Font size'**
   String get uiFontSizeTitle;
 
   /// No description provided for @uiFontSizeDescription.
