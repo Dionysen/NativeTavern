@@ -105,6 +105,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   static final Object _importRpg = Object();
   /// Soft pin / explicit follow threshold (Zephyr AI chat uses 72).
   static const double _followSlop = 72.0;
+  /// Hide the jump chip once the viewport is this close to the tail.
+  /// Larger than [_followSlop] so “already at the bottom” matches what users see.
+  static const double _scrollToBottomButtonSlop = 160.0;
   /// Shared [TapRegion] group so option panels dismiss on outside tap,
   /// without treating their own toggle buttons as outside.
   static const Object _composerOptionsTapGroup = Object();
@@ -128,11 +131,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   /// Finger is dragging the list; blocks tail anchoring (Zephyr AI chat).
   bool _userInteractingWithScroll = false;
 
+  /// True while [animateTo]/jumpTo] is driving the list (not a finger/wheel).
+  bool _programmaticScroll = false;
+
   /// Show jump-to-latest chip when the bubble list is scrolled away from end.
   bool _showScrollToBottomButton = false;
 
-  /// True while the user is scrolling toward older messages (list top).
-  bool _scrollingTowardTop = false;
+  /// Armed only after the user scrolls toward newer messages. Scrolling up
+  /// (or stopping after an up-scroll) keeps the jump chip hidden.
+  bool _jumpToLatestArmed = false;
 
   /// Chat top bar visibility when [AppSettings.hideChatAppBarOnScroll] is on.
   bool _chatAppBarVisible = true;
@@ -155,6 +162,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     // Match Zephyr: followTail only tracks interaction. Stick-to-end itself is
     // gated by distanceFromEnd <= 1 inside ChatTailScrollPosition.
     _scrollController.followTail = () => !_userInteractingWithScroll;
+    _scrollController.addListener(_syncScrollToBottomButton);
     // Load chat and bookmarks when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -358,6 +366,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     unawaited(_stopTts(ownerId: widget.chatId));
     _messageController.removeListener(_onTextChanged);
     _messageController.dispose();
+    _scrollController.removeListener(_syncScrollToBottomButton);
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -385,19 +394,39 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       // yank the viewport after the user starts scrolling again.
       _scrollToBottomGeneration++;
     } else if (notification is UserScrollNotification) {
-      _userInteractingWithScroll =
-          notification.direction != ScrollDirection.idle;
-      // Non-reverse list: reverse = toward older messages (scroll up).
-      _scrollingTowardTop =
-          notification.direction == ScrollDirection.reverse;
-      if (_userInteractingWithScroll) {
+      final scrolling = notification.direction != ScrollDirection.idle;
+      _userInteractingWithScroll = scrolling && !_programmaticScroll;
+      // Cancel pending jump-to-end only for real user scrolls. Programmatic
+      // animateTo also emits UserScrollNotification and must not cancel itself.
+      if (scrolling && !_programmaticScroll) {
         _scrollToBottomGeneration++;
       }
     } else if (notification is ScrollEndNotification) {
       _userInteractingWithScroll = false;
-      _scrollingTowardTop = false;
+      _programmaticScroll = false;
       _appBarScrollAccumulator = 0;
     }
+
+    // Non-reverse list: positive delta / forward = toward newer (down).
+    if (!_programmaticScroll) {
+      if (notification is ScrollUpdateNotification) {
+        final delta = notification.scrollDelta;
+        if (delta != null) {
+          if (delta > 0.5) {
+            _jumpToLatestArmed = true;
+          } else if (delta < -0.5) {
+            _jumpToLatestArmed = false;
+          }
+        }
+      } else if (notification is UserScrollNotification) {
+        if (notification.direction == ScrollDirection.forward) {
+          _jumpToLatestArmed = true;
+        } else if (notification.direction == ScrollDirection.reverse) {
+          _jumpToLatestArmed = false;
+        }
+      }
+    }
+
     _updateChatAppBarVisibilityFromScroll(notification);
     if (notification is ScrollUpdateNotification ||
         notification is ScrollEndNotification ||
@@ -449,18 +478,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   void _syncScrollToBottomButton() {
+    if (!mounted) return;
+    if (_jumpToLatestArmed && !_isAwayFromListBottomForButton()) {
+      _jumpToLatestArmed = false;
+    }
     final shouldShow = _computeShowScrollToBottomButton();
     if (shouldShow == _showScrollToBottomButton) return;
     setState(() => _showScrollToBottomButton = shouldShow);
   }
 
-  bool _computeShowScrollToBottomButton() {
-    // Hide while the user is scrolling up through history.
-    if (_scrollingTowardTop || _userInteractingWithScroll) return false;
+  bool _isAwayFromListBottomForButton() {
     if (!_scrollController.hasClients) return false;
     final position = _scrollController.position;
-    if (position.maxScrollExtent <= _followSlop) return false;
-    return position.pixels < position.maxScrollExtent - _followSlop;
+    if (!position.hasContentDimensions) return false;
+    if (position.maxScrollExtent <= _scrollToBottomButtonSlop) return false;
+    return position.extentAfter > _scrollToBottomButtonSlop;
+  }
+
+  bool _computeShowScrollToBottomButton() {
+    // Only after a downward scroll (while moving or after stop), and only
+    // while the viewport is still away from the newest messages.
+    if (!_jumpToLatestArmed) return false;
+    return _isAwayFromListBottomForButton();
   }
 
   /// Scroll to the newest messages (Zephyr `_scrollToEnd`).
@@ -519,12 +558,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               milliseconds: (320 + distance * 0.12).clamp(320, 520).round(),
             )
           : const Duration(milliseconds: 220);
+      _programmaticScroll = true;
       unawaited(
         position.animateTo(
           target,
           duration: duration,
           curve: soft ? Curves.easeOut : Curves.easeOutCubic,
-        ).then((_) {
+        ).whenComplete(() {
+          _programmaticScroll = false;
           if (!mounted) return;
           if (generation != null && generation != _scrollToBottomGeneration) {
             return;
@@ -535,8 +576,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       return;
     }
     if (position.pixels != target) {
+      _programmaticScroll = true;
       position.jumpTo(target);
+      _programmaticScroll = false;
     }
+    _syncScrollToBottomButton();
   }
 
   void _preserveScrollAfterOlderMessagesLoaded() {
@@ -1886,7 +1930,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          // Hide via scroll sync after jump; avoid setState that races animate.
+          _jumpToLatestArmed = false;
+          if (_showScrollToBottomButton) {
+            setState(() => _showScrollToBottomButton = false);
+          }
           _scrollToBottom(animate: true, force: true, soft: true);
         },
         child: Padding(
