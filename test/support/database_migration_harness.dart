@@ -297,6 +297,8 @@ Future<void> seedCurrentRepresentativeData(AppDatabase database) async {
 }
 
 const currentSnapshotTables = <SnapshotTable>[
+  SnapshotTable('character_folders', orderBy: ['id']),
+  SnapshotTable('character_folder_members', orderBy: ['character_id']),
   SnapshotTable('characters', orderBy: ['id']),
   SnapshotTable('chats', orderBy: ['id']),
   SnapshotTable('messages', orderBy: ['id']),

@@ -2329,6 +2329,84 @@ abstract class AppLocalizations {
   /// **'{count} character(s) selected'**
   String charactersSelected(int count);
 
+  /// Label for character folder name field
+  ///
+  /// In en, this message translates to:
+  /// **'Folder name'**
+  String get characterFolderNameLabel;
+
+  /// Create an empty character folder
+  ///
+  /// In en, this message translates to:
+  /// **'New folder'**
+  String get createCharacterFolder;
+
+  /// Create a folder and move selected characters into it
+  ///
+  /// In en, this message translates to:
+  /// **'Folder from selection'**
+  String get createFolderFromSelection;
+
+  /// Title for move characters sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Move to folder'**
+  String get moveCharactersToFolder;
+
+  /// UI label: Move to folder
+  ///
+  /// In en, this message translates to:
+  /// **'Move to folder'**
+  String get moveToFolder;
+
+  /// Move characters out of folders to the main list
+  ///
+  /// In en, this message translates to:
+  /// **'Library root'**
+  String get characterFolderRoot;
+
+  /// Character count shown on a folder tile
+  ///
+  /// In en, this message translates to:
+  /// **'{count} character(s)'**
+  String characterFolderCount(int count);
+
+  /// Snack bar after moving characters into a folder
+  ///
+  /// In en, this message translates to:
+  /// **'Characters moved'**
+  String get charactersMovedToFolder;
+
+  /// Remove folder and keep characters in the library
+  ///
+  /// In en, this message translates to:
+  /// **'Dissolve folder'**
+  String get dissolveCharacterFolder;
+
+  /// Confirm dissolving a character folder
+  ///
+  /// In en, this message translates to:
+  /// **'Dissolve \"{name}\"? Characters stay in your library and are not deleted.'**
+  String dissolveCharacterFolderBody(String name);
+
+  /// Rename character folder dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Rename folder'**
+  String get renameCharacterFolder;
+
+  /// Section title above character folders on the list screen
+  ///
+  /// In en, this message translates to:
+  /// **'Folders'**
+  String get characterFoldersSection;
+
+  /// Enter multi-select mode on the character list
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get characterListSelectMode;
+
   /// Create button
   ///
   /// In en, this message translates to:
@@ -7194,12 +7272,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set as background'**
   String get setAsBackground;
-
-  /// UI label: Move to folder
-  ///
-  /// In en, this message translates to:
-  /// **'Move to folder'**
-  String get moveToFolder;
 
   /// UI label: Folder name
   ///

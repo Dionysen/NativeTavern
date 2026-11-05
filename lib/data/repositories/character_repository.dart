@@ -36,20 +36,94 @@ class CharacterRepository {
     int limit = 40,
     int offset = 0,
     String query = '',
+    String? browseFolderId,
   }) async {
     final normalized = query.trim();
+    if (normalized.isEmpty && browseFolderId != null) {
+      return _charactersInFolderPage(
+        folderId: browseFolderId,
+        limit: limit,
+        offset: offset,
+      );
+    }
+    if (normalized.isEmpty && browseFolderId == null) {
+      return _charactersAtRootPage(limit: limit, offset: offset);
+    }
+    final pattern = '%$normalized%';
     final statement = _db.select(_db.characters)
-      ..where((row) {
-        final active = row.isDeleted.equals(false);
-        if (normalized.isEmpty) return active;
-        final pattern = '%$normalized%';
-        return active &
-            (row.name.like(pattern) | row.description.like(pattern));
-      })
+      ..where(
+        (row) =>
+            row.isDeleted.equals(false) &
+            (row.name.like(pattern) | row.description.like(pattern)),
+      )
       ..orderBy([(row) => OrderingTerm.desc(row.modifiedAt)])
       ..limit(limit, offset: offset < 0 ? 0 : offset);
     final rows = await statement.get();
     return rows.map(_characterFromRow).toList(growable: false);
+  }
+
+  Future<List<models.Character>> _charactersAtRootPage({
+    required int limit,
+    required int offset,
+  }) async {
+    final idRows = await _db.customSelect(
+      '''
+      SELECT c.id AS id
+      FROM characters c
+      LEFT JOIN character_folder_members m ON m.character_id = c.id
+      WHERE c.is_deleted = 0 AND m.character_id IS NULL
+      ORDER BY c.modified_at DESC
+      LIMIT ? OFFSET ?
+      ''',
+      variables: [
+        Variable<int>(limit),
+        Variable<int>(offset < 0 ? 0 : offset),
+      ],
+      readsFrom: {_db.characters},
+    ).get();
+    return _charactersByIdsInOrder(
+      idRows.map((row) => row.read<String>('id')).toList(growable: false),
+    );
+  }
+
+  Future<List<models.Character>> _charactersInFolderPage({
+    required String folderId,
+    required int limit,
+    required int offset,
+  }) async {
+    final idRows = await _db.customSelect(
+      '''
+      SELECT c.id AS id
+      FROM characters c
+      INNER JOIN character_folder_members m ON m.character_id = c.id
+      WHERE c.is_deleted = 0 AND m.folder_id = ?
+      ORDER BY c.modified_at DESC
+      LIMIT ? OFFSET ?
+      ''',
+      variables: [
+        Variable<String>(folderId),
+        Variable<int>(limit),
+        Variable<int>(offset < 0 ? 0 : offset),
+      ],
+      readsFrom: {_db.characters},
+    ).get();
+    return _charactersByIdsInOrder(
+      idRows.map((row) => row.read<String>('id')).toList(growable: false),
+    );
+  }
+
+  Future<List<models.Character>> _charactersByIdsInOrder(
+    List<String> ids,
+  ) async {
+    if (ids.isEmpty) return const [];
+    final rows = await (_db.select(_db.characters)
+          ..where((t) => t.id.isIn(ids)))
+        .get();
+    final byId = {for (final row in rows) row.id: _characterFromRow(row)};
+    return [
+      for (final id in ids)
+        if (byId.containsKey(id)) byId[id]!,
+    ];
   }
 
   /// Get character by ID

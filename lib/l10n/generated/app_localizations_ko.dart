@@ -1183,6 +1183,49 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get characterFolderNameLabel => 'Folder name';
+
+  @override
+  String get createCharacterFolder => 'New folder';
+
+  @override
+  String get createFolderFromSelection => 'Folder from selection';
+
+  @override
+  String get moveCharactersToFolder => 'Move to folder';
+
+  @override
+  String get moveToFolder => '폴더로 이동';
+
+  @override
+  String get characterFolderRoot => 'Library root';
+
+  @override
+  String characterFolderCount(int count) {
+    return '$count character(s)';
+  }
+
+  @override
+  String get charactersMovedToFolder => 'Characters moved';
+
+  @override
+  String get dissolveCharacterFolder => 'Dissolve folder';
+
+  @override
+  String dissolveCharacterFolderBody(String name) {
+    return 'Dissolve \"$name\"? Characters stay in your library and are not deleted.';
+  }
+
+  @override
+  String get renameCharacterFolder => 'Rename folder';
+
+  @override
+  String get characterFoldersSection => 'Folders';
+
+  @override
+  String get characterListSelectMode => 'Select';
+
+  @override
   String get create => 'Create';
 
   @override
@@ -3915,9 +3958,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get setAsBackground => '배경으로 설정';
-
-  @override
-  String get moveToFolder => '폴더로 이동';
 
   @override
   String get folderName => '폴더 이름';

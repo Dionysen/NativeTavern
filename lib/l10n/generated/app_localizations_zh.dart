@@ -1176,6 +1176,49 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get characterFolderNameLabel => '文件夹名称';
+
+  @override
+  String get createCharacterFolder => '新建文件夹';
+
+  @override
+  String get createFolderFromSelection => '将所选放入新文件夹';
+
+  @override
+  String get moveCharactersToFolder => '移动到文件夹';
+
+  @override
+  String get moveToFolder => '移动到文件夹';
+
+  @override
+  String get characterFolderRoot => '角色库根目录';
+
+  @override
+  String characterFolderCount(int count) {
+    return '$count 个角色';
+  }
+
+  @override
+  String get charactersMovedToFolder => '已移动角色';
+
+  @override
+  String get dissolveCharacterFolder => '解散文件夹';
+
+  @override
+  String dissolveCharacterFolderBody(String name) {
+    return '解散「$name」？角色会保留在库中，不会被删除。';
+  }
+
+  @override
+  String get renameCharacterFolder => '重命名文件夹';
+
+  @override
+  String get characterFoldersSection => '文件夹';
+
+  @override
+  String get characterListSelectMode => '选择';
+
+  @override
   String get create => '创建';
 
   @override
@@ -3817,9 +3860,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get setAsBackground => '设为背景';
-
-  @override
-  String get moveToFolder => '移动到文件夹';
 
   @override
   String get folderName => '文件夹名称';
@@ -7811,6 +7851,49 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   }
 
   @override
+  String get characterFolderNameLabel => '資料夾名稱';
+
+  @override
+  String get createCharacterFolder => '新建資料夾';
+
+  @override
+  String get createFolderFromSelection => '將所選放入新資料夾';
+
+  @override
+  String get moveCharactersToFolder => '移動到資料夾';
+
+  @override
+  String get moveToFolder => '移動到資料夾';
+
+  @override
+  String get characterFolderRoot => '角色庫根目錄';
+
+  @override
+  String characterFolderCount(int count) {
+    return '$count 個角色';
+  }
+
+  @override
+  String get charactersMovedToFolder => '已移動角色';
+
+  @override
+  String get dissolveCharacterFolder => '解散資料夾';
+
+  @override
+  String dissolveCharacterFolderBody(String name) {
+    return '解散「$name」？角色會保留在庫中，不會被刪除。';
+  }
+
+  @override
+  String get renameCharacterFolder => '重新命名資料夾';
+
+  @override
+  String get characterFoldersSection => '資料夾';
+
+  @override
+  String get characterListSelectMode => '選擇';
+
+  @override
   String get create => '建立';
 
   @override
@@ -10422,9 +10505,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get setAsBackground => '設為背景';
-
-  @override
-  String get moveToFolder => '移動到資料夾';
 
   @override
   String get folderName => '資料夾名稱';

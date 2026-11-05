@@ -1185,6 +1185,49 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get characterFolderNameLabel => 'Folder name';
+
+  @override
+  String get createCharacterFolder => 'New folder';
+
+  @override
+  String get createFolderFromSelection => 'Folder from selection';
+
+  @override
+  String get moveCharactersToFolder => 'Move to folder';
+
+  @override
+  String get moveToFolder => 'フォルダに移動';
+
+  @override
+  String get characterFolderRoot => 'Library root';
+
+  @override
+  String characterFolderCount(int count) {
+    return '$count character(s)';
+  }
+
+  @override
+  String get charactersMovedToFolder => 'Characters moved';
+
+  @override
+  String get dissolveCharacterFolder => 'Dissolve folder';
+
+  @override
+  String dissolveCharacterFolderBody(String name) {
+    return 'Dissolve \"$name\"? Characters stay in your library and are not deleted.';
+  }
+
+  @override
+  String get renameCharacterFolder => 'Rename folder';
+
+  @override
+  String get characterFoldersSection => 'Folders';
+
+  @override
+  String get characterListSelectMode => 'Select';
+
+  @override
   String get create => 'Create';
 
   @override
@@ -3917,9 +3960,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get setAsBackground => '背景に設定';
-
-  @override
-  String get moveToFolder => 'フォルダに移動';
 
   @override
   String get folderName => 'フォルダ名';

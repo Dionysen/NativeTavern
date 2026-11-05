@@ -9,7 +9,7 @@ import 'package:native_tavern/domain/services/database_backup_service.dart';
 
 import 'support/database_migration_harness.dart';
 
-const _currentSchemaVersion = 23;
+const _currentSchemaVersion = 24;
 
 void main() {
   late MigrationTestHarness harness;
@@ -180,7 +180,7 @@ void main() {
         isA<UnsupportedError>().having(
           (error) => error.message,
           'message',
-          contains('schema 24 -> 23'),
+          contains('schema 25 -> 24'),
         ),
       ),
     );

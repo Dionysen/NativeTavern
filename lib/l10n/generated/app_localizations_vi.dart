@@ -1194,6 +1194,49 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get characterFolderNameLabel => 'Folder name';
+
+  @override
+  String get createCharacterFolder => 'New folder';
+
+  @override
+  String get createFolderFromSelection => 'Folder from selection';
+
+  @override
+  String get moveCharactersToFolder => 'Move to folder';
+
+  @override
+  String get moveToFolder => 'Move to folder';
+
+  @override
+  String get characterFolderRoot => 'Library root';
+
+  @override
+  String characterFolderCount(int count) {
+    return '$count character(s)';
+  }
+
+  @override
+  String get charactersMovedToFolder => 'Characters moved';
+
+  @override
+  String get dissolveCharacterFolder => 'Dissolve folder';
+
+  @override
+  String dissolveCharacterFolderBody(String name) {
+    return 'Dissolve \"$name\"? Characters stay in your library and are not deleted.';
+  }
+
+  @override
+  String get renameCharacterFolder => 'Rename folder';
+
+  @override
+  String get characterFoldersSection => 'Folders';
+
+  @override
+  String get characterListSelectMode => 'Select';
+
+  @override
   String get create => 'Create';
 
   @override
@@ -3929,9 +3972,6 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get setAsBackground => 'Set as background';
-
-  @override
-  String get moveToFolder => 'Move to folder';
 
   @override
   String get folderName => 'Folder name';

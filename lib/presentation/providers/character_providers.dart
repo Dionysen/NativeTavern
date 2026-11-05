@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
+import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 
 // Note: characterRepositoryProvider is defined in character_repository.dart
 
@@ -33,10 +34,15 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
 
   @override
   Future<List<Character>> build() async {
+    ref.watch(characterBrowseFolderIdProvider);
     final repo = ref.watch(characterRepositoryProvider);
     _offset = 0;
     _hasMore = true;
-    final page = await repo.getCharactersPage(limit: _pageSize);
+    final page = await repo.getCharactersPage(
+      limit: _pageSize,
+      query: _query,
+      browseFolderId: ref.read(characterBrowseFolderIdProvider),
+    );
     _offset = page.length;
     _hasMore = page.length == _pageSize;
     return page;
@@ -50,6 +56,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
       final page = await ref.read(characterRepositoryProvider).getCharactersPage(
             limit: _pageSize,
             query: _query,
+            browseFolderId: ref.read(characterBrowseFolderIdProvider),
           );
       _offset = page.length;
       _hasMore = page.length == _pageSize;
@@ -70,6 +77,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
             limit: _pageSize,
             offset: _offset,
             query: _query,
+            browseFolderId: ref.read(characterBrowseFolderIdProvider),
           );
       final current = state.valueOrNull ?? const <Character>[];
       state = AsyncData([...current, ...page]);

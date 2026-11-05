@@ -1680,6 +1680,19 @@
       }
     }
   },
+  "characterFolderNameLabel": "文件夹名称",
+  "createCharacterFolder": "新建文件夹",
+  "createFolderFromSelection": "将所选放入新文件夹",
+  "moveCharactersToFolder": "移动到文件夹",
+  "moveToFolder": "移动到文件夹",
+  "characterFolderRoot": "角色库根目录",
+  "characterFolderCount": "{count} 个角色",
+  "charactersMovedToFolder": "已移动角色",
+  "dissolveCharacterFolder": "解散文件夹",
+  "dissolveCharacterFolderBody": "解散「{name}」？角色会保留在库中，不会被删除。",
+  "renameCharacterFolder": "重命名文件夹",
+  "characterFoldersSection": "文件夹",
+  "characterListSelectMode": "选择",
   "create": "创建",
   "@create": {
     "description": "Create button"

@@ -661,7 +661,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 23;
+  int get schemaVersion => 24;
 
   @override
   MigrationStrategy get migration {
@@ -673,6 +673,7 @@ class AppDatabase extends _$AppDatabase {
         await _createV16Indexes();
         await _createV17Indexes();
         await _createV18Indexes();
+        await _ensureCharacterFolderTables();
       },
       onUpgrade: (Migrator m, int from, int to) async {
         if (from > to) {
@@ -696,6 +697,7 @@ class AppDatabase extends _$AppDatabase {
             await _repairMomentCommentsForeignKey();
             await _ensureCharacterFriendshipsTable();
             await _ensureOperationLogsTable();
+            await _ensureCharacterFolderTables();
             return;
           }
 
@@ -835,6 +837,9 @@ class AppDatabase extends _$AppDatabase {
               'ON moment_comments (parent_comment_id)',
             );
           }
+          if (from < 24) {
+            await _ensureCharacterFolderTables();
+          }
         });
       },
       beforeOpen: (details) async {
@@ -842,6 +847,7 @@ class AppDatabase extends _$AppDatabase {
         await _repairMomentCommentsForeignKey();
         await _ensureCharacterFriendshipsTable();
         await _ensureOperationLogsTable();
+        await _ensureCharacterFolderTables();
         final memorySearchIndexCreated =
             await _ensureLongTermMemorySearchIndex();
         if (memorySearchIndexCreated) {
@@ -1270,6 +1276,29 @@ class AppDatabase extends _$AppDatabase {
       'ON moment_comments (post_id, created_at)',
     );
     await customStatement('PRAGMA foreign_keys = ON');
+  }
+
+  Future<void> _ensureCharacterFolderTables() async {
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS character_folders (
+        id TEXT NOT NULL PRIMARY KEY,
+        name TEXT NOT NULL,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL
+      )
+    ''');
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS character_folder_members (
+        character_id TEXT NOT NULL PRIMARY KEY,
+        folder_id TEXT NOT NULL,
+        FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
+        FOREIGN KEY (folder_id) REFERENCES character_folders(id) ON DELETE CASCADE
+      )
+    ''');
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS character_folder_members_folder_idx '
+      'ON character_folder_members (folder_id)',
+    );
   }
 
   Future<void> _ensureOperationLogsTable() async {

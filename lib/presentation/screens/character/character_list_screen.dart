@@ -5,7 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/tag.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/data/models/character_folder.dart';
+import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
+import 'package:native_tavern/presentation/widgets/character/character_folder_tiles.dart';
+import 'package:native_tavern/presentation/widgets/character/character_folder_ui.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
@@ -30,6 +34,8 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   CharacterViewMode _viewMode = CharacterViewMode.compactGrid;
   CharacterAvatarShape _avatarShape = CharacterAvatarShape.circle;
   Timer? _searchDebounce;
+  bool _selectionMode = false;
+  final Set<String> _selectedCharacterIds = {};
 
   @override
   void dispose() {
@@ -37,42 +43,190 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     super.dispose();
   }
 
+  void _exitSelectionMode() {
+    setState(() {
+      _selectionMode = false;
+      _selectedCharacterIds.clear();
+    });
+  }
+
+  void _enterSelectionMode([String? characterId]) {
+    setState(() {
+      _selectionMode = true;
+      _selectedCharacterIds.clear();
+      if (characterId != null) {
+        _selectedCharacterIds.add(characterId);
+      }
+    });
+  }
+
+  void _toggleCharacterSelection(String characterId) {
+    setState(() {
+      if (_selectedCharacterIds.contains(characterId)) {
+        _selectedCharacterIds.remove(characterId);
+        if (_selectedCharacterIds.isEmpty) {
+          _selectionMode = false;
+        }
+      } else {
+        _selectedCharacterIds.add(characterId);
+      }
+    });
+  }
+
+  Future<void> _openFolder(String folderId) async {
+    ref.read(characterBrowseFolderIdProvider.notifier).state = folderId;
+    _exitSelectionMode();
+    await ref.read(characterListProvider.notifier).refresh();
+  }
+
+  Future<void> _leaveFolder() async {
+    ref.read(characterBrowseFolderIdProvider.notifier).state = null;
+    _exitSelectionMode();
+    await ref.read(characterListProvider.notifier).refresh();
+  }
+
+  Future<void> _createEmptyFolder() async {
+    final l10n = AppLocalizations.of(context);
+    final name = await promptCharacterFolderName(
+      context,
+      title: l10n.createCharacterFolder,
+    );
+    if (name == null || !mounted) return;
+    await Future<void>.delayed(Duration.zero);
+    if (!mounted) return;
+    await ref.read(characterFoldersProvider.notifier).createFolder(name);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.createCharacterFolder)),
+    );
+  }
+
+  Future<void> _createFolderFromSelection() async {
+    if (_selectedCharacterIds.isEmpty) return;
+    final l10n = AppLocalizations.of(context);
+    final name = await promptCharacterFolderName(
+      context,
+      title: l10n.createFolderFromSelection,
+    );
+    if (name == null || !mounted) return;
+    final folder =
+        await ref.read(characterFoldersProvider.notifier).createFolder(name);
+    await ref.read(characterFoldersProvider.notifier).moveCharacters(
+          _selectedCharacterIds,
+          folderId: folder.id,
+        );
+    await ref.read(characterListProvider.notifier).refresh();
+    _exitSelectionMode();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.charactersMovedToFolder)),
+      );
+    }
+  }
+
+  Future<void> _moveSelectedCharacters() async {
+    if (_selectedCharacterIds.isEmpty) return;
+    await showMoveCharactersToFolderSheet(
+      context,
+      ref,
+      _selectedCharacterIds,
+    );
+    _exitSelectionMode();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final charactersAsync = ref.watch(characterListProvider);
+    final browseFolderId = ref.watch(characterBrowseFolderIdProvider);
+    final foldersAsync = ref.watch(characterFoldersProvider);
+    final folderTitle = browseFolderId == null
+        ? null
+        : foldersAsync.valueOrNull
+            ?.where((folder) => folder.id == browseFolderId)
+            .map((folder) => folder.name)
+            .firstOrNull;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.characters),
+        leading: browseFolderId != null && !_selectionMode
+            ? ChromeIconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: l10n.characterFolderRoot,
+                onPressed: _leaveFolder,
+              )
+            : _selectionMode
+                ? ChromeIconButton(
+                    icon: const Icon(Icons.close),
+                    tooltip: l10n.cancel,
+                    onPressed: _exitSelectionMode,
+                  )
+                : null,
+        title: Text(
+          _selectionMode
+              ? l10n.charactersSelected(_selectedCharacterIds.length)
+              : (folderTitle ?? l10n.characters),
+        ),
         actions: spacedAppBarActions([
-          if (_viewMode == CharacterViewMode.list)
+          if (_selectionMode) ...[
+            if (_selectedCharacterIds.isNotEmpty)
+              ChromeIconButton(
+                icon: const Icon(Icons.drive_file_move_outline),
+                tooltip: l10n.moveToFolder,
+                onPressed: _moveSelectedCharacters,
+              ),
+            if (_selectedCharacterIds.isNotEmpty)
+              ChromeIconButton(
+                icon: const Icon(Icons.create_new_folder_outlined),
+                tooltip: l10n.createFolderFromSelection,
+                onPressed: _createFolderFromSelection,
+              ),
             ChromeIconButton(
-              icon: Icon(_avatarShape.icon),
-              onPressed: () =>
-                  setState(() => _avatarShape = _avatarShape.next),
-              tooltip: _avatarShape.getDisplayName(l10n),
+              icon: const Icon(Icons.check),
+              tooltip: l10n.done,
+              onPressed: _exitSelectionMode,
             ),
-          ChromeIconButton(
-            icon: _getViewModeIcon(),
-            onPressed: () => setState(() => _viewMode = _viewMode.next),
-            tooltip: _viewMode.getDisplayName(l10n),
-          ),
-          ChromeIconButton(
-            icon: const Icon(Icons.add),
-            tooltip: l10n.createCharacter,
-            onPressed: () => context.push(AppRoutes.characterCreate),
-          ),
-          ChromeIconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: l10n.retry,
-            onPressed: () => ref.read(characterListProvider.notifier).refresh(),
-          ),
-          ChromeIconButton(
-            icon: const Icon(Icons.file_download_outlined),
-            tooltip: l10n.import,
-            onPressed: () => context.push(AppRoutes.import_),
-          ),
+          ] else ...[
+            if (browseFolderId == null && _searchQuery.isEmpty)
+              ChromeIconButton(
+                icon: const Icon(Icons.create_new_folder_outlined),
+                tooltip: l10n.createCharacterFolder,
+                onPressed: _createEmptyFolder,
+              ),
+            ChromeIconButton(
+              icon: const Icon(Icons.checklist),
+              tooltip: l10n.characterListSelectMode,
+              onPressed: () => _enterSelectionMode(),
+            ),
+            if (_viewMode == CharacterViewMode.list)
+              ChromeIconButton(
+                icon: Icon(_avatarShape.icon),
+                onPressed: () =>
+                    setState(() => _avatarShape = _avatarShape.next),
+                tooltip: _avatarShape.getDisplayName(l10n),
+              ),
+            ChromeIconButton(
+              icon: _getViewModeIcon(),
+              onPressed: () => setState(() => _viewMode = _viewMode.next),
+              tooltip: _viewMode.getDisplayName(l10n),
+            ),
+            ChromeIconButton(
+              icon: const Icon(Icons.add),
+              tooltip: l10n.createCharacter,
+              onPressed: () => context.push(AppRoutes.characterCreate),
+            ),
+            ChromeIconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: l10n.retry,
+              onPressed: () =>
+                  ref.read(characterListProvider.notifier).refresh(),
+            ),
+            ChromeIconButton(
+              icon: const Icon(Icons.file_download_outlined),
+              tooltip: l10n.import,
+              onPressed: () => context.push(AppRoutes.import_),
+            ),
+          ],
         ]),
       ),
       body: Column(
@@ -110,20 +264,53 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                                   .contains(_searchQuery.toLowerCase()))
                           .toList();
 
-                  if (filtered.isEmpty) {
+                  final showFolders = browseFolderId == null &&
+                      _searchQuery.isEmpty &&
+                      !_selectionMode;
+                  final folders =
+                      foldersAsync.valueOrNull ?? const <CharacterFolder>[];
+
+                  if (filtered.isEmpty && (!showFolders || folders.isEmpty)) {
                     return const _EmptyState();
+                  }
+
+                  final interaction = _CharacterTileInteraction(
+                    selectionMode: _selectionMode,
+                    selectedIds: _selectedCharacterIds,
+                    onToggleSelect: _toggleCharacterSelection,
+                  );
+
+                  final visibleFolders = showFolders ? folders : const <CharacterFolder>[];
+                  void openFolderActions(CharacterFolder folder) {
+                    showCharacterFolderActions(context, ref, folder);
                   }
 
                   switch (_viewMode) {
                     case CharacterViewMode.list:
                       return _CharacterListView(
+                        folders: visibleFolders,
                         characters: filtered,
                         avatarShape: _avatarShape,
+                        interaction: interaction,
+                        onOpenFolder: _openFolder,
+                        onFolderActions: openFolderActions,
                       );
                     case CharacterViewMode.grid:
-                      return _CharacterGridView(characters: filtered);
+                      return _CharacterGridView(
+                        folders: visibleFolders,
+                        characters: filtered,
+                        interaction: interaction,
+                        onOpenFolder: _openFolder,
+                        onFolderActions: openFolderActions,
+                      );
                     case CharacterViewMode.compactGrid:
-                      return _CharacterCompactGridView(characters: filtered);
+                      return _CharacterCompactGridView(
+                        folders: visibleFolders,
+                        characters: filtered,
+                        interaction: interaction,
+                        onOpenFolder: _openFolder,
+                        onFolderActions: openFolderActions,
+                      );
                   }
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -164,6 +351,38 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   }
 }
 
+class _CharacterTileInteraction {
+  const _CharacterTileInteraction({
+    required this.selectionMode,
+    required this.selectedIds,
+    required this.onToggleSelect,
+  });
+
+  final bool selectionMode;
+  final Set<String> selectedIds;
+  final ValueChanged<String> onToggleSelect;
+}
+
+Widget _selectionBadge(BuildContext context, bool selected) {
+  return Positioned(
+    top: 8,
+    right: 8,
+    child: CircleAvatar(
+      radius: 14,
+      backgroundColor: selected
+          ? Theme.of(context).colorScheme.primary
+          : Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
+      child: Icon(
+        selected ? Icons.check : Icons.circle_outlined,
+        size: 18,
+        color: selected
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
+    ),
+  );
+}
+
 class _SearchBar extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
@@ -193,9 +412,21 @@ class _SearchBar extends StatelessWidget {
 }
 
 class _CharacterGridView extends StatelessWidget {
+  final List<CharacterFolder> folders;
   final List<Character> characters;
+  final _CharacterTileInteraction interaction;
+  final ValueChanged<String> onOpenFolder;
+  final ValueChanged<CharacterFolder> onFolderActions;
 
-  const _CharacterGridView({required this.characters});
+  const _CharacterGridView({
+    required this.folders,
+    required this.characters,
+    required this.interaction,
+    required this.onOpenFolder,
+    required this.onFolderActions,
+  });
+
+  int get _itemCount => folders.length + characters.length;
 
   @override
   Widget build(BuildContext context) {
@@ -208,32 +439,65 @@ class _CharacterGridView extends StatelessWidget {
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),
-              itemCount: characters.length,
+              itemCount: _itemCount,
               itemBuilder: (context, index) {
-                return _CharacterGridCard(character: characters[index]);
+                if (index < folders.length) {
+                  final folder = folders[index];
+                  return CharacterFolderGridCard(
+                    folder: folder,
+                    onTap: () => onOpenFolder(folder.id),
+                    onLongPress: () => onFolderActions(folder),
+                    onSecondaryTap: () => onFolderActions(folder),
+                  );
+                }
+                return _CharacterGridCard(
+                  character: characters[index - folders.length],
+                  interaction: interaction,
+                );
               },
             ));
   }
 }
 
 class _CharacterListView extends StatelessWidget {
+  final List<CharacterFolder> folders;
   final List<Character> characters;
   final CharacterAvatarShape avatarShape;
+  final _CharacterTileInteraction interaction;
+  final ValueChanged<String> onOpenFolder;
+  final ValueChanged<CharacterFolder> onFolderActions;
 
   const _CharacterListView({
+    required this.folders,
     required this.characters,
     required this.avatarShape,
+    required this.interaction,
+    required this.onOpenFolder,
+    required this.onFolderActions,
   });
+
+  int get _itemCount => folders.length + characters.length;
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: characters.length,
+      itemCount: _itemCount,
       itemBuilder: (context, index) {
+        if (index < folders.length) {
+          final folder = folders[index];
+          return CharacterFolderListTile(
+            folder: folder,
+            avatarShape: avatarShape,
+            onTap: () => onOpenFolder(folder.id),
+            onLongPress: () => onFolderActions(folder),
+            onSecondaryTap: () => onFolderActions(folder),
+          );
+        }
         return _CharacterListTile(
-          character: characters[index],
+          character: characters[index - folders.length],
           avatarShape: avatarShape,
+          interaction: interaction,
         );
       },
     );
@@ -241,9 +505,21 @@ class _CharacterListView extends StatelessWidget {
 }
 
 class _CharacterCompactGridView extends StatelessWidget {
+  final List<CharacterFolder> folders;
   final List<Character> characters;
+  final _CharacterTileInteraction interaction;
+  final ValueChanged<String> onOpenFolder;
+  final ValueChanged<CharacterFolder> onFolderActions;
 
-  const _CharacterCompactGridView({required this.characters});
+  const _CharacterCompactGridView({
+    required this.folders,
+    required this.characters,
+    required this.interaction,
+    required this.onOpenFolder,
+    required this.onFolderActions,
+  });
+
+  int get _itemCount => folders.length + characters.length;
 
   @override
   Widget build(BuildContext context) {
@@ -256,9 +532,22 @@ class _CharacterCompactGridView extends StatelessWidget {
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
               ),
-              itemCount: characters.length,
+              itemCount: _itemCount,
               itemBuilder: (context, index) {
-                return _CharacterCompactGridCard(character: characters[index]);
+                if (index < folders.length) {
+                  final folder = folders[index];
+                  return CharacterFolderGridCard(
+                    folder: folder,
+                    compact: true,
+                    onTap: () => onOpenFolder(folder.id),
+                    onLongPress: () => onFolderActions(folder),
+                    onSecondaryTap: () => onFolderActions(folder),
+                  );
+                }
+                return _CharacterCompactGridCard(
+                  character: characters[index - folders.length],
+                  interaction: interaction,
+                );
               },
             ));
   }
@@ -286,6 +575,10 @@ Future<void> _handleCharacterAction(
       if (context.mounted) {
         context.push('/characters/${character.id}/edit');
       }
+    case 'move':
+      if (context.mounted) {
+        await showMoveCharactersToFolderSheet(context, ref, [character.id]);
+      }
     case 'export':
       break;
     case 'delete':
@@ -312,6 +605,11 @@ Future<void> _showCharacterActionMenu(
         value: 'edit',
         leading: const Icon(Icons.edit),
         title: Text(l10n.edit),
+      ),
+      AdaptiveActionDrawerItem(
+        value: 'move',
+        leading: const Icon(Icons.drive_file_move_outline),
+        title: Text(l10n.moveToFolder),
       ),
       AdaptiveActionDrawerItem(
         value: 'export',
@@ -433,26 +731,42 @@ class _EmptyState extends StatelessWidget {
 
 class _CharacterGridCard extends ConsumerWidget {
   final Character character;
+  final _CharacterTileInteraction interaction;
 
-  const _CharacterGridCard({required this.character});
+  const _CharacterGridCard({
+    required this.character,
+    required this.interaction,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selected = interaction.selectedIds.contains(character.id);
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => context.push('/characters/${character.id}'),
-        onLongPress: () => _showCharacterActionMenu(
-          context,
-          ref,
-          character,
-        ),
+        onTap: () {
+          if (interaction.selectionMode) {
+            interaction.onToggleSelect(character.id);
+            return;
+          }
+          context.push('/characters/${character.id}');
+        },
+        onLongPress: () {
+          if (interaction.selectionMode) {
+            interaction.onToggleSelect(character.id);
+            return;
+          }
+          _showCharacterActionMenu(context, ref, character);
+        },
         onSecondaryTap: () => _showCharacterActionMenu(
           context,
           ref,
           character,
         ),
-        child: Column(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
@@ -484,6 +798,10 @@ class _CharacterGridCard extends ConsumerWidget {
                 ],
               ),
             ),
+          ],
+            ),
+            if (interaction.selectionMode)
+              _selectionBadge(context, selected),
           ],
         ),
       ),
@@ -557,26 +875,42 @@ class _CharacterGridCard extends ConsumerWidget {
 
 class _CharacterCompactGridCard extends ConsumerWidget {
   final Character character;
+  final _CharacterTileInteraction interaction;
 
-  const _CharacterCompactGridCard({required this.character});
+  const _CharacterCompactGridCard({
+    required this.character,
+    required this.interaction,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selected = interaction.selectedIds.contains(character.id);
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => context.push('/characters/${character.id}'),
-        onLongPress: () => _showCharacterActionMenu(
-          context,
-          ref,
-          character,
-        ),
+        onTap: () {
+          if (interaction.selectionMode) {
+            interaction.onToggleSelect(character.id);
+            return;
+          }
+          context.push('/characters/${character.id}');
+        },
+        onLongPress: () {
+          if (interaction.selectionMode) {
+            interaction.onToggleSelect(character.id);
+            return;
+          }
+          _showCharacterActionMenu(context, ref, character);
+        },
         onSecondaryTap: () => _showCharacterActionMenu(
           context,
           ref,
           character,
         ),
-        child: Column(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
@@ -600,6 +934,10 @@ class _CharacterCompactGridCard extends ConsumerWidget {
                 ],
               ),
             ),
+          ],
+            ),
+            if (interaction.selectionMode)
+              _selectionBadge(context, selected),
           ],
         ),
       ),
@@ -672,10 +1010,12 @@ class _CharacterCompactGridCard extends ConsumerWidget {
 class _CharacterListTile extends ConsumerWidget {
   final Character character;
   final CharacterAvatarShape avatarShape;
+  final _CharacterTileInteraction interaction;
 
   const _CharacterListTile({
     required this.character,
     required this.avatarShape,
+    required this.interaction,
   });
 
   @override
@@ -691,13 +1031,27 @@ class _CharacterListTile extends ConsumerWidget {
     final description = character.description.isNotEmpty
         ? character.description
         : l10n.description;
+    final selected = interaction.selectedIds.contains(character.id);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => context.push('/characters/${character.id}'),
-        onLongPress: () => _showCharacterActionMenu(
+        onTap: () {
+          if (interaction.selectionMode) {
+            interaction.onToggleSelect(character.id);
+            return;
+          }
+          context.push('/characters/${character.id}');
+        },
+        onLongPress: () {
+          if (interaction.selectionMode) {
+            interaction.onToggleSelect(character.id);
+            return;
+          }
+          _showCharacterActionMenu(context, ref, character);
+        },
+        onSecondaryTap: () => _showCharacterActionMenu(
           context,
           ref,
           character,
@@ -708,6 +1062,14 @@ class _CharacterListTile extends ConsumerWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (interaction.selectionMode)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8, top: 4),
+                  child: Icon(
+                    selected ? Icons.check_circle : Icons.circle_outlined,
+                    color: selected ? scheme.primary : scheme.outline,
+                  ),
+                ),
               _buildListAvatar(),
               const SizedBox(width: 12),
               Expanded(

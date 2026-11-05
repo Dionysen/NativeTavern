@@ -50,6 +50,9 @@ class Character {
   /// Soft-deleted characters stay available to old links and editing.
   final bool isDeleted;
 
+  /// Character browser folder; null means listed at the library root.
+  final String? folderId;
+
   /// Note injected at a fixed depth (ST extensions.depth_prompt)
   final DepthPrompt? depthPrompt;
 
@@ -79,6 +82,7 @@ class Character {
     this.extensions = const {},
     this.isFavorite = false,
     this.isDeleted = false,
+    this.folderId,
     this.depthPrompt,
     this.talkativeness = 0.5,
     required this.createdAt,
@@ -106,6 +110,8 @@ class Character {
     Map<String, dynamic>? extensions,
     bool? isFavorite,
     bool? isDeleted,
+    String? folderId,
+    bool clearFolderId = false,
     DepthPrompt? depthPrompt,
     double? talkativeness,
     DateTime? createdAt,
@@ -132,6 +138,7 @@ class Character {
       extensions: extensions ?? this.extensions,
       isFavorite: isFavorite ?? this.isFavorite,
       isDeleted: isDeleted ?? this.isDeleted,
+      folderId: clearFolderId ? null : (folderId ?? this.folderId),
       depthPrompt: depthPrompt ?? this.depthPrompt,
       talkativeness: talkativeness ?? this.talkativeness,
       createdAt: createdAt ?? this.createdAt,

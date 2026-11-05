@@ -1680,6 +1680,70 @@
       }
     }
   },
+  "characterFolderNameLabel": "Folder name",
+  "@characterFolderNameLabel": {
+    "description": "Label for character folder name field"
+  },
+  "createCharacterFolder": "New folder",
+  "@createCharacterFolder": {
+    "description": "Create an empty character folder"
+  },
+  "createFolderFromSelection": "Folder from selection",
+  "@createFolderFromSelection": {
+    "description": "Create a folder and move selected characters into it"
+  },
+  "moveCharactersToFolder": "Move to folder",
+  "@moveCharactersToFolder": {
+    "description": "Title for move characters sheet"
+  },
+  "moveToFolder": "Move to folder",
+  "@moveToFolder": {
+    "description": "Move one or more characters to a folder"
+  },
+  "characterFolderRoot": "Library root",
+  "@characterFolderRoot": {
+    "description": "Move characters out of folders to the main list"
+  },
+  "characterFolderCount": "{count} character(s)",
+  "@characterFolderCount": {
+    "description": "Character count shown on a folder tile",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "charactersMovedToFolder": "Characters moved",
+  "@charactersMovedToFolder": {
+    "description": "Snack bar after moving characters into a folder"
+  },
+  "dissolveCharacterFolder": "Dissolve folder",
+  "@dissolveCharacterFolder": {
+    "description": "Remove folder and keep characters in the library"
+  },
+  "dissolveCharacterFolderBody": "Dissolve \"{name}\"? Characters stay in your library and are not deleted.",
+  "@dissolveCharacterFolderBody": {
+    "description": "Confirm dissolving a character folder",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "renameCharacterFolder": "Rename folder",
+  "@renameCharacterFolder": {
+    "description": "Rename character folder dialog title"
+  },
+  "characterFoldersSection": "Folders",
+  "@characterFoldersSection": {
+    "description": "Section title above character folders on the list screen"
+  },
+  "characterListSelectMode": "Select",
+  "@characterListSelectMode": {
+    "description": "Enter multi-select mode on the character list"
+  },
   "create": "Create",
   "@create": {
     "description": "Create button"
