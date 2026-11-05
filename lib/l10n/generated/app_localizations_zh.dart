@@ -51,7 +51,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get save => '保存';
 
   @override
-  String get saveAs => '另存为';
+  String get saveAs => '另存';
 
   @override
   String get edit => '编辑';
@@ -1361,7 +1361,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customPresets => '自定义预设';
 
   @override
-  String get aiPresetsDescription => 'AI 预设包含生成设置、提示词顺序和指令模板。选择一个预设即可一次应用全部设置。';
+  String get aiPresetsDescription => '含生成设置、提示词与指令模板；选中预设可一次全部应用。';
 
   @override
   String appliedPreset(String name) {
@@ -6792,7 +6792,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get save => '儲存';
 
   @override
-  String get saveAs => '另存新檔';
+  String get saveAs => '另存';
 
   @override
   String get edit => '編輯';
@@ -8093,7 +8093,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get customPresets => '自訂預設';
 
   @override
-  String get aiPresetsDescription => 'AI 預設包含產生設定、提示詞順序與指令範本。選擇一個預設即可一次套用全部設定。';
+  String get aiPresetsDescription => '含產生設定、提示詞與指令範本；選中預設可一次全部套用。';
 
   @override
   String appliedPreset(String name) {

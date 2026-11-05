@@ -220,7 +220,7 @@ abstract class AppLocalizations {
   /// Save as action
   ///
   /// In en, this message translates to:
-  /// **'Save As'**
+  /// **'Save as'**
   String get saveAs;
 
   /// Edit action
@@ -2656,7 +2656,7 @@ abstract class AppLocalizations {
   /// AI presets info description
   ///
   /// In en, this message translates to:
-  /// **'AI Presets combine generation settings, prompt ordering, and instruct templates. Select a preset to apply all settings at once.'**
+  /// **'Generation settings, prompt order, and instruct templates—select a preset to apply all at once.'**
   String get aiPresetsDescription;
 
   /// Applied preset message

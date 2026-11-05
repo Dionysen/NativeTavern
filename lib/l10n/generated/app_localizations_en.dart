@@ -52,7 +52,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
-  String get saveAs => 'Save As';
+  String get saveAs => 'Save as';
 
   @override
   String get edit => 'Edit';
@@ -1389,7 +1389,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPresetsDescription =>
-      'AI Presets combine generation settings, prompt ordering, and instruct templates. Select a preset to apply all settings at once.';
+      'Generation settings, prompt order, and instruct templates—select a preset to apply all at once.';
 
   @override
   String appliedPreset(String name) {

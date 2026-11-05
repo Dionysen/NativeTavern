@@ -56,7 +56,7 @@
   "@save": {
     "description": "Save action"
   },
-  "saveAs": "另存为",
+  "saveAs": "另存",
   "@saveAs": {
     "description": "Save as action"
   },
@@ -1858,7 +1858,7 @@
   "@customPresets": {
     "description": "Custom presets section header"
   },
-  "aiPresetsDescription": "AI 预设包含生成设置、提示词顺序和指令模板。选择一个预设即可一次应用全部设置。",
+  "aiPresetsDescription": "含生成设置、提示词与指令模板；选中预设可一次全部应用。",
   "@aiPresetsDescription": {
     "description": "AI presets info description"
   },

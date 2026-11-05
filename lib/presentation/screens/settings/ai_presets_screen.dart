@@ -38,14 +38,14 @@ class AIPresetsScreen extends ConsumerWidget {
             footer: l10n.aiPresetsDescription,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                 child: Row(
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () => _importPreset(context, ref),
                         icon: const Icon(Icons.file_download, size: 20),
-                        label: Text(l10n.importPreset),
+                        label: Text(l10n.import),
                       ),
                     ),
                     const SizedBox(width: 8),

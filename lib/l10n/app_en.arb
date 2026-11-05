@@ -56,7 +56,7 @@
   "@save": {
     "description": "Save action"
   },
-  "saveAs": "Save As",
+  "saveAs": "Save as",
   "@saveAs": {
     "description": "Save as action"
   },
@@ -1961,7 +1961,7 @@
   "@customPresets": {
     "description": "Custom presets section header"
   },
-  "aiPresetsDescription": "AI Presets combine generation settings, prompt ordering, and instruct templates. Select a preset to apply all settings at once.",
+  "aiPresetsDescription": "Generation settings, prompt order, and instruct templates—select a preset to apply all at once.",
   "@aiPresetsDescription": {
     "description": "AI presets info description"
   },
