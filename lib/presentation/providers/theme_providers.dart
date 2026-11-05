@@ -11,8 +11,11 @@ import '../../data/models/theme/app_theme_mode.dart';
 import '../../data/models/theme/theme_appearance.dart';
 import '../../data/models/theme/theme_color_pack.dart';
 import '../../data/models/theme/theme_tokens.dart';
+import '../../data/models/theme/system_font.dart';
 import '../../data/models/theme/ui_preferences.dart';
+import '../../data/repositories/file_system_font_repository.dart';
 import '../theme/native_tavern_theme.dart';
+import 'font_library_provider.dart';
 import 'settings_providers.dart';
 
 const String _themeAppearanceKey = 'theme_appearance_v2';
@@ -88,7 +91,13 @@ class ThemeState {
 final themeProvider =
     StateNotifierProvider<ThemeAppearanceNotifier, ThemeState>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
-  return ThemeAppearanceNotifier(prefs);
+  final fonts = ref.read(fontLibraryProvider.notifier);
+  final repository = ref.read(fontRepositoryProvider);
+  final notifier = ThemeAppearanceNotifier(prefs, fonts, repository);
+  ref.listen(fontLibraryProvider, (_, __) {
+    unawaited(notifier.onFontLibraryChanged());
+  });
+  return notifier;
 });
 
 /// Convenience: current [ThemeData].
@@ -102,7 +111,7 @@ final isDarkModeProvider = Provider<bool>((ref) {
 });
 
 class ThemeAppearanceNotifier extends StateNotifier<ThemeState> {
-  ThemeAppearanceNotifier(this._prefs)
+  ThemeAppearanceNotifier(this._prefs, this._fonts, this._fontRepository)
       : super(
           ThemeState(
             appearance: ThemeAppearance.defaults,
@@ -110,14 +119,19 @@ class ThemeAppearanceNotifier extends StateNotifier<ThemeState> {
                 SchedulerBinding.instance.platformDispatcher.platformBrightness,
           ),
         ) {
-    _load();
+    _loadAppearance();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      unawaited(_loadSavedFont());
+    });
   }
 
   final SharedPreferences _prefs;
+  final FontLibraryNotifier _fonts;
+  final FileSystemFontRepository _fontRepository;
   Timer? _pendingSave;
   var _nextCustomSeq = 1;
 
-  void _load() {
+  void _loadAppearance() {
     final raw = _prefs.getString(_themeAppearanceKey);
     if (raw == null) return;
     try {
@@ -128,6 +142,10 @@ class ThemeAppearanceNotifier extends StateNotifier<ThemeState> {
     } catch (_) {
       // Keep defaults if persisted payload is corrupt.
     }
+  }
+
+  Future<void> onFontLibraryChanged() async {
+    await _clearStaleFontSelection();
   }
 
   int _deriveNextCustomSeq(List<ThemeColorPack> packs) {
@@ -307,8 +325,62 @@ class ThemeAppearanceNotifier extends StateNotifier<ThemeState> {
   void updateFontSize(double value) =>
       updateUi(state.ui.copyWith(fontSize: value));
 
-  void updateFontFamilyId(String id) =>
-      updateUi(state.ui.copyWith(fontFamilyId: id));
+  Future<void> selectUiFont(SystemFont? font) async {
+    if (font == null) {
+      updateUi(state.ui.copyWith(clearFont: true));
+      return;
+    }
+    final family = await _fonts.loadFont(font);
+    if (family != null) {
+      updateUi(state.ui.copyWith(fontFamily: family, fontPath: font.path));
+    }
+  }
+
+  Future<bool> importUiFontFromPath(String sourcePath) async {
+    final imported = await _fonts.importFont(sourcePath);
+    if (imported == null) {
+      return false;
+    }
+    await selectUiFont(imported);
+    return state.ui.fontPath == imported.path;
+  }
+
+  Future<bool> deleteImportedFont(SystemFont font) async {
+    final ok = await _fonts.deleteImportedFont(font);
+    if (!ok) {
+      return false;
+    }
+    if (state.ui.fontPath == font.path) {
+      await selectUiFont(null);
+    }
+    return true;
+  }
+
+  Future<void> _loadSavedFont() async {
+    final path = state.ui.fontPath;
+    if (path == null) {
+      return;
+    }
+    if (await _fontRepository.fontFileMissing(path)) {
+      updateUi(state.ui.copyWith(clearFont: true));
+      return;
+    }
+    final family =
+        await _fontRepository.loadFont(SystemFont(family: '', path: path));
+    if (family != null) {
+      updateUi(state.ui.copyWith(fontFamily: family));
+    }
+  }
+
+  Future<void> _clearStaleFontSelection() async {
+    final path = state.ui.fontPath;
+    if (path == null) {
+      return;
+    }
+    if (await _fontRepository.fontFileMissing(path)) {
+      await selectUiFont(null);
+    }
+  }
 
   void updateCornerRadius(double value) =>
       updateUi(state.ui.copyWith(cornerRadius: value));

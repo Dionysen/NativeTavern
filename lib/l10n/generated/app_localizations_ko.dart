@@ -6634,16 +6634,42 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get uiFontFamilyDescription =>
-      'Typeface used across the app interface.';
+      'Tap to choose a font. Your computer shows installed fonts; on phone you can import a font file.';
 
   @override
   String get uiFontFamilySystem => 'System default';
 
   @override
-  String get uiFontFamilySerif => 'Serif';
+  String get fontImportSuccess => 'Font imported into the app library.';
 
   @override
-  String get uiFontFamilyMonospace => 'Monospace';
+  String get fontImportFailure => 'Could not import that font file.';
+
+  @override
+  String get fontDeleteSuccess => 'Removed from the app font library.';
+
+  @override
+  String get fontDeleteFailure => 'Could not delete that font.';
+
+  @override
+  String get fontImportFromFile => 'Choose font file…';
+
+  @override
+  String get fontDeleteFromLibrary => 'Remove from library';
+
+  @override
+  String get fontDeleteDialogTitle => 'Delete font?';
+
+  @override
+  String fontDeleteDialogBody(String family) {
+    return 'Remove \"$family\" from the app font library to free space?';
+  }
+
+  @override
+  String get fontImportedBadge => 'Imported';
+
+  @override
+  String get fontSearchHint => 'Search fonts';
 
   @override
   String get cornerRadiusTitle => 'Corner radius';

@@ -11814,7 +11814,7 @@ abstract class AppLocalizations {
   /// No description provided for @uiFontFamilyDescription.
   ///
   /// In en, this message translates to:
-  /// **'Typeface used across the app interface.'**
+  /// **'Tap to choose a font. Your computer shows installed fonts; on phone you can import a font file.'**
   String get uiFontFamilyDescription;
 
   /// No description provided for @uiFontFamilySystem.
@@ -11823,17 +11823,65 @@ abstract class AppLocalizations {
   /// **'System default'**
   String get uiFontFamilySystem;
 
-  /// No description provided for @uiFontFamilySerif.
+  /// No description provided for @fontImportSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Serif'**
-  String get uiFontFamilySerif;
+  /// **'Font imported into the app library.'**
+  String get fontImportSuccess;
 
-  /// No description provided for @uiFontFamilyMonospace.
+  /// No description provided for @fontImportFailure.
   ///
   /// In en, this message translates to:
-  /// **'Monospace'**
-  String get uiFontFamilyMonospace;
+  /// **'Could not import that font file.'**
+  String get fontImportFailure;
+
+  /// No description provided for @fontDeleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from the app font library.'**
+  String get fontDeleteSuccess;
+
+  /// No description provided for @fontDeleteFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete that font.'**
+  String get fontDeleteFailure;
+
+  /// No description provided for @fontImportFromFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose font file…'**
+  String get fontImportFromFile;
+
+  /// No description provided for @fontDeleteFromLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from library'**
+  String get fontDeleteFromLibrary;
+
+  /// No description provided for @fontDeleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete font?'**
+  String get fontDeleteDialogTitle;
+
+  /// No description provided for @fontDeleteDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{family}\" from the app font library to free space?'**
+  String fontDeleteDialogBody(String family);
+
+  /// No description provided for @fontImportedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported'**
+  String get fontImportedBadge;
+
+  /// No description provided for @fontSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search fonts'**
+  String get fontSearchHint;
 
   /// No description provided for @cornerRadiusTitle.
   ///

@@ -6399,16 +6399,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String get uiFontFamilyTitle => '字体';
 
   @override
-  String get uiFontFamilyDescription => '应用界面使用的字体';
+  String get uiFontFamilyDescription => '点按选择字体；电脑会列出本机已安装的字体，手机可导入字体文件。';
 
   @override
   String get uiFontFamilySystem => '系统默认';
 
   @override
-  String get uiFontFamilySerif => '衬线体';
+  String get fontImportSuccess => '字体已导入到应用字体库。';
 
   @override
-  String get uiFontFamilyMonospace => '等宽字体';
+  String get fontImportFailure => '无法导入该字体文件。';
+
+  @override
+  String get fontDeleteSuccess => '已从应用字体库中移除。';
+
+  @override
+  String get fontDeleteFailure => '无法删除该字体。';
+
+  @override
+  String get fontImportFromFile => '选择字体文件…';
+
+  @override
+  String get fontDeleteFromLibrary => '从库中移除';
+
+  @override
+  String get fontDeleteDialogTitle => '删除字体？';
+
+  @override
+  String fontDeleteDialogBody(String family) {
+    return '从应用字体库中移除「$family」以释放空间？';
+  }
+
+  @override
+  String get fontImportedBadge => '已导入';
+
+  @override
+  String get fontSearchHint => '搜索字体';
 
   @override
   String get cornerRadiusTitle => '圆角';
@@ -12979,16 +13005,42 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get uiFontFamilyTitle => '字體';
 
   @override
-  String get uiFontFamilyDescription => '應用程式介面使用的字體';
+  String get uiFontFamilyDescription => '點按選擇字體；電腦會列出本機已安裝的字體，手機可匯入字體檔案。';
 
   @override
   String get uiFontFamilySystem => '系統預設';
 
   @override
-  String get uiFontFamilySerif => '襯線體';
+  String get fontImportSuccess => '字體已匯入到應用字體庫。';
 
   @override
-  String get uiFontFamilyMonospace => '等寬字體';
+  String get fontImportFailure => '無法匯入該字體檔案。';
+
+  @override
+  String get fontDeleteSuccess => '已從應用字體庫中移除。';
+
+  @override
+  String get fontDeleteFailure => '無法刪除該字體。';
+
+  @override
+  String get fontImportFromFile => '選擇字體檔案…';
+
+  @override
+  String get fontDeleteFromLibrary => '從庫中移除';
+
+  @override
+  String get fontDeleteDialogTitle => '刪除字體？';
+
+  @override
+  String fontDeleteDialogBody(String family) {
+    return '從應用字體庫中移除「$family」以釋放空間？';
+  }
+
+  @override
+  String get fontImportedBadge => '已匯入';
+
+  @override
+  String get fontSearchHint => '搜尋字體';
 
   @override
   String get cornerRadiusTitle => '圓角';

@@ -1,10 +1,9 @@
-import 'app_font_family.dart';
-
 /// Shell chrome typography and shape, independent of semantic color tokens.
 class UiPreferences {
   const UiPreferences({
     required this.fontSize,
-    required this.fontFamilyId,
+    this.fontFamily,
+    this.fontPath,
     required this.cornerRadius,
     required this.barCornerRadius,
     required this.chatBubbleCornerRadius,
@@ -13,7 +12,8 @@ class UiPreferences {
 
   static const defaults = UiPreferences(
     fontSize: 16,
-    fontFamilyId: AppFontFamily.system,
+    fontFamily: null,
+    fontPath: null,
     cornerRadius: 4,
     barCornerRadius: 4,
     chatBubbleCornerRadius: 30,
@@ -32,8 +32,11 @@ class UiPreferences {
 
   final double fontSize;
 
-  /// [AppFontFamily] id; system uses the platform default face.
-  final String fontFamilyId;
+  /// Registered [FontLoader] family, or a generic family like `serif`.
+  final String? fontFamily;
+
+  /// Durable font file identity used to re-register [fontFamily] on launch.
+  final String? fontPath;
 
   /// Shared corner radius for chrome controls, menus, cards, and dialogs.
   final double cornerRadius;
@@ -49,11 +52,11 @@ class UiPreferences {
 
   double get scale => fontSize / referenceFontSize;
 
-  String? get fontFamily => AppFontFamily.resolve(fontFamilyId);
-
   UiPreferences copyWith({
     double? fontSize,
-    String? fontFamilyId,
+    String? fontFamily,
+    String? fontPath,
+    bool clearFont = false,
     double? cornerRadius,
     double? barCornerRadius,
     double? chatBubbleCornerRadius,
@@ -61,7 +64,8 @@ class UiPreferences {
   }) =>
       UiPreferences(
         fontSize: fontSize ?? this.fontSize,
-        fontFamilyId: fontFamilyId ?? this.fontFamilyId,
+        fontFamily: clearFont ? null : fontFamily ?? this.fontFamily,
+        fontPath: clearFont ? null : fontPath ?? this.fontPath,
         cornerRadius: cornerRadius ?? this.cornerRadius,
         barCornerRadius: barCornerRadius ?? this.barCornerRadius,
         chatBubbleCornerRadius:
@@ -71,7 +75,8 @@ class UiPreferences {
 
   Map<String, dynamic> toJson() => {
         'fontSize': fontSize,
-        'fontFamilyId': fontFamilyId,
+        if (fontFamily != null) 'fontFamily': fontFamily,
+        if (fontPath != null) 'fontPath': fontPath,
         'cornerRadius': cornerRadius,
         'barCornerRadius': barCornerRadius,
         'chatBubbleCornerRadius': chatBubbleCornerRadius,
@@ -80,12 +85,24 @@ class UiPreferences {
 
   factory UiPreferences.fromJson(Map<String, dynamic>? json) {
     if (json == null) return defaults;
-    final rawFamily = json['fontFamilyId'] as String?;
+
+    String? fontFamily = json['fontFamily'] as String?;
+    String? fontPath = json['fontPath'] as String?;
+
+    // Legacy generic picker ids (pre–font library).
+    final legacyId = json['fontFamilyId'] as String?;
+    if (fontPath == null && fontFamily == null && legacyId != null) {
+      fontFamily = switch (legacyId) {
+        'serif' => 'serif',
+        'monospace' => 'monospace',
+        _ => null,
+      };
+    }
+
     return UiPreferences(
       fontSize: (json['fontSize'] as num?)?.toDouble() ?? defaults.fontSize,
-      fontFamilyId: AppFontFamily.ids.contains(rawFamily)
-          ? rawFamily!
-          : defaults.fontFamilyId,
+      fontFamily: fontFamily,
+      fontPath: fontPath,
       cornerRadius:
           (json['cornerRadius'] as num?)?.toDouble() ?? defaults.cornerRadius,
       barCornerRadius: (json['barCornerRadius'] as num?)?.toDouble() ??

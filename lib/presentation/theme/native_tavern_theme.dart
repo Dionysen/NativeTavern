@@ -188,11 +188,9 @@ ThemeData buildNativeTavernTheme(
   final hairline = shape.outlineSide(border);
   final focusHairline = shape.outlineSide(focus);
 
-  final fontFamily = ui.fontFamily;
-
   return ThemeData(
     useMaterial3: true,
-    fontFamily: fontFamily,
+    fontFamily: ui.fontFamily,
     // Keep density identical on phone and desktop; adaptive compact on macOS
     // was shrinking chrome relative to Android.
     visualDensity: VisualDensity.standard,

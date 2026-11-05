@@ -6416,10 +6416,25 @@
   "uiFontSizeTitle": "UI font size",
   "uiFontSizeDescription": "Size of text in settings and the rest of the interface.",
   "uiFontFamilyTitle": "Font",
-  "uiFontFamilyDescription": "Typeface used across the app interface.",
+  "uiFontFamilyDescription": "Tap to choose a font. Your computer shows installed fonts; on phone you can import a font file.",
   "uiFontFamilySystem": "System default",
-  "uiFontFamilySerif": "Serif",
-  "uiFontFamilyMonospace": "Monospace",
+  "fontImportSuccess": "Font imported into the app library.",
+  "fontImportFailure": "Could not import that font file.",
+  "fontDeleteSuccess": "Removed from the app font library.",
+  "fontDeleteFailure": "Could not delete that font.",
+  "fontImportFromFile": "Choose font file…",
+  "fontDeleteFromLibrary": "Remove from library",
+  "fontDeleteDialogTitle": "Delete font?",
+  "fontDeleteDialogBody": "Remove \"{family}\" from the app font library to free space?",
+  "@fontDeleteDialogBody": {
+    "placeholders": {
+      "family": {
+        "type": "String"
+      }
+    }
+  },
+  "fontImportedBadge": "Imported",
+  "fontSearchHint": "Search fonts",
   "cornerRadiusTitle": "Corner radius",
   "cornerRadiusDescription": "Shared roundness for buttons, menus, cards, and fields.",
   "barCornerRadiusTitle": "Bar corner radius",
