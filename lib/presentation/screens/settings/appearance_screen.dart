@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:native_tavern/data/models/theme/ui_preferences.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/font_library_provider.dart';
+import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/providers/theme_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/screens/settings/theme_settings_screen.dart';
@@ -33,6 +34,8 @@ class _AppearanceScreenState extends ConsumerState<AppearanceScreen> {
     final l10n = AppLocalizations.of(context);
     final themeState = ref.watch(themeProvider);
     final themeNotifier = ref.read(themeProvider.notifier);
+    final appSettings = ref.watch(appSettingsProvider);
+    final appSettingsNotifier = ref.read(appSettingsProvider.notifier);
     final fontLibrary = ref.watch(fontLibraryProvider);
     const defaults = UiPreferences.defaults;
 
@@ -105,6 +108,20 @@ class _AppearanceScreenState extends ConsumerState<AppearanceScreen> {
                 divisions: 50,
                 defaultLabelBuilder: l10n.numberPickerDefaultLabel,
                 onChanged: themeNotifier.updateChatBubbleCornerRadius,
+              ),
+              SettingsSwitchTile(
+                icon: Icons.face_outlined,
+                title: l10n.showCharacterAvatarTitle,
+                subtitle: l10n.showCharacterAvatarSubtitle,
+                value: appSettings.showCharacterAvatar,
+                onChanged: appSettingsNotifier.updateShowCharacterAvatar,
+              ),
+              SettingsSwitchTile(
+                icon: Icons.account_circle_outlined,
+                title: l10n.showUserAvatarTitle,
+                subtitle: l10n.showUserAvatarSubtitle,
+                value: appSettings.showUserAvatar,
+                onChanged: appSettingsNotifier.updateShowUserAvatar,
               ),
               SettingsSwitchTile(
                 icon: Icons.border_style,

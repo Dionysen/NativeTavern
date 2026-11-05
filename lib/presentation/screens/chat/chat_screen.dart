@@ -3546,6 +3546,14 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
   Widget build(BuildContext context) {
     final isUser = widget.message.role == MessageRole.user;
     final hasSwipes = widget.message.swipes.length > 1;
+    final showCharacterAvatar = ref.watch(
+      appSettingsProvider.select((s) => s.showCharacterAvatar),
+    );
+    final showUserAvatar = ref.watch(
+      appSettingsProvider.select((s) => s.showUserAvatar),
+    );
+    // Keep bubbles out of the opposite avatar column when that avatar is on.
+    const avatarColumnWidth = 32.0 + 8.0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -3554,7 +3562,11 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
             isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!isUser) ...[_buildAvatar(), const SizedBox(width: 8)],
+          if (!isUser && showCharacterAvatar) ...[
+            _buildAvatar(),
+            const SizedBox(width: 8),
+          ] else if (isUser && showCharacterAvatar)
+            const SizedBox(width: avatarColumnWidth),
           Flexible(
             child: Column(
               crossAxisAlignment:
@@ -3671,7 +3683,11 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
               ],
             ),
           ),
-          if (isUser) const SizedBox(width: 8),
+          if (isUser && showUserAvatar) ...[
+            const SizedBox(width: 8),
+            _buildUserAvatar(),
+          ] else if (!isUser && showUserAvatar)
+            const SizedBox(width: avatarColumnWidth),
         ],
       ),
     );
@@ -3725,6 +3741,25 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
         onTap: () => context.push('/characters/$characterId'),
         child: avatar,
       ),
+    );
+  }
+
+  Widget _buildUserAvatar() {
+    final persona = ref.watch(activePersonaProvider).valueOrNull;
+    final path = persona?.avatarPath;
+    if (path != null && path.isNotEmpty) {
+      return CharacterAvatarCircle(
+        imagePath: path,
+        radius: 16,
+        errorBuilder: (_, __, ___) => const CircleAvatar(
+          radius: 16,
+          child: Icon(Icons.person, size: 16),
+        ),
+      );
+    }
+    return const CircleAvatar(
+      radius: 16,
+      child: Icon(Icons.person, size: 16),
     );
   }
 

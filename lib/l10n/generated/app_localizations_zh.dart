@@ -6549,6 +6549,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatBubbleCornerRadiusDescription => '聊天消息气泡的圆角';
 
   @override
+  String get showCharacterAvatarTitle => '角色头像';
+
+  @override
+  String get showCharacterAvatarSubtitle => '在角色消息旁边显示头像。';
+
+  @override
+  String get showUserAvatarTitle => '用户头像';
+
+  @override
+  String get showUserAvatarSubtitle => '在你的消息旁边显示人设头像。';
+
+  @override
   String get showBordersTitle => '显示边框';
 
   @override
@@ -13316,6 +13328,18 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get chatBubbleCornerRadiusDescription => '聊天訊息氣泡的圓角';
+
+  @override
+  String get showCharacterAvatarTitle => '角色頭像';
+
+  @override
+  String get showCharacterAvatarSubtitle => '在角色訊息旁邊顯示頭像。';
+
+  @override
+  String get showUserAvatarTitle => '使用者頭像';
+
+  @override
+  String get showUserAvatarSubtitle => '在你的訊息旁邊顯示人設頭像。';
 
   @override
   String get showBordersTitle => '顯示邊框';

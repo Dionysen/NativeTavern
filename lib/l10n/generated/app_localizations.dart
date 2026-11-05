@@ -12093,6 +12093,30 @@ abstract class AppLocalizations {
   /// **'Roundness of chat message bubbles.'**
   String get chatBubbleCornerRadiusDescription;
 
+  /// No description provided for @showCharacterAvatarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Character avatar'**
+  String get showCharacterAvatarTitle;
+
+  /// No description provided for @showCharacterAvatarSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show character avatars next to their messages.'**
+  String get showCharacterAvatarSubtitle;
+
+  /// No description provided for @showUserAvatarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your avatar'**
+  String get showUserAvatarTitle;
+
+  /// No description provided for @showUserAvatarSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show your persona avatar next to your messages.'**
+  String get showUserAvatarSubtitle;
+
   /// No description provided for @showBordersTitle.
   ///
   /// In en, this message translates to:

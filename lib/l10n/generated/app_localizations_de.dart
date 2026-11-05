@@ -6811,6 +6811,20 @@ class AppLocalizationsDe extends AppLocalizations {
       'Roundness of chat message bubbles.';
 
   @override
+  String get showCharacterAvatarTitle => 'Character avatar';
+
+  @override
+  String get showCharacterAvatarSubtitle =>
+      'Show character avatars next to their messages.';
+
+  @override
+  String get showUserAvatarTitle => 'Your avatar';
+
+  @override
+  String get showUserAvatarSubtitle =>
+      'Show your persona avatar next to your messages.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

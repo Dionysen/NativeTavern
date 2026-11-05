@@ -7,7 +7,9 @@ import 'package:native_tavern/data/models/chat.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/regex_script.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
+import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/chat/message_content_widget.dart';
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
@@ -311,46 +313,73 @@ class _VisualNovelMessageViewState
         widget.characterForMessage?.call(message) ?? widget.character;
     final characterId = character?.id ?? message.characterId;
     final l10n = AppLocalizations.of(context);
+    final showCharacterAvatar = ref.watch(
+      appSettingsProvider.select((s) => s.showCharacterAvatar),
+    );
+    final showUserAvatar = ref.watch(
+      appSettingsProvider.select((s) => s.showUserAvatar),
+    );
+    final showAvatar =
+        isUser ? showUserAvatar : showCharacterAvatar;
 
-    Widget avatar;
-    if (!isUser && character?.assets?.avatarPath != null) {
-      avatar = CharacterAvatarCircle(
-        imagePath: character!.assets!.avatarPath!,
-        radius: 18,
-        errorBuilder: (_, __, ___) => CircleAvatar(
+    Widget? avatar;
+    if (showAvatar) {
+      if (!isUser && character?.assets?.avatarPath != null) {
+        avatar = CharacterAvatarCircle(
+          imagePath: character!.assets!.avatarPath!,
+          radius: 18,
+          errorBuilder: (_, __, ___) => CircleAvatar(
+            radius: 18,
+            backgroundColor: AppTheme.accentColor.withValues(alpha: 0.3),
+            child: const Icon(Icons.person, size: 18, color: Colors.white),
+          ),
+        );
+      } else if (isUser) {
+        final personaPath =
+            ref.watch(activePersonaProvider).valueOrNull?.avatarPath;
+        avatar = personaPath != null && personaPath.isNotEmpty
+            ? CharacterAvatarCircle(
+                imagePath: personaPath,
+                radius: 18,
+                errorBuilder: (_, __, ___) => CircleAvatar(
+                  radius: 18,
+                  backgroundColor:
+                      AppTheme.accentColor.withValues(alpha: 0.5),
+                  child:
+                      const Icon(Icons.person, size: 18, color: Colors.white),
+                ),
+              )
+            : CircleAvatar(
+                radius: 18,
+                backgroundColor: AppTheme.accentColor.withValues(alpha: 0.5),
+                child:
+                    const Icon(Icons.person, size: 18, color: Colors.white),
+              );
+      } else {
+        avatar = CircleAvatar(
           radius: 18,
           backgroundColor: AppTheme.accentColor.withValues(alpha: 0.3),
-          child: const Icon(Icons.person, size: 18, color: Colors.white),
-        ),
-      );
-    } else {
-      avatar = CircleAvatar(
-        radius: 18,
-        backgroundColor: isUser
-            ? AppTheme.accentColor.withValues(alpha: 0.5)
-            : AppTheme.accentColor.withValues(alpha: 0.3),
-        child: Icon(
-          isUser ? Icons.person : Icons.smart_toy,
-          size: 18,
-          color: Colors.white,
-        ),
-      );
-    }
+          child: const Icon(Icons.smart_toy, size: 18, color: Colors.white),
+        );
+      }
 
-    if (!isUser && characterId != null && characterId.isNotEmpty) {
-      avatar = Tooltip(
-        message: l10n.viewCharacter,
-        child: GestureDetector(
-          onTap: () => context.push('/characters/$characterId'),
-          child: avatar,
-        ),
-      );
+      if (!isUser && characterId != null && characterId.isNotEmpty) {
+        avatar = Tooltip(
+          message: l10n.viewCharacter,
+          child: GestureDetector(
+            onTap: () => context.push('/characters/$characterId'),
+            child: avatar,
+          ),
+        );
+      }
     }
 
     return Row(
       children: [
-        avatar,
-        const SizedBox(width: 10),
+        if (avatar != null) ...[
+          avatar,
+          const SizedBox(width: 10),
+        ],
         // Name
         Text(
           isUser ? 'You' : (character?.name ?? 'AI'),

@@ -797,6 +797,8 @@ class AppSettings {
   final bool enableBackgroundBlur;
   final double backgroundOpacity;
   final String chatLayoutMode;
+  final bool showCharacterAvatar;
+  final bool showUserAvatar;
   final bool memoryAutoExtractionEnabled;
   final bool memoryContextEnabled;
   final bool memorySemanticSearchEnabled;
@@ -819,6 +821,8 @@ class AppSettings {
     this.enableBackgroundBlur = false,
     this.backgroundOpacity = 1.0,
     this.chatLayoutMode = 'bubble',
+    this.showCharacterAvatar = true,
+    this.showUserAvatar = true,
     this.memoryAutoExtractionEnabled = false,
     this.memoryContextEnabled = true,
     this.memorySemanticSearchEnabled = false,
@@ -842,6 +846,8 @@ class AppSettings {
     bool? enableBackgroundBlur,
     double? backgroundOpacity,
     String? chatLayoutMode,
+    bool? showCharacterAvatar,
+    bool? showUserAvatar,
     bool? memoryAutoExtractionEnabled,
     bool? memoryContextEnabled,
     bool? memorySemanticSearchEnabled,
@@ -866,6 +872,9 @@ class AppSettings {
       enableBackgroundBlur: enableBackgroundBlur ?? this.enableBackgroundBlur,
       backgroundOpacity: backgroundOpacity ?? this.backgroundOpacity,
       chatLayoutMode: chatLayoutMode ?? this.chatLayoutMode,
+      showCharacterAvatar:
+          showCharacterAvatar ?? this.showCharacterAvatar,
+      showUserAvatar: showUserAvatar ?? this.showUserAvatar,
       memoryAutoExtractionEnabled:
           memoryAutoExtractionEnabled ?? this.memoryAutoExtractionEnabled,
       memoryContextEnabled: memoryContextEnabled ?? this.memoryContextEnabled,
@@ -894,6 +903,8 @@ class AppSettings {
         'enableBackgroundBlur': enableBackgroundBlur,
         'backgroundOpacity': backgroundOpacity,
         'chatLayoutMode': chatLayoutMode,
+        'showCharacterAvatar': showCharacterAvatar,
+        'showUserAvatar': showUserAvatar,
         'memoryAutoExtractionEnabled': memoryAutoExtractionEnabled,
         'memoryContextEnabled': memoryContextEnabled,
         'memorySemanticSearchEnabled': memorySemanticSearchEnabled,
@@ -920,6 +931,8 @@ class AppSettings {
       enableBackgroundBlur: json['enableBackgroundBlur'] as bool? ?? false,
       backgroundOpacity: (json['backgroundOpacity'] as num?)?.toDouble() ?? 1.0,
       chatLayoutMode: json['chatLayoutMode'] as String? ?? 'bubble',
+      showCharacterAvatar: json['showCharacterAvatar'] as bool? ?? true,
+      showUserAvatar: json['showUserAvatar'] as bool? ?? true,
       memoryAutoExtractionEnabled:
           json['memoryAutoExtractionEnabled'] as bool? ?? false,
       memoryContextEnabled: json['memoryContextEnabled'] as bool? ?? true,
@@ -1072,6 +1085,16 @@ class AppSettingsNotifier extends StateNotifier<AppSettings> {
 
   void updateChatLayoutMode(String mode) {
     state = state.copyWith(chatLayoutMode: mode);
+    _saveSettings();
+  }
+
+  void updateShowCharacterAvatar(bool enabled) {
+    state = state.copyWith(showCharacterAvatar: enabled);
+    _saveSettings();
+  }
+
+  void updateShowUserAvatar(bool enabled) {
+    state = state.copyWith(showUserAvatar: enabled);
     _saveSettings();
   }
 
