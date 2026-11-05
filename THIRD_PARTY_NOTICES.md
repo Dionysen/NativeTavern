@@ -50,7 +50,6 @@ The individual Sample Data Terms prohibit changes of any kind to Hiyori
 Momose's character design. Live2D sample data is licensed material, not public
 domain or CC0 content.
 
-Native runtime binaries, Framework sources, model assets, required notices,
-and mobile validation evidence are checked by
-`tool/live2d_release_gate.dart`. Commercial licensing decisions are handled
-outside the engineering release gate.
+Native runtime binaries, Framework sources, model assets, and required notices
+must remain available for redistribution compliance. Commercial licensing
+decisions for Cubism are handled separately from application engineering.

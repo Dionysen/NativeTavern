@@ -1,9 +1,0 @@
-{
-  "versionString": "0.1.16",
-  "buildNumber": "40",
-  "localizations": {
-    "en-US": "NativeTavern 0.1.16\n\n• Fixed character lists failing to load after importing cards whose numeric fields were stored as strings.\n• Existing characters, chats, character books, and Live2D settings remain recoverable.\n• Improved compatibility with community character-card exports.",
-    "zh-Hans": "NativeTavern 0.1.16\n\n• 修复导入数值字段以字符串保存的角色卡后，角色列表无法加载的问题。\n• 保留现有角色、聊天、角色书和 Live2D 设置的恢复能力。\n• 改进与社区角色卡导出的兼容性。",
-    "zh-Hant": "NativeTavern 0.1.16\n\n• 修復匯入數值欄位以字串儲存的角色卡後，角色列表無法載入的問題。\n• 保留現有角色、聊天、角色書和 Live2D 設定的復原能力。\n• 改善與社群角色卡匯出的相容性。"
-  }
-}

@@ -67,18 +67,11 @@ packages/native_tavern_live2d_macos/macos/CubismCore/
 !packages/spine_flutter_4_1_compat/windows/
 !packages/spine_flutter_4_1_compat/windows/**
 
-release
+# Local packaging / secrets (recreate your own release flow as needed)
+release/
 .env
-build_*
-!build_ios.sh
-!build_android.sh
-!build_macos.sh
-!tool/build_android_release.dart
+config/
+assets_for_discord/
+scripts/
 resize_app_store_images.py
-config
-!config/
-config/*
-!config/mobile_release_gate.json
-assets_for_discord
-scripts
-.wrangler/cache/wrangler-account.json
+.wrangler/

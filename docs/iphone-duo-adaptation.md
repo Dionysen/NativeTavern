@@ -135,7 +135,7 @@ online Swift package refresh. The existing dependency cache resolved with
 `-skipPackageUpdates`, and an Xcode Debug simulator build using the resolved
 package versions succeeded. That persistent app bundle was installed with
 `simctl`, preserving simulator data. This was a development simulator build,
-not release packaging. Release artifacts must still use `./build_ios.sh`.
+not a distribution package.
 
 The final shared-column app was checked on the closed outer display and fully
 open and partially folded inner display. Its main menu stays in the physical
@@ -190,10 +190,8 @@ Before claiming device acceptance or distributing a Duo-optimized build:
    TTS, and navigation remain continuous. Check both physical bar edges and RTL.
 4. Activate the inner camera and check that controls avoid the newly active
    occlusion. Confirm inactive fold regions do not unnecessarily restrict content.
-5. Follow `docs/release-runbook.md` and build release artifacts using
-   `./build_ios.sh`. This adaptation does not itself publish a release.
 
 Apple's October 5 notice also requires Duo screenshots for App Store submissions
 starting April 2027. Prepare assets using the current
 [screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications)
-and preview them in App Store Connect when preparing a release.
+when you set up your own store listing later.
