@@ -5496,6 +5496,7 @@
   "totalLabel": "總計",
   "importAllCharacters": "全部匯入（{count}）",
   "switchLayout": "切換版面配置",
+  "scrollToBottom": "捲動到底部",
   "stopGenerating": "停止產生",
   "imageBackgroundSettings": "圖片背景設定",
   "useCharacterImageAsBackground": "使用角色圖片作為背景",

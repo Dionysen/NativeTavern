@@ -4169,6 +4169,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get switchLayout => 'Switch layout';
 
   @override
+  String get scrollToBottom => 'Scroll to bottom';
+
+  @override
   String get stopGenerating => 'Stop generating';
 
   @override

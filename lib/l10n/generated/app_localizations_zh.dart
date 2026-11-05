@@ -4049,6 +4049,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get switchLayout => '切换布局';
 
   @override
+  String get scrollToBottom => '滚动到底部';
+
+  @override
   String get stopGenerating => '停止生成';
 
   @override
@@ -10842,6 +10845,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get switchLayout => '切換版面配置';
+
+  @override
+  String get scrollToBottom => '捲動到底部';
 
   @override
   String get stopGenerating => '停止產生';

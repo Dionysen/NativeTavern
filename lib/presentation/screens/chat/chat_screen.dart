@@ -128,6 +128,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   /// Finger is dragging the list; blocks tail anchoring (Zephyr AI chat).
   bool _userInteractingWithScroll = false;
 
+  /// Show jump-to-latest chip when the bubble list is scrolled away from end.
+  bool _showScrollToBottomButton = false;
+
+  /// True while the user is scrolling toward older messages (list top).
+  bool _scrollingTowardTop = false;
+
+  /// Bumped to cancel in-flight forced scroll-to-bottom passes.
+  int _scrollToBottomGeneration = 0;
+
   /// Metrics captured before older messages are prepended so we can keep the
   /// same visual anchor after the list grows upward.
   double? _pendingOlderScrollPixels;
@@ -363,26 +372,74 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (notification is ScrollStartNotification &&
         notification.dragDetails != null) {
       _userInteractingWithScroll = true;
+      // Cancel pending forced jump-to-end so a late post-frame pass cannot
+      // yank the viewport after the user starts scrolling again.
+      _scrollToBottomGeneration++;
     } else if (notification is UserScrollNotification) {
       _userInteractingWithScroll =
           notification.direction != ScrollDirection.idle;
+      // Non-reverse list: reverse = toward older messages (scroll up).
+      _scrollingTowardTop =
+          notification.direction == ScrollDirection.reverse;
+      if (_userInteractingWithScroll) {
+        _scrollToBottomGeneration++;
+      }
     } else if (notification is ScrollEndNotification) {
       _userInteractingWithScroll = false;
+      _scrollingTowardTop = false;
     }
+    if (notification is ScrollUpdateNotification ||
+        notification is ScrollEndNotification ||
+        notification is UserScrollNotification) {
+      _syncScrollToBottomButton();
+    }
+  }
+
+  void _syncScrollToBottomButton() {
+    final shouldShow = _computeShowScrollToBottomButton();
+    if (shouldShow == _showScrollToBottomButton) return;
+    setState(() => _showScrollToBottomButton = shouldShow);
+  }
+
+  bool _computeShowScrollToBottomButton() {
+    // Hide while the user is scrolling up through history.
+    if (_scrollingTowardTop || _userInteractingWithScroll) return false;
+    if (!_scrollController.hasClients) return false;
+    final position = _scrollController.position;
+    if (position.maxScrollExtent <= _followSlop) return false;
+    return position.pixels < position.maxScrollExtent - _followSlop;
   }
 
   /// Scroll to the newest messages (Zephyr `_scrollToEnd`).
   ///
   /// Pass [force] for user-initiated actions (send / import); otherwise only
   /// follows when the viewport is already near the bottom.
-  void _scrollToBottom({bool animate = true, bool force = false}) {
+  /// Pass [soft] for the jump-to-latest chip — gentler ease, no hard snap.
+  void _scrollToBottom({
+    bool animate = true,
+    bool force = false,
+    bool soft = false,
+  }) {
+    final generation = ++_scrollToBottomGeneration;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _scrollToBottomNow(animate: animate, force: force);
+      if (!mounted || generation != _scrollToBottomGeneration) return;
+      _scrollToBottomNow(
+        animate: animate,
+        force: force,
+        soft: soft,
+        generation: generation,
+      );
+      // Soft chip scroll: one ease is enough; a follow-up jumpTo feels harsh.
+      if (soft) return;
       // Second pass after layout settles (Zephyr does the same).
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        _scrollToBottomNow(animate: false, force: force);
+        if (!mounted || generation != _scrollToBottomGeneration) return;
+        _scrollToBottomNow(
+          animate: false,
+          force: force,
+          generation: generation,
+        );
+        _syncScrollToBottomButton();
       });
     });
   }
@@ -391,18 +448,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _scrollToBottom(animate: false, force: force);
   }
 
-  void _scrollToBottomNow({required bool animate, bool force = false}) {
+  void _scrollToBottomNow({
+    required bool animate,
+    bool force = false,
+    bool soft = false,
+    int? generation,
+  }) {
+    if (generation != null && generation != _scrollToBottomGeneration) return;
     if (!_canPinStreamTail(force: force)) return;
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
     final target = position.maxScrollExtent;
     if (animate) {
+      final distance = (target - position.pixels).abs();
+      final duration = soft
+          ? Duration(
+              milliseconds: (320 + distance * 0.12).clamp(320, 520).round(),
+            )
+          : const Duration(milliseconds: 220);
       unawaited(
         position.animateTo(
           target,
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-        ),
+          duration: duration,
+          curve: soft ? Curves.easeOut : Curves.easeOutCubic,
+        ).then((_) {
+          if (!mounted) return;
+          if (generation != null && generation != _scrollToBottomGeneration) {
+            return;
+          }
+          _syncScrollToBottomButton();
+        }),
       );
       return;
     }
@@ -1255,7 +1330,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         Expanded(
                           child: chatState.isLoading
                               ? const Center(child: CircularProgressIndicator())
-                              : _buildMessagesArea(chatState),
+                              : _buildMessagesAreaWithScrollButton(chatState),
                         ),
 
                         if (kRpgProductUiEnabled)
@@ -1705,6 +1780,78 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ).textTheme.bodyMedium?.copyWith(color: AppTheme.textMuted),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMessagesAreaWithScrollButton(ActiveChatState chatState) {
+    final layoutMode = ref.watch(
+      appSettingsProvider.select((s) => s.chatLayoutMode),
+    );
+    final area = _buildMessagesArea(chatState);
+    final showButton =
+        _showScrollToBottomButton && layoutMode != 'visualNovel';
+    // Always keep the Stack so showing/hiding the chip does not rebuild the
+    // message list out from under the scroll position.
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        area,
+        if (showButton)
+          Positioned(
+            left: 0,
+            right: 0,
+            // Mid-lower of the message viewport, above the composer.
+            bottom: 28,
+            child: Center(child: _buildScrollToBottomButton()),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildScrollToBottomButton() {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final characterId = ref.watch(activeChatProvider).character?.id;
+    final background = ref
+            .watch(effectiveBackgroundProvider(characterId))
+            .valueOrNull ??
+        ChatBackground.none;
+    final opacity = _composerShellOpacity(background);
+    final fill = ZephyrChatChrome.composerFill(scheme, theme.brightness);
+    final color = opacity >= 1.0 ? fill : fill.withValues(alpha: opacity);
+    return Material(
+      elevation: 3,
+      color: color,
+      shadowColor: scheme.shadow.withValues(alpha: 0.28),
+      shape: const StadiumBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          // Hide via scroll sync after jump; avoid setState that races animate.
+          _scrollToBottom(animate: true, force: true, soft: true);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 20,
+                color: scheme.onSurface,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                l10n.scrollToBottom,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: scheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

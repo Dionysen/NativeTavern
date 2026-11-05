@@ -7609,6 +7609,12 @@ abstract class AppLocalizations {
   /// **'Switch layout'**
   String get switchLayout;
 
+  /// No description provided for @scrollToBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Scroll to bottom'**
+  String get scrollToBottom;
+
   /// No description provided for @stopGenerating.
   ///
   /// In en, this message translates to:
