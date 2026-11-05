@@ -12165,6 +12165,18 @@ abstract class AppLocalizations {
   /// **'Scroll down in chat to hide the top bar; scroll up to show it again.'**
   String get hideChatAppBarOnScrollSubtitle;
 
+  /// No description provided for @neutralizeMessageHtmlStyleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear card HTML backgrounds'**
+  String get neutralizeMessageHtmlStyleTitle;
+
+  /// No description provided for @neutralizeMessageHtmlStyleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Make character-card HTML backgrounds transparent and use your chat text color, so your background can show through.'**
+  String get neutralizeMessageHtmlStyleSubtitle;
+
   /// No description provided for @showBordersTitle.
   ///
   /// In en, this message translates to:

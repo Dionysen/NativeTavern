@@ -6844,6 +6844,13 @@ class AppLocalizationsTh extends AppLocalizations {
       'Scroll down in chat to hide the top bar; scroll up to show it again.';
 
   @override
+  String get neutralizeMessageHtmlStyleTitle => 'Clear card HTML backgrounds';
+
+  @override
+  String get neutralizeMessageHtmlStyleSubtitle =>
+      'Make character-card HTML backgrounds transparent and use your chat text color, so your background can show through.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

@@ -19,6 +19,8 @@ class HtmlWebViewWidget extends StatefulWidget {
   final VoidCallback? onLongPress;
   /// Unique key to force rebuild when content changes significantly
   final String? contentKey;
+  /// Strip opaque character-card fills/colors so the chat theme shows through.
+  final bool neutralizeStyle;
 
   const HtmlWebViewWidget({
     super.key,
@@ -29,6 +31,7 @@ class HtmlWebViewWidget extends StatefulWidget {
     this.fontSize,
     this.onLongPress,
     this.contentKey,
+    this.neutralizeStyle = true,
   });
 
   @override
@@ -71,8 +74,12 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
     final contentChanged = widget.htmlContent != oldWidget.htmlContent;
     // Check if contentKey has changed (e.g., streaming ended)
     final keyChanged = widget.contentKey != oldWidget.contentKey && widget.contentKey != null;
-    
-    if (contentChanged || keyChanged) {
+    final styleChanged = widget.neutralizeStyle != oldWidget.neutralizeStyle ||
+        widget.textColor != oldWidget.textColor ||
+        widget.dialogueColor != oldWidget.dialogueColor ||
+        widget.fontSize != oldWidget.fontSize;
+
+    if (contentChanged || keyChanged || styleChanged) {
       debugPrint('🌐 didUpdateWidget: contentChanged=$contentChanged, keyChanged=$keyChanged');
       debugPrint('🌐 Old key: ${oldWidget.contentKey}, New key: ${widget.contentKey}');
       _reloadContent();
@@ -163,7 +170,8 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
     html, body {
       margin: 0;
       padding: 0;
-      background-color: transparent;
+      background: transparent !important;
+      background-color: transparent !important;
       color: $textColorHex;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       font-size: ${effectiveFontSize}px;
@@ -243,6 +251,29 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
 <div id="measure-root">
 $content
 </div>
+${widget.neutralizeStyle ? '''
+<style id="nt-html-chrome-reset">
+  /* Character cards often ship opaque fills/colors that fight the chat theme.
+     Placed after content so it wins over embedded <style> / inline rules. */
+  html, body,
+  #measure-root,
+  #measure-root *:not(img):not(svg):not(canvas):not(video):not(source) {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+  #measure-root {
+    color: $textColorHex !important;
+  }
+  #measure-root *:not(img):not(svg):not(canvas):not(video):not(source) {
+    color: inherit !important;
+  }
+  #measure-root .nt-dialogue {
+    color: $dialogueColorHex !important;
+    font-weight: 700 !important;
+  }
+</style>
+''' : ''}
 <script>
   var heightSent = false;
   var lastSentHeight = 0;
@@ -560,6 +591,7 @@ $content
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
+        color: Colors.transparent,
         clipBehavior: Clip.none,
         constraints: BoxConstraints(
           minHeight: _minHeight,
@@ -644,6 +676,13 @@ $content
                 if (mounted) {
                   setState(() => _isLoading = false);
                 }
+                // Keep the platform view clear even if card CSS fights us.
+                await controller.evaluateJavascript(source: '''
+                  document.documentElement.style.setProperty('background','transparent','important');
+                  document.documentElement.style.setProperty('background-color','transparent','important');
+                  document.body && document.body.style.setProperty('background','transparent','important');
+                  document.body && document.body.style.setProperty('background-color','transparent','important');
+                ''');
                 // Trigger height calculation
                 await controller.evaluateJavascript(source: 'sendHeight();');
                 
@@ -677,20 +716,14 @@ $content
               },
             ),
             if (_isLoading)
-              Positioned.fill(
-                child: Container(
-                  color: AppTheme.darkCard,
-                  child: const Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircularProgressIndicator(strokeWidth: 2),
-                        SizedBox(height: 8),
-                        Text(
-                          'Loading content...',
-                          style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-                        ),
-                      ],
+              const Positioned.fill(
+                child: ColoredBox(
+                  color: Colors.transparent,
+                  child: Center(
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                   ),
                 ),

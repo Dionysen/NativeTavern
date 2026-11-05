@@ -7156,6 +7156,8 @@
   "showReasoningSubtitle": "Show the model's thinking above AI replies.",
   "hideChatAppBarOnScrollTitle": "Hide top bar while scrolling",
   "hideChatAppBarOnScrollSubtitle": "Scroll down in chat to hide the top bar; scroll up to show it again.",
+  "neutralizeMessageHtmlStyleTitle": "Clear card HTML backgrounds",
+  "neutralizeMessageHtmlStyleSubtitle": "Make character-card HTML backgrounds transparent and use your chat text color, so your background can show through.",
   "showBordersTitle": "Show borders",
   "showBordersSubtitle": "When off, buttons and cards have no outline.",
   "themePresetsSectionTitle": "Theme colors",

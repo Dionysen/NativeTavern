@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/widgets/chat/dialogue_quote_style.dart';
@@ -17,7 +19,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 /// - Markdown: bold, italic, strikethrough, code blocks, lists, links, etc.
 /// - Complex HTML: rendered via WebView for full CSS support
 /// - Text selection with context menu (copy, select all)
-class MessageContentWidget extends StatefulWidget {
+class MessageContentWidget extends ConsumerStatefulWidget {
   final String content;
   final Color textColor;
   final bool selectable;
@@ -49,10 +51,11 @@ class MessageContentWidget extends StatefulWidget {
   });
 
   @override
-  State<MessageContentWidget> createState() => _MessageContentWidgetState();
+  ConsumerState<MessageContentWidget> createState() =>
+      _MessageContentWidgetState();
 }
 
-class _MessageContentWidgetState extends State<MessageContentWidget> {
+class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
   String? _selectedText;
   /// Content key for forcing WebView re-render after streaming ends
   int _contentVersion = 0;
@@ -67,6 +70,7 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
   bool? _cachedIsUser;
   int? _cachedVersion;
   Brightness? _cachedBrightness;
+  bool? _cachedNeutralizeHtml;
 
   @override
   void didUpdateWidget(MessageContentWidget oldWidget) {
@@ -200,17 +204,21 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
     }
 
     final brightness = Theme.of(context).brightness;
+    final neutralizeHtml = ref.watch(
+      appSettingsProvider.select((s) => s.neutralizeMessageHtmlStyle),
+    );
     if (_cachedWidget != null &&
         _cachedContent == widget.content &&
         _cachedStreaming == widget.isStreaming &&
         _cachedColor == widget.textColor &&
         _cachedIsUser == widget.isUser &&
         _cachedVersion == _contentVersion &&
-        _cachedBrightness == brightness) {
+        _cachedBrightness == brightness &&
+        _cachedNeutralizeHtml == neutralizeHtml) {
       return _cachedWidget!;
     }
 
-    final result = _buildContent(context);
+    final result = _buildContent(context, neutralizeHtml: neutralizeHtml);
     _cachedWidget = result;
     _cachedContent = widget.content;
     _cachedStreaming = widget.isStreaming;
@@ -218,10 +226,14 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
     _cachedIsUser = widget.isUser;
     _cachedVersion = _contentVersion;
     _cachedBrightness = brightness;
+    _cachedNeutralizeHtml = neutralizeHtml;
     return result;
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent(
+    BuildContext context, {
+    required bool neutralizeHtml,
+  }) {
     final hasHtml = _containsHtml(widget.content);
     final dialogueColor = ZephyrChatChrome.dialogueTextColor(
       context,
@@ -245,6 +257,7 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
             widget.fontSize ?? ZephyrChatChrome.messageFontSize(context),
         onLongPress: widget.onLongPress,
         contentKey: contentKey,
+        neutralizeStyle: neutralizeHtml,
       );
     }
     // For all other content (including simple HTML), convert to Markdown and render

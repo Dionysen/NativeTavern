@@ -805,6 +805,8 @@ class AppSettings {
   final bool showReasoning;
   /// Hide the chat top bar while scrolling toward newer messages.
   final bool hideChatAppBarOnScroll;
+  /// Strip opaque fills/colors from character-card HTML so chat theme shows.
+  final bool neutralizeMessageHtmlStyle;
   final bool memoryAutoExtractionEnabled;
   final bool memoryContextEnabled;
   final bool memorySemanticSearchEnabled;
@@ -832,6 +834,7 @@ class AppSettings {
     this.showUserAvatar = true,
     this.showReasoning = true,
     this.hideChatAppBarOnScroll = false,
+    this.neutralizeMessageHtmlStyle = true,
     this.memoryAutoExtractionEnabled = false,
     this.memoryContextEnabled = true,
     this.memorySemanticSearchEnabled = false,
@@ -860,6 +863,7 @@ class AppSettings {
     bool? showUserAvatar,
     bool? showReasoning,
     bool? hideChatAppBarOnScroll,
+    bool? neutralizeMessageHtmlStyle,
     bool? memoryAutoExtractionEnabled,
     bool? memoryContextEnabled,
     bool? memorySemanticSearchEnabled,
@@ -891,6 +895,8 @@ class AppSettings {
       showReasoning: showReasoning ?? this.showReasoning,
       hideChatAppBarOnScroll:
           hideChatAppBarOnScroll ?? this.hideChatAppBarOnScroll,
+      neutralizeMessageHtmlStyle:
+          neutralizeMessageHtmlStyle ?? this.neutralizeMessageHtmlStyle,
       memoryAutoExtractionEnabled:
           memoryAutoExtractionEnabled ?? this.memoryAutoExtractionEnabled,
       memoryContextEnabled: memoryContextEnabled ?? this.memoryContextEnabled,
@@ -924,6 +930,7 @@ class AppSettings {
         'showUserAvatar': showUserAvatar,
         'showReasoning': showReasoning,
         'hideChatAppBarOnScroll': hideChatAppBarOnScroll,
+        'neutralizeMessageHtmlStyle': neutralizeMessageHtmlStyle,
         'memoryAutoExtractionEnabled': memoryAutoExtractionEnabled,
         'memoryContextEnabled': memoryContextEnabled,
         'memorySemanticSearchEnabled': memorySemanticSearchEnabled,
@@ -962,6 +969,8 @@ class AppSettings {
       showReasoning: json['showReasoning'] as bool? ?? true,
       hideChatAppBarOnScroll:
           json['hideChatAppBarOnScroll'] as bool? ?? false,
+      neutralizeMessageHtmlStyle:
+          json['neutralizeMessageHtmlStyle'] as bool? ?? true,
       memoryAutoExtractionEnabled:
           json['memoryAutoExtractionEnabled'] as bool? ?? false,
       memoryContextEnabled: json['memoryContextEnabled'] as bool? ?? true,
@@ -1166,6 +1175,11 @@ class AppSettingsNotifier extends StateNotifier<AppSettings> {
 
   void updateHideChatAppBarOnScroll(bool enabled) {
     state = state.copyWith(hideChatAppBarOnScroll: enabled);
+    _saveSettings();
+  }
+
+  void updateNeutralizeMessageHtmlStyle(bool enabled) {
+    state = state.copyWith(neutralizeMessageHtmlStyle: enabled);
     _saveSettings();
   }
 

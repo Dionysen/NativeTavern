@@ -6585,6 +6585,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hideChatAppBarOnScrollSubtitle => '在聊天里向下滚动会隐藏顶栏，向上滚动再显示。';
 
   @override
+  String get neutralizeMessageHtmlStyleTitle => '清除角色卡 HTML 背景';
+
+  @override
+  String get neutralizeMessageHtmlStyleSubtitle =>
+      '把角色卡 HTML 的背景改成透明，并用你的聊天文字颜色，方便透出你设置的背景。';
+
+  @override
   String get showBordersTitle => '显示边框';
 
   @override
