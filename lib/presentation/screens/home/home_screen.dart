@@ -196,6 +196,7 @@ class _ChatListTile extends ConsumerWidget {
 
     return Card(
       child: ListTile(
+        contentPadding: const EdgeInsets.only(left: 16, right: 4),
         leading: groupPresentationAsync != null
             ? groupPresentationAsync.when(
                 loading: () => const SizedBox.square(

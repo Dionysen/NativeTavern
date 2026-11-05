@@ -12153,6 +12153,18 @@ abstract class AppLocalizations {
   /// **'Show the model\'s thinking above AI replies.'**
   String get showReasoningSubtitle;
 
+  /// No description provided for @hideChatAppBarOnScrollTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide top bar while scrolling'**
+  String get hideChatAppBarOnScrollTitle;
+
+  /// No description provided for @hideChatAppBarOnScrollSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scroll down in chat to hide the top bar; scroll up to show it again.'**
+  String get hideChatAppBarOnScrollSubtitle;
+
   /// No description provided for @showBordersTitle.
   ///
   /// In en, this message translates to:

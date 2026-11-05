@@ -131,6 +131,13 @@ class _AppearanceScreenState extends ConsumerState<AppearanceScreen> {
                 onChanged: appSettingsNotifier.updateShowReasoning,
               ),
               SettingsSwitchTile(
+                icon: Icons.vertical_align_top_outlined,
+                title: l10n.hideChatAppBarOnScrollTitle,
+                subtitle: l10n.hideChatAppBarOnScrollSubtitle,
+                value: appSettings.hideChatAppBarOnScroll,
+                onChanged: appSettingsNotifier.updateHideChatAppBarOnScroll,
+              ),
+              SettingsSwitchTile(
                 icon: Icons.border_style,
                 title: l10n.showBordersTitle,
                 subtitle: l10n.showBordersSubtitle,

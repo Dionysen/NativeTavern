@@ -803,6 +803,8 @@ class AppSettings {
   final bool showCharacterAvatar;
   final bool showUserAvatar;
   final bool showReasoning;
+  /// Hide the chat top bar while scrolling toward newer messages.
+  final bool hideChatAppBarOnScroll;
   final bool memoryAutoExtractionEnabled;
   final bool memoryContextEnabled;
   final bool memorySemanticSearchEnabled;
@@ -829,6 +831,7 @@ class AppSettings {
     this.showCharacterAvatar = true,
     this.showUserAvatar = true,
     this.showReasoning = true,
+    this.hideChatAppBarOnScroll = false,
     this.memoryAutoExtractionEnabled = false,
     this.memoryContextEnabled = true,
     this.memorySemanticSearchEnabled = false,
@@ -856,6 +859,7 @@ class AppSettings {
     bool? showCharacterAvatar,
     bool? showUserAvatar,
     bool? showReasoning,
+    bool? hideChatAppBarOnScroll,
     bool? memoryAutoExtractionEnabled,
     bool? memoryContextEnabled,
     bool? memorySemanticSearchEnabled,
@@ -885,6 +889,8 @@ class AppSettings {
           showCharacterAvatar ?? this.showCharacterAvatar,
       showUserAvatar: showUserAvatar ?? this.showUserAvatar,
       showReasoning: showReasoning ?? this.showReasoning,
+      hideChatAppBarOnScroll:
+          hideChatAppBarOnScroll ?? this.hideChatAppBarOnScroll,
       memoryAutoExtractionEnabled:
           memoryAutoExtractionEnabled ?? this.memoryAutoExtractionEnabled,
       memoryContextEnabled: memoryContextEnabled ?? this.memoryContextEnabled,
@@ -917,6 +923,7 @@ class AppSettings {
         'showCharacterAvatar': showCharacterAvatar,
         'showUserAvatar': showUserAvatar,
         'showReasoning': showReasoning,
+        'hideChatAppBarOnScroll': hideChatAppBarOnScroll,
         'memoryAutoExtractionEnabled': memoryAutoExtractionEnabled,
         'memoryContextEnabled': memoryContextEnabled,
         'memorySemanticSearchEnabled': memorySemanticSearchEnabled,
@@ -953,6 +960,8 @@ class AppSettings {
       showCharacterAvatar: json['showCharacterAvatar'] as bool? ?? true,
       showUserAvatar: json['showUserAvatar'] as bool? ?? true,
       showReasoning: json['showReasoning'] as bool? ?? true,
+      hideChatAppBarOnScroll:
+          json['hideChatAppBarOnScroll'] as bool? ?? false,
       memoryAutoExtractionEnabled:
           json['memoryAutoExtractionEnabled'] as bool? ?? false,
       memoryContextEnabled: json['memoryContextEnabled'] as bool? ?? true,
@@ -1152,6 +1161,11 @@ class AppSettingsNotifier extends StateNotifier<AppSettings> {
 
   void updateShowReasoning(bool enabled) {
     state = state.copyWith(showReasoning: enabled);
+    _saveSettings();
+  }
+
+  void updateHideChatAppBarOnScroll(bool enabled) {
+    state = state.copyWith(hideChatAppBarOnScroll: enabled);
     _saveSettings();
   }
 

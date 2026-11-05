@@ -7154,6 +7154,8 @@
   "showUserAvatarSubtitle": "Show your persona avatar next to your messages.",
   "showReasoningTitle": "Thinking process",
   "showReasoningSubtitle": "Show the model's thinking above AI replies.",
+  "hideChatAppBarOnScrollTitle": "Hide top bar while scrolling",
+  "hideChatAppBarOnScrollSubtitle": "Scroll down in chat to hide the top bar; scroll up to show it again.",
   "showBordersTitle": "Show borders",
   "showBordersSubtitle": "When off, buttons and cards have no outline.",
   "themePresetsSectionTitle": "Theme colors",

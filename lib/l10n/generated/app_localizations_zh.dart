@@ -6579,6 +6579,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get showReasoningSubtitle => '在 AI 回复上方显示思考内容。';
 
   @override
+  String get hideChatAppBarOnScrollTitle => '滚动时隐藏顶栏';
+
+  @override
+  String get hideChatAppBarOnScrollSubtitle => '在聊天里向下滚动会隐藏顶栏，向上滚动再显示。';
+
+  @override
   String get showBordersTitle => '显示边框';
 
   @override
@@ -13376,6 +13382,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get showReasoningSubtitle => '在 AI 回覆上方顯示思考內容。';
+
+  @override
+  String get hideChatAppBarOnScrollTitle => '捲動時隱藏頂欄';
+
+  @override
+  String get hideChatAppBarOnScrollSubtitle => '在聊天裡向下捲動會隱藏頂欄，向上捲動再顯示。';
 
   @override
   String get showBordersTitle => '顯示邊框';

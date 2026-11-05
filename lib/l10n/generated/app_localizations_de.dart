@@ -6845,6 +6845,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Show the model\'s thinking above AI replies.';
 
   @override
+  String get hideChatAppBarOnScrollTitle => 'Hide top bar while scrolling';
+
+  @override
+  String get hideChatAppBarOnScrollSubtitle =>
+      'Scroll down in chat to hide the top bar; scroll up to show it again.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

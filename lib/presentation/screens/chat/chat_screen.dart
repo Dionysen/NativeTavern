@@ -134,6 +134,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   /// True while the user is scrolling toward older messages (list top).
   bool _scrollingTowardTop = false;
 
+  /// Chat top bar visibility when [AppSettings.hideChatAppBarOnScroll] is on.
+  bool _chatAppBarVisible = true;
+
+  /// Accumulated user scroll delta for hide/show thresholding.
+  double _appBarScrollAccumulator = 0;
+
   /// Bumped to cancel in-flight forced scroll-to-bottom passes.
   int _scrollToBottomGeneration = 0;
 
@@ -184,6 +190,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _initialMessageJumpScheduled = false;
       _highlightedMessageId = null;
       _messageKeys.clear();
+      _chatAppBarVisible = true;
+      _appBarScrollAccumulator = 0;
     }
   }
 
@@ -372,6 +380,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (notification is ScrollStartNotification &&
         notification.dragDetails != null) {
       _userInteractingWithScroll = true;
+      _appBarScrollAccumulator = 0;
       // Cancel pending forced jump-to-end so a late post-frame pass cannot
       // yank the viewport after the user starts scrolling again.
       _scrollToBottomGeneration++;
@@ -387,11 +396,55 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     } else if (notification is ScrollEndNotification) {
       _userInteractingWithScroll = false;
       _scrollingTowardTop = false;
+      _appBarScrollAccumulator = 0;
     }
+    _updateChatAppBarVisibilityFromScroll(notification);
     if (notification is ScrollUpdateNotification ||
         notification is ScrollEndNotification ||
         notification is UserScrollNotification) {
       _syncScrollToBottomButton();
+    }
+  }
+
+  static const double _appBarHideScrollThreshold = 12;
+
+  void _updateChatAppBarVisibilityFromScroll(ScrollNotification notification) {
+    final hideOnScroll =
+        ref.read(appSettingsProvider).hideChatAppBarOnScroll;
+    if (!hideOnScroll) {
+      if (!_chatAppBarVisible) {
+        setState(() => _chatAppBarVisible = true);
+      }
+      return;
+    }
+
+    // Always reveal when the user reaches the top of the history.
+    if (notification.metrics.pixels <= 0) {
+      if (!_chatAppBarVisible) {
+        setState(() => _chatAppBarVisible = true);
+      }
+      _appBarScrollAccumulator = 0;
+      return;
+    }
+
+    if (notification is! ScrollUpdateNotification) return;
+    final delta = notification.scrollDelta;
+    if (delta == null || delta == 0) return;
+
+    // Ignore programmatic jumps (send / regenerate / jump-to-latest).
+    final userDriven =
+        _userInteractingWithScroll || notification.dragDetails != null;
+    if (!userDriven) return;
+
+    _appBarScrollAccumulator += delta;
+    if (_appBarScrollAccumulator > _appBarHideScrollThreshold &&
+        _chatAppBarVisible) {
+      setState(() => _chatAppBarVisible = false);
+      _appBarScrollAccumulator = 0;
+    } else if (_appBarScrollAccumulator < -_appBarHideScrollThreshold &&
+        !_chatAppBarVisible) {
+      setState(() => _chatAppBarVisible = true);
+      _appBarScrollAccumulator = 0;
     }
   }
 
@@ -1281,6 +1334,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       },
       child: AdaptiveScaffold(
         appBar: _buildAppBar(chatState),
+        appBarVisible: !ref.watch(
+              appSettingsProvider.select((s) => s.hideChatAppBarOnScroll),
+            ) ||
+            _chatAppBarVisible,
         body: ChatBackgroundWidget(
           characterId: chatState.character?.id,
           child: SafeArea(

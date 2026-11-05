@@ -7044,6 +7044,8 @@
   "showUserAvatarSubtitle": "在你的消息旁边显示人设头像。",
   "showReasoningTitle": "思考过程",
   "showReasoningSubtitle": "在 AI 回复上方显示思考内容。",
+  "hideChatAppBarOnScrollTitle": "滚动时隐藏顶栏",
+  "hideChatAppBarOnScrollSubtitle": "在聊天里向下滚动会隐藏顶栏，向上滚动再显示。",
   "showBordersTitle": "显示边框",
   "showBordersSubtitle": "关闭后按钮和卡片没有边框",
   "themePresetsSectionTitle": "主题颜色",
