@@ -6589,7 +6589,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get neutralizeMessageHtmlStyleSubtitle =>
-      '把角色卡 HTML 的背景改成透明，并用你的聊天文字颜色，方便透出你设置的背景。';
+      '用你的聊天气泡色和文字色替换角色卡 HTML 自带底色。这不会改气泡本身；若气泡发白，请到外观里调整「角色气泡」颜色。';
 
   @override
   String get showBordersTitle => '显示边框';

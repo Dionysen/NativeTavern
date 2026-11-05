@@ -5,6 +5,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/widgets/chat/dialogue_quote_style.dart';
 import 'package:native_tavern/presentation/widgets/chat/html_webview_widget.dart';
@@ -93,6 +94,24 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       caseSensitive: false,
     );
     return htmlPattern.hasMatch(text);
+  }
+
+  /// Theme-matching fill for HTML WebViews. Avoids a pure-white WebView plate
+  /// on dark themes when the native surface cannot paint transparent.
+  Color _htmlSurfaceColor(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final chat = context.appChatColors;
+    final base =
+        widget.isUser ? chat.userBubble : chat.characterBubble;
+    final dark = scheme.brightness == Brightness.dark;
+    final luminance = base.computeLuminance();
+    if (dark && luminance > 0.55) {
+      return scheme.surfaceContainerHigh;
+    }
+    if (!dark && luminance < 0.2) {
+      return scheme.surfaceContainerHigh;
+    }
+    return base;
   }
 
   /// Check if content contains Markdown syntax
@@ -249,8 +268,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       // Generate a content key that changes when streaming ends, forcing a re-render
       final contentKey =
           '${widget.messageId ?? widget.content.hashCode}_v$_contentVersion';
+      final surface = _htmlSurfaceColor(context);
       contentWidget = HtmlWebViewWidget(
         htmlContent: widget.content,
+        backgroundColor: surface,
         textColor: widget.textColor,
         dialogueColor: dialogueColor,
         fontSize:

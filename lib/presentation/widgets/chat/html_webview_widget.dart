@@ -149,6 +149,10 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
     final dialogueColorHex = _colorToHex(
       widget.dialogueColor ?? widget.textColor,
     );
+    // Prefer theme bubble color over pure transparent: native WebViews often
+    // still paint an opaque white plate even with transparentBackground=true.
+    final surfaceHex = _colorToHex(widget.backgroundColor);
+    final pageBackground = widget.neutralizeStyle ? surfaceHex : 'transparent';
     final content = wrapDialogueQuotesInHtml(
       widget.htmlContent.replaceAllMapped(
         RegExp(r'<details\b', caseSensitive: false),
@@ -170,8 +174,8 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
     html, body {
       margin: 0;
       padding: 0;
-      background: transparent !important;
-      background-color: transparent !important;
+      background: $pageBackground !important;
+      background-color: $pageBackground !important;
       color: $textColorHex;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       font-size: ${effectiveFontSize}px;
@@ -254,8 +258,13 @@ $content
 ${widget.neutralizeStyle ? '''
 <style id="nt-html-chrome-reset">
   /* Character cards often ship opaque fills/colors that fight the chat theme.
-     Placed after content so it wins over embedded <style> / inline rules. */
-  html, body,
+     Placed after content so it wins over embedded <style> / inline rules.
+     Use the theme bubble surface (not pure transparent) so a non-transparent
+     native WebView plate does not flash white on dark themes. */
+  html, body {
+    background: $surfaceHex !important;
+    background-color: $surfaceHex !important;
+  }
   #measure-root,
   #measure-root *:not(img):not(svg):not(canvas):not(video):not(source) {
     background: transparent !important;
@@ -591,7 +600,9 @@ ${widget.neutralizeStyle ? '''
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
-        color: Colors.transparent,
+        color: widget.neutralizeStyle
+            ? widget.backgroundColor
+            : Colors.transparent,
         clipBehavior: Clip.none,
         constraints: BoxConstraints(
           minHeight: _minHeight,
@@ -676,13 +687,18 @@ ${widget.neutralizeStyle ? '''
                 if (mounted) {
                   setState(() => _isLoading = false);
                 }
-                // Keep the platform view clear even if card CSS fights us.
-                await controller.evaluateJavascript(source: '''
-                  document.documentElement.style.setProperty('background','transparent','important');
-                  document.documentElement.style.setProperty('background-color','transparent','important');
-                  document.body && document.body.style.setProperty('background','transparent','important');
-                  document.body && document.body.style.setProperty('background-color','transparent','important');
-                ''');
+                // Re-apply theme surface after load; card CSS may fight us.
+                if (widget.neutralizeStyle) {
+                  final surfaceHex = _colorToHex(widget.backgroundColor);
+                  await controller.evaluateJavascript(source: '''
+                    document.documentElement.style.setProperty('background','$surfaceHex','important');
+                    document.documentElement.style.setProperty('background-color','$surfaceHex','important');
+                    if (document.body) {
+                      document.body.style.setProperty('background','$surfaceHex','important');
+                      document.body.style.setProperty('background-color','$surfaceHex','important');
+                    }
+                  ''');
+                }
                 // Trigger height calculation
                 await controller.evaluateJavascript(source: 'sendHeight();');
                 

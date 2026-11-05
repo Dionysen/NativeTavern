@@ -6856,7 +6856,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get neutralizeMessageHtmlStyleSubtitle =>
-      'Make character-card HTML backgrounds transparent and use your chat text color, so your background can show through.';
+      'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.';
 
   @override
   String get showBordersTitle => 'Show borders';

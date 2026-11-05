@@ -12174,7 +12174,7 @@ abstract class AppLocalizations {
   /// No description provided for @neutralizeMessageHtmlStyleSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Make character-card HTML backgrounds transparent and use your chat text color, so your background can show through.'**
+  /// **'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.'**
   String get neutralizeMessageHtmlStyleSubtitle;
 
   /// No description provided for @showBordersTitle.
