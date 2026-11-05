@@ -2,11 +2,83 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
+import 'package:native_tavern/presentation/providers/settings_providers.dart';
+import 'package:native_tavern/presentation/screens/character/character_view_mode.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Note: characterRepositoryProvider is defined in character_repository.dart
 
 /// Selected character state
 final selectedCharacterIdProvider = StateProvider<String?>((ref) => null);
+
+const _characterViewModeKey = 'character_browse_view_mode';
+const _characterAvatarShapeKey = 'character_browse_avatar_shape';
+
+class CharacterBrowseDisplayPrefs {
+  const CharacterBrowseDisplayPrefs({
+    required this.viewMode,
+    required this.avatarShape,
+  });
+
+  final CharacterViewMode viewMode;
+  final CharacterAvatarShape avatarShape;
+
+  CharacterBrowseDisplayPrefs copyWith({
+    CharacterViewMode? viewMode,
+    CharacterAvatarShape? avatarShape,
+  }) {
+    return CharacterBrowseDisplayPrefs(
+      viewMode: viewMode ?? this.viewMode,
+      avatarShape: avatarShape ?? this.avatarShape,
+    );
+  }
+}
+
+final characterBrowseDisplayPrefsProvider = StateNotifierProvider<
+    CharacterBrowseDisplayPrefsNotifier, CharacterBrowseDisplayPrefs>((ref) {
+  return CharacterBrowseDisplayPrefsNotifier(
+    ref.watch(sharedPreferencesProvider),
+  );
+});
+
+class CharacterBrowseDisplayPrefsNotifier
+    extends StateNotifier<CharacterBrowseDisplayPrefs> {
+  CharacterBrowseDisplayPrefsNotifier(this._prefs)
+      : super(
+          CharacterBrowseDisplayPrefs(
+            viewMode: _readViewMode(_prefs),
+            avatarShape: _readAvatarShape(_prefs),
+          ),
+        );
+
+  final SharedPreferences _prefs;
+
+  static CharacterViewMode _readViewMode(SharedPreferences prefs) {
+    final raw = prefs.getString(_characterViewModeKey);
+    return CharacterViewMode.values.asNameMap()[raw] ??
+        CharacterViewMode.compactGrid;
+  }
+
+  static CharacterAvatarShape _readAvatarShape(SharedPreferences prefs) {
+    final raw = prefs.getString(_characterAvatarShapeKey);
+    return CharacterAvatarShape.values.asNameMap()[raw] ??
+        CharacterAvatarShape.circle;
+  }
+
+  Future<void> setViewMode(CharacterViewMode viewMode) async {
+    state = state.copyWith(viewMode: viewMode);
+    await _prefs.setString(_characterViewModeKey, viewMode.name);
+  }
+
+  Future<void> setAvatarShape(CharacterAvatarShape avatarShape) async {
+    state = state.copyWith(avatarShape: avatarShape);
+    await _prefs.setString(_characterAvatarShapeKey, avatarShape.name);
+  }
+
+  Future<void> cycleViewMode() => setViewMode(state.viewMode.next);
+
+  Future<void> cycleAvatarShape() => setAvatarShape(state.avatarShape.next);
+}
 
 /// Character details, invalidated after editor writes so open screens refresh.
 final characterDetailProvider =

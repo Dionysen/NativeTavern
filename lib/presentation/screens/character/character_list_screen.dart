@@ -32,8 +32,6 @@ class CharacterListScreen extends ConsumerStatefulWidget {
 
 class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   String _searchQuery = '';
-  CharacterViewMode _viewMode = CharacterViewMode.compactGrid;
-  CharacterAvatarShape _avatarShape = CharacterAvatarShape.circle;
   Timer? _searchDebounce;
   bool _selectionMode = false;
   final Set<String> _selectedCharacterIds = {};
@@ -144,6 +142,9 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     final browseFolderId = ref.watch(characterBrowseFolderIdProvider);
     final tagFilter = ref.watch(characterBrowseTagFilterProvider);
     final foldersAsync = ref.watch(characterFoldersProvider);
+    final displayPrefs = ref.watch(characterBrowseDisplayPrefsProvider);
+    final viewMode = displayPrefs.viewMode;
+    final avatarShape = displayPrefs.avatarShape;
     final folderTitle = browseFolderId == null
         ? null
         : foldersAsync.valueOrNull
@@ -232,17 +233,20 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
               tooltip: l10n.characterListSelectMode,
               onPressed: () => _enterSelectionMode(),
             ),
-            if (_viewMode == CharacterViewMode.list)
+            if (viewMode == CharacterViewMode.list)
               ChromeIconButton(
-                icon: Icon(_avatarShape.icon),
-                onPressed: () =>
-                    setState(() => _avatarShape = _avatarShape.next),
-                tooltip: _avatarShape.getDisplayName(l10n),
+                icon: Icon(avatarShape.icon),
+                onPressed: () => ref
+                    .read(characterBrowseDisplayPrefsProvider.notifier)
+                    .cycleAvatarShape(),
+                tooltip: avatarShape.getDisplayName(l10n),
               ),
             ChromeIconButton(
-              icon: _getViewModeIcon(),
-              onPressed: () => setState(() => _viewMode = _viewMode.next),
-              tooltip: _viewMode.getDisplayName(l10n),
+              icon: _getViewModeIcon(viewMode),
+              onPressed: () => ref
+                  .read(characterBrowseDisplayPrefsProvider.notifier)
+                  .cycleViewMode(),
+              tooltip: viewMode.getDisplayName(l10n),
             ),
             ChromeIconButton(
               icon: const Icon(Icons.add),
@@ -381,59 +385,61 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     required Set<String> tagFilter,
     required AsyncValue<List<CharacterFolder>> foldersAsync,
   }) {
-                  final showFolders = browseFolderId == null &&
-                      _searchQuery.isEmpty &&
-                      tagFilter.isEmpty &&
-                      !_selectionMode;
-                  final folders =
-                      foldersAsync.valueOrNull ?? const <CharacterFolder>[];
+    final displayPrefs = ref.watch(characterBrowseDisplayPrefsProvider);
+    final viewMode = displayPrefs.viewMode;
+    final avatarShape = displayPrefs.avatarShape;
+    final showFolders = browseFolderId == null &&
+        _searchQuery.isEmpty &&
+        tagFilter.isEmpty &&
+        !_selectionMode;
+    final folders = foldersAsync.valueOrNull ?? const <CharacterFolder>[];
 
-                  if (characters.isEmpty && (!showFolders || folders.isEmpty)) {
-                    return const _EmptyState();
-                  }
+    if (characters.isEmpty && (!showFolders || folders.isEmpty)) {
+      return const _EmptyState();
+    }
 
-                  final interaction = _CharacterTileInteraction(
-                    selectionMode: _selectionMode,
-                    selectedIds: _selectedCharacterIds,
-                    onToggleSelect: _toggleCharacterSelection,
-                  );
+    final interaction = _CharacterTileInteraction(
+      selectionMode: _selectionMode,
+      selectedIds: _selectedCharacterIds,
+      onToggleSelect: _toggleCharacterSelection,
+    );
 
-                  final visibleFolders = showFolders ? folders : const <CharacterFolder>[];
-                  void openFolderActions(CharacterFolder folder) {
-                    showCharacterFolderActions(context, ref, folder);
-                  }
+    final visibleFolders = showFolders ? folders : const <CharacterFolder>[];
+    void openFolderActions(CharacterFolder folder) {
+      showCharacterFolderActions(context, ref, folder);
+    }
 
-                  switch (_viewMode) {
-                    case CharacterViewMode.list:
-                      return _CharacterListView(
-                        folders: visibleFolders,
-                        characters: characters,
-                        avatarShape: _avatarShape,
-                        interaction: interaction,
-                        onOpenFolder: _openFolder,
-                        onFolderActions: openFolderActions,
-                      );
-                    case CharacterViewMode.grid:
-                      return _CharacterGridView(
-                        folders: visibleFolders,
-                        characters: characters,
-                        interaction: interaction,
-                        onOpenFolder: _openFolder,
-                        onFolderActions: openFolderActions,
-                      );
-                    case CharacterViewMode.compactGrid:
-                      return _CharacterCompactGridView(
-                        folders: visibleFolders,
-                        characters: characters,
-                        interaction: interaction,
-                        onOpenFolder: _openFolder,
-                        onFolderActions: openFolderActions,
-                      );
-                  }
+    switch (viewMode) {
+      case CharacterViewMode.list:
+        return _CharacterListView(
+          folders: visibleFolders,
+          characters: characters,
+          avatarShape: avatarShape,
+          interaction: interaction,
+          onOpenFolder: _openFolder,
+          onFolderActions: openFolderActions,
+        );
+      case CharacterViewMode.grid:
+        return _CharacterGridView(
+          folders: visibleFolders,
+          characters: characters,
+          interaction: interaction,
+          onOpenFolder: _openFolder,
+          onFolderActions: openFolderActions,
+        );
+      case CharacterViewMode.compactGrid:
+        return _CharacterCompactGridView(
+          folders: visibleFolders,
+          characters: characters,
+          interaction: interaction,
+          onOpenFolder: _openFolder,
+          onFolderActions: openFolderActions,
+        );
+    }
   }
 
-  Icon _getViewModeIcon() {
-    switch (_viewMode) {
+  Icon _getViewModeIcon(CharacterViewMode viewMode) {
+    switch (viewMode) {
       case CharacterViewMode.list:
         return const Icon(Icons.list);
       case CharacterViewMode.grid:
