@@ -496,9 +496,13 @@
   "@clear": {
     "description": "Clear button"
   },
-  "thinking": "思考中",
+  "thinking": "思考",
   "@thinking": {
-    "description": "Thinking/reasoning label"
+    "description": "Completed thinking/reasoning section label"
+  },
+  "thinkingInProgress": "思考中",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
   },
   "noSwipesAvailable": "没有可用的滑动",
   "@noSwipesAvailable": {
@@ -7035,6 +7039,8 @@
   "showCharacterAvatarSubtitle": "在角色消息旁边显示头像。",
   "showUserAvatarTitle": "用户头像",
   "showUserAvatarSubtitle": "在你的消息旁边显示人设头像。",
+  "showReasoningTitle": "思考过程",
+  "showReasoningSubtitle": "在 AI 回复上方显示思考内容。",
   "showBordersTitle": "显示边框",
   "showBordersSubtitle": "关闭后按钮和卡片没有边框",
   "themePresetsSectionTitle": "主题颜色",

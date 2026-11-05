@@ -799,6 +799,7 @@ class AppSettings {
   final String chatLayoutMode;
   final bool showCharacterAvatar;
   final bool showUserAvatar;
+  final bool showReasoning;
   final bool memoryAutoExtractionEnabled;
   final bool memoryContextEnabled;
   final bool memorySemanticSearchEnabled;
@@ -823,6 +824,7 @@ class AppSettings {
     this.chatLayoutMode = 'bubble',
     this.showCharacterAvatar = true,
     this.showUserAvatar = true,
+    this.showReasoning = true,
     this.memoryAutoExtractionEnabled = false,
     this.memoryContextEnabled = true,
     this.memorySemanticSearchEnabled = false,
@@ -848,6 +850,7 @@ class AppSettings {
     String? chatLayoutMode,
     bool? showCharacterAvatar,
     bool? showUserAvatar,
+    bool? showReasoning,
     bool? memoryAutoExtractionEnabled,
     bool? memoryContextEnabled,
     bool? memorySemanticSearchEnabled,
@@ -875,6 +878,7 @@ class AppSettings {
       showCharacterAvatar:
           showCharacterAvatar ?? this.showCharacterAvatar,
       showUserAvatar: showUserAvatar ?? this.showUserAvatar,
+      showReasoning: showReasoning ?? this.showReasoning,
       memoryAutoExtractionEnabled:
           memoryAutoExtractionEnabled ?? this.memoryAutoExtractionEnabled,
       memoryContextEnabled: memoryContextEnabled ?? this.memoryContextEnabled,
@@ -905,6 +909,7 @@ class AppSettings {
         'chatLayoutMode': chatLayoutMode,
         'showCharacterAvatar': showCharacterAvatar,
         'showUserAvatar': showUserAvatar,
+        'showReasoning': showReasoning,
         'memoryAutoExtractionEnabled': memoryAutoExtractionEnabled,
         'memoryContextEnabled': memoryContextEnabled,
         'memorySemanticSearchEnabled': memorySemanticSearchEnabled,
@@ -933,6 +938,7 @@ class AppSettings {
       chatLayoutMode: json['chatLayoutMode'] as String? ?? 'bubble',
       showCharacterAvatar: json['showCharacterAvatar'] as bool? ?? true,
       showUserAvatar: json['showUserAvatar'] as bool? ?? true,
+      showReasoning: json['showReasoning'] as bool? ?? true,
       memoryAutoExtractionEnabled:
           json['memoryAutoExtractionEnabled'] as bool? ?? false,
       memoryContextEnabled: json['memoryContextEnabled'] as bool? ?? true,
@@ -1095,6 +1101,11 @@ class AppSettingsNotifier extends StateNotifier<AppSettings> {
 
   void updateShowUserAvatar(bool enabled) {
     state = state.copyWith(showUserAvatar: enabled);
+    _saveSettings();
+  }
+
+  void updateShowReasoning(bool enabled) {
+    state = state.copyWith(showReasoning: enabled);
     _saveSettings();
   }
 

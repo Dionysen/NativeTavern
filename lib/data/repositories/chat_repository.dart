@@ -180,7 +180,7 @@ class ChatRepository {
             currentSwipeIndex: Value(newMessage.currentSwipeIndex),
             characterId: Value(newMessage.characterId),
             characterName: Value(newMessage.characterName),
-            metadataJson: Value(jsonEncode(newMessage.metadata)),
+            metadataJson: Value(_encodeMessageMetadata(newMessage)),
             attachmentsJson: Value(
               jsonEncode(
                 newMessage.attachments.map((a) => a.toJson()).toList(),
@@ -208,7 +208,7 @@ class ChatRepository {
         currentSwipeIndex: Value(message.currentSwipeIndex),
         characterId: Value(message.characterId),
         characterName: Value(message.characterName),
-        metadataJson: Value(jsonEncode(message.metadata)),
+        metadataJson: Value(_encodeMessageMetadata(message)),
         attachmentsJson: Value(
           jsonEncode(message.attachments.map((a) => a.toJson()).toList()),
         ),
@@ -309,6 +309,7 @@ class ChatRepository {
   }
 
   models.ChatMessage _messageFromRow(db.Message row) {
+    final parsed = _decodeMessageMetadata(row.metadataJson);
     return models.ChatMessage(
       id: row.id,
       chatId: row.chatId,
@@ -322,8 +323,10 @@ class ChatRepository {
       currentSwipeIndex: row.currentSwipeIndex,
       characterId: row.characterId,
       characterName: row.characterName,
-      metadata: _parseMetadata(row.metadataJson),
+      metadata: parsed.metadata,
       attachments: _parseAttachments(row.attachmentsJson),
+      reasoning: parsed.reasoning,
+      reasoningSwipes: parsed.reasoningSwipes,
     );
   }
 
@@ -356,5 +359,51 @@ class ChatRepository {
     } catch (_) {
       return const {};
     }
+  }
+
+  /// Reserved metadata keys for persisting thinking without a schema bump.
+  static const _reasoningKey = '__nt_reasoning';
+  static const _reasoningSwipesKey = '__nt_reasoning_swipes';
+
+  String _encodeMessageMetadata(models.ChatMessage message) {
+    final map = Map<String, dynamic>.from(message.metadata);
+    map.remove(_reasoningKey);
+    map.remove(_reasoningSwipesKey);
+    final reasoning = message.reasoning;
+    if (reasoning != null && reasoning.isNotEmpty) {
+      map[_reasoningKey] = reasoning;
+    }
+    final swipes = message.reasoningSwipes;
+    if (swipes != null && swipes.isNotEmpty) {
+      map[_reasoningSwipesKey] = swipes;
+    }
+    return jsonEncode(map);
+  }
+
+  ({
+    Map<String, dynamic> metadata,
+    String? reasoning,
+    List<String>? reasoningSwipes,
+  }) _decodeMessageMetadata(String json) {
+    final map = _parseMetadata(json);
+    final reasoningRaw = map.remove(_reasoningKey);
+    final swipesRaw = map.remove(_reasoningSwipesKey);
+
+    String? reasoning;
+    if (reasoningRaw is String && reasoningRaw.isNotEmpty) {
+      reasoning = reasoningRaw;
+    }
+
+    List<String>? reasoningSwipes;
+    if (swipesRaw is List) {
+      final parsed = swipesRaw.whereType<String>().toList();
+      if (parsed.isNotEmpty) reasoningSwipes = parsed;
+    }
+
+    return (
+      metadata: map,
+      reasoning: reasoning,
+      reasoningSwipes: reasoningSwipes,
+    );
   }
 }

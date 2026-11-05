@@ -432,7 +432,7 @@ class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
                           selectable: true,
                         )
                       : Text(
-                          AppLocalizations.of(context)!.thinking,
+                          AppLocalizations.of(context)!.thinkingInProgress,
                           style: TextStyle(
                             color: AppTheme.textMuted,
                             fontStyle: FontStyle.italic,

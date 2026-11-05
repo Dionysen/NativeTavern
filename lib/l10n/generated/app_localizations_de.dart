@@ -365,6 +365,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get thinking => 'Denkt nach';
 
   @override
+  String get thinkingInProgress => 'Thinking…';
+
+  @override
   String get noSwipesAvailable => 'Keine Swipes verfügbar';
 
   @override
@@ -6823,6 +6826,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get showUserAvatarSubtitle =>
       'Show your persona avatar next to your messages.';
+
+  @override
+  String get showReasoningTitle => 'Thinking process';
+
+  @override
+  String get showReasoningSubtitle =>
+      'Show the model\'s thinking above AI replies.';
 
   @override
   String get showBordersTitle => 'Show borders';

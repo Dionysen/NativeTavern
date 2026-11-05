@@ -1288,10 +1288,32 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       newIndex--;
     }
 
+    List<String>? updatedReasoningSwipes = message.reasoningSwipes;
+    String? updatedReasoning = message.reasoning;
+    var clearReasoning = false;
+    if (message.reasoningSwipes != null) {
+      final next = List<String>.from(message.reasoningSwipes!);
+      if (swipeIndex < next.length) {
+        next.removeAt(swipeIndex);
+      }
+      if (next.isEmpty) {
+        updatedReasoningSwipes = null;
+        updatedReasoning = null;
+        clearReasoning = true;
+      } else {
+        updatedReasoningSwipes = next;
+        updatedReasoning =
+            newIndex < next.length ? next[newIndex] : next.last;
+      }
+    }
+
     final updatedMessage = message.copyWith(
       content: updatedSwipes[newIndex],
       swipes: updatedSwipes,
       currentSwipeIndex: newIndex,
+      clearReasoning: clearReasoning,
+      reasoning: updatedReasoning,
+      reasoningSwipes: updatedReasoningSwipes,
       metadata: removeDataBankContextMetadataAt(
         metadata: message.metadata,
         swipeIndex: swipeIndex,

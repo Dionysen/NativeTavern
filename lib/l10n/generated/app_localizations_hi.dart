@@ -363,6 +363,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get thinking => 'सोच रहा है';
 
   @override
+  String get thinkingInProgress => 'Thinking…';
+
+  @override
   String get noSwipesAvailable => 'कोई स्वाइप उपलब्ध नहीं';
 
   @override
@@ -6818,6 +6821,13 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get showUserAvatarSubtitle =>
       'Show your persona avatar next to your messages.';
+
+  @override
+  String get showReasoningTitle => 'Thinking process';
+
+  @override
+  String get showReasoningSubtitle =>
+      'Show the model\'s thinking above AI replies.';
 
   @override
   String get showBordersTitle => 'Show borders';

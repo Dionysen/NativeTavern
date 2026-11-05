@@ -280,6 +280,11 @@ class _VisualNovelMessageViewState
 
   /// Build the reasoning/thinking section for AI messages
   Widget _buildReasoningSection(ChatMessage message, bool isStreaming) {
+    final showReasoning = ref.watch(
+      appSettingsProvider.select((s) => s.showReasoning),
+    );
+    if (!showReasoning) return const SizedBox.shrink();
+
     final l10n = AppLocalizations.of(context);
     final reasoning = message.currentReasoning;
     if (reasoning == null || reasoning.isEmpty) {
@@ -293,7 +298,7 @@ class _VisualNovelMessageViewState
         child: StreamingReasoningWidget(
           reasoning: reasoning,
           isStreaming: true,
-          label: l10n.thinking,
+          label: l10n.thinkingInProgress,
         ),
       );
     }

@@ -496,9 +496,13 @@
   "@clear": {
     "description": "Clear button"
   },
-  "thinking": "思考中",
+  "thinking": "思考",
   "@thinking": {
-    "description": "Thinking/reasoning label"
+    "description": "Completed thinking/reasoning section label"
+  },
+  "thinkingInProgress": "思考中",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
   },
   "noSwipesAvailable": "沒有可用的滑動",
   "@noSwipesAvailable": {
@@ -6983,6 +6987,8 @@
   "showCharacterAvatarSubtitle": "在角色訊息旁邊顯示頭像。",
   "showUserAvatarTitle": "使用者頭像",
   "showUserAvatarSubtitle": "在你的訊息旁邊顯示人設頭像。",
+  "showReasoningTitle": "思考過程",
+  "showReasoningSubtitle": "在 AI 回覆上方顯示思考內容。",
   "showBordersTitle": "顯示邊框",
   "showBordersSubtitle": "關閉後按钮和卡片没有邊框",
   "themePresetsSectionTitle": "主題顏色",

@@ -769,11 +769,17 @@ abstract class AppLocalizations {
   /// **'Clear'**
   String get clear;
 
-  /// Thinking/reasoning label
+  /// Completed thinking/reasoning section label
   ///
   /// In en, this message translates to:
   /// **'Thinking'**
   String get thinking;
+
+  /// Label while model thinking/reasoning is still streaming
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking…'**
+  String get thinkingInProgress;
 
   /// No swipes available message
   ///
@@ -12116,6 +12122,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show your persona avatar next to your messages.'**
   String get showUserAvatarSubtitle;
+
+  /// No description provided for @showReasoningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking process'**
+  String get showReasoningTitle;
+
+  /// No description provided for @showReasoningSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the model\'s thinking above AI replies.'**
+  String get showReasoningSubtitle;
 
   /// No description provided for @showBordersTitle.
   ///

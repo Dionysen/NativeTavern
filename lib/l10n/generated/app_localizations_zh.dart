@@ -351,7 +351,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get clear => '清空';
 
   @override
-  String get thinking => '思考中';
+  String get thinking => '思考';
+
+  @override
+  String get thinkingInProgress => '思考中';
 
   @override
   String get noSwipesAvailable => '没有可用的滑动';
@@ -6561,6 +6564,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get showUserAvatarSubtitle => '在你的消息旁边显示人设头像。';
 
   @override
+  String get showReasoningTitle => '思考过程';
+
+  @override
+  String get showReasoningSubtitle => '在 AI 回复上方显示思考内容。';
+
+  @override
   String get showBordersTitle => '显示边框';
 
   @override
@@ -7131,7 +7140,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get clear => '清除';
 
   @override
-  String get thinking => '思考中';
+  String get thinking => '思考';
+
+  @override
+  String get thinkingInProgress => '思考中';
 
   @override
   String get noSwipesAvailable => '沒有可用的滑動';
@@ -13340,6 +13352,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get showUserAvatarSubtitle => '在你的訊息旁邊顯示人設頭像。';
+
+  @override
+  String get showReasoningTitle => '思考過程';
+
+  @override
+  String get showReasoningSubtitle => '在 AI 回覆上方顯示思考內容。';
 
   @override
   String get showBordersTitle => '顯示邊框';
