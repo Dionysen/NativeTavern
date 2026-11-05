@@ -1061,10 +1061,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _onSlashCommandSelected(SlashCommand command) {
     // Fill in the command with a space for argument
     _messageController.text = '/${command.name} ';
-    _messageController.selection = TextSelection.fromPosition(
-      TextPosition(offset: _messageController.text.length),
-    );
     setState(() => _showSlashSuggestions = false);
+    _focusMessageInputAtEnd();
+  }
+
+  void _focusMessageInputAtEnd() {
+    final length = _messageController.text.length;
+    _messageController.selection = TextSelection.collapsed(offset: length);
     _focusNode.requestFocus();
   }
 
@@ -2401,7 +2404,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     } else {
       // Fill input field
       _messageController.text = message;
-      _focusNode.requestFocus();
+      _focusMessageInputAtEnd();
     }
   }
 
@@ -2412,27 +2415,33 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return SafeArea(
       top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 6, 14, 10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_pendingAttachments.isNotEmpty) ...[
-              _buildAttachmentsPreview(),
-              const SizedBox(height: 8),
-            ],
-            CompositedTransformTarget(
-              link: _inputMenuLayerLink,
-              child: DecoratedBox(
-                decoration: ZephyrChatChrome.composerShell(context),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
-                      child: MarkdownInputField(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: _focusMessageInputAtEnd,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 6, 14, 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_pendingAttachments.isNotEmpty) ...[
+                _buildAttachmentsPreview(),
+                const SizedBox(height: 8),
+              ],
+              CompositedTransformTarget(
+                link: _inputMenuLayerLink,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _focusMessageInputAtEnd,
+                  child: DecoratedBox(
+                    decoration: ZephyrChatChrome.composerShell(context),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
+                          child: MarkdownInputField(
                         controller: _messageController,
                         focusNode: _focusNode,
                         maxLines: 5,
@@ -2444,32 +2453,38 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             ? TextInputAction.send
                             : TextInputAction.newline,
                         showToolbar: false,
-                        decoration:
-                            ZephyrChatChrome.composerFieldDecoration(
-                          context,
-                          hintText: l10n.typeMessage,
+                          decoration:
+                              ZephyrChatChrome.composerFieldDecoration(
+                            context,
+                            hintText: l10n.typeMessage,
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 6),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          ChromeIconButton(
-                            density: ChromeIconButtonDensity.compact,
-                            onPressed: () =>
-                                _setInputMenuVisible(!_showInputMenu),
-                            tooltip: l10n.moreOptions,
-                            icon: Icon(
-                              _showInputMenu
-                                  ? Icons.close_rounded
-                                  : Icons.menu_rounded,
-                              size: 22,
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 6),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ChromeIconButton(
+                              density: ChromeIconButtonDensity.compact,
+                              onPressed: () =>
+                                  _setInputMenuVisible(!_showInputMenu),
+                              tooltip: l10n.moreOptions,
+                              icon: Icon(
+                                _showInputMenu
+                                    ? Icons.close_rounded
+                                    : Icons.menu_rounded,
+                                size: 22,
+                              ),
                             ),
-                          ),
-                          const Spacer(),
-                          ChatVoiceInputButton(
+                            Expanded(
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                onTap: _focusMessageInputAtEnd,
+                                child: const SizedBox(height: 34),
+                              ),
+                            ),
+                            ChatVoiceInputButton(
                             controller: _messageController,
                             onAutoSend: _sendMessage,
                           ),
@@ -2513,15 +2528,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
