@@ -1219,6 +1219,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get characterListSelectMode => '选择';
 
   @override
+  String get characterSearchScopeFolder => '仅搜索当前文件夹';
+
+  @override
+  String get characterSearchScopeGlobal => '搜索全部角色';
+
+  @override
   String get create => '创建';
 
   @override
@@ -7892,6 +7898,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get characterListSelectMode => '選擇';
+
+  @override
+  String get characterSearchScopeFolder => '僅搜尋目前資料夾';
+
+  @override
+  String get characterSearchScopeGlobal => '搜尋全部角色';
 
   @override
   String get create => '建立';

@@ -1693,6 +1693,8 @@
   "renameCharacterFolder": "重命名文件夹",
   "characterFoldersSection": "文件夹",
   "characterListSelectMode": "选择",
+  "characterSearchScopeFolder": "仅搜索当前文件夹",
+  "characterSearchScopeGlobal": "搜索全部角色",
   "create": "创建",
   "@create": {
     "description": "Create button"

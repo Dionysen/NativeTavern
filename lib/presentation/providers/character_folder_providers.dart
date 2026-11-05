@@ -5,6 +5,9 @@ import 'package:native_tavern/data/repositories/character_folder_repository.dart
 /// null = library root; otherwise the open folder id.
 final characterBrowseFolderIdProvider = StateProvider<String?>((ref) => null);
 
+/// When true inside a folder, character search spans the whole library.
+final characterSearchGlobalProvider = StateProvider<bool>((ref) => false);
+
 final characterFoldersProvider =
     AsyncNotifierProvider<CharacterFoldersNotifier, List<CharacterFolder>>(
   CharacterFoldersNotifier.new,

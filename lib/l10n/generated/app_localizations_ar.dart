@@ -1234,6 +1234,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get characterListSelectMode => 'Select';
 
   @override
+  String get characterSearchScopeFolder => 'Search this folder only';
+
+  @override
+  String get characterSearchScopeGlobal => 'Search entire library';
+
+  @override
   String get create => 'Create';
 
   @override

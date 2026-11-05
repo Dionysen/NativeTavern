@@ -1744,6 +1744,14 @@
   "@characterListSelectMode": {
     "description": "Enter multi-select mode on the character list"
   },
+  "characterSearchScopeFolder": "Search this folder only",
+  "@characterSearchScopeFolder": {
+    "description": "Tooltip when character search is limited to the open folder"
+  },
+  "characterSearchScopeGlobal": "Search entire library",
+  "@characterSearchScopeGlobal": {
+    "description": "Tooltip when character search includes all characters"
+  },
   "create": "Create",
   "@create": {
     "description": "Create button"

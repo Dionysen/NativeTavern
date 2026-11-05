@@ -1681,6 +1681,8 @@
   "renameCharacterFolder": "重新命名資料夾",
   "characterFoldersSection": "資料夾",
   "characterListSelectMode": "選擇",
+  "characterSearchScopeFolder": "僅搜尋目前資料夾",
+  "characterSearchScopeGlobal": "搜尋全部角色",
   "create": "建立",
   "@create": {
     "description": "Create button"

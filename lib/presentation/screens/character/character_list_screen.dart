@@ -83,6 +83,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   void _leaveFolder() {
     setState(() => _folderEnterForward = false);
     _exitSelectionMode();
+    ref.read(characterSearchGlobalProvider.notifier).state = false;
     ref.read(characterBrowseFolderIdProvider.notifier).state = null;
   }
 
@@ -257,6 +258,14 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
       body: Column(
         children: [
           _SearchBar(
+            showFolderScopeToggle: browseFolderId != null,
+            searchEntireLibrary: ref.watch(characterSearchGlobalProvider),
+            onToggleSearchScope: () {
+              final enableGlobal =
+                  !ref.read(characterSearchGlobalProvider);
+              ref.read(characterSearchGlobalProvider.notifier).state =
+                  enableGlobal;
+            },
             onChanged: (value) {
               setState(() => _searchQuery = value);
               _searchDebounce?.cancel();
@@ -493,9 +502,17 @@ Widget _selectionBadge(BuildContext context, bool selected) {
 }
 
 class _SearchBar extends StatelessWidget {
-  final ValueChanged<String> onChanged;
+  const _SearchBar({
+    required this.onChanged,
+    required this.showFolderScopeToggle,
+    required this.searchEntireLibrary,
+    required this.onToggleSearchScope,
+  });
 
-  const _SearchBar({required this.onChanged});
+  final ValueChanged<String> onChanged;
+  final bool showFolderScopeToggle;
+  final bool searchEntireLibrary;
+  final VoidCallback onToggleSearchScope;
 
   @override
   Widget build(BuildContext context) {
@@ -508,11 +525,30 @@ class _SearchBar extends StatelessWidget {
         decoration: InputDecoration(
           hintText: l10n.searchCharacters,
           prefixIcon: const Icon(Icons.search),
-          suffixIcon: ChromeIconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              // TODO: Show filter options
-            },
+          suffixIcon: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (showFolderScopeToggle)
+                ChromeIconButton(
+                  icon: Icon(
+                    searchEntireLibrary
+                        ? Icons.public
+                        : Icons.folder_outlined,
+                  ),
+                  isSelected: searchEntireLibrary,
+                  tooltip: searchEntireLibrary
+                      ? l10n.characterSearchScopeGlobal
+                      : l10n.characterSearchScopeFolder,
+                  onPressed: onToggleSearchScope,
+                ),
+              ChromeIconButton(
+                icon: const Icon(Icons.filter_list),
+                tooltip: l10n.filters,
+                onPressed: () {
+                  // TODO: Show filter options
+                },
+              ),
+            ],
           ),
         ),
       ),

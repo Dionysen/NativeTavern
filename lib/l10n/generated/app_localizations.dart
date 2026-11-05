@@ -2407,6 +2407,18 @@ abstract class AppLocalizations {
   /// **'Select'**
   String get characterListSelectMode;
 
+  /// Tooltip when character search is limited to the open folder
+  ///
+  /// In en, this message translates to:
+  /// **'Search this folder only'**
+  String get characterSearchScopeFolder;
+
+  /// Tooltip when character search includes all characters
+  ///
+  /// In en, this message translates to:
+  /// **'Search entire library'**
+  String get characterSearchScopeGlobal;
+
   /// Create button
   ///
   /// In en, this message translates to:

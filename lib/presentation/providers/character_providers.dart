@@ -32,17 +32,30 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
   bool get hasMore => _hasMore;
   bool get isLoadingMore => _loadingMore;
 
+  bool _searchGlobally() {
+    final folderId = ref.read(characterBrowseFolderIdProvider);
+    if (folderId == null) return true;
+    return ref.read(characterSearchGlobalProvider);
+  }
+
+  Future<List<Character>> _fetchPage({required int offset}) {
+    return ref.read(characterRepositoryProvider).getCharactersPage(
+          limit: _pageSize,
+          offset: offset,
+          query: _query,
+          browseFolderId: ref.read(characterBrowseFolderIdProvider),
+          searchGlobally: _searchGlobally(),
+        );
+  }
+
   @override
   Future<List<Character>> build() async {
     ref.watch(characterBrowseFolderIdProvider);
-    final repo = ref.watch(characterRepositoryProvider);
+    ref.watch(characterSearchGlobalProvider);
+    ref.watch(characterRepositoryProvider);
     _offset = 0;
     _hasMore = true;
-    final page = await repo.getCharactersPage(
-      limit: _pageSize,
-      query: _query,
-      browseFolderId: ref.read(characterBrowseFolderIdProvider),
-    );
+    final page = await _fetchPage(offset: 0);
     _offset = page.length;
     _hasMore = page.length == _pageSize;
     return page;
@@ -53,11 +66,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     _hasMore = true;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final page = await ref.read(characterRepositoryProvider).getCharactersPage(
-            limit: _pageSize,
-            query: _query,
-            browseFolderId: ref.read(characterBrowseFolderIdProvider),
-          );
+      final page = await _fetchPage(offset: 0);
       _offset = page.length;
       _hasMore = page.length == _pageSize;
       return page;
@@ -73,12 +82,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     if (_loadingMore || !_hasMore || !state.hasValue) return;
     _loadingMore = true;
     try {
-      final page = await ref.read(characterRepositoryProvider).getCharactersPage(
-            limit: _pageSize,
-            offset: _offset,
-            query: _query,
-            browseFolderId: ref.read(characterBrowseFolderIdProvider),
-          );
+      final page = await _fetchPage(offset: _offset);
       final current = state.valueOrNull ?? const <Character>[];
       state = AsyncData([...current, ...page]);
       _offset += page.length;

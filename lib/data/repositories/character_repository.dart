@@ -37,6 +37,7 @@ class CharacterRepository {
     int offset = 0,
     String query = '',
     String? browseFolderId,
+    bool searchGlobally = true,
   }) async {
     final normalized = query.trim();
     if (normalized.isEmpty && browseFolderId != null) {
@@ -48,6 +49,16 @@ class CharacterRepository {
     }
     if (normalized.isEmpty && browseFolderId == null) {
       return _charactersAtRootPage(limit: limit, offset: offset);
+    }
+    if (normalized.isNotEmpty &&
+        browseFolderId != null &&
+        !searchGlobally) {
+      return _searchInFolderPage(
+        folderId: browseFolderId,
+        query: normalized,
+        limit: limit,
+        offset: offset,
+      );
     }
     final pattern = '%$normalized%';
     final statement = _db.select(_db.characters)
@@ -76,6 +87,37 @@ class CharacterRepository {
       LIMIT ? OFFSET ?
       ''',
       variables: [
+        Variable<int>(limit),
+        Variable<int>(offset < 0 ? 0 : offset),
+      ],
+      readsFrom: {_db.characters},
+    ).get();
+    return _charactersByIdsInOrder(
+      idRows.map((row) => row.read<String>('id')).toList(growable: false),
+    );
+  }
+
+  Future<List<models.Character>> _searchInFolderPage({
+    required String folderId,
+    required String query,
+    required int limit,
+    required int offset,
+  }) async {
+    final pattern = '%$query%';
+    final idRows = await _db.customSelect(
+      '''
+      SELECT c.id AS id
+      FROM characters c
+      INNER JOIN character_folder_members m ON m.character_id = c.id
+      WHERE c.is_deleted = 0 AND m.folder_id = ?
+        AND (c.name LIKE ? OR c.description LIKE ?)
+      ORDER BY c.modified_at DESC
+      LIMIT ? OFFSET ?
+      ''',
+      variables: [
+        Variable<String>(folderId),
+        Variable<String>(pattern),
+        Variable<String>(pattern),
         Variable<int>(limit),
         Variable<int>(offset < 0 ? 0 : offset),
       ],
