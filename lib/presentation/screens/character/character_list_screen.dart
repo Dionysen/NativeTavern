@@ -1263,15 +1263,17 @@ class _CharacterListTile extends ConsumerWidget {
                                   vertical: 1,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: color.withValues(alpha: 0.15),
+                                  color: color.withValues(alpha: 0.08),
                                   borderRadius: BorderRadius.circular(4),
                                   border: Border.all(
-                                    color: color.withValues(alpha: 0.55),
+                                    color: color.withValues(alpha: 0.28),
                                   ),
                                 ),
                                 child: Text(
                                   tag,
-                                  style: metaStyle?.copyWith(color: color),
+                                  style: metaStyle?.copyWith(
+                                    color: color.withValues(alpha: 0.65),
+                                  ),
                                 ),
                               );
                             })

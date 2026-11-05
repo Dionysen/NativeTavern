@@ -83,10 +83,10 @@ class _CharacterTagFilterSheet extends ConsumerWidget {
                               selected: selected.contains(label),
                               showCheckmark: true,
                               selectedColor: TagColors.forLabel(label)
-                                  .withValues(alpha: 0.22),
+                                  .withValues(alpha: 0.12),
                               side: BorderSide(
                                 color: TagColors.forLabel(label)
-                                    .withValues(alpha: 0.55),
+                                    .withValues(alpha: 0.28),
                               ),
                               onSelected: (value) {
                                 final next = Set<String>.from(selected);
