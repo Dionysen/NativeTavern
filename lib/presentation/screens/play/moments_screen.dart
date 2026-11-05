@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:gal/gal.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/moment/moment_post.dart';
+import 'package:native_tavern/core/services/initialization_service.dart';
 import 'package:native_tavern/domain/services/moment_service.dart';
 import 'package:native_tavern/domain/services/moments_cover_storage.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -71,6 +72,13 @@ class MomentsScreen extends ConsumerWidget {
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (error, _) => _CenteredMessage(error.toString()),
                 data: (items) {
+                  final dataPath = ref.read(dataPathProvider);
+                  final coverPath = persona?.id == null
+                      ? null
+                      : MomentsCoverStorage.existingCoverPathSync(
+                          dataPath,
+                          persona!.id,
+                        );
                   return _MomentsEnabledFeed(
                     items: items,
                     characters: characters,
@@ -78,6 +86,7 @@ class MomentsScreen extends ConsumerWidget {
                     selfName: selfName,
                     palette: palette,
                     topInset: topInset,
+                    initialCoverPath: coverPath,
                     onCompose: () => _compose(context, ref, selfName),
                   );
                 },
@@ -124,6 +133,7 @@ class _MomentsEnabledFeed extends ConsumerStatefulWidget {
     required this.selfName,
     required this.palette,
     required this.topInset,
+    required this.initialCoverPath,
     required this.onCompose,
   });
 
@@ -133,6 +143,7 @@ class _MomentsEnabledFeed extends ConsumerStatefulWidget {
   final String selfName;
   final _MomentsPalette palette;
   final double topInset;
+  final String? initialCoverPath;
   final VoidCallback onCompose;
 
   @override
@@ -161,15 +172,18 @@ class _MomentsEnabledFeedState extends ConsumerState<_MomentsEnabledFeed>
       curve: Curves.easeInOut,
     );
     _coverExpandController.addListener(() => setState(() {}));
-    _reloadCoverForPersona();
+    _coverImagePath = widget.initialCoverPath;
+    _loadedPersonaId = widget.persona?.id;
   }
 
   @override
   void didUpdateWidget(covariant _MomentsEnabledFeed oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.persona?.id != widget.persona?.id) {
+    if (oldWidget.persona?.id != widget.persona?.id ||
+        oldWidget.initialCoverPath != widget.initialCoverPath) {
       _coverExpandController.reverse();
-      _reloadCoverForPersona();
+      _coverImagePath = widget.initialCoverPath;
+      _loadedPersonaId = widget.persona?.id;
     }
   }
 
@@ -178,23 +192,6 @@ class _MomentsEnabledFeedState extends ConsumerState<_MomentsEnabledFeed>
     _coverExpandController.dispose();
     _scrollController.dispose();
     super.dispose();
-  }
-
-  Future<void> _reloadCoverForPersona() async {
-    final personaId = widget.persona?.id;
-    if (personaId == null) {
-      setState(() {
-        _coverImagePath = null;
-        _loadedPersonaId = null;
-      });
-      return;
-    }
-    final path = await MomentsCoverStorage.existingCoverPath(personaId);
-    if (!mounted) return;
-    setState(() {
-      _coverImagePath = path;
-      _loadedPersonaId = personaId;
-    });
   }
 
   double get _collapsedHeaderHeight =>
@@ -231,8 +228,12 @@ class _MomentsEnabledFeedState extends ConsumerState<_MomentsEnabledFeed>
     try {
       final image = await _imagePicker.pickImage(source: ImageSource.gallery);
       if (image == null || !mounted) return;
-      final path =
-          await MomentsCoverStorage.saveCover(personaId, image.path);
+      final dataPath = ref.read(dataPathProvider);
+      final path = await MomentsCoverStorage.saveCover(
+        dataPath,
+        personaId,
+        image.path,
+      );
       if (!mounted) return;
       setState(() => _coverImagePath = path);
     } catch (_) {
