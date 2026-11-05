@@ -36,6 +36,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   Timer? _searchDebounce;
   bool _selectionMode = false;
   final Set<String> _selectedCharacterIds = {};
+  bool _folderEnterForward = true;
 
   @override
   void dispose() {
@@ -73,16 +74,16 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     });
   }
 
-  Future<void> _openFolder(String folderId) async {
-    ref.read(characterBrowseFolderIdProvider.notifier).state = folderId;
+  void _openFolder(String folderId) {
+    setState(() => _folderEnterForward = true);
     _exitSelectionMode();
-    await ref.read(characterListProvider.notifier).refresh();
+    ref.read(characterBrowseFolderIdProvider.notifier).state = folderId;
   }
 
-  Future<void> _leaveFolder() async {
-    ref.read(characterBrowseFolderIdProvider.notifier).state = null;
+  void _leaveFolder() {
+    setState(() => _folderEnterForward = false);
     _exitSelectionMode();
-    await ref.read(characterListProvider.notifier).refresh();
+    ref.read(characterBrowseFolderIdProvider.notifier).state = null;
   }
 
   Future<void> _createEmptyFolder() async {
@@ -147,6 +148,16 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
             .map((folder) => folder.name)
             .firstOrNull;
 
+    ref.listen<String?>(characterBrowseFolderIdProvider, (previous, next) {
+      if (previous == next) return;
+      if (!mounted) return;
+      if (previous == null && next != null) {
+        setState(() => _folderEnterForward = true);
+      } else if (previous != null && next == null) {
+        setState(() => _folderEnterForward = false);
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         leading: browseFolderId != null && !_selectionMode
@@ -162,10 +173,30 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                     onPressed: _exitSelectionMode,
                   )
                 : null,
-        title: Text(
-          _selectionMode
-              ? l10n.charactersSelected(_selectedCharacterIds.length)
-              : (folderTitle ?? l10n.characters),
+        title: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 260),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: Offset(_folderEnterForward ? 0.08 : -0.08, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          ),
+          child: Text(
+            key: ValueKey(
+              _selectionMode
+                  ? 'select-${_selectedCharacterIds.length}'
+                  : (browseFolderId ?? 'root-title'),
+            ),
+            _selectionMode
+                ? l10n.charactersSelected(_selectedCharacterIds.length)
+                : (folderTitle ?? l10n.characters),
+          ),
         ),
         actions: spacedAppBarActions([
           if (_selectionMode) ...[
@@ -243,15 +274,101 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
             },
           ),
           Expanded(
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (notification) {
-                if (notification.metrics.extentAfter < 600) {
-                  ref.read(characterListProvider.notifier).loadMore();
-                }
-                return false;
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 320),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              layoutBuilder: (currentChild, previousChildren) {
+                return Stack(
+                  alignment: Alignment.topCenter,
+                  clipBehavior: Clip.hardEdge,
+                  children: [
+                    ...previousChildren,
+                    if (currentChild != null) currentChild,
+                  ],
+                );
               },
-              child: charactersAsync.when(
-                data: (characters) {
+              transitionBuilder: (child, animation) =>
+                  _characterFolderBrowseTransition(
+                child: child,
+                animation: animation,
+                enterForward: _folderEnterForward,
+              ),
+              child: KeyedSubtree(
+                key: ValueKey(browseFolderId ?? '__character_root__'),
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification.metrics.extentAfter < 600) {
+                      ref.read(characterListProvider.notifier).loadMore();
+                    }
+                    return false;
+                  },
+                  child: _buildBrowseContent(
+                    charactersAsync: charactersAsync,
+                    l10n: l10n,
+                    browseFolderId: browseFolderId,
+                    foldersAsync: foldersAsync,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBrowseContent({
+    required AsyncValue<List<Character>> charactersAsync,
+    required AppLocalizations l10n,
+    required String? browseFolderId,
+    required AsyncValue<List<CharacterFolder>> foldersAsync,
+  }) {
+    final cachedCharacters = charactersAsync.valueOrNull;
+    if (charactersAsync.isLoading && cachedCharacters != null) {
+      return _buildCharacterBrowseList(
+        characters: cachedCharacters,
+        l10n: l10n,
+        browseFolderId: browseFolderId,
+        foldersAsync: foldersAsync,
+      );
+    }
+
+    return charactersAsync.when(
+      data: (characters) {
+        return _buildCharacterBrowseList(
+          characters: characters,
+          l10n: l10n,
+          browseFolderId: browseFolderId,
+          foldersAsync: foldersAsync,
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const SizedBox(height: 16),
+            Text('${l10n.error}: $error'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () =>
+                  ref.read(characterListProvider.notifier).refresh(),
+              child: Text(l10n.retry),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCharacterBrowseList({
+    required List<Character> characters,
+    required AppLocalizations l10n,
+    required String? browseFolderId,
+    required AsyncValue<List<CharacterFolder>> foldersAsync,
+  }) {
                   final filtered = _searchQuery.isEmpty
                       ? characters
                       : characters
@@ -312,31 +429,6 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                         onFolderActions: openFolderActions,
                       );
                   }
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stack) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline,
-                          size: 48, color: Colors.red),
-                      const SizedBox(height: 16),
-                      Text('${l10n.error}: $error'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () =>
-                            ref.read(characterListProvider.notifier).refresh(),
-                        child: Text(l10n.retry),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Icon _getViewModeIcon() {
@@ -349,6 +441,29 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
         return const Icon(Icons.view_compact);
     }
   }
+}
+
+Widget _characterFolderBrowseTransition({
+  required Widget child,
+  required Animation<double> animation,
+  required bool enterForward,
+}) {
+  final curved = CurvedAnimation(
+    parent: animation,
+    curve: Curves.easeOutCubic,
+    reverseCurve: Curves.easeInCubic,
+  );
+  final horizontal = enterForward ? 0.22 : -0.22;
+  return FadeTransition(
+    opacity: Tween<double>(begin: 0, end: 1).animate(curved),
+    child: SlideTransition(
+      position: Tween<Offset>(
+        begin: Offset(horizontal, 0),
+        end: Offset.zero,
+      ).animate(curved),
+      child: child,
+    ),
+  );
 }
 
 class _CharacterTileInteraction {
@@ -919,19 +1034,12 @@ class _CharacterCompactGridCard extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(4),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    character.name,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+              child: Text(
+                character.name,
+                style: Theme.of(context).textTheme.bodySmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
             ),
           ],

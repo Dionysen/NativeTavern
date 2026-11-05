@@ -168,16 +168,14 @@ class CharacterFolderGridCard extends StatelessWidget {
               padding: EdgeInsets.all(compact ? 4 : 8),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: compact
-                    ? CrossAxisAlignment.center
-                    : CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
                     folder.name,
                     style: compact
                         ? Theme.of(context).textTheme.bodySmall
                         : Theme.of(context).textTheme.titleSmall,
-                    maxLines: compact ? 2 : 1,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: compact ? TextAlign.center : TextAlign.start,
                   ),
