@@ -2549,7 +2549,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 6),
+                        padding: const EdgeInsets.fromLTRB(10, 0, 4, 6),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -2561,10 +2561,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               icon: Icon(
                                 _showInputMenu
                                     ? Icons.close_rounded
-                                    : Icons.menu_rounded,
+                                    : Icons.tune_rounded,
                                 size: 22,
                               ),
                             ),
+                            const SizedBox(width: 4),
+                            const ContextUsageComposerButton(),
                             Expanded(
                               child: GestureDetector(
                                 behavior: HitTestBehavior.translucent,
@@ -2701,7 +2703,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       label: AppLocalizations.of(context).formatting,
                       onTap: () => _showFormattingMenu(),
                     ),
-                    const ContextUsageComposerButton(),
                     if (ref.watch(imageGenSettingsProvider).enabled)
                       _InputMenuButton(
                         key: const Key('chat-input-imagine'),
