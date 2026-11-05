@@ -4067,10 +4067,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backgroundOpacityHint => '应用于自定义图片和角色卡图片背景';
 
   @override
+  String get enableBubbleBlur => '气泡模糊';
+
+  @override
+  String get enableBubbleBlurHint => '0 为关闭，数值越大气泡和输入框背后越糊。';
+
+  @override
   String get enableBackgroundBlur => '背景模糊';
 
   @override
-  String get enableBackgroundBlurHint => '给图片背景加一层模糊。';
+  String get enableBackgroundBlurHint => '0 为关闭，数值越大背景图越糊。';
 
   @override
   String get backgroundPriorityHint => '优先级：角色专属背景 > 全局背景 > 角色卡图片 > 默认颜色';
@@ -10856,10 +10862,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get backgroundOpacityHint => '套用至自訂背景與角色圖片背景';
 
   @override
+  String get enableBubbleBlur => '氣泡模糊';
+
+  @override
+  String get enableBubbleBlurHint => '0 為關閉，數值越大氣泡和輸入框背後越糊。';
+
+  @override
   String get enableBackgroundBlur => '背景模糊';
 
   @override
-  String get enableBackgroundBlurHint => '給圖片背景加一層模糊。';
+  String get enableBackgroundBlurHint => '0 為關閉，數值越大背景圖越糊。';
 
   @override
   String get backgroundPriorityHint => '優先順序：角色背景 > 全域背景 > 角色圖片 > 預設色彩';

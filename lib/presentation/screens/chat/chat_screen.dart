@@ -2056,6 +2056,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final background = backgroundAsync.valueOrNull ?? ChatBackground.none;
     final hasBackground = background.type != BackgroundType.none ||
         chatState.character?.assets?.live2d?.enabled == true;
+    final hasImageBackground = background.type == BackgroundType.image;
 
     final showOlderLoader =
         chatState.hasOlderMessages || chatState.isLoadingOlderMessages;
@@ -2131,6 +2132,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     chatState.generatingMessageIds.isEmpty),
             isLast: isLast,
             hasBackground: hasBackground,
+            hasImageBackground: hasImageBackground,
             bubbleOpacity: background.bubbleOpacity,
             layoutMode: layoutMode,
             highlighted: _highlightedMessageId == message.id,
@@ -2426,21 +2428,30 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   /// Composer fill opacity when an image background is active.
-  double _composerShellOpacity(String? characterId) {
-    final background = ref
-            .watch(effectiveBackgroundProvider(characterId))
-            .valueOrNull ??
-        ChatBackground.none;
+  double _composerShellOpacity(ChatBackground background) {
     if (background.type != BackgroundType.image) return 1.0;
     return background.bubbleOpacity.clamp(0.0, 1.0);
+  }
+
+  double _composerFrostSigma(ChatBackground background) {
+    if (background.type != BackgroundType.image) return 0;
+    return ref.watch(
+      appSettingsProvider.select((s) => s.bubbleBlurSigma),
+    );
   }
 
   Widget _buildInputArea(ActiveChatState chatState) {
     final scheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
     final isDesktop = !(Platform.isIOS || Platform.isAndroid);
-    final composerOpacity =
-        _composerShellOpacity(chatState.character?.id);
+    final background = ref
+            .watch(
+              effectiveBackgroundProvider(chatState.character?.id),
+            )
+            .valueOrNull ??
+        ChatBackground.none;
+    final composerOpacity = _composerShellOpacity(background);
+    final composerFrostSigma = _composerFrostSigma(background);
 
     return SafeArea(
       top: false,
@@ -2461,6 +2472,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 _composerOptionsDismissable(
                   child: _composerExpansionPanel(
                     opacity: composerOpacity,
+                    frostSigma: composerFrostSigma,
                     child: ChatChoicePanel(
                       onSelectChoice: _sendChoiceMessage,
                       onOpenSettings: _openReplyChoicesSettings,
@@ -2474,6 +2486,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 _composerOptionsDismissable(
                   child: _composerExpansionPanel(
                     opacity: composerOpacity,
+                    frostSigma: composerFrostSigma,
                     child: _buildInputMenuPanel(
                       _inputMenuShowsQuickReplies(chatState),
                       chatState,
@@ -2485,7 +2498,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: _focusMessageInputAtEnd,
-                child: DecoratedBox(
+                child: ZephyrChatChrome.maybeFrosted(
+                  sigma: composerFrostSigma,
+                  shape: ZephyrChatChrome.composerShape(),
+                  child: DecoratedBox(
                   decoration: ZephyrChatChrome.composerShell(
                     context,
                     opacity: composerOpacity,
@@ -2626,6 +2642,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ],
                   ),
                 ),
+                ),
               ),
             ],
           ),
@@ -2637,16 +2654,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget _composerExpansionPanel({
     required Widget child,
     double opacity = 1.0,
+    double frostSigma = 0,
   }) {
-    return DecoratedBox(
-      decoration: ZephyrChatChrome.composerShell(
-        context,
-        opacity: opacity,
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        clipBehavior: Clip.antiAlias,
-        child: child,
+    return ZephyrChatChrome.maybeFrosted(
+      sigma: frostSigma,
+      shape: ZephyrChatChrome.composerShape(),
+      child: DecoratedBox(
+        decoration: ZephyrChatChrome.composerShell(
+          context,
+          opacity: opacity,
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          clipBehavior: Clip.antiAlias,
+          child: child,
+        ),
       ),
     );
   }
@@ -3455,6 +3477,7 @@ class _MessageBubble extends ConsumerStatefulWidget {
   final bool isGenerating;
   final bool isLast;
   final bool hasBackground;
+  final bool hasImageBackground;
   final double bubbleOpacity;
   final String layoutMode;
   final bool highlighted;
@@ -3479,6 +3502,7 @@ class _MessageBubble extends ConsumerStatefulWidget {
     required this.isGenerating,
     required this.isLast,
     this.hasBackground = false,
+    this.hasImageBackground = false,
     this.bubbleOpacity = 0.8,
     this.layoutMode = 'bubble',
     this.highlighted = false,
@@ -3542,8 +3566,49 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     final showUserAvatar = ref.watch(
       appSettingsProvider.select((s) => s.showUserAvatar),
     );
+    final bubbleBlurSigma = ref.watch(
+      appSettingsProvider.select((s) => s.bubbleBlurSigma),
+    );
     // Keep bubbles out of the opposite avatar column when that avatar is on.
     const avatarColumnWidth = 32.0 + 8.0;
+    final bubble = Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 12,
+      ),
+      decoration: _buildMessageDecoration(isUser),
+      child: _isEditing
+          ? _buildEditField()
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Show image attachments if available
+                if (widget.message.hasAttachments) _buildAttachments(),
+                // Show reasoning/thinking content if available
+                if (!isUser && widget.message.hasReasoning)
+                  _buildReasoningSection(),
+                if (widget.isGenerating && widget.message.content.isEmpty)
+                  const _TypingIndicator()
+                else
+                  MessageContentWidget(
+                    content: _displayContent(),
+                    textColor: ZephyrChatChrome.bubbleTextColor(
+                      context,
+                      isUser: isUser,
+                    ),
+                    isUser: isUser,
+                    selectable: true,
+                    onLongPress: () => _showMessageOptions(context),
+                    isStreaming: widget.isGenerating,
+                    messageId: widget.message.id,
+                  ),
+                if (!isUser && !widget.isGenerating)
+                  DataBankCitationPreview(
+                    message: widget.message,
+                  ),
+              ],
+            ),
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -3565,46 +3630,13 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                 GestureDetector(
                   onTap: () {},
                   onLongPress: () => _showMessageOptions(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                  child: ZephyrChatChrome.maybeFrosted(
+                    sigma: widget.hasImageBackground ? bubbleBlurSigma : 0,
+                    shape: ZephyrChatChrome.messageBubbleShape(
+                      isUser: isUser,
+                      radius: context.appChatBubbleCornerRadius,
                     ),
-                    decoration: _buildMessageDecoration(isUser),
-                    child: _isEditing
-                        ? _buildEditField()
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Show image attachments if available
-                              if (widget.message.hasAttachments)
-                                _buildAttachments(),
-                              // Show reasoning/thinking content if available
-                              if (!isUser && widget.message.hasReasoning)
-                                _buildReasoningSection(),
-                              if (widget.isGenerating &&
-                                  widget.message.content.isEmpty)
-                                const _TypingIndicator()
-                              else
-                                MessageContentWidget(
-                                  content: _displayContent(),
-                                  textColor: ZephyrChatChrome.bubbleTextColor(
-                                    context,
-                                    isUser: isUser,
-                                  ),
-                                  isUser: isUser,
-                                  selectable: true,
-                                  onLongPress: () =>
-                                      _showMessageOptions(context),
-                                  isStreaming: widget.isGenerating,
-                                  messageId: widget.message.id,
-                                ),
-                              if (!isUser && !widget.isGenerating)
-                                DataBankCitationPreview(
-                                  message: widget.message,
-                                ),
-                            ],
-                          ),
+                    child: bubble,
                   ),
                 ),
 

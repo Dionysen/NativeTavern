@@ -7645,6 +7645,18 @@ abstract class AppLocalizations {
   /// **'Applies to custom and character image backgrounds'**
   String get backgroundOpacityHint;
 
+  /// No description provided for @enableBubbleBlur.
+  ///
+  /// In en, this message translates to:
+  /// **'Bubble blur'**
+  String get enableBubbleBlur;
+
+  /// No description provided for @enableBubbleBlurHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0 is off. Higher values blur what\'s behind bubbles and the input.'**
+  String get enableBubbleBlurHint;
+
   /// No description provided for @enableBackgroundBlur.
   ///
   /// In en, this message translates to:
@@ -7654,7 +7666,7 @@ abstract class AppLocalizations {
   /// No description provided for @enableBackgroundBlurHint.
   ///
   /// In en, this message translates to:
-  /// **'Softens image backgrounds with a blur.'**
+  /// **'0 is off. Higher values blur the background image more.'**
   String get enableBackgroundBlurHint;
 
   /// No description provided for @backgroundPriorityHint.

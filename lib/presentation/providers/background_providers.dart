@@ -119,8 +119,11 @@ final effectiveBackgroundProvider = FutureProvider.family<ChatBackground, String
   // Check if we should use character avatar as background
   final useCharacterAvatar = ref.watch(appSettingsProvider.select((s) => s.useCharacterAvatarAsBackground));
   // Get global image background settings - applies to all image backgrounds
-  final enableBlur = ref.watch(appSettingsProvider.select((s) => s.enableBackgroundBlur));
-  final backgroundOpacity = ref.watch(appSettingsProvider.select((s) => s.backgroundOpacity));
+  final backgroundBlur =
+      ref.watch(appSettingsProvider.select((s) => s.backgroundBlur));
+  final backgroundOpacity =
+      ref.watch(appSettingsProvider.select((s) => s.backgroundOpacity));
+  final blurSigma = AppSettings.backgroundBlurSigmaFrom(backgroundBlur);
   // Get global background (for fallback and bubbleOpacity)
   final globalBg = ref.watch(globalBackgroundProvider);
   
@@ -141,8 +144,8 @@ final effectiveBackgroundProvider = FutureProvider.family<ChatBackground, String
           effectiveBg = ChatBackground.imagePath(
             character!.assets!.avatarPath!,
             opacity: backgroundOpacity,
-            blur: enableBlur,
-            blurAmount: 10.0,
+            blur: blurSigma > 0,
+            blurAmount: blurSigma,
             bubbleOpacity: globalBg.bubbleOpacity,
           );
         } else {
@@ -166,8 +169,8 @@ final effectiveBackgroundProvider = FutureProvider.family<ChatBackground, String
   if (effectiveBg.type == BackgroundType.image) {
     return effectiveBg.copyWith(
       opacity: backgroundOpacity,
-      blur: enableBlur,
-      blurAmount: 10.0,
+      blur: blurSigma > 0,
+      blurAmount: blurSigma,
     );
   }
   

@@ -794,7 +794,10 @@ class AppSettings {
   final bool autoSaveChats;
   final bool enableDebugLog;
   final bool useCharacterAvatarAsBackground;
-  final bool enableBackgroundBlur;
+  /// Image background blur strength (0–100). 0 = off.
+  final double backgroundBlur;
+  /// Bubble / composer frosted blur strength (0–100). 0 = off.
+  final double bubbleBlur;
   final double backgroundOpacity;
   final String chatLayoutMode;
   final bool showCharacterAvatar;
@@ -819,7 +822,8 @@ class AppSettings {
     this.autoSaveChats = true,
     this.enableDebugLog = false,
     this.useCharacterAvatarAsBackground = false,
-    this.enableBackgroundBlur = false,
+    this.backgroundBlur = 0,
+    this.bubbleBlur = 0,
     this.backgroundOpacity = 1.0,
     this.chatLayoutMode = 'bubble',
     this.showCharacterAvatar = true,
@@ -845,7 +849,8 @@ class AppSettings {
     bool? autoSaveChats,
     bool? enableDebugLog,
     bool? useCharacterAvatarAsBackground,
-    bool? enableBackgroundBlur,
+    double? backgroundBlur,
+    double? bubbleBlur,
     double? backgroundOpacity,
     String? chatLayoutMode,
     bool? showCharacterAvatar,
@@ -872,7 +877,8 @@ class AppSettings {
       enableDebugLog: enableDebugLog ?? this.enableDebugLog,
       useCharacterAvatarAsBackground:
           useCharacterAvatarAsBackground ?? this.useCharacterAvatarAsBackground,
-      enableBackgroundBlur: enableBackgroundBlur ?? this.enableBackgroundBlur,
+      backgroundBlur: backgroundBlur ?? this.backgroundBlur,
+      bubbleBlur: bubbleBlur ?? this.bubbleBlur,
       backgroundOpacity: backgroundOpacity ?? this.backgroundOpacity,
       chatLayoutMode: chatLayoutMode ?? this.chatLayoutMode,
       showCharacterAvatar:
@@ -904,7 +910,8 @@ class AppSettings {
         'autoSaveChats': autoSaveChats,
         'enableDebugLog': enableDebugLog,
         'useCharacterAvatarAsBackground': useCharacterAvatarAsBackground,
-        'enableBackgroundBlur': enableBackgroundBlur,
+        'backgroundBlur': backgroundBlur,
+        'bubbleBlur': bubbleBlur,
         'backgroundOpacity': backgroundOpacity,
         'chatLayoutMode': chatLayoutMode,
         'showCharacterAvatar': showCharacterAvatar,
@@ -933,7 +940,14 @@ class AppSettings {
       enableDebugLog: json['enableDebugLog'] as bool? ?? false,
       useCharacterAvatarAsBackground:
           json['useCharacterAvatarAsBackground'] as bool? ?? false,
-      enableBackgroundBlur: json['enableBackgroundBlur'] as bool? ?? false,
+      backgroundBlur: normalizeBlurPercent(
+        json['backgroundBlur'],
+        legacyEnabled: json['enableBackgroundBlur'] as bool?,
+      ),
+      bubbleBlur: normalizeBlurPercent(
+        json['bubbleBlur'],
+        legacyEnabled: json['enableBubbleBlur'] as bool?,
+      ),
       backgroundOpacity: (json['backgroundOpacity'] as num?)?.toDouble() ?? 1.0,
       chatLayoutMode: json['chatLayoutMode'] as String? ?? 'bubble',
       showCharacterAvatar: json['showCharacterAvatar'] as bool? ?? true,
@@ -957,6 +971,29 @@ class AppSettings {
       momentsEnabled: json['momentsEnabled'] as bool? ?? false,
     );
   }
+
+  /// Max BackdropFilter sigma at slider = 100.
+  static const double maxBackgroundBlurSigma = 20;
+  static const double maxBubbleBlurSigma = 36;
+
+  static double normalizeBlurPercent(
+    Object? value, {
+    bool? legacyEnabled,
+  }) {
+    if (value is num) return value.toDouble().clamp(0, 100);
+    if (legacyEnabled == true) return 50;
+    return 0;
+  }
+
+  static double backgroundBlurSigmaFrom(double percent) =>
+      (percent.clamp(0, 100) / 100) * maxBackgroundBlurSigma;
+
+  static double bubbleBlurSigmaFrom(double percent) =>
+      (percent.clamp(0, 100) / 100) * maxBubbleBlurSigma;
+
+  double get backgroundBlurSigma => backgroundBlurSigmaFrom(backgroundBlur);
+
+  double get bubbleBlurSigma => bubbleBlurSigmaFrom(bubbleBlur);
 
   static int normalizeMemoryContextTokenBudget(int? value) {
     return memoryContextTokenBudgets.contains(value) ? value! : 512;
@@ -1079,8 +1116,17 @@ class AppSettingsNotifier extends StateNotifier<AppSettings> {
     _saveSettings();
   }
 
-  void updateEnableBackgroundBlur(bool enabled) {
-    state = state.copyWith(enableBackgroundBlur: enabled);
+  void updateBackgroundBlur(double amount) {
+    state = state.copyWith(
+      backgroundBlur: AppSettings.normalizeBlurPercent(amount),
+    );
+    _saveSettings();
+  }
+
+  void updateBubbleBlur(double amount) {
+    state = state.copyWith(
+      bubbleBlur: AppSettings.normalizeBlurPercent(amount),
+    );
     _saveSettings();
   }
 

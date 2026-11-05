@@ -255,8 +255,10 @@ class _BackgroundSettingsScreenState
   Widget _buildCharacterAvatarSetting() {
     final useCharacterAvatar = ref.watch(
         appSettingsProvider.select((s) => s.useCharacterAvatarAsBackground));
-    final enableBlur =
-        ref.watch(appSettingsProvider.select((s) => s.enableBackgroundBlur));
+    final backgroundBlur =
+        ref.watch(appSettingsProvider.select((s) => s.backgroundBlur));
+    final bubbleBlur =
+        ref.watch(appSettingsProvider.select((s) => s.bubbleBlur));
     final backgroundOpacity =
         ref.watch(appSettingsProvider.select((s) => s.backgroundOpacity));
     final l10n = AppLocalizations.of(context);
@@ -304,16 +306,33 @@ class _BackgroundSettingsScreenState
               '${(_currentBackground.bubbleOpacity * 100).round()}%',
           onChanged: _updateBubbleOpacity,
         ),
-        SettingsSwitchTile(
+        SettingsSliderTile(
+          icon: Icons.blur_circular,
+          title: l10n.enableBubbleBlur,
+          subtitle: l10n.enableBubbleBlurHint,
+          value: bubbleBlur,
+          min: 0,
+          max: 100,
+          divisions: 100,
+          valueLabel: '${bubbleBlur.round()}',
+          onChanged: (value) {
+            ref.read(appSettingsProvider.notifier).updateBubbleBlur(value);
+          },
+        ),
+        SettingsSliderTile(
           icon: Icons.blur_on,
           title: l10n.enableBackgroundBlur,
           subtitle: l10n.enableBackgroundBlurHint,
-          value: enableBlur,
+          value: backgroundBlur,
+          min: 0,
+          max: 100,
+          divisions: 100,
+          valueLabel: '${backgroundBlur.round()}',
           showDivider: false,
           onChanged: (value) {
             ref
                 .read(appSettingsProvider.notifier)
-                .updateEnableBackgroundBlur(value);
+                .updateBackgroundBlur(value);
           },
         ),
       ],
@@ -660,15 +679,13 @@ class _BackgroundSettingsScreenState
   }
 
   void _applyGalleryImage(_GalleryImage image) {
-    final enableBlur =
-        ref.read(appSettingsProvider.select((s) => s.enableBackgroundBlur));
-    final opacity =
-        ref.read(appSettingsProvider.select((s) => s.backgroundOpacity));
+    final settings = ref.read(appSettingsProvider);
+    final blurSigma = settings.backgroundBlurSigma;
     _saveBackground(ChatBackground.imagePath(
       image.path,
-      opacity: opacity,
-      blur: enableBlur,
-      blurAmount: 10.0,
+      opacity: settings.backgroundOpacity,
+      blur: blurSigma > 0,
+      blurAmount: blurSigma,
       bubbleOpacity: _currentBackground.bubbleOpacity,
     ));
   }
@@ -821,17 +838,14 @@ class _BackgroundSettingsScreenState
           await File(file.path!).copy(destPath);
           await _loadGallery();
 
-          // Get global settings
-          final enableBlur = ref
-              .read(appSettingsProvider.select((s) => s.enableBackgroundBlur));
-          final opacity =
-              ref.read(appSettingsProvider.select((s) => s.backgroundOpacity));
+          final settings = ref.read(appSettingsProvider);
+          final blurSigma = settings.backgroundBlurSigma;
 
           await _saveBackground(ChatBackground.imagePath(
             destPath,
-            opacity: opacity,
-            blur: enableBlur,
-            blurAmount: 10.0,
+            opacity: settings.backgroundOpacity,
+            blur: blurSigma > 0,
+            blurAmount: blurSigma,
             bubbleOpacity: _currentBackground.bubbleOpacity,
           ));
         }
@@ -877,17 +891,14 @@ class _BackgroundSettingsScreenState
             onPressed: () {
               final url = controller.text.trim();
               if (url.isNotEmpty) {
-                // Get global settings
-                final enableBlur = ref.read(
-                    appSettingsProvider.select((s) => s.enableBackgroundBlur));
-                final opacity = ref.read(
-                    appSettingsProvider.select((s) => s.backgroundOpacity));
+                final settings = ref.read(appSettingsProvider);
+                final blurSigma = settings.backgroundBlurSigma;
 
                 _saveBackground(ChatBackground.imageUrl(
                   url,
-                  opacity: opacity,
-                  blur: enableBlur,
-                  blurAmount: 10.0,
+                  opacity: settings.backgroundOpacity,
+                  blur: blurSigma > 0,
+                  blurAmount: blurSigma,
                   bubbleOpacity: _currentBackground.bubbleOpacity,
                 ));
                 Navigator.pop(context);

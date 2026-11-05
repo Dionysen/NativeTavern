@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import 'native_tavern_theme.dart';
@@ -49,6 +51,36 @@ abstract final class ZephyrChatChrome {
       color: o >= 1.0 ? fill : fill.withValues(alpha: o),
       radius: composerOuterRadius,
       shadows: composerShadows(theme.brightness, opacity: o),
+    );
+  }
+
+  static ShapeBorder composerShape() => ContinuousRectangleBorder(
+        borderRadius: BorderRadius.circular(composerOuterRadius),
+      );
+
+  static ShapeBorder messageBubbleShape({
+    required bool isUser,
+    required double radius,
+  }) =>
+      ContinuousRectangleBorder(
+        borderRadius: bubbleBorderRadius(isUser: isUser, radius: radius),
+      );
+
+  /// Frosted-glass clip for translucent bubbles / composer over a background.
+  ///
+  /// [sigma] ≤ 0 skips the filter.
+  static Widget maybeFrosted({
+    required double sigma,
+    required ShapeBorder shape,
+    required Widget child,
+  }) {
+    if (sigma <= 0) return child;
+    return ClipPath(
+      clipper: ShapeBorderClipper(shape: shape),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+        child: child,
+      ),
     );
   }
 

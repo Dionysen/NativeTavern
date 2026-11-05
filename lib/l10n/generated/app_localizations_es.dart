@@ -4194,6 +4194,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Applies to custom and character image backgrounds';
 
   @override
+  String get enableBubbleBlur => 'Bubble blur';
+
+  @override
+  String get enableBubbleBlurHint =>
+      '0 is off. Higher values blur what\'s behind bubbles and the input.';
+
+  @override
   String get enableBackgroundBlur => 'Enable background blur';
 
   @override
