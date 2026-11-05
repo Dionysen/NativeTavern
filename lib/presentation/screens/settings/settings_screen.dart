@@ -59,6 +59,13 @@ class SettingsScreen extends ConsumerWidget {
                 onTap: () => context.push(AppRoutes.quickReplies),
               ),
               SettingsValueTile(
+                icon: Icons.grading_outlined,
+                title: l10n.replyChoices,
+                subtitle: l10n.enableReplyChoicesHint,
+                valueText: '',
+                onTap: () => context.push(AppRoutes.replyChoices),
+              ),
+              SettingsValueTile(
                 key: const Key('memory-inbox-settings-tile'),
                 icon: Icons.memory,
                 title: l10n.memoryInbox,

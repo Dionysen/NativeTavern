@@ -12,6 +12,7 @@ import 'package:native_tavern/presentation/screens/settings/settings_screen.dart
 import 'package:native_tavern/presentation/screens/settings/prompt_manager_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/advanced_settings_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/quick_reply_screen.dart';
+import 'package:native_tavern/presentation/screens/settings/chat_choice_settings_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/background_settings_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/theme_settings_screen.dart';
 import 'package:native_tavern/presentation/screens/settings/statistics_screen.dart';
@@ -63,6 +64,7 @@ abstract class AppRoutes {
   static const promptManager = '/prompt-manager';
   static const advancedSettings = '/advanced-settings';
   static const quickReplies = '/quick-replies';
+  static const replyChoices = '/reply-choices';
   static const backgroundSettings = '/background-settings';
   static const themeSettings = '/theme-settings';
   static const statistics = '/statistics';
@@ -244,6 +246,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'quickReplies',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const QuickReplyScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.replyChoices,
+        name: 'replyChoices',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ChatChoiceSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.backgroundSettings,

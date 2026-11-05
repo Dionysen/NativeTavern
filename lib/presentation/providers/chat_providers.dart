@@ -41,6 +41,7 @@ import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/providers/tool_calling_providers.dart';
 import 'package:native_tavern/presentation/providers/vector_storage_providers.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';
+import 'package:native_tavern/presentation/providers/chat_choice_providers.dart';
 
 // Note: Repository providers are defined in their respective repository files
 // llmServiceProvider is defined in settings_providers.dart
@@ -1015,6 +1016,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     );
 
     await _persistAddMessage(userMessage);
+    _ref.read(chatChoiceSessionProvider.notifier).clearForUserSend();
     state = state.copyWith(
       messages: [...state.messages, userMessage],
       isGenerating: true,
@@ -1112,6 +1114,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
           config: config,
         ),
       );
+      unawaited(_refreshReplyChoicesIfEnabled(config));
     } catch (e, stackTrace) {
       _closeGenerationSession();
       if (e is ChatGenerationCancelledException) {
@@ -1233,6 +1236,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
       state = state.copyWith(isGenerating: false);
       await _restoreRecentMessagesPage();
+      unawaited(_refreshReplyChoicesIfEnabled(config));
     } catch (e, stackTrace) {
       _closeGenerationSession();
       if (e is ChatGenerationCancelledException) {
@@ -1512,6 +1516,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
       state = state.copyWith(isGenerating: false);
       await _restoreRecentMessagesPage();
+      unawaited(_refreshReplyChoicesIfEnabled(config));
     } catch (e, stackTrace) {
       _closeGenerationSession();
       if (e is ChatGenerationCancelledException) {
@@ -1715,6 +1720,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
       state = state.copyWith(isGenerating: false);
       await _restoreRecentMessagesPage();
+      unawaited(_refreshReplyChoicesIfEnabled(config));
     } catch (e, stackTrace) {
       _closeGenerationSession();
       if (e is ChatGenerationCancelledException) {
@@ -3224,6 +3230,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     );
 
     await _persistAddMessage(userMessage);
+    _ref.read(chatChoiceSessionProvider.notifier).clearForUserSend();
     state = state.copyWith(
       messages: [...state.messages, userMessage],
       error: null,
@@ -3249,6 +3256,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
           config: config,
         ),
       );
+      unawaited(_refreshReplyChoicesIfEnabled(config));
     }
     await _restoreRecentMessagesPage();
   }
@@ -3312,6 +3320,34 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
             turnMessages: turnMessages,
             config: config,
           );
+    }
+  }
+
+  /// Full LLM context for auxiliary calls (e.g. reply-choice generation).
+  Future<List<Map<String, dynamic>>> buildLlmContextForChoices() async {
+    await _ensureAllMessagesLoaded();
+    return _buildContext();
+  }
+
+  Future<void> _refreshReplyChoicesIfEnabled(LLMConfig config) async {
+    if (!mounted) return;
+    final chatId = state.chat?.id;
+    if (chatId == null) return;
+    if (state.messages.isEmpty ||
+        state.messages.last.role != MessageRole.assistant) {
+      return;
+    }
+    final choiceConfig = _ref.read(chatChoiceConfigProvider);
+    if (!choiceConfig.enabled) return;
+    try {
+      final context = await _buildContext();
+      await _ref.read(chatChoiceSessionProvider.notifier).generateForChat(
+            chatId: chatId,
+            config: config,
+            contextMessages: context,
+          );
+    } catch (error, stackTrace) {
+      debugPrint('Reply choice generation failed: $error\n$stackTrace');
     }
   }
 

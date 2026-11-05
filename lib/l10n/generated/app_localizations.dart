@@ -1267,6 +1267,102 @@ abstract class AppLocalizations {
   /// **'Quick Replies'**
   String get quickReplies;
 
+  /// AI-generated reply choice feature title
+  ///
+  /// In en, this message translates to:
+  /// **'Reply choices'**
+  String get replyChoices;
+
+  /// Toggle to generate choices after AI replies
+  ///
+  /// In en, this message translates to:
+  /// **'Enable reply choices'**
+  String get enableReplyChoices;
+
+  /// Subtitle for reply choices toggle
+  ///
+  /// In en, this message translates to:
+  /// **'After each AI message, suggest options you can tap to send'**
+  String get enableReplyChoicesHint;
+
+  /// How many options to generate
+  ///
+  /// In en, this message translates to:
+  /// **'Number of choices'**
+  String get replyChoiceCount;
+
+  /// Character limit for each option text
+  ///
+  /// In en, this message translates to:
+  /// **'Max characters per choice'**
+  String get replyChoiceMaxChars;
+
+  /// Settings section for choice generation prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Prompt template'**
+  String get replyChoicePromptTemplate;
+
+  /// Help text for prompt template placeholders
+  ///
+  /// In en, this message translates to:
+  /// **'Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (each wrapped in double curly braces in your template)'**
+  String get replyChoicePromptPlaceholders;
+
+  /// Per-option guidance section title
+  ///
+  /// In en, this message translates to:
+  /// **'Option tendencies'**
+  String get replyChoiceTendencies;
+
+  /// Label for one option tendency field
+  ///
+  /// In en, this message translates to:
+  /// **'Option {index} tendency'**
+  String replyChoiceTendencyLabel(int index);
+
+  /// Hint for tendency input
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. cautious, flirtatious, ask a question'**
+  String get replyChoiceTendencyHint;
+
+  /// Panel title when feature disabled
+  ///
+  /// In en, this message translates to:
+  /// **'Reply choices are off'**
+  String get replyChoicesDisabledTitle;
+
+  /// Panel body when feature disabled
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on in settings to get AI-suggested replies after each message.'**
+  String get replyChoicesDisabledHint;
+
+  /// Button to open reply choice settings
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get openReplyChoicesSettings;
+
+  /// Error when choice generation fails
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate choices. Try again after the next reply.'**
+  String get replyChoicesGenerateFailed;
+
+  /// Empty state in choice panel
+  ///
+  /// In en, this message translates to:
+  /// **'No choices yet. They appear after the character replies.'**
+  String get replyChoicesEmpty;
+
+  /// Chat composer button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Reply choices'**
+  String get showReplyChoices;
+
   /// Create quick reply button
   ///
   /// In en, this message translates to:

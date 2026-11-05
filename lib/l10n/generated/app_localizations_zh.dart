@@ -606,6 +606,57 @@ class AppLocalizationsZh extends AppLocalizations {
   String get quickReplies => '快捷回复';
 
   @override
+  String get replyChoices => '回复选项';
+
+  @override
+  String get enableReplyChoices => '启用回复选项';
+
+  @override
+  String get enableReplyChoicesHint => '每次 AI 回复后，根据情景生成可点击发送的选项';
+
+  @override
+  String get replyChoiceCount => '选项数量';
+
+  @override
+  String get replyChoiceMaxChars => '每个选项字数上限';
+
+  @override
+  String get replyChoicePromptTemplate => '提示词模板';
+
+  @override
+  String get replyChoicePromptPlaceholders =>
+      '占位符：count、max_chars、option_lines、tendency_1 … tendency_N（在模板中用双层花括号包裹）';
+
+  @override
+  String get replyChoiceTendencies => '各选项倾向';
+
+  @override
+  String replyChoiceTendencyLabel(int index) {
+    return '选项 $index 倾向';
+  }
+
+  @override
+  String get replyChoiceTendencyHint => '例如：谨慎、调情、追问';
+
+  @override
+  String get replyChoicesDisabledTitle => '回复选项已关闭';
+
+  @override
+  String get replyChoicesDisabledHint => '在设置中开启后，每次角色回复都会生成可选回复。';
+
+  @override
+  String get openReplyChoicesSettings => '打开设置';
+
+  @override
+  String get replyChoicesGenerateFailed => '未能生成选项，请在下一次回复后再试。';
+
+  @override
+  String get replyChoicesEmpty => '暂无选项，角色回复后会出现在这里。';
+
+  @override
+  String get showReplyChoices => '回复选项';
+
+  @override
   String get createQuickReply => '创建快捷回复';
 
   @override
@@ -7294,6 +7345,57 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get quickReplies => '快速回覆';
+
+  @override
+  String get replyChoices => '回覆選項';
+
+  @override
+  String get enableReplyChoices => '啟用回覆選項';
+
+  @override
+  String get enableReplyChoicesHint => '每次 AI 回覆後，依情境產生可點擊傳送的選項';
+
+  @override
+  String get replyChoiceCount => '選項數量';
+
+  @override
+  String get replyChoiceMaxChars => '每個選項字數上限';
+
+  @override
+  String get replyChoicePromptTemplate => '提示詞範本';
+
+  @override
+  String get replyChoicePromptPlaceholders =>
+      '占位符：count、max_chars、option_lines、tendency_1 … tendency_N（在範本中用雙層花括號包裹）';
+
+  @override
+  String get replyChoiceTendencies => '各選項傾向';
+
+  @override
+  String replyChoiceTendencyLabel(int index) {
+    return '選項 $index 傾向';
+  }
+
+  @override
+  String get replyChoiceTendencyHint => '例如：謹慎、調情、追問';
+
+  @override
+  String get replyChoicesDisabledTitle => '回覆選項已關閉';
+
+  @override
+  String get replyChoicesDisabledHint => '在設定中開啟後，每次角色回覆都會產生可選回覆。';
+
+  @override
+  String get openReplyChoicesSettings => '開啟設定';
+
+  @override
+  String get replyChoicesGenerateFailed => '未能產生選項，請在下一次回覆後再試。';
+
+  @override
+  String get replyChoicesEmpty => '尚無選項，角色回覆後會出現在這裡。';
+
+  @override
+  String get showReplyChoices => '回覆選項';
 
   @override
   String get createQuickReply => '建立快速回覆';

@@ -846,6 +846,75 @@
   "@quickReplies": {
     "description": "Quick replies screen title"
   },
+  "replyChoices": "Reply choices",
+  "@replyChoices": {
+    "description": "AI-generated reply choice feature title"
+  },
+  "enableReplyChoices": "Enable reply choices",
+  "@enableReplyChoices": {
+    "description": "Toggle to generate choices after AI replies"
+  },
+  "enableReplyChoicesHint": "After each AI message, suggest options you can tap to send",
+  "@enableReplyChoicesHint": {
+    "description": "Subtitle for reply choices toggle"
+  },
+  "replyChoiceCount": "Number of choices",
+  "@replyChoiceCount": {
+    "description": "How many options to generate"
+  },
+  "replyChoiceMaxChars": "Max characters per choice",
+  "@replyChoiceMaxChars": {
+    "description": "Character limit for each option text"
+  },
+  "replyChoicePromptTemplate": "Prompt template",
+  "@replyChoicePromptTemplate": {
+    "description": "Settings section for choice generation prompt"
+  },
+  "replyChoicePromptPlaceholders": "Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (each wrapped in double curly braces in your template)",
+  "@replyChoicePromptPlaceholders": {
+    "description": "Help text for prompt template placeholders"
+  },
+  "replyChoiceTendencies": "Option tendencies",
+  "@replyChoiceTendencies": {
+    "description": "Per-option guidance section title"
+  },
+  "replyChoiceTendencyLabel": "Option {index} tendency",
+  "@replyChoiceTendencyLabel": {
+    "description": "Label for one option tendency field",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "replyChoiceTendencyHint": "e.g. cautious, flirtatious, ask a question",
+  "@replyChoiceTendencyHint": {
+    "description": "Hint for tendency input"
+  },
+  "replyChoicesDisabledTitle": "Reply choices are off",
+  "@replyChoicesDisabledTitle": {
+    "description": "Panel title when feature disabled"
+  },
+  "replyChoicesDisabledHint": "Turn on in settings to get AI-suggested replies after each message.",
+  "@replyChoicesDisabledHint": {
+    "description": "Panel body when feature disabled"
+  },
+  "openReplyChoicesSettings": "Open settings",
+  "@openReplyChoicesSettings": {
+    "description": "Button to open reply choice settings"
+  },
+  "replyChoicesGenerateFailed": "Could not generate choices. Try again after the next reply.",
+  "@replyChoicesGenerateFailed": {
+    "description": "Error when choice generation fails"
+  },
+  "replyChoicesEmpty": "No choices yet. They appear after the character replies.",
+  "@replyChoicesEmpty": {
+    "description": "Empty state in choice panel"
+  },
+  "showReplyChoices": "Reply choices",
+  "@showReplyChoices": {
+    "description": "Chat composer button tooltip"
+  },
   "createQuickReply": "Create Quick Reply",
   "@createQuickReply": {
     "description": "Create quick reply button"

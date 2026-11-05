@@ -619,6 +619,62 @@ class AppLocalizationsTr extends AppLocalizations {
   String get quickReplies => 'Hızlı Yanıtlar';
 
   @override
+  String get replyChoices => 'Reply choices';
+
+  @override
+  String get enableReplyChoices => 'Enable reply choices';
+
+  @override
+  String get enableReplyChoicesHint =>
+      'After each AI message, suggest options you can tap to send';
+
+  @override
+  String get replyChoiceCount => 'Number of choices';
+
+  @override
+  String get replyChoiceMaxChars => 'Max characters per choice';
+
+  @override
+  String get replyChoicePromptTemplate => 'Prompt template';
+
+  @override
+  String get replyChoicePromptPlaceholders =>
+      'Placeholders: count, max_chars, option_lines, tendency_1 … tendency_N (each wrapped in double curly braces in your template)';
+
+  @override
+  String get replyChoiceTendencies => 'Option tendencies';
+
+  @override
+  String replyChoiceTendencyLabel(int index) {
+    return 'Option $index tendency';
+  }
+
+  @override
+  String get replyChoiceTendencyHint =>
+      'e.g. cautious, flirtatious, ask a question';
+
+  @override
+  String get replyChoicesDisabledTitle => 'Reply choices are off';
+
+  @override
+  String get replyChoicesDisabledHint =>
+      'Turn on in settings to get AI-suggested replies after each message.';
+
+  @override
+  String get openReplyChoicesSettings => 'Open settings';
+
+  @override
+  String get replyChoicesGenerateFailed =>
+      'Could not generate choices. Try again after the next reply.';
+
+  @override
+  String get replyChoicesEmpty =>
+      'No choices yet. They appear after the character replies.';
+
+  @override
+  String get showReplyChoices => 'Reply choices';
+
+  @override
   String get createQuickReply => 'Hızlı Yanıt Oluştur';
 
   @override

@@ -846,6 +846,29 @@
   "@quickReplies": {
     "description": "Quick replies screen title"
   },
+  "replyChoices": "回覆選項",
+  "enableReplyChoices": "啟用回覆選項",
+  "enableReplyChoicesHint": "每次 AI 回覆後，依情境產生可點擊傳送的選項",
+  "replyChoiceCount": "選項數量",
+  "replyChoiceMaxChars": "每個選項字數上限",
+  "replyChoicePromptTemplate": "提示詞範本",
+  "replyChoicePromptPlaceholders": "占位符：count、max_chars、option_lines、tendency_1 … tendency_N（在範本中用雙層花括號包裹）",
+  "replyChoiceTendencies": "各選項傾向",
+  "replyChoiceTendencyLabel": "選項 {index} 傾向",
+  "@replyChoiceTendencyLabel": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "replyChoiceTendencyHint": "例如：謹慎、調情、追問",
+  "replyChoicesDisabledTitle": "回覆選項已關閉",
+  "replyChoicesDisabledHint": "在設定中開啟後，每次角色回覆都會產生可選回覆。",
+  "openReplyChoicesSettings": "開啟設定",
+  "replyChoicesGenerateFailed": "未能產生選項，請在下一次回覆後再試。",
+  "replyChoicesEmpty": "尚無選項，角色回覆後會出現在這裡。",
+  "showReplyChoices": "回覆選項",
   "createQuickReply": "建立快速回覆",
   "@createQuickReply": {
     "description": "Create quick reply button"

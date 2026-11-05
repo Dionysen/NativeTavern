@@ -31,6 +31,7 @@ import 'package:native_tavern/presentation/providers/chat_extension_providers.da
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/quick_reply_providers.dart';
+import 'package:native_tavern/presentation/providers/chat_choice_providers.dart';
 import 'package:native_tavern/presentation/providers/rpg_chat_providers.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
@@ -52,6 +53,7 @@ import 'package:native_tavern/presentation/widgets/chat/chat_voice_input_button.
 import 'package:native_tavern/presentation/widgets/chat/message_content_widget.dart';
 import 'package:native_tavern/presentation/widgets/chat/memory_context_usage_sheet.dart';
 import 'package:native_tavern/presentation/widgets/chat/quick_reply_bar.dart';
+import 'package:native_tavern/presentation/widgets/chat/chat_choice_panel.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_scaffold.dart';
 import 'package:native_tavern/presentation/widgets/play/ai_play_feature_gate.dart';
@@ -108,7 +110,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final FocusNode _focusNode = FocusNode();
   bool _showSlashSuggestions = false;
   bool _showInputMenu = false;
-  final LayerLink _inputMenuLayerLink = LayerLink();
+  bool _showChoicePanel = false;
   final GlobalKey _formattingMenuButtonKey = GlobalKey();
   final List<ChatAttachment> _pendingAttachments = [];
   final ImagePicker _imagePicker = ImagePicker();
@@ -221,7 +223,54 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _setInputMenuVisible(bool visible) {
     if (_showInputMenu == visible) return;
-    setState(() => _showInputMenu = visible);
+    setState(() {
+      _showInputMenu = visible;
+      if (visible) _showChoicePanel = false;
+    });
+  }
+
+  void _setChoicePanelVisible(bool visible) {
+    if (_showChoicePanel == visible) return;
+    setState(() {
+      _showChoicePanel = visible;
+      if (visible) _showInputMenu = false;
+    });
+  }
+
+  void _openReplyChoicesSettings() {
+    _setChoicePanelVisible(false);
+    context.push(AppRoutes.replyChoices);
+  }
+
+  Future<void> _sendChoiceMessage(String text) async {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return;
+
+    if (trimmed.startsWith('/')) {
+      _setChoicePanelVisible(false);
+      await _handleSlashCommand(trimmed);
+      return;
+    }
+
+    final config = ref.read(llmConfigProvider);
+    if (!_isApiConfigured(config)) {
+      _showApiConfigurationDialog();
+      return;
+    }
+
+    _setChoicePanelVisible(false);
+    _messageController.clear();
+    setState(() {
+      _showSlashSuggestions = false;
+      _pendingAttachments.clear();
+    });
+    _focusNode.unfocus();
+    _scrollToBottom(force: true);
+    await ref.read(activeChatProvider.notifier).sendMessage(trimmed, config);
+  }
+
+  void _onReplyChoicesButtonPressed() {
+    _setChoicePanelVisible(!_showChoicePanel);
   }
 
   Future<void> _saveLive2DTransform(
@@ -1231,9 +1280,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         _buildInputArea(chatState),
                       ],
                     ),
-                    if (_showInputMenu)
-                      _buildInputMenuOverlay(
-                          chatState, math.max(0, contentWidth - 32)),
                   ],
                 ),
               ),
@@ -2428,14 +2474,30 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 _buildAttachmentsPreview(),
                 const SizedBox(height: 8),
               ],
-              CompositedTransformTarget(
-                link: _inputMenuLayerLink,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: _focusMessageInputAtEnd,
-                  child: DecoratedBox(
-                    decoration: ZephyrChatChrome.composerShell(context),
-                    child: Column(
+              if (_showChoicePanel) ...[
+                _composerExpansionPanel(
+                  child: ChatChoicePanel(
+                    onSelectChoice: _sendChoiceMessage,
+                    onOpenSettings: _openReplyChoicesSettings,
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+              if (_showInputMenu) ...[
+                _composerExpansionPanel(
+                  child: _buildInputMenuPanel(
+                    _inputMenuShowsQuickReplies(chatState),
+                    chatState,
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _focusMessageInputAtEnd,
+                child: DecoratedBox(
+                  decoration: ZephyrChatChrome.composerShell(context),
+                  child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -2475,6 +2537,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                     ? Icons.close_rounded
                                     : Icons.menu_rounded,
                                 size: 22,
+                              ),
+                            ),
+                            ChromeIconButton(
+                              density: ChromeIconButtonDensity.compact,
+                              onPressed: _onReplyChoicesButtonPressed,
+                              tooltip: l10n.showReplyChoices,
+                              isSelected: _showChoicePanel,
+                              icon: Icon(
+                                Icons.grading_outlined,
+                                size: 22,
+                                color: ref.watch(chatChoiceConfigProvider)
+                                        .enabled
+                                    ? null
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.38),
                               ),
                             ),
                             Expanded(
@@ -2536,7 +2615,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ),
                 ),
               ),
-            ),
             ],
           ),
         ),
@@ -2544,33 +2622,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildInputMenuOverlay(ActiveChatState chatState, double width) {
+  Widget _composerExpansionPanel({required Widget child}) {
+    return DecoratedBox(
+      decoration: ZephyrChatChrome.composerShell(context),
+      child: child,
+    );
+  }
+
+  bool _inputMenuShowsQuickReplies(ActiveChatState chatState) {
     final quickReplyConfig = ref.watch(quickReplyConfigProvider);
     final enabledReplies = ref.watch(enabledQuickRepliesProvider);
-    final showQuickReplies = quickReplyConfig.showQuickReplies &&
+    return quickReplyConfig.showQuickReplies &&
         enabledReplies.isNotEmpty &&
         !chatState.isGenerating;
-
-    return Positioned.fill(
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: CompositedTransformFollower(
-          link: _inputMenuLayerLink,
-          showWhenUnlinked: false,
-          targetAnchor: Alignment.topLeft,
-          followerAnchor: Alignment.bottomLeft,
-          offset: const Offset(0, -12),
-          child: SizedBox(
-            width: width,
-            child: Material(
-              color: Colors.transparent,
-              elevation: 8,
-              child: _buildInputMenuPanel(showQuickReplies, chatState),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   /// Build the expandable menu panel above the input field
@@ -2578,10 +2642,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     bool showQuickReplies,
     ActiveChatState chatState,
   ) {
-    return Container(
+    return Padding(
       key: const ValueKey('chat-input-menu-panel'),
       padding: const EdgeInsets.all(12),
-      decoration: ZephyrChatChrome.inputMenuPanel(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
