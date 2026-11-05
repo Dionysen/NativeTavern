@@ -5427,7 +5427,6 @@
   "@setAsBackground": {
     "description": "UI label: Set as background"
   },
-  "moveToFolder": "移动到文件夹",
   "@moveToFolder": {
     "description": "UI label: Move to folder"
   },
@@ -7030,8 +7029,6 @@
   "fontSearchHint": "搜索字体",
   "cornerRadiusTitle": "圆角",
   "cornerRadiusDescription": "按钮、菜单、卡片与输入框的圆角",
-  "barCornerRadiusTitle": "栏圆角",
-  "barCornerRadiusDescription": "应用栏与浮动栏的圆角",
   "chatBubbleCornerRadiusTitle": "对话气泡圆角",
   "chatBubbleCornerRadiusDescription": "聊天消息气泡的圆角",
   "showBordersTitle": "显示边框",

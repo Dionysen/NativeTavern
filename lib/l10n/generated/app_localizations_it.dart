@@ -6803,13 +6803,6 @@ class AppLocalizationsIt extends AppLocalizations {
       'Shared roundness for buttons, menus, cards, and fields.';
 
   @override
-  String get barCornerRadiusTitle => 'Bar corner radius';
-
-  @override
-  String get barCornerRadiusDescription =>
-      'Roundness of app bars and floating bars.';
-
-  @override
   String get chatBubbleCornerRadiusTitle => 'Chat bubble corners';
 
   @override

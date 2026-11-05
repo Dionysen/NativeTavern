@@ -6904,8 +6904,6 @@
   "uiFontSizeDescription": "Size of text in settings and the rest of the interface.",
   "cornerRadiusTitle": "Corner radius",
   "cornerRadiusDescription": "Shared roundness for buttons, menus, cards, and fields.",
-  "barCornerRadiusTitle": "Bar corner radius",
-  "barCornerRadiusDescription": "Roundness of app bars and floating bars.",
   "chatBubbleCornerRadiusTitle": "Chat bubble corners",
   "chatBubbleCornerRadiusDescription": "Roundness of chat message bubbles.",
   "showBordersTitle": "Show borders",

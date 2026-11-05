@@ -6977,8 +6977,6 @@
   "fontSearchHint": "搜尋字體",
   "cornerRadiusTitle": "圓角",
   "cornerRadiusDescription": "按钮、選單、卡片與輸入框的圓角",
-  "barCornerRadiusTitle": "欄圓角",
-  "barCornerRadiusDescription": "應用欄與浮動欄的圓角",
   "chatBubbleCornerRadiusTitle": "對話氣泡圓角",
   "chatBubbleCornerRadiusDescription": "聊天訊息氣泡的圓角",
   "showBordersTitle": "顯示邊框",

@@ -385,9 +385,6 @@ class ThemeAppearanceNotifier extends StateNotifier<ThemeState> {
   void updateCornerRadius(double value) =>
       updateUi(state.ui.copyWith(cornerRadius: value));
 
-  void updateBarCornerRadius(double value) =>
-      updateUi(state.ui.copyWith(barCornerRadius: value));
-
   void updateChatBubbleCornerRadius(double value) =>
       updateUi(state.ui.copyWith(chatBubbleCornerRadius: value));
 

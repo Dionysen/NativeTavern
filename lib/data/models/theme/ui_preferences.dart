@@ -5,7 +5,6 @@ class UiPreferences {
     this.fontFamily,
     this.fontPath,
     required this.cornerRadius,
-    required this.barCornerRadius,
     required this.chatBubbleCornerRadius,
     required this.showBorders,
   });
@@ -15,7 +14,6 @@ class UiPreferences {
     fontFamily: null,
     fontPath: null,
     cornerRadius: 4,
-    barCornerRadius: 4,
     chatBubbleCornerRadius: 30,
     showBorders: false,
   );
@@ -23,8 +21,6 @@ class UiPreferences {
   static const referenceFontSize = 15.0;
   static const minCornerRadius = 0.0;
   static const maxCornerRadius = 20.0;
-  static const minBarCornerRadius = 0.0;
-  static const maxBarCornerRadius = 24.0;
   static const minChatBubbleCornerRadius = 0.0;
   static const maxChatBubbleCornerRadius = 50.0;
   static const minFontSize = 11.0;
@@ -41,9 +37,6 @@ class UiPreferences {
   /// Shared corner radius for chrome controls, menus, cards, and dialogs.
   final double cornerRadius;
 
-  /// Corner radius for app bars and floating bars.
-  final double barCornerRadius;
-
   /// Chat bubble corner radius.
   final double chatBubbleCornerRadius;
 
@@ -58,7 +51,6 @@ class UiPreferences {
     String? fontPath,
     bool clearFont = false,
     double? cornerRadius,
-    double? barCornerRadius,
     double? chatBubbleCornerRadius,
     bool? showBorders,
   }) =>
@@ -67,7 +59,6 @@ class UiPreferences {
         fontFamily: clearFont ? null : fontFamily ?? this.fontFamily,
         fontPath: clearFont ? null : fontPath ?? this.fontPath,
         cornerRadius: cornerRadius ?? this.cornerRadius,
-        barCornerRadius: barCornerRadius ?? this.barCornerRadius,
         chatBubbleCornerRadius:
             chatBubbleCornerRadius ?? this.chatBubbleCornerRadius,
         showBorders: showBorders ?? this.showBorders,
@@ -78,7 +69,6 @@ class UiPreferences {
         if (fontFamily != null) 'fontFamily': fontFamily,
         if (fontPath != null) 'fontPath': fontPath,
         'cornerRadius': cornerRadius,
-        'barCornerRadius': barCornerRadius,
         'chatBubbleCornerRadius': chatBubbleCornerRadius,
         'showBorders': showBorders,
       };
@@ -105,8 +95,6 @@ class UiPreferences {
       fontPath: fontPath,
       cornerRadius:
           (json['cornerRadius'] as num?)?.toDouble() ?? defaults.cornerRadius,
-      barCornerRadius: (json['barCornerRadius'] as num?)?.toDouble() ??
-          defaults.barCornerRadius,
       chatBubbleCornerRadius:
           (json['chatBubbleCornerRadius'] as num?)?.toDouble() ??
               defaults.chatBubbleCornerRadius,

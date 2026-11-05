@@ -54,19 +54,15 @@ abstract final class ChromeControls {
 class AppShapeTheme extends ThemeExtension<AppShapeTheme> {
   const AppShapeTheme({
     required this.cornerRadius,
-    this.barCornerRadius = 4,
     this.chatBubbleCornerRadius = 30,
     this.showBorders = false,
   });
 
   final double cornerRadius;
-  final double barCornerRadius;
   final double chatBubbleCornerRadius;
   final bool showBorders;
 
   BorderRadius get borderRadius => BorderRadius.circular(cornerRadius);
-
-  BorderRadius get barBorderRadius => BorderRadius.circular(barCornerRadius);
 
   BorderRadius get chatBubbleBorderRadius =>
       BorderRadius.circular(chatBubbleCornerRadius);
@@ -85,13 +81,11 @@ class AppShapeTheme extends ThemeExtension<AppShapeTheme> {
   @override
   AppShapeTheme copyWith({
     double? cornerRadius,
-    double? barCornerRadius,
     double? chatBubbleCornerRadius,
     bool? showBorders,
   }) =>
       AppShapeTheme(
         cornerRadius: cornerRadius ?? this.cornerRadius,
-        barCornerRadius: barCornerRadius ?? this.barCornerRadius,
         chatBubbleCornerRadius:
             chatBubbleCornerRadius ?? this.chatBubbleCornerRadius,
         showBorders: showBorders ?? this.showBorders,
@@ -102,7 +96,6 @@ class AppShapeTheme extends ThemeExtension<AppShapeTheme> {
     if (other is! AppShapeTheme) return this;
     return AppShapeTheme(
       cornerRadius: lerpDouble(cornerRadius, other.cornerRadius, t)!,
-      barCornerRadius: lerpDouble(barCornerRadius, other.barCornerRadius, t)!,
       chatBubbleCornerRadius:
           lerpDouble(chatBubbleCornerRadius, other.chatBubbleCornerRadius, t)!,
       showBorders: t < 0.5 ? showBorders : other.showBorders,
@@ -118,10 +111,6 @@ extension AppThemeContext on BuildContext {
   double get appCornerRadius => appShape.cornerRadius;
 
   BorderRadius get appBorderRadius => appShape.borderRadius;
-
-  double get appBarCornerRadius => appShape.barCornerRadius;
-
-  BorderRadius get appBarBorderRadius => appShape.barBorderRadius;
 
   double get appChatBubbleCornerRadius => appShape.chatBubbleCornerRadius;
 
@@ -170,17 +159,12 @@ ThemeData buildNativeTavernTheme(
     UiPreferences.minCornerRadius,
     UiPreferences.maxCornerRadius,
   );
-  final barRadius = ui.barCornerRadius.clamp(
-    UiPreferences.minBarCornerRadius,
-    UiPreferences.maxBarCornerRadius,
-  );
   final bubbleRadius = ui.chatBubbleCornerRadius.clamp(
     UiPreferences.minChatBubbleCornerRadius,
     UiPreferences.maxChatBubbleCornerRadius,
   );
   final shape = AppShapeTheme(
     cornerRadius: radius,
-    barCornerRadius: barRadius,
     chatBubbleCornerRadius: bubbleRadius,
     showBorders: ui.showBorders,
   );
@@ -362,7 +346,6 @@ ThemeData buildNativeTavernTheme(
       foregroundColor: primaryText,
       elevation: 0,
       surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: shape.barBorderRadius),
       actionsPadding: const EdgeInsetsDirectional.only(
         end: ChromeControls.appBarActionsEndPadding,
       ),

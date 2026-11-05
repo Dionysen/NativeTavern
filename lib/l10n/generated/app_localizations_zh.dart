@@ -6543,12 +6543,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cornerRadiusDescription => '按钮、菜单、卡片与输入框的圆角';
 
   @override
-  String get barCornerRadiusTitle => '栏圆角';
-
-  @override
-  String get barCornerRadiusDescription => '应用栏与浮动栏的圆角';
-
-  @override
   String get chatBubbleCornerRadiusTitle => '对话气泡圆角';
 
   @override
@@ -13286,12 +13280,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get cornerRadiusDescription => '按钮、選單、卡片與輸入框的圓角';
-
-  @override
-  String get barCornerRadiusTitle => '欄圓角';
-
-  @override
-  String get barCornerRadiusDescription => '應用欄與浮動欄的圓角';
 
   @override
   String get chatBubbleCornerRadiusTitle => '對話氣泡圓角';

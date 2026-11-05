@@ -12081,18 +12081,6 @@ abstract class AppLocalizations {
   /// **'Shared roundness for buttons, menus, cards, and fields.'**
   String get cornerRadiusDescription;
 
-  /// No description provided for @barCornerRadiusTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Bar corner radius'**
-  String get barCornerRadiusTitle;
-
-  /// No description provided for @barCornerRadiusDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Roundness of app bars and floating bars.'**
-  String get barCornerRadiusDescription;
-
   /// No description provided for @chatBubbleCornerRadiusTitle.
   ///
   /// In en, this message translates to:
