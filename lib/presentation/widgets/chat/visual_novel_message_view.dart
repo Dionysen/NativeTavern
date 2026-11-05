@@ -7,6 +7,8 @@ import 'package:native_tavern/data/models/chat.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/regex_script.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/data/models/chat_background.dart';
+import 'package:native_tavern/presentation/providers/background_providers.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
@@ -170,43 +172,68 @@ class _VisualNovelMessageViewState
   }
 
   Widget _buildMessageArea(double height) {
-    final messagePanel = Container(
-      height: height,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.black.withValues(alpha: 0.6),
-            Colors.black.withValues(alpha: 0.8),
-          ],
-        ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 1),
+    final scheme = Theme.of(context).colorScheme;
+    // Match the composer shell: same continuous-curve radius & curvature.
+    final panelShape = ZephyrChatChrome.composerShape();
+    final background = ref
+            .watch(effectiveBackgroundProvider(widget.character?.id))
+            .valueOrNull ??
+        ChatBackground.none;
+    final opacity = background.bubbleOpacity.clamp(0.15, 1.0);
+    final frostSigma = ref.watch(
+      appSettingsProvider.select((s) => s.bubbleBlurSigma),
+    );
+    final fill = Color.alphaBlend(
+      scheme.surface.withValues(alpha: opacity),
+      Colors.black.withValues(alpha: 0.45 * opacity),
+    );
+
+    final messagePanel = DecoratedBox(
+      decoration: ShapeDecoration(
+        color: fill,
+        shape: ContinuousRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            ZephyrChatChrome.composerOuterRadius,
+          ),
+          side: BorderSide(
+            color: scheme.outlineVariant.withValues(alpha: 0.28),
+          ),
         ),
       ),
-      child: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.messages.length,
-        onPageChanged: (index) {
-          setState(() => _currentIndex = index);
-        },
-        itemBuilder: (context, index) {
-          final message = widget.messages[index];
-          final isLast = index == widget.messages.length - 1;
-          final isGenerating = isLast && widget.isGenerating;
+      child: SizedBox(
+        height: height,
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: widget.messages.length,
+          onPageChanged: (index) {
+            setState(() => _currentIndex = index);
+          },
+          itemBuilder: (context, index) {
+            final message = widget.messages[index];
+            final isLast = index == widget.messages.length - 1;
+            final isGenerating = isLast && widget.isGenerating;
 
-          return _buildMessageCard(message, isGenerating);
-        },
+            return _buildMessageCard(message, isGenerating);
+          },
+        ),
       ),
     );
 
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: messagePanel,
+    // Inset so all four rounded corners read against the background,
+    // including the bottom edge above the composer. Always clip to the
+    // composer continuous shape so curvature matches the input shell.
+    final clipped = frostSigma > 0
+        ? BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: frostSigma, sigmaY: frostSigma),
+            child: messagePanel,
+          )
+        : messagePanel;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      child: ClipPath(
+        clipper: ShapeBorderClipper(shape: panelShape),
+        child: clipped,
       ),
     );
   }
