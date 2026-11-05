@@ -38,17 +38,24 @@ class CharacterRepository {
     String query = '',
     String? browseFolderId,
     bool searchGlobally = true,
+    List<String> requiredTags = const [],
   }) async {
     final normalized = query.trim();
+    final tags = _normalizedTagFilter(requiredTags);
     if (normalized.isEmpty && browseFolderId != null) {
       return _charactersInFolderPage(
         folderId: browseFolderId,
         limit: limit,
         offset: offset,
+        requiredTags: tags,
       );
     }
     if (normalized.isEmpty && browseFolderId == null) {
-      return _charactersAtRootPage(limit: limit, offset: offset);
+      return _charactersAtRootPage(
+        limit: limit,
+        offset: offset,
+        requiredTags: tags,
+      );
     }
     if (normalized.isNotEmpty &&
         browseFolderId != null &&
@@ -58,35 +65,106 @@ class CharacterRepository {
         query: normalized,
         limit: limit,
         offset: offset,
+        requiredTags: tags,
       );
     }
     final pattern = '%$normalized%';
-    final statement = _db.select(_db.characters)
-      ..where(
-        (row) =>
-            row.isDeleted.equals(false) &
-            (row.name.like(pattern) | row.description.like(pattern)),
+    final (tagSql, tagVars) = _sqlTagFilters('characters', tags);
+    final idRows = await _db.customSelect(
+      '''
+      SELECT id AS id
+      FROM characters
+      WHERE is_deleted = 0
+        AND (name LIKE ? OR description LIKE ?)
+        $tagSql
+      ORDER BY modified_at DESC
+      LIMIT ? OFFSET ?
+      ''',
+      variables: [
+        Variable<String>(pattern),
+        Variable<String>(pattern),
+        ...tagVars,
+        Variable<int>(limit),
+        Variable<int>(offset < 0 ? 0 : offset),
+      ],
+      readsFrom: {_db.characters},
+    ).get();
+    return _charactersByIdsInOrder(
+      idRows.map((row) => row.read<String>('id')).toList(growable: false),
+    );
+  }
+
+  /// Distinct tag labels used on characters (JSON tags and linked tag names).
+  Future<List<String>> listDistinctCharacterTagLabels() async {
+    final rows = await _db.customSelect(
+      '''
+      SELECT label FROM (
+        SELECT DISTINCT trim(je.value) AS label
+        FROM characters c
+        INNER JOIN json_each(c.tags) je
+        WHERE c.is_deleted = 0
+          AND je.value IS NOT NULL
+          AND trim(je.value) != ''
+        UNION
+        SELECT DISTINCT t.name AS label
+        FROM tags t
+        INNER JOIN character_tags ct ON ct.tag_id = t.id
+        INNER JOIN characters c ON c.id = ct.character_id
+        WHERE c.is_deleted = 0
       )
-      ..orderBy([(row) => OrderingTerm.desc(row.modifiedAt)])
-      ..limit(limit, offset: offset < 0 ? 0 : offset);
-    final rows = await statement.get();
-    return rows.map(_characterFromRow).toList(growable: false);
+      ORDER BY label COLLATE NOCASE
+      ''',
+      readsFrom: const {},
+    ).get();
+    return rows.map((row) => row.read<String>('label')).toList(growable: false);
+  }
+
+  List<String> _normalizedTagFilter(List<String> tags) {
+    return tags.map((tag) => tag.trim()).where((tag) => tag.isNotEmpty).toList();
+  }
+
+  (String, List<Variable<Object>>) _sqlTagFilters(
+    String tableAlias,
+    List<String> tags,
+  ) {
+    if (tags.isEmpty) {
+      return ('', const []);
+    }
+    final buffer = StringBuffer();
+    final variables = <Variable<Object>>[];
+    for (final tag in tags) {
+      buffer.write(
+        ' AND (EXISTS (SELECT 1 FROM json_each($tableAlias.tags) AS tag_row '
+        'WHERE tag_row.value = ?) '
+        'OR EXISTS (SELECT 1 FROM character_tags ct '
+        'INNER JOIN tags t ON t.id = ct.tag_id '
+        'WHERE ct.character_id = $tableAlias.id AND t.name = ?))',
+      );
+      variables.add(Variable<String>(tag));
+      variables.add(Variable<String>(tag));
+    }
+    return (buffer.toString(), variables);
   }
 
   Future<List<models.Character>> _charactersAtRootPage({
     required int limit,
     required int offset,
+    List<String> requiredTags = const [],
   }) async {
+    final tags = _normalizedTagFilter(requiredTags);
+    final (tagSql, tagVars) = _sqlTagFilters('c', tags);
     final idRows = await _db.customSelect(
       '''
       SELECT c.id AS id
       FROM characters c
       LEFT JOIN character_folder_members m ON m.character_id = c.id
       WHERE c.is_deleted = 0 AND m.character_id IS NULL
+      $tagSql
       ORDER BY c.modified_at DESC
       LIMIT ? OFFSET ?
       ''',
       variables: [
+        ...tagVars,
         Variable<int>(limit),
         Variable<int>(offset < 0 ? 0 : offset),
       ],
@@ -102,8 +180,11 @@ class CharacterRepository {
     required String query,
     required int limit,
     required int offset,
+    List<String> requiredTags = const [],
   }) async {
     final pattern = '%$query%';
+    final tags = _normalizedTagFilter(requiredTags);
+    final (tagSql, tagVars) = _sqlTagFilters('c', tags);
     final idRows = await _db.customSelect(
       '''
       SELECT c.id AS id
@@ -111,6 +192,7 @@ class CharacterRepository {
       INNER JOIN character_folder_members m ON m.character_id = c.id
       WHERE c.is_deleted = 0 AND m.folder_id = ?
         AND (c.name LIKE ? OR c.description LIKE ?)
+        $tagSql
       ORDER BY c.modified_at DESC
       LIMIT ? OFFSET ?
       ''',
@@ -118,6 +200,7 @@ class CharacterRepository {
         Variable<String>(folderId),
         Variable<String>(pattern),
         Variable<String>(pattern),
+        ...tagVars,
         Variable<int>(limit),
         Variable<int>(offset < 0 ? 0 : offset),
       ],
@@ -132,18 +215,23 @@ class CharacterRepository {
     required String folderId,
     required int limit,
     required int offset,
+    List<String> requiredTags = const [],
   }) async {
+    final tags = _normalizedTagFilter(requiredTags);
+    final (tagSql, tagVars) = _sqlTagFilters('c', tags);
     final idRows = await _db.customSelect(
       '''
       SELECT c.id AS id
       FROM characters c
       INNER JOIN character_folder_members m ON m.character_id = c.id
       WHERE c.is_deleted = 0 AND m.folder_id = ?
+      $tagSql
       ORDER BY c.modified_at DESC
       LIMIT ? OFFSET ?
       ''',
       variables: [
         Variable<String>(folderId),
+        ...tagVars,
         Variable<int>(limit),
         Variable<int>(offset < 0 ? 0 : offset),
       ],

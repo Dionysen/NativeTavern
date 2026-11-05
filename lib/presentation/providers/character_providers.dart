@@ -15,6 +15,14 @@ final characterDetailProvider =
   return repo.getCharacter(id);
 });
 
+/// Selected tag labels for filtering the character browser (match all).
+final characterBrowseTagFilterProvider = StateProvider<Set<String>>((ref) => {});
+
+final characterLibraryTagLabelsProvider =
+    FutureProvider<List<String>>((ref) async {
+  return ref.read(characterRepositoryProvider).listDistinctCharacterTagLabels();
+});
+
 /// Character list provider
 final characterListProvider =
     AsyncNotifierProvider<CharacterListNotifier, List<Character>>(() {
@@ -38,6 +46,12 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     return ref.read(characterSearchGlobalProvider);
   }
 
+  List<String> _requiredTags() {
+    final tags = ref.read(characterBrowseTagFilterProvider).toList()
+      ..sort();
+    return tags;
+  }
+
   Future<List<Character>> _fetchPage({required int offset}) {
     return ref.read(characterRepositoryProvider).getCharactersPage(
           limit: _pageSize,
@@ -45,6 +59,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
           query: _query,
           browseFolderId: ref.read(characterBrowseFolderIdProvider),
           searchGlobally: _searchGlobally(),
+          requiredTags: _requiredTags(),
         );
   }
 
@@ -52,6 +67,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
   Future<List<Character>> build() async {
     ref.watch(characterBrowseFolderIdProvider);
     ref.watch(characterSearchGlobalProvider);
+    ref.watch(characterBrowseTagFilterProvider);
     ref.watch(characterRepositoryProvider);
     _offset = 0;
     _hasMore = true;
@@ -97,6 +113,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
   Future<Character> addCharacter(Character character) async {
     final repo = ref.read(characterRepositoryProvider);
     final createdCharacter = await repo.createCharacter(character);
+    ref.invalidate(characterLibraryTagLabelsProvider);
     await refresh();
     return createdCharacter;
   }
@@ -105,6 +122,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     final repo = ref.read(characterRepositoryProvider);
     await repo.updateCharacter(character);
     await _refreshFolderChrome();
+    ref.invalidate(characterLibraryTagLabelsProvider);
     await refresh();
   }
 
@@ -112,6 +130,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     final repo = ref.read(characterRepositoryProvider);
     await repo.deleteCharacter(id);
     await _refreshFolderChrome();
+    ref.invalidate(characterLibraryTagLabelsProvider);
     await refresh();
   }
 

@@ -10,6 +10,7 @@ import 'package:native_tavern/presentation/providers/character_folder_providers.
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/widgets/character/character_folder_tiles.dart';
 import 'package:native_tavern/presentation/widgets/character/character_folder_ui.dart';
+import 'package:native_tavern/presentation/widgets/character/character_tag_filter_sheet.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
@@ -141,6 +142,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     final l10n = AppLocalizations.of(context);
     final charactersAsync = ref.watch(characterListProvider);
     final browseFolderId = ref.watch(characterBrowseFolderIdProvider);
+    final tagFilter = ref.watch(characterBrowseTagFilterProvider);
     final foldersAsync = ref.watch(characterFoldersProvider);
     final folderTitle = browseFolderId == null
         ? null
@@ -260,6 +262,8 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           _SearchBar(
             showFolderScopeToggle: browseFolderId != null,
             searchEntireLibrary: ref.watch(characterSearchGlobalProvider),
+            tagFilterActive: tagFilter.isNotEmpty,
+            onOpenTagFilter: () => showCharacterTagFilterSheet(context, ref),
             onToggleSearchScope: () {
               final enableGlobal =
                   !ref.read(characterSearchGlobalProvider);
@@ -310,6 +314,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                     charactersAsync: charactersAsync,
                     l10n: l10n,
                     browseFolderId: browseFolderId,
+                    tagFilter: tagFilter,
                     foldersAsync: foldersAsync,
                   ),
                 ),
@@ -325,6 +330,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     required AsyncValue<List<Character>> charactersAsync,
     required AppLocalizations l10n,
     required String? browseFolderId,
+    required Set<String> tagFilter,
     required AsyncValue<List<CharacterFolder>> foldersAsync,
   }) {
     final cachedCharacters = charactersAsync.valueOrNull;
@@ -333,6 +339,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
         characters: cachedCharacters,
         l10n: l10n,
         browseFolderId: browseFolderId,
+        tagFilter: tagFilter,
         foldersAsync: foldersAsync,
       );
     }
@@ -343,6 +350,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           characters: characters,
           l10n: l10n,
           browseFolderId: browseFolderId,
+          tagFilter: tagFilter,
           foldersAsync: foldersAsync,
         );
       },
@@ -370,27 +378,17 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     required List<Character> characters,
     required AppLocalizations l10n,
     required String? browseFolderId,
+    required Set<String> tagFilter,
     required AsyncValue<List<CharacterFolder>> foldersAsync,
   }) {
-                  final filtered = _searchQuery.isEmpty
-                      ? characters
-                      : characters
-                          .where((c) =>
-                              c.name
-                                  .toLowerCase()
-                                  .contains(_searchQuery.toLowerCase()) ||
-                              c.description
-                                  .toLowerCase()
-                                  .contains(_searchQuery.toLowerCase()))
-                          .toList();
-
                   final showFolders = browseFolderId == null &&
                       _searchQuery.isEmpty &&
+                      tagFilter.isEmpty &&
                       !_selectionMode;
                   final folders =
                       foldersAsync.valueOrNull ?? const <CharacterFolder>[];
 
-                  if (filtered.isEmpty && (!showFolders || folders.isEmpty)) {
+                  if (characters.isEmpty && (!showFolders || folders.isEmpty)) {
                     return const _EmptyState();
                   }
 
@@ -409,7 +407,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                     case CharacterViewMode.list:
                       return _CharacterListView(
                         folders: visibleFolders,
-                        characters: filtered,
+                        characters: characters,
                         avatarShape: _avatarShape,
                         interaction: interaction,
                         onOpenFolder: _openFolder,
@@ -418,7 +416,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                     case CharacterViewMode.grid:
                       return _CharacterGridView(
                         folders: visibleFolders,
-                        characters: filtered,
+                        characters: characters,
                         interaction: interaction,
                         onOpenFolder: _openFolder,
                         onFolderActions: openFolderActions,
@@ -426,7 +424,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                     case CharacterViewMode.compactGrid:
                       return _CharacterCompactGridView(
                         folders: visibleFolders,
-                        characters: filtered,
+                        characters: characters,
                         interaction: interaction,
                         onOpenFolder: _openFolder,
                         onFolderActions: openFolderActions,
@@ -507,12 +505,16 @@ class _SearchBar extends StatelessWidget {
     required this.showFolderScopeToggle,
     required this.searchEntireLibrary,
     required this.onToggleSearchScope,
+    required this.tagFilterActive,
+    required this.onOpenTagFilter,
   });
 
   final ValueChanged<String> onChanged;
   final bool showFolderScopeToggle;
   final bool searchEntireLibrary;
   final VoidCallback onToggleSearchScope;
+  final bool tagFilterActive;
+  final VoidCallback onOpenTagFilter;
 
   @override
   Widget build(BuildContext context) {
@@ -543,10 +545,9 @@ class _SearchBar extends StatelessWidget {
                 ),
               ChromeIconButton(
                 icon: const Icon(Icons.filter_list),
-                tooltip: l10n.filters,
-                onPressed: () {
-                  // TODO: Show filter options
-                },
+                isSelected: tagFilterActive,
+                tooltip: l10n.filterByTags,
+                onPressed: onOpenTagFilter,
               ),
             ],
           ),
