@@ -80,7 +80,9 @@ abstract final class ZephyrChatChrome {
         );
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: scheme.onSurfaceVariant),
+      hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: scheme.onSurfaceVariant,
+          ),
       filled: true,
       fillColor: scheme.surface,
       border: border(outline),

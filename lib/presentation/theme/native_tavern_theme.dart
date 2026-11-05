@@ -394,7 +394,10 @@ ThemeData buildNativeTavernTheme(
         borderSide: hairline,
         borderRadius: borderRadius,
       ),
-      hintStyle: TextStyle(color: mutedText.withValues(alpha: .78)),
+      hintStyle: TextStyle(
+        color: mutedText.withValues(alpha: .78),
+        fontFamily: ui.fontFamily,
+      ),
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: control,
@@ -409,10 +412,23 @@ ThemeData buildNativeTavernTheme(
       elevation: 4,
       insetPadding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
+      contentTextStyle: TextStyle(
+        color: primaryText,
+        fontFamily: ui.fontFamily,
+        fontSize: 14 * scale,
+        height: 1.4,
+      ),
     ),
+    // Explicit textStyle replaces Material defaults; keep ui.fontFamily or
+    // tooltips fall back to the platform sans-serif.
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(color: control, borderRadius: borderRadius),
-      textStyle: TextStyle(color: primaryText),
+      textStyle: TextStyle(
+        color: primaryText,
+        fontFamily: ui.fontFamily,
+        fontSize: 12 * scale,
+        height: 1.3,
+      ),
     ),
     popupMenuTheme: PopupMenuThemeData(
       color: control,
