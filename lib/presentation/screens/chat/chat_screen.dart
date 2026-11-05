@@ -105,6 +105,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   static final Object _importRpg = Object();
   /// Soft pin / explicit follow threshold (Zephyr AI chat uses 72).
   static const double _followSlop = 72.0;
+  /// Shared [TapRegion] group so option panels dismiss on outside tap,
+  /// without treating their own toggle buttons as outside.
+  static const Object _composerOptionsTapGroup = Object();
   final TextEditingController _messageController = TextEditingController();
   final ChatTailScrollController _scrollController = ChatTailScrollController();
   final FocusNode _focusNode = FocusNode();
@@ -235,6 +238,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       if (visible) _showInputMenu = false;
     });
   }
+
+  void _dismissComposerOptionPanels() {
+    if (!_showInputMenu && !_showChoicePanel) return;
+    setState(() {
+      _showInputMenu = false;
+      _showChoicePanel = false;
+    });
+  }
+
+  Widget _composerOptionsTapTarget({required Widget child}) => TapRegion(
+        groupId: _composerOptionsTapGroup,
+        child: child,
+      );
+
+  Widget _composerOptionsDismissable({required Widget child}) => TapRegion(
+        groupId: _composerOptionsTapGroup,
+        onTapOutside: (_) => _dismissComposerOptionPanels(),
+        child: child,
+      );
 
   void _openReplyChoicesSettings() {
     _setChoicePanelVisible(false);
@@ -470,64 +492,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  /// Show model selector dialog
-  void _showModelSelector() async {
-    final l10n = AppLocalizations.of(context);
-    final llmConfig = ref.read(llmConfigProvider);
-    final llmService = ref.read(llmServiceProvider);
-
-    // Show loading dialog while fetching models
-    showDialog(
+  /// Composer drawer: pick model, then reasoning effort.
+  void _showModelThinkingDrawer() {
+    showModalBottomSheet<void>(
       context: context,
-      barrierDismissible: false,
-      builder: (context) => Center(
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(),
-                const SizedBox(height: 16),
-                Text(l10n.loadingModels),
-              ],
-            ),
-          ),
+      isScrollControlled: true,
+      showDragHandle: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(context.appCornerRadius + 4),
         ),
       ),
+      builder: (context) => const _ModelThinkingDrawer(),
     );
-
-    try {
-      // Fetch available models
-      final models = await llmService.getAvailableModels(llmConfig);
-
-      if (!mounted) return;
-      Navigator.pop(context); // Close loading dialog
-
-      if (models.isEmpty) {
-        _showSnackBar(l10n.noModelsAvailable);
-        return;
-      }
-
-      // Show model selection dialog
-      final selectedModel = await showDialog<String>(
-        context: context,
-        builder: (context) => _ModelSelectorDialog(
-          models: models,
-          currentModel: llmConfig.model,
-          providerName: llmConfig.provider.name,
-        ),
-      );
-
-      if (selectedModel != null && selectedModel != llmConfig.model) {
-        ref.read(llmConfigProvider.notifier).updateModel(selectedModel);
-        _showSnackBar(l10n.modelChangedTo(selectedModel));
-      }
-    } catch (e) {
-      if (!mounted) return;
-      Navigator.pop(context); // Close loading dialog
-      _showSnackBar(l10n.failedToLoadModels(e.toString()));
-    }
   }
 
   Future<void> _sendMessage() async {
@@ -1362,52 +1339,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   AppBar _buildAppBar(ActiveChatState chatState) {
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     final hasAuthorNote = chatState.chat?.authorNoteEnabled == true &&
         (chatState.chat?.authorNote.isNotEmpty ?? false);
-    final llmConfig = ref.watch(llmConfigProvider);
     final rpgState = ref.watch(rpgChatProvider(widget.chatId));
     final hasStory = ref
             .watch(storyChaptersProvider(widget.chatId))
             .valueOrNull
             ?.isNotEmpty ==
         true;
-    final modelColor = chatState.isGenerating
-        ? scheme.onSurfaceVariant.withValues(alpha: 0.55)
-        : scheme.onSurfaceVariant;
 
     return AppBar(
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            chatState.group?.name ?? chatState.character?.name ?? l10n.chat,
-            style: const TextStyle(fontSize: 16),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          // Model selector - tap to change model
-          GestureDetector(
-            onTap: () => _showModelSelector(),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    llmConfig.model.isEmpty
-                        ? l10n.selectModel
-                        : llmConfig.model,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: modelColor),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Icon(Icons.expand_more, size: 14, color: modelColor),
-              ],
-            ),
-          ),
-        ],
+      title: Text(
+        chatState.group?.name ?? chatState.character?.name ?? l10n.chat,
+        style: const TextStyle(fontSize: 16),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
       actions: spacedAppBarActions([
         if (chatState.hasUnsavedChanges)
@@ -2500,20 +2446,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 const SizedBox(height: 8),
               ],
               if (_showChoicePanel) ...[
-                _composerExpansionPanel(
-                  child: ChatChoicePanel(
-                    onSelectChoice: _sendChoiceMessage,
-                    onOpenSettings: _openReplyChoicesSettings,
-                    onRefresh: _refreshReplyChoices,
+                _composerOptionsDismissable(
+                  child: _composerExpansionPanel(
+                    child: ChatChoicePanel(
+                      onSelectChoice: _sendChoiceMessage,
+                      onOpenSettings: _openReplyChoicesSettings,
+                      onRefresh: _refreshReplyChoices,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
               ],
               if (_showInputMenu) ...[
-                _composerExpansionPanel(
-                  child: _buildInputMenuPanel(
-                    _inputMenuShowsQuickReplies(chatState),
-                    chatState,
+                _composerOptionsDismissable(
+                  child: _composerExpansionPanel(
+                    child: _buildInputMenuPanel(
+                      _inputMenuShowsQuickReplies(chatState),
+                      chatState,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -2553,20 +2503,35 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            _composerOptionsTapTarget(
+                              child: ChromeIconButton(
+                                density: ChromeIconButtonDensity.compact,
+                                onPressed: () =>
+                                    _setInputMenuVisible(!_showInputMenu),
+                                tooltip: l10n.moreOptions,
+                                icon: Icon(
+                                  _showInputMenu
+                                      ? Icons.close_rounded
+                                      : Icons.tune_rounded,
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const ContextUsageComposerButton(),
+                            const SizedBox(width: 8),
                             ChromeIconButton(
                               density: ChromeIconButtonDensity.compact,
-                              onPressed: () =>
-                                  _setInputMenuVisible(!_showInputMenu),
-                              tooltip: l10n.moreOptions,
-                              icon: Icon(
-                                _showInputMenu
-                                    ? Icons.close_rounded
-                                    : Icons.tune_rounded,
+                              onPressed: () {
+                                _dismissComposerOptionPanels();
+                                _showModelThinkingDrawer();
+                              },
+                              tooltip: l10n.selectModel,
+                              icon: const Icon(
+                                Icons.smart_toy_outlined,
                                 size: 22,
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            const ContextUsageComposerButton(),
                             Expanded(
                               child: GestureDetector(
                                 behavior: HitTestBehavior.translucent,
@@ -2578,21 +2543,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             controller: _messageController,
                             onAutoSend: _sendMessage,
                           ),
-                          ChromeIconButton(
-                            density: ChromeIconButtonDensity.compact,
-                            onPressed: _onReplyChoicesButtonPressed,
-                            tooltip: l10n.showReplyChoices,
-                            isSelected: _showChoicePanel,
-                            icon: Icon(
-                              Icons.alt_route_outlined,
-                              size: 22,
-                              color: ref.watch(chatChoiceConfigProvider)
-                                      .enabled
-                                  ? null
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.38),
+                          _composerOptionsTapTarget(
+                            child: ChromeIconButton(
+                              density: ChromeIconButtonDensity.compact,
+                              onPressed: _onReplyChoicesButtonPressed,
+                              tooltip: l10n.showReplyChoices,
+                              isSelected: _showChoicePanel,
+                              icon: Icon(
+                                Icons.alt_route_outlined,
+                                size: 22,
+                                color: ref.watch(chatChoiceConfigProvider)
+                                        .enabled
+                                    ? null
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.38),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -3745,22 +3712,22 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
   }
 
   Widget _buildUserAvatar() {
+    final scheme = Theme.of(context).colorScheme;
     final persona = ref.watch(activePersonaProvider).valueOrNull;
     final path = persona?.avatarPath;
+    Widget fallback() => CircleAvatar(
+          radius: 16,
+          backgroundColor: ZephyrChatChrome.userAvatarFill(scheme),
+          child: Icon(Icons.person, size: 16, color: scheme.primary),
+        );
     if (path != null && path.isNotEmpty) {
       return CharacterAvatarCircle(
         imagePath: path,
         radius: 16,
-        errorBuilder: (_, __, ___) => const CircleAvatar(
-          radius: 16,
-          child: Icon(Icons.person, size: 16),
-        ),
+        errorBuilder: (_, __, ___) => fallback(),
       );
     }
-    return const CircleAvatar(
-      radius: 16,
-      child: Icon(Icons.person, size: 16),
-    );
+    return fallback();
   }
 
   /// Build the reasoning/thinking section for AI messages
@@ -4119,31 +4086,30 @@ class _TypingIndicatorState extends State<_TypingIndicator>
   }
 }
 
-/// Dialog for selecting a model from available models
-class _ModelSelectorDialog extends StatefulWidget {
-  final List<String> models;
-  final String currentModel;
-  final String providerName;
+enum _ModelThinkingStep { model, effort }
 
-  const _ModelSelectorDialog({
-    required this.models,
-    required this.currentModel,
-    required this.providerName,
-  });
+/// Bottom drawer: choose model, then reasoning effort.
+class _ModelThinkingDrawer extends ConsumerStatefulWidget {
+  const _ModelThinkingDrawer();
 
   @override
-  State<_ModelSelectorDialog> createState() => _ModelSelectorDialogState();
+  ConsumerState<_ModelThinkingDrawer> createState() =>
+      _ModelThinkingDrawerState();
 }
 
-class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
-  final TextEditingController _searchController = TextEditingController();
-  List<String> _filteredModels = [];
+class _ModelThinkingDrawerState extends ConsumerState<_ModelThinkingDrawer> {
+  final _searchController = TextEditingController();
+  _ModelThinkingStep _step = _ModelThinkingStep.model;
+  List<String> _models = const [];
+  List<String> _filteredModels = const [];
+  var _loading = true;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _filteredModels = widget.models;
     _searchController.addListener(_filterModels);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadModels());
   }
 
   @override
@@ -4152,163 +4118,263 @@ class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
     super.dispose();
   }
 
+  Future<void> _loadModels() async {
+    final l10n = AppLocalizations.of(context);
+    final llmConfig = ref.read(llmConfigProvider);
+    final llmService = ref.read(llmServiceProvider);
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final models = await llmService.getAvailableModels(llmConfig);
+      if (!mounted) return;
+      setState(() {
+        _models = models;
+        _filteredModels = models;
+        _loading = false;
+        if (models.isEmpty) {
+          _error = l10n.noModelsAvailable;
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = l10n.failedToLoadModels(e.toString());
+      });
+    }
+  }
+
   void _filterModels() {
     final query = _searchController.text.toLowerCase();
     setState(() {
-      if (query.isEmpty) {
-        _filteredModels = widget.models;
-      } else {
-        _filteredModels = widget.models
-            .where((model) => model.toLowerCase().contains(query))
-            .toList();
-      }
+      _filteredModels = query.isEmpty
+          ? _models
+          : _models
+              .where((model) => model.toLowerCase().contains(query))
+              .toList();
     });
   }
+
+  void _selectModel(String model) {
+    final current = ref.read(llmConfigProvider).model;
+    if (model != current) {
+      ref.read(llmConfigProvider.notifier).updateModel(model);
+    }
+    setState(() => _step = _ModelThinkingStep.effort);
+  }
+
+  void _selectEffort(String effort) {
+    ref.read(llmConfigProvider.notifier).updateReasoningEffort(effort);
+    Navigator.of(context).pop();
+  }
+
+  String _effortLabel(AppLocalizations l10n, String effort) => switch (effort) {
+        ReasoningEffort.auto => l10n.effortAuto,
+        ReasoningEffort.min => l10n.effortMin,
+        ReasoningEffort.low => l10n.effortLow,
+        ReasoningEffort.medium => l10n.effortMedium,
+        ReasoningEffort.high => l10n.effortHigh,
+        ReasoningEffort.max => l10n.effortMax,
+        _ => effort,
+      };
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final radius = context.appCornerRadius;
-    return Dialog(
-      backgroundColor: scheme.surfaceContainerHigh,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(radius),
-        side: context.appShowBorders
-            ? BorderSide(color: scheme.outline)
-            : BorderSide.none,
-      ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: 400,
-          maxHeight: MediaQuery.of(context).size.height * 0.7,
-        ),
+    final llmConfig = ref.watch(llmConfigProvider);
+    final maxHeight = MediaQuery.sizeOf(context).height * 0.72;
+    final title = _step == _ModelThinkingStep.model
+        ? l10n.selectModel
+        : l10n.reasoningEffort;
+
+    return SafeArea(
+      child: SizedBox(
+        height: maxHeight,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
             Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.fromLTRB(16, 4, 8, 8),
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.smart_toy, color: scheme.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        l10n.selectModel,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ],
+                  if (_step == _ModelThinkingStep.effort)
+                    ChromeIconButton(
+                      density: ChromeIconButtonDensity.compact,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      onPressed: () =>
+                          setState(() => _step = _ModelThinkingStep.model),
+                      icon: const Icon(Icons.arrow_back_rounded, size: 22),
+                    ),
+                  if (_step == _ModelThinkingStep.effort)
+                    const SizedBox(width: 4),
+                  Icon(
+                    _step == _ModelThinkingStep.model
+                        ? Icons.smart_toy_rounded
+                        : Icons.psychology_outlined,
+                    color: scheme.primary,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${l10n.provider}: ${widget.providerName}',
-                    style: TextStyle(
-                      color: scheme.onSurfaceVariant,
-                      fontSize: 12,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             ),
-
-            // Search field
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
-                controller: _searchController,
-                decoration: ZephyrChatChrome.inputFieldDecoration(
-                  context,
-                  hintText: l10n.searchModels,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                ).copyWith(
-                  prefixIcon: Icon(
-                    Icons.search,
-                    size: 20,
+            if (_step == _ModelThinkingStep.model) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                child: Text(
+                  '${l10n.provider}: ${llmConfig.provider.name}',
+                  style: TextStyle(
                     color: scheme.onSurfaceVariant,
+                    fontSize: 12,
                   ),
-                  isDense: true,
                 ),
               ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // Model list
-            Flexible(
-              child: _filteredModels.isEmpty
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32),
-                        child: Text(
-                          l10n.noModelsMatchSearch,
-                          style: TextStyle(color: scheme.onSurfaceVariant),
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _filteredModels.length,
-                      itemBuilder: (context, index) {
-                        final model = _filteredModels[index];
-                        final isSelected = model == widget.currentModel;
-
-                        return ListTile(
-                          leading: Icon(
-                            isSelected
-                                ? Icons.check_circle
-                                : Icons.circle_outlined,
-                            color: isSelected
-                                ? scheme.primary
-                                : scheme.onSurfaceVariant,
-                            size: 20,
-                          ),
-                          title: Text(
-                            model,
-                            style: TextStyle(
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: isSelected
-                                  ? scheme.primary
-                                  : scheme.onSurface,
-                            ),
-                          ),
-                          selected: isSelected,
-                          selectedTileColor: scheme.primary.withValues(
-                            alpha: 0.1,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(radius),
-                          ),
-                          onTap: () => Navigator.pop(context, model),
-                        );
-                      },
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: ZephyrChatChrome.inputFieldDecoration(
+                    context,
+                    hintText: l10n.searchModels,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
                     ),
-            ),
-
-            // Actions
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(l10n.cancel),
+                  ).copyWith(
+                    prefixIcon: Icon(
+                      Icons.search,
+                      size: 20,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                    isDense: true,
                   ),
-                ],
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+            ],
+            Expanded(child: _buildStepBody(l10n, scheme, llmConfig)),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStepBody(
+    AppLocalizations l10n,
+    ColorScheme scheme,
+    LLMConfig llmConfig,
+  ) {
+    if (_step == _ModelThinkingStep.effort) {
+      final current = ReasoningEffort.values.contains(llmConfig.reasoningEffort)
+          ? llmConfig.reasoningEffort
+          : ReasoningEffort.auto;
+      return ListView(
+        padding: const EdgeInsets.only(bottom: 8),
+        children: [
+          for (final effort in ReasoningEffort.values)
+            ListTile(
+              leading: Icon(
+                effort == current
+                    ? Icons.check_circle
+                    : Icons.circle_outlined,
+                color: effort == current
+                    ? scheme.primary
+                    : scheme.onSurfaceVariant,
+                size: 20,
+              ),
+              title: Text(_effortLabel(l10n, effort)),
+              selected: effort == current,
+              selectedTileColor: scheme.primary.withValues(alpha: 0.1),
+              onTap: () => _selectEffort(effort),
+            ),
+        ],
+      );
+    }
+
+    if (_loading) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(l10n.loadingModels),
+          ],
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _error!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: scheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: _loadModels,
+                child: Text(l10n.retry),
+              ),
+              TextButton(
+                onPressed: () =>
+                    setState(() => _step = _ModelThinkingStep.effort),
+                child: Text(l10n.reasoningEffort),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_filteredModels.isEmpty) {
+      return Center(
+        child: Text(
+          l10n.noModelsMatchSearch,
+          style: TextStyle(color: scheme.onSurfaceVariant),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 8),
+      itemCount: _filteredModels.length,
+      itemBuilder: (context, index) {
+        final model = _filteredModels[index];
+        final isSelected = model == llmConfig.model;
+        return ListTile(
+          leading: Icon(
+            isSelected ? Icons.check_circle : Icons.circle_outlined,
+            color: isSelected ? scheme.primary : scheme.onSurfaceVariant,
+            size: 20,
+          ),
+          title: Text(
+            model,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? scheme.primary : scheme.onSurface,
+            ),
+          ),
+          selected: isSelected,
+          selectedTileColor: scheme.primary.withValues(alpha: 0.1),
+          onTap: () => _selectModel(model),
+        );
+      },
     );
   }
 }

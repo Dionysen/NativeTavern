@@ -11,6 +11,7 @@ import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/widgets/chat/message_content_widget.dart';
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
 import 'package:native_tavern/presentation/widgets/chat/reasoning_widget.dart';
@@ -335,26 +336,21 @@ class _VisualNovelMessageViewState
           ),
         );
       } else if (isUser) {
+        final scheme = Theme.of(context).colorScheme;
         final personaPath =
             ref.watch(activePersonaProvider).valueOrNull?.avatarPath;
+        Widget userFallback() => CircleAvatar(
+              radius: 18,
+              backgroundColor: ZephyrChatChrome.userAvatarFill(scheme),
+              child: Icon(Icons.person, size: 18, color: scheme.primary),
+            );
         avatar = personaPath != null && personaPath.isNotEmpty
             ? CharacterAvatarCircle(
                 imagePath: personaPath,
                 radius: 18,
-                errorBuilder: (_, __, ___) => CircleAvatar(
-                  radius: 18,
-                  backgroundColor:
-                      AppTheme.accentColor.withValues(alpha: 0.5),
-                  child:
-                      const Icon(Icons.person, size: 18, color: Colors.white),
-                ),
+                errorBuilder: (_, __, ___) => userFallback(),
               )
-            : CircleAvatar(
-                radius: 18,
-                backgroundColor: AppTheme.accentColor.withValues(alpha: 0.5),
-                child:
-                    const Icon(Icons.person, size: 18, color: Colors.white),
-              );
+            : userFallback();
       } else {
         avatar = CircleAvatar(
           radius: 18,

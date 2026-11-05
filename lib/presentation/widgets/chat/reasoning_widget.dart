@@ -213,10 +213,7 @@ class _ReasoningWidgetState extends State<ReasoningWidget>
     );
   }
 
-  Color _getAccentColor() {
-    // Use a distinct color for reasoning/thinking
-    return const Color(0xFF9C7CF4); // Purple/violet for thinking
-  }
+  Color _getAccentColor() => Theme.of(context).colorScheme.primary;
 }
 
 /// A streaming version of the reasoning widget that shows content as it arrives.
@@ -451,7 +448,5 @@ class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
     );
   }
 
-  Color _getAccentColor() {
-    return const Color(0xFF9C7CF4); // Purple/violet for thinking
-  }
+  Color _getAccentColor() => Theme.of(context).colorScheme.primary;
 }

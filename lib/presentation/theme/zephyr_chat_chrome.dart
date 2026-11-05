@@ -200,6 +200,21 @@ abstract final class ZephyrChatChrome {
     );
   }
 
+  /// User bubble fill derived from theme accent ([ColorScheme.primary]).
+  static Color userBubbleFromAccent(ColorScheme scheme) {
+    final dark = scheme.brightness == Brightness.dark;
+    return Color.alphaBlend(
+      scheme.primary.withValues(alpha: dark ? 0.28 : 0.18),
+      scheme.surface,
+    );
+  }
+
+  /// Default user avatar fill / icon tint from theme accent.
+  static Color userAvatarFill(ColorScheme scheme) =>
+      scheme.primary.withValues(
+        alpha: scheme.brightness == Brightness.dark ? 0.28 : 0.18,
+      );
+
   static ShapeDecoration messageBubbleDecoration(
     BuildContext context, {
     required bool isUser,
@@ -211,7 +226,9 @@ abstract final class ZephyrChatChrome {
     final scheme = Theme.of(context).colorScheme;
     final chat = context.appChatColors;
     final radius = context.appChatBubbleCornerRadius;
-    final base = isUser ? chat.userBubble : chat.characterBubble;
+    // User bubbles always track accent; character bubbles use the chat token.
+    final base =
+        isUser ? userBubbleFromAccent(scheme) : chat.characterBubble;
 
     final Color fill;
     if (transparent && hasBackground) {
