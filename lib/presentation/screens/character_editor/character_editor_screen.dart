@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
@@ -233,6 +234,7 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
       }
 
       ref.invalidate(characterListProvider);
+      ref.invalidate(characterFoldersProvider);
       ref.invalidate(characterDetailProvider(character.id));
 
       if (mounted) {

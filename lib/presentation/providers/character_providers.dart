@@ -100,13 +100,19 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
   Future<void> updateCharacter(Character character) async {
     final repo = ref.read(characterRepositoryProvider);
     await repo.updateCharacter(character);
+    await _refreshFolderChrome();
     await refresh();
   }
 
   Future<void> deleteCharacter(String id) async {
     final repo = ref.read(characterRepositoryProvider);
     await repo.deleteCharacter(id);
+    await _refreshFolderChrome();
     await refresh();
+  }
+
+  Future<void> _refreshFolderChrome() async {
+    await ref.read(characterFoldersProvider.notifier).refresh();
   }
 }
 

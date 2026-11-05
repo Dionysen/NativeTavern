@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
@@ -175,6 +176,8 @@ class _CharacterDetailContentState
         modifiedAt: DateTime.now(),
       );
       await repo.createCharacter(newCharacter);
+      ref.invalidate(characterListProvider);
+      ref.invalidate(characterFoldersProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.characterDuplicated(character.name))),

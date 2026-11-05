@@ -247,12 +247,6 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
               onPressed: () => context.push(AppRoutes.characterCreate),
             ),
             ChromeIconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: l10n.retry,
-              onPressed: () =>
-                  ref.read(characterListProvider.notifier).refresh(),
-            ),
-            ChromeIconButton(
               icon: const Icon(Icons.file_download_outlined),
               tooltip: l10n.import,
               onPressed: () => context.push(AppRoutes.import_),
