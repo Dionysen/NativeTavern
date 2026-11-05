@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/context_usage_service.dart';
 import 'package:native_tavern/presentation/providers/context_usage_providers.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
 /// Compact context usage indicator for chat input area
 class ContextUsageIndicator extends ConsumerWidget {
-  const ContextUsageIndicator({super.key});
+  const ContextUsageIndicator({super.key, this.enableTap = true});
+
+  final bool enableTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,15 +18,25 @@ class ContextUsageIndicator extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    return GestureDetector(
-      onTap: () => _showDetailedUsageDialog(context, ref),
-      child: _buildCompactIndicator(context, usage),
+    final indicator = _buildCompactIndicator(context, usage);
+    if (!enableTap) {
+      return indicator;
+    }
+
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: () => _showDetailedUsageDialog(context, ref),
+        borderRadius: BorderRadius.circular(12),
+        child: indicator,
+      ),
     );
   }
 
   Widget _buildCompactIndicator(BuildContext context, ContextUsage usage) {
     final percentage = usage.usagePercentage;
     final color = _getUsageColor(usage.level);
+    final trackColor = Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -49,10 +60,8 @@ class ContextUsageIndicator extends ConsumerWidget {
                 CircularProgressIndicator(
                   value: 1.0,
                   strokeWidth: 2,
-                  backgroundColor: AppTheme.darkDivider,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    AppTheme.darkDivider,
-                  ),
+                  backgroundColor: trackColor,
+                  valueColor: AlwaysStoppedAnimation<Color>(trackColor),
                 ),
                 CircularProgressIndicator(
                   value: (percentage / 100).clamp(0.0, 1.0),
@@ -143,8 +152,9 @@ class ContextUsageDialog extends ConsumerWidget {
       );
     }
 
+    final scheme = Theme.of(context).colorScheme;
     return AlertDialog(
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: scheme.surfaceContainerHigh,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -157,11 +167,9 @@ class ContextUsageDialog extends ConsumerWidget {
           const SizedBox(width: 8),
           Text(
             l10n.contextUsage,
-            style: const TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
           ),
         ],
       ),
@@ -177,16 +185,14 @@ class ContextUsageDialog extends ConsumerWidget {
             // Usage summary
             _buildUsageSummary(context, usage, l10n),
             const SizedBox(height: 16),
-            const Divider(color: AppTheme.darkDivider),
+            Divider(color: scheme.outlineVariant),
             const SizedBox(height: 8),
             // Component breakdown
             Text(
               l10n.breakdown,
-              style: const TextStyle(
-                color: AppTheme.textPrimary,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
             const SizedBox(height: 8),
             // Components list
@@ -214,6 +220,7 @@ class ContextUsageDialog extends ConsumerWidget {
   Widget _buildOverallUsageBar(BuildContext context, ContextUsage usage) {
     final percentage = usage.usagePercentage;
     final color = _getUsageColor(usage.level);
+    final trackColor = Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +230,7 @@ class ContextUsageDialog extends ConsumerWidget {
           child: LinearProgressIndicator(
             value: (percentage / 100).clamp(0.0, 1.0),
             minHeight: 8,
-            backgroundColor: AppTheme.darkDivider,
+            backgroundColor: trackColor,
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
@@ -266,27 +273,31 @@ class ContextUsageDialog extends ConsumerWidget {
     ContextUsage usage,
     AppLocalizations l10n,
   ) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground,
+        color: scheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         children: [
           _buildSummaryRow(
+            context,
             l10n.totalTokens,
             _formatTokenCount(usage.totalTokens),
-            AppTheme.textPrimary,
+            scheme.onSurface,
           ),
           const SizedBox(height: 8),
           _buildSummaryRow(
+            context,
             l10n.maxContext,
             _formatTokenCount(usage.maxContext),
-            AppTheme.textSecondary,
+            scheme.onSurfaceVariant,
           ),
           const SizedBox(height: 8),
           _buildSummaryRow(
+            context,
             l10n.remaining,
             _formatTokenCount(usage.remainingTokens),
             usage.remainingTokens > 0 ? Colors.green : Colors.red,
@@ -296,14 +307,20 @@ class ContextUsageDialog extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummaryRow(String label, String value, Color valueColor) {
+  Widget _buildSummaryRow(
+    BuildContext context,
+    String label,
+    String value,
+    Color valueColor,
+  ) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: AppTheme.textMuted,
+          style: TextStyle(
+            color: muted,
             fontSize: 13,
           ),
         ),
@@ -324,6 +341,7 @@ class ContextUsageDialog extends ConsumerWidget {
     ContextComponentUsage component,
     ContextUsage usage,
   ) {
+    final scheme = Theme.of(context).colorScheme;
     final percentage = component.getPercentage(usage.maxContext);
     final hasChildren = component.children != null && component.children!.isNotEmpty;
 
@@ -335,31 +353,31 @@ class ContextUsageDialog extends ConsumerWidget {
           child: Row(
             children: [
               if (hasChildren)
-                const Icon(
+                Icon(
                   Icons.folder_outlined,
                   size: 16,
-                  color: AppTheme.textMuted,
+                  color: scheme.onSurfaceVariant,
                 )
               else
-                const Icon(
+                Icon(
                   Icons.description_outlined,
                   size: 16,
-                  color: AppTheme.textMuted,
+                  color: scheme.onSurfaceVariant,
                 ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   component.name,
-                  style: const TextStyle(
-                    color: AppTheme.textPrimary,
+                  style: TextStyle(
+                    color: scheme.onSurface,
                     fontSize: 13,
                   ),
                 ),
               ),
               Text(
                 '${_formatTokenCount(component.tokenCount)} (${percentage.toStringAsFixed(1)}%)',
-                style: const TextStyle(
-                  color: AppTheme.textSecondary,
+                style: TextStyle(
+                  color: scheme.onSurfaceVariant,
                   fontSize: 12,
                 ),
               ),
@@ -372,7 +390,7 @@ class ContextUsageDialog extends ConsumerWidget {
           child: LinearProgressIndicator(
             value: (percentage / 100).clamp(0.0, 1.0),
             minHeight: 3,
-            backgroundColor: AppTheme.darkDivider,
+            backgroundColor: scheme.surfaceContainerHighest,
             valueColor: AlwaysStoppedAnimation<Color>(
               _getComponentColor(component.name),
             ),
@@ -399,6 +417,7 @@ class ContextUsageDialog extends ConsumerWidget {
     ContextUsage usage,
   ) {
     final percentage = component.getPercentage(usage.maxContext);
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -416,16 +435,16 @@ class ContextUsageDialog extends ConsumerWidget {
           Expanded(
             child: Text(
               component.name,
-              style: const TextStyle(
-                color: AppTheme.textMuted,
+              style: TextStyle(
+                color: muted,
                 fontSize: 12,
               ),
             ),
           ),
           Text(
             '${_formatTokenCount(component.tokenCount)} (${percentage.toStringAsFixed(1)}%)',
-            style: const TextStyle(
-              color: AppTheme.textMuted,
+            style: TextStyle(
+              color: muted,
               fontSize: 11,
             ),
           ),
@@ -474,7 +493,7 @@ class ContextUsageDialog extends ConsumerWidget {
     if (nameLower.contains('user')) return Colors.cyan;
     if (nameLower.contains('assistant')) return Colors.amber;
     if (nameLower.contains('custom')) return Colors.deepOrange;
-    return AppTheme.primaryColor;
+    return Colors.blueGrey;
   }
 
   String _formatTokenCount(int count) {

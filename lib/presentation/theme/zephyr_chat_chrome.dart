@@ -112,14 +112,23 @@ abstract final class ZephyrChatChrome {
     );
   }
 
+  /// Subtle fill for controls sitting on [composerShell] / expansion panels.
+  static Color menuChipFill(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    return scheme.onSurface.withValues(alpha: isDark ? 0.07 : 0.05);
+  }
+
   static BoxDecoration menuChip(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return BoxDecoration(
-      color: scheme.surface,
+      color: menuChipFill(context),
       borderRadius: BorderRadius.circular(context.appCornerRadius),
-      border: context.appShowBorders
-          ? Border.all(color: scheme.outlineVariant)
-          : null,
+      border: Border.all(
+        color: scheme.outlineVariant.withValues(alpha: isDark ? 0.28 : 0.35),
+      ),
     );
   }
 
@@ -130,12 +139,19 @@ abstract final class ZephyrChatChrome {
     required Widget child,
     EdgeInsetsGeometry? padding,
   }) {
+    final scheme = Theme.of(context).colorScheme;
     final radius = BorderRadius.circular(context.appCornerRadius);
     return Material(
-      type: MaterialType.transparency,
+      color: Colors.transparent,
+      elevation: 0,
+      clipBehavior: Clip.antiAlias,
+      borderRadius: radius,
       child: InkWell(
         onTap: onTap,
         borderRadius: radius,
+        splashFactory: InkRipple.splashFactory,
+        splashColor: scheme.primary.withValues(alpha: 0.14),
+        highlightColor: scheme.onSurface.withValues(alpha: 0.06),
         child: Ink(
           decoration: menuChip(context),
           padding: padding ??

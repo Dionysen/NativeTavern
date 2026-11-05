@@ -2572,7 +2572,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               tooltip: l10n.showReplyChoices,
                               isSelected: _showChoicePanel,
                               icon: Icon(
-                                Icons.grading_outlined,
+                                Icons.alt_route_outlined,
                                 size: 22,
                                 color: ref.watch(chatChoiceConfigProvider)
                                         .enabled
@@ -2652,7 +2652,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget _composerExpansionPanel({required Widget child}) {
     return DecoratedBox(
       decoration: ZephyrChatChrome.composerShell(context),
-      child: child,
+      child: Material(
+        type: MaterialType.transparency,
+        clipBehavior: Clip.antiAlias,
+        child: child,
+      ),
     );
   }
 
@@ -2710,12 +2714,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               // Context usage indicator
               SizedBox(
                 width: double.infinity,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: ZephyrChatChrome.menuChip(context),
+                child: ZephyrChatChrome.tappableMenuChip(
+                  context,
+                  onTap: () {
+                    showDialog<void>(
+                      context: context,
+                      builder: (context) => const ContextUsageDialog(),
+                    );
+                  },
                   child: Row(
                     children: [
                       Icon(
@@ -2724,7 +2730,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 8),
-                      const Expanded(child: ContextUsageIndicator()),
+                      const Expanded(
+                        child: ContextUsageIndicator(enableTap: false),
+                      ),
                     ],
                   ),
                 ),

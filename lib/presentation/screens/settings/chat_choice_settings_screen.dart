@@ -59,7 +59,7 @@ class _ChatChoiceSettingsScreenState
       body: SettingsPageBody(
         children: [
           SettingsSection(
-            icon: Icons.grading_outlined,
+            icon: Icons.alt_route_outlined,
             title: l10n.replyChoices,
             children: [
               SettingsSwitchTile(

@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/chat_choice_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
-import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
+import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 class ChatChoicePanel extends ConsumerWidget {
   const ChatChoicePanel({
@@ -36,7 +36,8 @@ class ChatChoicePanel extends ConsumerWidget {
               style: Theme.of(context).textTheme.titleSmall,
             ),
           ),
-          IconButton(
+          ChromeIconButton(
+            density: ChromeIconButtonDensity.compact,
             tooltip: l10n.refresh,
             onPressed: canRefresh ? onRefresh : null,
             icon: session.isLoading
@@ -50,7 +51,8 @@ class ChatChoicePanel extends ConsumerWidget {
                   )
                 : const Icon(Icons.refresh_rounded, size: 20),
           ),
-          IconButton(
+          ChromeIconButton(
+            density: ChromeIconButtonDensity.compact,
             tooltip: l10n.settings,
             icon: const Icon(Icons.settings_outlined, size: 20),
             onPressed: onOpenSettings,
@@ -75,7 +77,8 @@ class ChatChoicePanel extends ConsumerWidget {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
-                IconButton(
+                ChromeIconButton(
+                  density: ChromeIconButtonDensity.compact,
                   tooltip: l10n.settings,
                   icon: const Icon(Icons.settings_outlined, size: 20),
                   onPressed: onOpenSettings,

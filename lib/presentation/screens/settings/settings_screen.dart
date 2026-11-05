@@ -59,7 +59,7 @@ class SettingsScreen extends ConsumerWidget {
                 onTap: () => context.push(AppRoutes.quickReplies),
               ),
               SettingsValueTile(
-                icon: Icons.grading_outlined,
+                icon: Icons.alt_route_outlined,
                 title: l10n.replyChoices,
                 subtitle: l10n.enableReplyChoicesHint,
                 valueText: '',
