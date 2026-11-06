@@ -2713,6 +2713,78 @@ abstract class AppLocalizations {
   /// **'Custom Presets'**
   String get customPresets;
 
+  /// No description provided for @aiPresetDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get aiPresetDefaultName;
+
+  /// No description provided for @aiPresetDefaultDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced settings for general use'**
+  String get aiPresetDefaultDescription;
+
+  /// No description provided for @aiPresetCreativeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Creative'**
+  String get aiPresetCreativeName;
+
+  /// No description provided for @aiPresetCreativeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher temperature for more creative responses'**
+  String get aiPresetCreativeDescription;
+
+  /// No description provided for @aiPresetPreciseName.
+  ///
+  /// In en, this message translates to:
+  /// **'Precise'**
+  String get aiPresetPreciseName;
+
+  /// No description provided for @aiPresetPreciseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower temperature for more focused responses'**
+  String get aiPresetPreciseDescription;
+
+  /// No description provided for @aiPresetDeterministicName.
+  ///
+  /// In en, this message translates to:
+  /// **'Deterministic'**
+  String get aiPresetDeterministicName;
+
+  /// No description provided for @aiPresetDeterministicDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Very low randomness for consistent outputs'**
+  String get aiPresetDeterministicDescription;
+
+  /// No description provided for @aiPresetLongFormName.
+  ///
+  /// In en, this message translates to:
+  /// **'Long Form'**
+  String get aiPresetLongFormName;
+
+  /// No description provided for @aiPresetLongFormDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimized for longer responses'**
+  String get aiPresetLongFormDescription;
+
+  /// No description provided for @aiPresetMirostatName.
+  ///
+  /// In en, this message translates to:
+  /// **'Mirostat'**
+  String get aiPresetMirostatName;
+
+  /// No description provided for @aiPresetMirostatDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses Mirostat sampling for adaptive perplexity'**
+  String get aiPresetMirostatDescription;
+
   /// AI presets info description
   ///
   /// In en, this message translates to:

@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:native_tavern/data/models/character.dart';
-import 'package:native_tavern/data/repositories/world_info_repository.dart';
 import 'package:native_tavern/data/models/live2d.dart';
 import 'package:native_tavern/domain/services/import_service.dart';
 import 'package:native_tavern/domain/services/character_regex_import_service.dart';

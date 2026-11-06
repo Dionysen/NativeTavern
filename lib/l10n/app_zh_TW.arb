@@ -1899,6 +1899,18 @@
   "@customPresets": {
     "description": "Custom presets section header"
   },
+  "aiPresetDefaultName": "預設",
+  "aiPresetDefaultDescription": "均衡設定，適合日常使用",
+  "aiPresetCreativeName": "創意",
+  "aiPresetCreativeDescription": "更高溫度，回覆更有創造力",
+  "aiPresetPreciseName": "精確",
+  "aiPresetPreciseDescription": "更低溫度，回覆更聚焦",
+  "aiPresetDeterministicName": "確定性",
+  "aiPresetDeterministicDescription": "隨機性很低，輸出更穩定一致",
+  "aiPresetLongFormName": "長文",
+  "aiPresetLongFormDescription": "針對較長回覆做了最佳化",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetMirostatDescription": "使用 Mirostat 取樣，自適應困惑度",
   "aiPresetsDescription": "含產生設定、提示詞與指令範本；選中預設可一次全部套用。",
   "@aiPresetsDescription": {
     "description": "AI presets info description"

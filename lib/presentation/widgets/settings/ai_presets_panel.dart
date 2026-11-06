@@ -8,6 +8,7 @@ import 'package:native_tavern/core/utils/share_utils.dart';
 import 'package:native_tavern/data/models/ai_preset.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/ai_preset_providers.dart';
+import 'package:native_tavern/presentation/utils/ai_preset_l10n.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:path_provider/path_provider.dart';
@@ -197,7 +198,8 @@ class AIPresetsPanel extends ConsumerWidget {
       await ref.read(aiPresetManagerProvider).applyPreset(preset);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.appliedPreset(preset.name))),
+          SnackBar(
+              content: Text(l10n.appliedPreset(preset.localizedName(l10n)))),
         );
       }
     } catch (e) {
@@ -216,7 +218,7 @@ class AIPresetsPanel extends ConsumerWidget {
   ) async {
     final l10n = AppLocalizations.of(context);
     final nameController = TextEditingController(
-      text: l10n.copyNameOf(preset.name),
+      text: l10n.copyNameOf(preset.localizedName(l10n)),
     );
 
     final name = await showDialog<String>(
@@ -553,11 +555,12 @@ class _PresetTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final gs = preset.generationSettings;
+    final description = preset.localizedDescription(l10n);
     final detailParts = <String>[
-      if (preset.description != null && preset.description!.isNotEmpty)
-        preset.description!,
+      if (description != null && description.isNotEmpty) description,
       if (preset.provider != null) preset.provider!,
       'T ${gs.temperature.toStringAsFixed(1)}',
       'P ${gs.topP.toStringAsFixed(2)}',
@@ -567,7 +570,7 @@ class _PresetTile extends StatelessWidget {
 
     return SettingsControlTile(
       icon: _presetIcon(preset),
-      title: preset.name,
+      title: preset.localizedName(l10n),
       subtitle: detailParts.join(' · '),
       maxSubtitleLines: 2,
       showDivider: showDivider,

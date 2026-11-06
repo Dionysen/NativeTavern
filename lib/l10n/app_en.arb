@@ -2031,6 +2031,18 @@
   "@customPresets": {
     "description": "Custom presets section header"
   },
+  "aiPresetDefaultName": "Default",
+  "aiPresetDefaultDescription": "Balanced settings for general use",
+  "aiPresetCreativeName": "Creative",
+  "aiPresetCreativeDescription": "Higher temperature for more creative responses",
+  "aiPresetPreciseName": "Precise",
+  "aiPresetPreciseDescription": "Lower temperature for more focused responses",
+  "aiPresetDeterministicName": "Deterministic",
+  "aiPresetDeterministicDescription": "Very low randomness for consistent outputs",
+  "aiPresetLongFormName": "Long Form",
+  "aiPresetLongFormDescription": "Optimized for longer responses",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetMirostatDescription": "Uses Mirostat sampling for adaptive perplexity",
   "aiPresetsDescription": "Generation settings, prompt order, and instruct templates—select a preset to apply all at once.",
   "@aiPresetsDescription": {
     "description": "AI presets info description"

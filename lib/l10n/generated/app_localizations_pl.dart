@@ -1427,6 +1427,46 @@ class AppLocalizationsPl extends AppLocalizations {
   String get customPresets => 'Custom Presets';
 
   @override
+  String get aiPresetDefaultName => 'Default';
+
+  @override
+  String get aiPresetDefaultDescription => 'Balanced settings for general use';
+
+  @override
+  String get aiPresetCreativeName => 'Creative';
+
+  @override
+  String get aiPresetCreativeDescription =>
+      'Higher temperature for more creative responses';
+
+  @override
+  String get aiPresetPreciseName => 'Precise';
+
+  @override
+  String get aiPresetPreciseDescription =>
+      'Lower temperature for more focused responses';
+
+  @override
+  String get aiPresetDeterministicName => 'Deterministic';
+
+  @override
+  String get aiPresetDeterministicDescription =>
+      'Very low randomness for consistent outputs';
+
+  @override
+  String get aiPresetLongFormName => 'Long Form';
+
+  @override
+  String get aiPresetLongFormDescription => 'Optimized for longer responses';
+
+  @override
+  String get aiPresetMirostatName => 'Mirostat';
+
+  @override
+  String get aiPresetMirostatDescription =>
+      'Uses Mirostat sampling for adaptive perplexity';
+
+  @override
   String get aiPresetsDescription =>
       'AI Presets combine generation settings, prompt ordering, and instruct templates. Select a preset to apply all settings at once.';
 

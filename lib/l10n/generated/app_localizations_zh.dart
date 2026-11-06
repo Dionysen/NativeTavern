@@ -1401,6 +1401,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customPresets => '自定义预设';
 
   @override
+  String get aiPresetDefaultName => '默认';
+
+  @override
+  String get aiPresetDefaultDescription => '均衡设置，适合日常使用';
+
+  @override
+  String get aiPresetCreativeName => '创意';
+
+  @override
+  String get aiPresetCreativeDescription => '更高温度，回复更有创造力';
+
+  @override
+  String get aiPresetPreciseName => '精确';
+
+  @override
+  String get aiPresetPreciseDescription => '更低温度，回复更聚焦';
+
+  @override
+  String get aiPresetDeterministicName => '确定性';
+
+  @override
+  String get aiPresetDeterministicDescription => '随机性很低，输出更稳定一致';
+
+  @override
+  String get aiPresetLongFormName => '长文';
+
+  @override
+  String get aiPresetLongFormDescription => '针对较长回复做了优化';
+
+  @override
+  String get aiPresetMirostatName => 'Mirostat';
+
+  @override
+  String get aiPresetMirostatDescription => '使用 Mirostat 采样，自适应困惑度';
+
+  @override
   String get aiPresetsDescription => '含生成设置、提示词与指令模板；选中预设可一次全部应用。';
 
   @override
@@ -8327,6 +8363,42 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get customPresets => '自訂預設';
+
+  @override
+  String get aiPresetDefaultName => '預設';
+
+  @override
+  String get aiPresetDefaultDescription => '均衡設定，適合日常使用';
+
+  @override
+  String get aiPresetCreativeName => '創意';
+
+  @override
+  String get aiPresetCreativeDescription => '更高溫度，回覆更有創造力';
+
+  @override
+  String get aiPresetPreciseName => '精確';
+
+  @override
+  String get aiPresetPreciseDescription => '更低溫度，回覆更聚焦';
+
+  @override
+  String get aiPresetDeterministicName => '確定性';
+
+  @override
+  String get aiPresetDeterministicDescription => '隨機性很低，輸出更穩定一致';
+
+  @override
+  String get aiPresetLongFormName => '長文';
+
+  @override
+  String get aiPresetLongFormDescription => '針對較長回覆做了最佳化';
+
+  @override
+  String get aiPresetMirostatName => 'Mirostat';
+
+  @override
+  String get aiPresetMirostatDescription => '使用 Mirostat 取樣，自適應困惑度';
 
   @override
   String get aiPresetsDescription => '含產生設定、提示詞與指令範本；選中預設可一次全部套用。';

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:native_tavern/presentation/screens/settings/prompt_manager_screen.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
+import 'package:native_tavern/presentation/utils/ai_preset_l10n.dart';
 import 'package:native_tavern/presentation/widgets/settings/ai_presets_panel.dart';
 import '../../../data/models/instruct_template.dart';
 import '../../../domain/services/llm_service.dart';
@@ -61,7 +62,8 @@ class _AIConfigScreenState extends ConsumerState<AIConfigScreen> {
         children: [
           _ActivePresetBanner(
             title: l10n.activePreset,
-            presetName: activePreset?.name ?? l10n.noPresetSelected,
+            presetName: activePreset?.localizedName(l10n) ??
+                l10n.noPresetSelected,
             changeLabel: l10n.change,
             onChange: _expandAiPresets,
           ),
@@ -73,7 +75,8 @@ class _AIConfigScreenState extends ConsumerState<AIConfigScreen> {
               SettingsListTile(
                 icon: Icons.auto_awesome,
                 title: l10n.aiPresets,
-                subtitle: activePreset?.name ?? l10n.noPresetSelected,
+                subtitle: activePreset?.localizedName(l10n) ??
+                    l10n.noPresetSelected,
                 showDivider: true,
                 trailing: Icon(
                   presetsOpen ? Icons.expand_less : Icons.expand_more,
