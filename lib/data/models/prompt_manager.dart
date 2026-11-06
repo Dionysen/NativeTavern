@@ -373,6 +373,7 @@ class PromptManagerConfig {
       'dialogueExamples': PromptSectionType.exampleMessages,
       'worldInfoBefore': PromptSectionType.worldInfo,
       'worldInfoAfter': PromptSectionType.worldInfoAfter,
+      'authorNote': PromptSectionType.authorNote,
       'jailbreak': PromptSectionType.postHistoryInstructions,
       'nsfw': PromptSectionType.nsfw,
       'chatHistory': PromptSectionType.chatHistory,
@@ -438,53 +439,59 @@ class PromptManagerConfig {
       }
     }
 
-    if (orderList == null) {
-      return PromptManagerConfig.defaultConfig();
-    }
-
-    // Build sections from SillyTavern order
+    // Build sections from SillyTavern order (or prompts array when order missing)
     final sections = <PromptSection>[];
     final seenIdentifiers = <String>{};
     var order = 0;
 
-    for (final item in orderList) {
-      if (item is Map<String, dynamic>) {
-        final identifier = item['identifier'] as String?;
-        final enabled = item['enabled'] as bool? ?? true;
+    if (orderList != null) {
+      for (final item in orderList) {
+        if (item is Map<String, dynamic>) {
+          final identifier = item['identifier'] as String?;
+          final enabled = item['enabled'] as bool? ?? true;
 
-        if (identifier == null || seenIdentifiers.contains(identifier)) continue;
-        seenIdentifiers.add(identifier);
+          if (identifier == null || seenIdentifiers.contains(identifier)) {
+            continue;
+          }
+          seenIdentifiers.add(identifier);
 
-        // Check if we have a custom prompt with this identifier
-        if (customPrompts.containsKey(identifier)) {
-          final customPrompt = customPrompts[identifier]!;
-          sections.add(customPrompt.copyWith(
-            enabled: enabled,
-            order: order++,
-          ));
-        } else if (identifierMap.containsKey(identifier)) {
-          // It's a known built-in type
-          final type = identifierMap[identifier]!;
-          sections.add(PromptSection(
-            type: type,
-            name: PromptSection.getDisplayName(type),
-            enabled: enabled,
-            order: order++,
-            identifier: identifier,
-          ));
-        } else {
-          // It's a custom prompt not in the prompts array (UUID identifier)
-          // Create a placeholder for it
-          sections.add(PromptSection(
-            type: PromptSectionType.custom,
-            name: 'Custom Prompt',
-            enabled: enabled,
-            order: order++,
-            identifier: identifier,
-            content: '', // Content not available
-          ));
+          // Check if we have a custom prompt with this identifier
+          if (customPrompts.containsKey(identifier)) {
+            final customPrompt = customPrompts[identifier]!;
+            sections.add(customPrompt.copyWith(
+              enabled: enabled,
+              order: order++,
+            ));
+          } else if (identifierMap.containsKey(identifier)) {
+            // It's a known built-in type
+            final type = identifierMap[identifier]!;
+            sections.add(PromptSection(
+              type: type,
+              name: PromptSection.getDisplayName(type),
+              enabled: enabled,
+              order: order++,
+              identifier: identifier,
+            ));
+          } else {
+            // Custom prompt not in the prompts array (UUID identifier)
+            sections.add(PromptSection(
+              type: PromptSectionType.custom,
+              name: 'Custom Prompt',
+              enabled: enabled,
+              order: order++,
+              identifier: identifier,
+              content: '',
+            ));
+          }
         }
       }
+    } else if (customPrompts.isNotEmpty) {
+      for (final entry in customPrompts.entries) {
+        seenIdentifiers.add(entry.key);
+        sections.add(entry.value.copyWith(order: order++));
+      }
+    } else {
+      return PromptManagerConfig.defaultConfig();
     }
 
     // Add any custom prompts that weren't in the order list
@@ -553,6 +560,97 @@ class PromptManagerConfig {
       return s;
     }).toList();
     return copyWith(sections: newSections);
+  }
+
+  bool _sameSection(PromptSection a, PromptSection b) {
+    return a.identifier == b.identifier &&
+        a.type == b.type &&
+        a.name == b.name &&
+        a.order == b.order;
+  }
+
+  /// Append a custom prompt section (caller supplies a unique identifier).
+  PromptManagerConfig addCustomSection({
+    required String name,
+    required String identifier,
+    String content = '',
+    String role = 'system',
+    bool enabled = true,
+  }) {
+    final nextOrder = sections.isEmpty
+        ? 0
+        : sections.map((s) => s.order).reduce((a, b) => a > b ? a : b) + 1;
+    return copyWith(
+      sections: [
+        ...sections,
+        PromptSection(
+          type: PromptSectionType.custom,
+          name: name,
+          enabled: enabled,
+          order: nextOrder,
+          content: content,
+          identifier: identifier,
+          role: role,
+        ),
+      ],
+    );
+  }
+
+  /// Remove a section by sorted index. Only custom sections can be removed.
+  PromptManagerConfig removeSectionAt(int index) {
+    final sorted = sortedSections;
+    if (index < 0 || index >= sorted.length) return this;
+    final target = sorted[index];
+    if (!target.isCustom) return this;
+
+    final remaining = <PromptSection>[];
+    for (final s in sorted) {
+      if (_sameSection(s, target)) continue;
+      remaining.add(s);
+    }
+    final reindexed = <PromptSection>[];
+    for (var i = 0; i < remaining.length; i++) {
+      reindexed.add(remaining[i].copyWith(order: i));
+    }
+    return copyWith(sections: reindexed);
+  }
+
+  /// Duplicate a section at sorted index into a new custom entry.
+  PromptManagerConfig duplicateSectionAt(
+    int index, {
+    required String newIdentifier,
+    String copySuffix = ' copy',
+  }) {
+    final sorted = sortedSections;
+    if (index < 0 || index >= sorted.length) return this;
+    final source = sorted[index];
+
+    final duplicate = PromptSection(
+      type: PromptSectionType.custom,
+      name: '${source.name}$copySuffix',
+      enabled: source.enabled,
+      order: source.order + 1,
+      content: source.content ?? source.effectiveContent,
+      identifier: newIdentifier,
+      role: source.role ?? 'system',
+      injectionPosition: source.injectionPosition,
+      injectionDepth: source.injectionDepth,
+    );
+
+    final rebuilt = <PromptSection>[];
+    for (var i = 0; i < sorted.length; i++) {
+      final s = sorted[i];
+      if (i <= index) {
+        rebuilt.add(s.copyWith(order: rebuilt.length));
+      }
+      if (i == index) {
+        rebuilt.add(duplicate.copyWith(order: rebuilt.length));
+      }
+      if (i > index) {
+        rebuilt.add(s.copyWith(order: rebuilt.length));
+      }
+    }
+    return copyWith(sections: rebuilt);
   }
 }
 
@@ -629,20 +727,27 @@ class PromptManagerPreset {
     );
   }
 
-  /// Import from export format
+  /// Import from export format (NT sections or SillyTavern prompts/prompt_order)
   factory PromptManagerPreset.fromExportJson(Map<String, dynamic> json, String id) {
-    final sectionsJson = json['sections'] as List<dynamic>?;
-    final config = sectionsJson != null && sectionsJson.isNotEmpty
-        ? PromptManagerConfig(
-            sections: sectionsJson
-                .map((s) => PromptSection.fromJson(s as Map<String, dynamic>))
-                .toList(),
-          )
-        : PromptManagerConfig.defaultConfig();
+    final PromptManagerConfig config;
+    if (json.containsKey('prompts') || json.containsKey('prompt_order')) {
+      config = PromptManagerConfig.fromSillyTavernJson(json);
+    } else {
+      final sectionsJson = json['sections'] as List<dynamic>?;
+      config = sectionsJson != null && sectionsJson.isNotEmpty
+          ? PromptManagerConfig(
+              sections: sectionsJson
+                  .map((s) => PromptSection.fromJson(s as Map<String, dynamic>))
+                  .toList(),
+            )
+          : PromptManagerConfig.defaultConfig();
+    }
 
     return PromptManagerPreset(
       id: id,
-      name: json['name'] as String? ?? 'Imported Preset',
+      name: json['name'] as String? ??
+          json['preset_name'] as String? ??
+          'Imported Preset',
       description: json['description'] as String?,
       config: config,
       createdAt: json['createdAt'] != null

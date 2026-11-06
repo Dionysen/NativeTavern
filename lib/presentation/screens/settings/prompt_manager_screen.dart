@@ -23,13 +23,14 @@ class PromptManagerScreen extends ConsumerWidget {
     final sortedSections = config.sortedSections;
     final allPresets = ref.watch(allPresetsProvider);
 
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.promptManager),
+        title: Text(l10n.promptManager),
         actions: [
           AdaptiveActionMenuButton<String>(
             icon: const Icon(Icons.more_vert),
-            tooltip: AppLocalizations.of(context)!.moreOptions,
+            tooltip: l10n.moreOptions,
             onSelected: (value) {
               switch (value) {
                 case 'presets':
@@ -47,44 +48,49 @@ class PromptManagerScreen extends ConsumerWidget {
               }
             },
             itemBuilder: (context) {
-              final l10n = AppLocalizations.of(context)!;
+              final menuL10n = AppLocalizations.of(context);
               return [
                 AdaptiveActionDrawerItem(
                   value: 'presets',
                   leading: const Icon(Icons.list),
-                  title: Text(l10n.loadPreset),
+                  title: Text(menuL10n.loadPreset),
                 ),
                 AdaptiveActionDrawerItem(
                   value: 'save',
                   leading: const Icon(Icons.save),
-                  title: Text(l10n.saveAsPresetLabel),
+                  title: Text(menuL10n.saveAsPresetLabel),
                 ),
                 AdaptiveActionDrawerItem(
                   value: 'import',
                   leading: const Icon(Icons.file_download),
-                  title: Text(l10n.importPresetLabel),
+                  title: Text(menuL10n.importPresetLabel),
                   showDividerAbove: true,
                 ),
                 AdaptiveActionDrawerItem(
                   value: 'export',
                   leading: const Icon(Icons.file_upload),
-                  title: Text(l10n.exportPreset),
+                  title: Text(menuL10n.exportPreset),
                 ),
                 AdaptiveActionDrawerItem(
                   value: 'reset',
                   leading: const Icon(Icons.restore),
-                  title: Text(l10n.resetToDefault),
+                  title: Text(menuL10n.resetToDefault),
                   showDividerAbove: true,
                 ),
                 AdaptiveActionDrawerItem(
                   value: 'help',
                   leading: const Icon(Icons.help_outline),
-                  title: Text(l10n.help),
+                  title: Text(menuL10n.help),
                 ),
               ];
             },
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddPromptDialog(context, ref),
+        tooltip: l10n.addPrompt,
+        child: const Icon(Icons.add),
       ),
       body: Column(
         children: [
@@ -95,10 +101,10 @@ class PromptManagerScreen extends ConsumerWidget {
               children: [
                 SettingsCategoryHeader(
                   icon: Icons.reorder,
-                  title: AppLocalizations.of(context)!.promptManager,
+                  title: l10n.promptManager,
                 ),
                 Text(
-                  AppLocalizations.of(context)!.dragToReorder,
+                  l10n.dragToReorder,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -148,6 +154,12 @@ class PromptManagerScreen extends ConsumerWidget {
                                 section,
                                 index,
                               )
+                          : null,
+                      onDuplicate: () =>
+                          _duplicatePromptEntry(context, ref, index, section),
+                      onDelete: section.isCustom
+                          ? () =>
+                              _deletePromptEntry(context, ref, index, section)
                           : null,
                     );
                   },
@@ -253,6 +265,7 @@ class PromptManagerScreen extends ConsumerWidget {
   }
 
   Future<void> _importPreset(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -273,35 +286,200 @@ class PromptManagerScreen extends ConsumerWidget {
       }
 
       final json = jsonDecode(jsonString) as Map<String, dynamic>;
+      final isSillyTavern = json.containsKey('prompts') ||
+          json.containsKey('prompt_order');
+      final isNative = json['sections'] != null ||
+          json['format'] == 'native_tavern_prompt_preset';
 
-      // Check if it's a valid preset format
-      if (json['sections'] != null ||
-          json['format'] == 'native_tavern_prompt_preset') {
-        // Import as preset
+      if (!isSillyTavern && !isNative) {
+        throw Exception(l10n.invalidPresetFormatMessage);
+      }
+
+      // Prefer saving as a named custom preset when NT-shaped or named ST file
+      if (isNative || json['name'] != null || json['preset_name'] != null) {
         final preset =
             await ref.read(customPresetsProvider.notifier).importPreset(json);
-        ref.read(promptManagerProvider.notifier).applyPreset(preset);
-        ref.read(activePresetIdProvider.notifier).setActivePreset(preset.id);
+        await ref.read(promptManagerProvider.notifier).applyPreset(preset);
+        await ref
+            .read(activePresetIdProvider.notifier)
+            .setActivePreset(preset.id);
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content:
-                    Text(AppLocalizations.of(context)!.imported(preset.name))),
+              content: Text(
+                l10n.importedPromptSections(
+                  preset.name,
+                  preset.config.sections.length,
+                ),
+              ),
+            ),
           );
         }
       } else {
-        throw Exception(
-            AppLocalizations.of(context)!.invalidPresetFormatMessage);
+        await ref.read(promptManagerProvider.notifier).loadFromJson(json);
+        final count = ref.read(promptManagerProvider).sections.length;
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.importedPromptCount(count))),
+          );
+        }
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .importPresetFailed(e.toString()))),
+          SnackBar(content: Text(l10n.importPresetFailed(e.toString()))),
         );
       }
+    }
+  }
+
+  Future<void> _showAddPromptDialog(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final nameController = TextEditingController(text: l10n.customPrompt);
+    final contentController = TextEditingController();
+
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.addPrompt),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: l10n.promptName,
+                    border: const OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                ),
+                const SizedBox(height: 16),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 240),
+                  child: TextField(
+                    controller: contentController,
+                    maxLines: null,
+                    minLines: 4,
+                    decoration: InputDecoration(
+                      labelText: l10n.promptContent,
+                      border: const OutlineInputBorder(),
+                      hintText: l10n.enterPromptContent,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              final name = nameController.text.trim();
+              if (name.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.pleaseEnterNameMessage)),
+                );
+                return;
+              }
+              Navigator.pop(context, {
+                'name': name,
+                'content': contentController.text,
+              });
+            },
+            child: Text(l10n.add),
+          ),
+        ],
+      ),
+    );
+
+    if (result == null) return;
+
+    try {
+      final section =
+          await ref.read(promptManagerProvider.notifier).addCustomSection(
+                name: result['name']!,
+                content: result['content'] ?? '',
+              );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.promptEntryAdded(section.name))),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.saveFailedMessage(e.toString()))),
+        );
+      }
+    }
+  }
+
+  Future<void> _duplicatePromptEntry(
+    BuildContext context,
+    WidgetRef ref,
+    int index,
+    PromptSection section,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      final copy = await ref
+          .read(promptManagerProvider.notifier)
+          .duplicateSectionAt(index, copySuffix: l10n.copyNameSuffix);
+      if (copy != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.promptEntryDuplicated(copy.name))),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.saveFailedMessage(e.toString()))),
+        );
+      }
+    }
+  }
+
+  Future<void> _deletePromptEntry(
+    BuildContext context,
+    WidgetRef ref,
+    int index,
+    PromptSection section,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deletePromptEntry),
+        content: Text(l10n.deletePromptConfirmation(section.name)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final removed =
+        await ref.read(promptManagerProvider.notifier).removeSectionAt(index);
+    if (removed && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.promptEntryDeleted(section.name))),
+      );
     }
   }
 
@@ -699,6 +877,8 @@ class _PromptSectionTile extends StatelessWidget {
   final int index;
   final VoidCallback onToggle;
   final VoidCallback? onEdit;
+  final VoidCallback? onDuplicate;
+  final VoidCallback? onDelete;
   final bool showDivider;
 
   const _PromptSectionTile({
@@ -707,6 +887,8 @@ class _PromptSectionTile extends StatelessWidget {
     required this.index,
     required this.onToggle,
     this.onEdit,
+    this.onDuplicate,
+    this.onDelete,
     this.showDivider = true,
   });
 
@@ -817,16 +999,43 @@ class _PromptSectionTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (onEdit != null)
-            ChromeIconButton(
+          if (onEdit != null || onDuplicate != null || onDelete != null)
+            AdaptiveActionMenuButton<String>(
               density: ChromeIconButtonDensity.compact,
               icon: Icon(
-                Icons.edit,
+                Icons.more_vert,
                 size: 20,
-                color: enabled ? primary : muted,
+                color: enabled ? muted : muted.withValues(alpha: 0.5),
               ),
-              onPressed: enabled ? onEdit : null,
-              tooltip: AppLocalizations.of(context)!.edit,
+              onSelected: (value) {
+                if (value == 'edit') onEdit?.call();
+                if (value == 'duplicate') onDuplicate?.call();
+                if (value == 'delete') onDelete?.call();
+              },
+              itemBuilder: (context) {
+                final menuL10n = AppLocalizations.of(context);
+                return [
+                  if (onEdit != null)
+                    AdaptiveActionDrawerItem(
+                      value: 'edit',
+                      leading: const Icon(Icons.edit),
+                      title: Text(menuL10n.edit),
+                    ),
+                  if (onDuplicate != null)
+                    AdaptiveActionDrawerItem(
+                      value: 'duplicate',
+                      leading: const Icon(Icons.copy_all),
+                      title: Text(menuL10n.duplicate),
+                    ),
+                  if (onDelete != null)
+                    AdaptiveActionDrawerItem(
+                      value: 'delete',
+                      leading: const Icon(Icons.delete),
+                      title: Text(menuL10n.delete),
+                      destructive: true,
+                    ),
+                ];
+              },
             ),
           ThemedSwitch(
             value: enabled,

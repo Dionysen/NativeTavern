@@ -99,23 +99,70 @@ class PromptManagerNotifier extends StateNotifier<PromptManagerConfig> {
   /// Load configuration from JSON (for import)
   Future<void> loadFromJson(Map<String, dynamic> json) async {
     try {
-      // Try to parse as export format first
-      if (json['format'] == 'native_tavern_prompt_preset' && json['sections'] != null) {
+      if (json.containsKey('prompts') || json.containsKey('prompt_order')) {
+        state = PromptManagerConfig.fromSillyTavernJson(json);
+      } else if (json['format'] == 'native_tavern_prompt_preset' &&
+          json['sections'] != null) {
         final sectionsJson = json['sections'] as List<dynamic>;
         state = PromptManagerConfig(
           sections: sectionsJson
               .map((s) => PromptSection.fromJson(s as Map<String, dynamic>))
               .toList(),
         );
-      } else {
-        // Try standard format
+      } else if (json['sections'] != null) {
         state = PromptManagerConfig.fromJson(json);
+      } else {
+        throw FormatException('Unrecognized prompt preset format');
       }
       await _saveConfig();
     } catch (e) {
-      // If parsing fails, keep current state
       rethrow;
     }
+  }
+
+  /// Add a custom prompt entry
+  Future<PromptSection> addCustomSection({
+    required String name,
+    String content = '',
+    String role = 'system',
+  }) async {
+    final identifier = const Uuid().v4();
+    state = state.addCustomSection(
+      name: name,
+      identifier: identifier,
+      content: content,
+      role: role,
+    );
+    await _saveConfig();
+    return state.sections.lastWhere((s) => s.identifier == identifier);
+  }
+
+  /// Remove a custom section by sorted index
+  Future<bool> removeSectionAt(int index) async {
+    final sorted = state.sortedSections;
+    if (index < 0 || index >= sorted.length || !sorted[index].isCustom) {
+      return false;
+    }
+    state = state.removeSectionAt(index);
+    await _saveConfig();
+    return true;
+  }
+
+  /// Duplicate a section into a new custom entry
+  Future<PromptSection?> duplicateSectionAt(
+    int index, {
+    String copySuffix = ' copy',
+  }) async {
+    final sorted = state.sortedSections;
+    if (index < 0 || index >= sorted.length) return null;
+    final identifier = const Uuid().v4();
+    state = state.duplicateSectionAt(
+      index,
+      newIdentifier: identifier,
+      copySuffix: copySuffix,
+    );
+    await _saveConfig();
+    return state.sections.firstWhere((s) => s.identifier == identifier);
   }
 
   /// Export current configuration as JSON

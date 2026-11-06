@@ -12626,6 +12626,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Discard'**
   String get discardChanges;
+
+  /// Copy a built-in or custom AI preset into a new custom preset
+  ///
+  /// In en, this message translates to:
+  /// **'Copy to custom'**
+  String get copyToCustom;
+
+  /// Default name when copying a preset
+  ///
+  /// In en, this message translates to:
+  /// **'{name} copy'**
+  String copyNameOf(String name);
+
+  /// SnackBar after copying an AI preset to custom
+  ///
+  /// In en, this message translates to:
+  /// **'Copied \"{name}\" to custom presets'**
+  String copiedPresetToCustom(String name);
+
+  /// Suffix appended when duplicating a prompt entry
+  ///
+  /// In en, this message translates to:
+  /// **' copy'**
+  String get copyNameSuffix;
+
+  /// FAB / dialog title to add a custom prompt entry
+  ///
+  /// In en, this message translates to:
+  /// **'Add prompt'**
+  String get addPrompt;
+
+  /// Label for prompt content field
+  ///
+  /// In en, this message translates to:
+  /// **'Prompt content'**
+  String get promptContent;
+
+  /// SnackBar after adding a custom prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Added \"{name}\"'**
+  String promptEntryAdded(String name);
+
+  /// SnackBar after duplicating a prompt entry
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicated as \"{name}\"'**
+  String promptEntryDuplicated(String name);
+
+  /// SnackBar after deleting a custom prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted \"{name}\"'**
+  String promptEntryDeleted(String name);
+
+  /// Dialog title for deleting a custom prompt entry
+  ///
+  /// In en, this message translates to:
+  /// **'Delete prompt'**
+  String get deletePromptEntry;
+
+  /// Confirm deleting a custom prompt entry
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"? This cannot be undone.'**
+  String deletePromptConfirmation(String name);
+
+  /// SnackBar after importing a named prompt preset
+  ///
+  /// In en, this message translates to:
+  /// **'Imported \"{name}\" ({count} prompts)'**
+  String importedPromptSections(String name, int count);
+
+  /// SnackBar after importing prompt order without a name
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {count} prompts'**
+  String importedPromptCount(int count);
 }
 
 class _AppLocalizationsDelegate

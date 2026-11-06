@@ -128,17 +128,15 @@ class AIPresetManager {
 
   AIPresetManager(this._ref);
 
-  /// Save current settings back to the currently active preset.
-  /// This ensures user changes (e.g., API URL modifications) are preserved
-  /// when switching between presets.
+  /// Save current settings back to the currently active **custom** preset.
+  /// Built-ins are never promoted into custom storage on switch.
   Future<void> _saveCurrentToActivePreset() async {
     final activeId = _ref.read(activeAIPresetIdProvider);
     if (activeId == null) return;
 
-    // Find the active preset (could be custom or built-in)
     final allPresets = _ref.read(allAIPresetsProvider);
     final activePreset = allPresets.where((p) => p.id == activeId).firstOrNull;
-    if (activePreset == null) return;
+    if (activePreset == null || activePreset.isBuiltIn) return;
 
     // Capture current settings
     final llmConfig = _ref.read(llmConfigProvider);
@@ -151,7 +149,7 @@ class AIPresetManager {
       id: activeId,
       name: activePreset.name,
       description: activePreset.description,
-      isBuiltIn: false, // Once saved to custom storage, it's no longer built-in
+      isBuiltIn: false,
       createdAt: activePreset.createdAt,
       updatedAt: DateTime.now(),
       generationSettings: GenerationPreset(
@@ -180,20 +178,37 @@ class AIPresetManager {
       providerSettings: allProviderConfigs,
     );
 
-    // Check if already exists in custom presets
     final customPresets = _ref.read(aiCustomPresetsProvider);
-    final existsInCustom = customPresets.any((p) => p.id == activeId);
-
-    if (existsInCustom) {
+    if (customPresets.any((p) => p.id == activeId)) {
       await _ref
           .read(aiCustomPresetsProvider.notifier)
           .updatePreset(updatedPreset);
-    } else {
-      // First time saving a built-in preset — add to custom presets
-      await _ref
-          .read(aiCustomPresetsProvider.notifier)
-          .addPreset(updatedPreset);
     }
+  }
+
+  /// Clone any preset (built-in or custom) into a new custom preset.
+  Future<AIPreset> copyPresetToCustom(
+    AIPreset source, {
+    String? name,
+  }) async {
+    final now = DateTime.now();
+    final copy = AIPreset(
+      id: const Uuid().v4(),
+      name: name?.trim().isNotEmpty == true
+          ? name!.trim()
+          : '${source.name} copy',
+      description: source.description,
+      isBuiltIn: false,
+      createdAt: now,
+      updatedAt: now,
+      generationSettings: source.generationSettings,
+      promptManagerConfig: source.promptManagerConfig,
+      instructTemplateId: source.instructTemplateId,
+      provider: source.provider,
+      providerSettings: source.providerSettings,
+    );
+    await _ref.read(aiCustomPresetsProvider.notifier).addPreset(copy);
+    return copy;
   }
 
   /// Apply an AI preset to current settings

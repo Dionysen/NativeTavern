@@ -77,6 +77,7 @@ class AIPresetsScreen extends ConsumerWidget {
                 preset: preset,
                 isActive: preset.id == activePresetId,
                 onTap: () => _applyPreset(context, ref, preset),
+                onCopy: () => _copyPresetToCustom(context, ref, preset),
               )),
           if (customPresets.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -88,6 +89,7 @@ class AIPresetsScreen extends ConsumerWidget {
                   preset: preset,
                   isActive: preset.id == activePresetId,
                   onTap: () => _applyPreset(context, ref, preset),
+                  onCopy: () => _copyPresetToCustom(context, ref, preset),
                   onExport: () => _exportPreset(context, preset),
                   onDelete: () => _deletePreset(context, ref, preset),
                 )),
@@ -110,6 +112,61 @@ class AIPresetsScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.failedToApplyPreset(e.toString()))),
+        );
+      }
+    }
+  }
+
+  Future<void> _copyPresetToCustom(
+    BuildContext context,
+    WidgetRef ref,
+    AIPreset preset,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final nameController = TextEditingController(
+      text: l10n.copyNameOf(preset.name),
+    );
+
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.copyToCustom),
+        content: TextField(
+          controller: nameController,
+          decoration: InputDecoration(
+            labelText: l10n.presetName,
+            border: const OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, nameController.text.trim()),
+            child: Text(l10n.copyToCustom),
+          ),
+        ],
+      ),
+    );
+
+    if (name == null || name.isEmpty) return;
+
+    try {
+      final copy = await ref
+          .read(aiPresetManagerProvider)
+          .copyPresetToCustom(preset, name: name);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.copiedPresetToCustom(copy.name))),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.saveFailed(e.toString()))),
         );
       }
     }
@@ -366,6 +423,7 @@ class _PresetCard extends StatelessWidget {
   final AIPreset preset;
   final bool isActive;
   final VoidCallback onTap;
+  final VoidCallback? onCopy;
   final VoidCallback? onExport;
   final VoidCallback? onDelete;
 
@@ -373,6 +431,7 @@ class _PresetCard extends StatelessWidget {
     required this.preset,
     required this.isActive,
     required this.onTap,
+    this.onCopy,
     this.onExport,
     this.onDelete,
   });
@@ -497,27 +556,36 @@ class _PresetCard extends StatelessWidget {
                 ),
               ),
               // Actions
-              if (!preset.isBuiltIn)
+              if (onCopy != null || onExport != null || onDelete != null)
                 AdaptiveActionMenuButton<String>(
                   icon: const Icon(Icons.more_vert),
                   onSelected: (value) {
+                    if (value == 'copy') onCopy?.call();
                     if (value == 'export') onExport?.call();
                     if (value == 'delete') onDelete?.call();
                   },
                   itemBuilder: (context) {
                     final l10n = AppLocalizations.of(context);
                     return [
-                      AdaptiveActionDrawerItem(
-                        value: 'export',
-                        leading: const Icon(Icons.file_upload),
-                        title: Text(l10n.export),
-                      ),
-                      AdaptiveActionDrawerItem(
-                        value: 'delete',
-                        leading: const Icon(Icons.delete),
-                        title: Text(l10n.delete),
-                        destructive: true,
-                      ),
+                      if (onCopy != null)
+                        AdaptiveActionDrawerItem(
+                          value: 'copy',
+                          leading: const Icon(Icons.copy_all),
+                          title: Text(l10n.copyToCustom),
+                        ),
+                      if (onExport != null)
+                        AdaptiveActionDrawerItem(
+                          value: 'export',
+                          leading: const Icon(Icons.file_upload),
+                          title: Text(l10n.export),
+                        ),
+                      if (onDelete != null)
+                        AdaptiveActionDrawerItem(
+                          value: 'delete',
+                          leading: const Icon(Icons.delete),
+                          title: Text(l10n.delete),
+                          destructive: true,
+                        ),
                     ];
                   },
                 ),

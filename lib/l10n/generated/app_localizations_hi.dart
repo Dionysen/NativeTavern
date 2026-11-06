@@ -7102,4 +7102,59 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get discardChanges => 'Discard';
+
+  @override
+  String get copyToCustom => 'Copy to custom';
+
+  @override
+  String copyNameOf(String name) {
+    return '$name copy';
+  }
+
+  @override
+  String copiedPresetToCustom(String name) {
+    return 'Copied \"$name\" to custom presets';
+  }
+
+  @override
+  String get copyNameSuffix => ' copy';
+
+  @override
+  String get addPrompt => 'Add prompt';
+
+  @override
+  String get promptContent => 'Prompt content';
+
+  @override
+  String promptEntryAdded(String name) {
+    return 'Added \"$name\"';
+  }
+
+  @override
+  String promptEntryDuplicated(String name) {
+    return 'Duplicated as \"$name\"';
+  }
+
+  @override
+  String promptEntryDeleted(String name) {
+    return 'Deleted \"$name\"';
+  }
+
+  @override
+  String get deletePromptEntry => 'Delete prompt';
+
+  @override
+  String deletePromptConfirmation(String name) {
+    return 'Delete \"$name\"? This cannot be undone.';
+  }
+
+  @override
+  String importedPromptSections(String name, int count) {
+    return 'Imported \"$name\" ($count prompts)';
+  }
+
+  @override
+  String importedPromptCount(int count) {
+    return 'Imported $count prompts';
+  }
 }

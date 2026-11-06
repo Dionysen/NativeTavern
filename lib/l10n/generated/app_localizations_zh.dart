@@ -6825,6 +6825,61 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get discardChanges => '丢弃';
+
+  @override
+  String get copyToCustom => '拷贝为自定义';
+
+  @override
+  String copyNameOf(String name) {
+    return '$name 副本';
+  }
+
+  @override
+  String copiedPresetToCustom(String name) {
+    return '已拷贝「$name」到自定义预设';
+  }
+
+  @override
+  String get copyNameSuffix => ' 副本';
+
+  @override
+  String get addPrompt => '添加提示词';
+
+  @override
+  String get promptContent => '提示词内容';
+
+  @override
+  String promptEntryAdded(String name) {
+    return '已添加「$name」';
+  }
+
+  @override
+  String promptEntryDuplicated(String name) {
+    return '已复制为「$name」';
+  }
+
+  @override
+  String promptEntryDeleted(String name) {
+    return '已删除「$name」';
+  }
+
+  @override
+  String get deletePromptEntry => '删除提示词';
+
+  @override
+  String deletePromptConfirmation(String name) {
+    return '删除「$name」？此操作无法撤销。';
+  }
+
+  @override
+  String importedPromptSections(String name, int count) {
+    return '已导入「$name」（$count 条提示词）';
+  }
+
+  @override
+  String importedPromptCount(int count) {
+    return '已导入 $count 条提示词';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -13642,4 +13697,59 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get discardChanges => '捨棄';
+
+  @override
+  String get copyToCustom => '拷貝為自訂';
+
+  @override
+  String copyNameOf(String name) {
+    return '$name 副本';
+  }
+
+  @override
+  String copiedPresetToCustom(String name) {
+    return '已拷貝「$name」到自訂預設';
+  }
+
+  @override
+  String get copyNameSuffix => ' 副本';
+
+  @override
+  String get addPrompt => '新增提示詞';
+
+  @override
+  String get promptContent => '提示詞內容';
+
+  @override
+  String promptEntryAdded(String name) {
+    return '已新增「$name」';
+  }
+
+  @override
+  String promptEntryDuplicated(String name) {
+    return '已複製為「$name」';
+  }
+
+  @override
+  String promptEntryDeleted(String name) {
+    return '已刪除「$name」';
+  }
+
+  @override
+  String get deletePromptEntry => '刪除提示詞';
+
+  @override
+  String deletePromptConfirmation(String name) {
+    return '刪除「$name」？此操作無法復原。';
+  }
+
+  @override
+  String importedPromptSections(String name, int count) {
+    return '已匯入「$name」（$count 條提示詞）';
+  }
+
+  @override
+  String importedPromptCount(int count) {
+    return '已匯入 $count 條提示詞';
+  }
 }

@@ -79,9 +79,11 @@ class AIPreset {
       // Generation settings at root level (SillyTavern format)
       ...generationSettings.toJson(),
       
-      // Prompt ordering
-      if (promptManagerConfig != null)
+      // Prompt ordering + custom prompt content (ST round-trip)
+      if (promptManagerConfig != null) ...{
+        'prompts': _promptConfigToSillyTavernPrompts(promptManagerConfig!),
         'prompt_order': _promptConfigToSillyTavernFormat(promptManagerConfig!),
+      },
       
       // NativeTavern-specific fields
       '_native_tavern': {
@@ -95,28 +97,62 @@ class AIPreset {
     return json;
   }
 
+  static String _sillyTavernIdentifier(PromptSection section) {
+    if (section.identifier != null && section.identifier!.isNotEmpty) {
+      return section.identifier!;
+    }
+    return _typeToSillyTavernIdentifier[section.type] ?? section.type.name;
+  }
+
+  static const _typeToSillyTavernIdentifier = <PromptSectionType, String>{
+    PromptSectionType.systemPrompt: 'main',
+    PromptSectionType.persona: 'personaDescription',
+    PromptSectionType.characterDescription: 'charDescription',
+    PromptSectionType.characterPersonality: 'charPersonality',
+    PromptSectionType.characterScenario: 'scenario',
+    PromptSectionType.exampleMessages: 'dialogueExamples',
+    PromptSectionType.worldInfo: 'worldInfoBefore',
+    PromptSectionType.worldInfoAfter: 'worldInfoAfter',
+    PromptSectionType.authorNote: 'authorNote',
+    PromptSectionType.postHistoryInstructions: 'jailbreak',
+    PromptSectionType.nsfw: 'nsfw',
+    PromptSectionType.chatHistory: 'chatHistory',
+    PromptSectionType.enhanceDefinitions: 'enhanceDefinitions',
+  };
+
+  /// Convert prompt config to SillyTavern prompts array (content + customs)
+  static List<Map<String, dynamic>> _promptConfigToSillyTavernPrompts(
+      PromptManagerConfig config) {
+    return config.sortedSections.map((section) {
+      final identifier = _sillyTavernIdentifier(section);
+      final isMarker = !section.isCustom &&
+          !section.isEditable &&
+          (section.content == null || section.content!.isEmpty);
+      return <String, dynamic>{
+        'identifier': identifier,
+        'name': section.name,
+        'enabled': section.enabled,
+        'system_prompt': !section.isCustom,
+        'marker': isMarker,
+        'role': section.role ?? 'system',
+        'content': section.content ?? '',
+        if (section.injectionPosition != null)
+          'injection_position': section.injectionPosition,
+        if (section.injectionDepth != null)
+          'injection_depth': section.injectionDepth,
+      };
+    }).toList();
+  }
+
   /// Convert prompt config to SillyTavern prompt_order format
   static List<Map<String, dynamic>> _promptConfigToSillyTavernFormat(
       PromptManagerConfig config) {
-    // Map our section types to SillyTavern identifiers
-    final typeToIdentifier = <PromptSectionType, String>{
-      PromptSectionType.systemPrompt: 'main',
-      PromptSectionType.persona: 'personaDescription',
-      PromptSectionType.characterDescription: 'charDescription',
-      PromptSectionType.characterPersonality: 'charPersonality',
-      PromptSectionType.characterScenario: 'scenario',
-      PromptSectionType.exampleMessages: 'dialogueExamples',
-      PromptSectionType.worldInfo: 'worldInfoBefore',
-      PromptSectionType.authorNote: 'authorNote',
-      PromptSectionType.postHistoryInstructions: 'jailbreak',
-    };
-
     return [
       {
         'character_id': 100000,
         'order': config.sortedSections.map((section) {
           return {
-            'identifier': typeToIdentifier[section.type] ?? section.type.name,
+            'identifier': _sillyTavernIdentifier(section),
             'enabled': section.enabled,
           };
         }).toList(),
@@ -259,9 +295,9 @@ class AIPreset {
     // Parse generation settings from root level
     final generationSettings = GenerationPreset.fromJson(json);
 
-    // Parse prompt order if present
+    // Parse prompt order / prompts if present
     PromptManagerConfig? promptConfig;
-    if (json['prompt_order'] != null) {
+    if (json['prompt_order'] != null || json['prompts'] != null) {
       promptConfig = PromptManagerConfig.fromSillyTavernJson(json);
     }
 
