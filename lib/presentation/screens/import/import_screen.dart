@@ -20,7 +20,20 @@ import 'package:path/path.dart' as p;
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/external_call_audit_providers.dart';
+import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+
+/// Floating card chrome: theme surface fill with composer-style edge + shadow.
+BoxDecoration _importSectionCardDecoration(BuildContext context) {
+  final theme = Theme.of(context);
+  final scheme = theme.colorScheme;
+  return BoxDecoration(
+    color: scheme.surfaceContainerHigh,
+    borderRadius: BorderRadius.circular(16),
+    border: Border.all(color: scheme.outline, width: 1),
+    boxShadow: ZephyrChatChrome.composerShadows(theme.brightness),
+  );
+}
 
 /// Import service provider
 final importServiceProvider = Provider<ImportService>((ref) {
@@ -621,14 +634,7 @@ class _FilePickerViewState extends State<_FilePickerView> {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(48),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                    width: 2,
-                  ),
-                ),
+                decoration: _importSectionCardDecoration(context),
                 child: Column(
                   children: [
                     if (widget.isLoading)
@@ -691,14 +697,7 @@ class _FilePickerViewState extends State<_FilePickerView> {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                    width: 2,
-                  ),
-                ),
+                decoration: _importSectionCardDecoration(context),
                 child: Column(
                   children: [
                     InkWell(
