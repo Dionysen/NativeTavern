@@ -12,11 +12,15 @@ class ChatChoicePanel extends ConsumerWidget {
     required this.onSelectChoice,
     required this.onOpenSettings,
     required this.onRefresh,
+    required this.isPinned,
+    required this.onTogglePin,
   });
 
   final ValueChanged<String> onSelectChoice;
   final VoidCallback onOpenSettings;
   final VoidCallback onRefresh;
+  final bool isPinned;
+  final VoidCallback onTogglePin;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,6 +38,18 @@ class ChatChoicePanel extends ConsumerWidget {
             child: Text(
               l10n.replyChoices,
               style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+          ChromeIconButton(
+            density: ChromeIconButtonDensity.compact,
+            tooltip: isPinned
+                ? l10n.unpinReplyChoicesPanel
+                : l10n.pinReplyChoicesPanel,
+            isSelected: isPinned,
+            onPressed: onTogglePin,
+            icon: Icon(
+              isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+              size: 20,
             ),
           ),
           ChromeIconButton(

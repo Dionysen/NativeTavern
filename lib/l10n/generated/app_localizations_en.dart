@@ -679,6 +679,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showReplyChoices => 'Reply choices';
 
   @override
+  String get pinReplyChoicesPanel => 'Pin panel';
+
+  @override
+  String get unpinReplyChoicesPanel => 'Unpin panel';
+
+  @override
   String get createQuickReply => 'Create Quick Reply';
 
   @override

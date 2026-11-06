@@ -873,6 +873,8 @@
   "replyChoicesGenerateFailed": "未能生成选项，请在下一次回复后再试。",
   "replyChoicesEmpty": "暂无选项，角色回复后会出现在这里。",
   "showReplyChoices": "回复选项",
+  "pinReplyChoicesPanel": "固定面板",
+  "unpinReplyChoicesPanel": "取消固定",
   "createQuickReply": "创建快捷回复",
   "@createQuickReply": {
     "description": "Create quick reply button"

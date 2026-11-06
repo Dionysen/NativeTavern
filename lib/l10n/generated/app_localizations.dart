@@ -1369,6 +1369,18 @@ abstract class AppLocalizations {
   /// **'Reply choices'**
   String get showReplyChoices;
 
+  /// Tooltip to keep reply choices panel open on focus loss
+  ///
+  /// In en, this message translates to:
+  /// **'Pin panel'**
+  String get pinReplyChoicesPanel;
+
+  /// Tooltip to allow reply choices panel to auto-hide
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin panel'**
+  String get unpinReplyChoicesPanel;
+
   /// Create quick reply button
   ///
   /// In en, this message translates to:

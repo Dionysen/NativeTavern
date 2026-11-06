@@ -117,6 +117,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _showSlashSuggestions = false;
   bool _showInputMenu = false;
   bool _showChoicePanel = false;
+  bool _choicePanelPinned = false;
   final List<ChatAttachment> _pendingAttachments = [];
   final ImagePicker _imagePicker = ImagePicker();
   final ChatTTSAutoPlayController _ttsAutoPlayController =
@@ -252,7 +253,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (_showInputMenu == visible) return;
     setState(() {
       _showInputMenu = visible;
-      if (visible) _showChoicePanel = false;
+      // Keep a pinned reply-choice panel open while the input menu is shown.
+      if (visible && !_choicePanelPinned) _showChoicePanel = false;
     });
   }
 
@@ -264,11 +266,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
   }
 
+  void _toggleChoicePanelPinned() {
+    setState(() => _choicePanelPinned = !_choicePanelPinned);
+  }
+
   void _dismissComposerOptionPanels() {
     if (!_showInputMenu && !_showChoicePanel) return;
     setState(() {
       _showInputMenu = false;
-      _showChoicePanel = false;
+      // Pinned choice panel survives tap-outside / focus loss.
+      if (!_choicePanelPinned) {
+        _showChoicePanel = false;
+      }
     });
   }
 
@@ -2728,6 +2737,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       onSelectChoice: _sendChoiceMessage,
                       onOpenSettings: _openReplyChoicesSettings,
                       onRefresh: _refreshReplyChoices,
+                      isPinned: _choicePanelPinned,
+                      onTogglePin: _toggleChoicePanelPinned,
                     ),
                   ),
                 ),

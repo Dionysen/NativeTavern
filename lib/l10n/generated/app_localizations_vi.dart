@@ -676,6 +676,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get showReplyChoices => 'Lựa chọn trả lời';
 
   @override
+  String get pinReplyChoicesPanel => 'Pin panel';
+
+  @override
+  String get unpinReplyChoicesPanel => 'Unpin panel';
+
+  @override
   String get createQuickReply => 'Tạo trả lời nhanh';
 
   @override

@@ -677,6 +677,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get showReplyChoices => 'Yanıt seçenekleri';
 
   @override
+  String get pinReplyChoicesPanel => 'Pin panel';
+
+  @override
+  String get unpinReplyChoicesPanel => 'Unpin panel';
+
+  @override
   String get createQuickReply => 'Hızlı Yanıt Oluştur';
 
   @override

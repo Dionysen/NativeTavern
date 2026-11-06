@@ -673,6 +673,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get showReplyChoices => 'ตัวเลือกการตอบ';
 
   @override
+  String get pinReplyChoicesPanel => 'Pin panel';
+
+  @override
+  String get unpinReplyChoicesPanel => 'Unpin panel';
+
+  @override
   String get createQuickReply => 'สร้างการตอบกลับด่วน';
 
   @override

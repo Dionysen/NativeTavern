@@ -678,6 +678,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get showReplyChoices => 'Варианты ответа';
 
   @override
+  String get pinReplyChoicesPanel => 'Pin panel';
+
+  @override
+  String get unpinReplyChoicesPanel => 'Unpin panel';
+
+  @override
   String get createQuickReply => 'Создать быстрый ответ';
 
   @override

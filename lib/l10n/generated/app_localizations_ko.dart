@@ -663,6 +663,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get showReplyChoices => '답변 선택지';
 
   @override
+  String get pinReplyChoicesPanel => 'Pin panel';
+
+  @override
+  String get unpinReplyChoicesPanel => 'Unpin panel';
+
+  @override
   String get createQuickReply => '빠른 답장 만들기';
 
   @override

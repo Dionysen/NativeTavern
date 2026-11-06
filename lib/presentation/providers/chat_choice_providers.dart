@@ -151,7 +151,7 @@ class ChatChoiceSessionNotifier extends StateNotifier<ChatChoiceSessionState> {
 
     try {
       final systemPrompt = ChatChoicePromptService.buildSystemPrompt(choiceConfig);
-      final messages = [
+      final messages = <Map<String, dynamic>>[
         ...contextMessages,
         {'role': 'system', 'content': systemPrompt},
       ];
@@ -161,20 +161,51 @@ class ChatChoiceSessionNotifier extends StateNotifier<ChatChoiceSessionState> {
         maxTokens: (choiceConfig.choiceCount * choiceConfig.maxCharsPerChoice)
             .clamp(256, 2048),
       );
-      final response = await llm.generateWithReasoning(
-        messages,
-        choiceLlmConfig,
-      );
-      if (token != _generationToken) return;
 
-      final choices = ChatChoicePromptService.parseChoices(
-        response.content,
-        choiceConfig,
-      );
+      final maxAttempts = 1 + ChatChoicePromptService.maxFormatRetries;
+      String? lastValidationError;
+
+      for (var attempt = 0; attempt < maxAttempts; attempt++) {
+        final response = await llm.generateWithReasoning(
+          messages,
+          choiceLlmConfig,
+        );
+        if (token != _generationToken) return;
+
+        final parsed = ChatChoicePromptService.parseAndValidate(
+          response.content,
+          choiceConfig,
+        );
+        if (parsed.isComplete) {
+          state = ChatChoiceSessionState(
+            chatId: chatId,
+            choices: parsed.choices,
+            isLoading: false,
+          );
+          return;
+        }
+
+        lastValidationError = parsed.validationError;
+        if (attempt + 1 >= maxAttempts) break;
+
+        // Feed the bad output + specific format error back for a repair pass.
+        messages.add({'role': 'assistant', 'content': response.content});
+        messages.add({
+          'role': 'user',
+          'content': ChatChoicePromptService.buildFormatRepairPrompt(
+            config: choiceConfig,
+            validationError: lastValidationError ??
+                'Reply choices were incomplete or malformed.',
+          ),
+        });
+      }
+
+      if (token != _generationToken) return;
       state = ChatChoiceSessionState(
         chatId: chatId,
-        choices: choices,
         isLoading: false,
+        error: lastValidationError ??
+            'Reply choices did not match the required format.',
       );
     } catch (e) {
       if (token != _generationToken) return;

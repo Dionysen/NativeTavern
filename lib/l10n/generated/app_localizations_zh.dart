@@ -660,6 +660,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get showReplyChoices => '回复选项';
 
   @override
+  String get pinReplyChoicesPanel => '固定面板';
+
+  @override
+  String get unpinReplyChoicesPanel => '取消固定';
+
+  @override
   String get createQuickReply => '创建快捷回复';
 
   @override
@@ -7469,6 +7475,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get showReplyChoices => '回覆選項';
+
+  @override
+  String get pinReplyChoicesPanel => '固定面板';
+
+  @override
+  String get unpinReplyChoicesPanel => '取消固定';
 
   @override
   String get createQuickReply => '建立快速回覆';

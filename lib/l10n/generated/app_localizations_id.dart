@@ -679,6 +679,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get showReplyChoices => 'Pilihan balasan';
 
   @override
+  String get pinReplyChoicesPanel => 'Pin panel';
+
+  @override
+  String get unpinReplyChoicesPanel => 'Unpin panel';
+
+  @override
   String get createQuickReply => 'Buat Balasan Cepat';
 
   @override

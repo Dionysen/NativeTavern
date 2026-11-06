@@ -919,6 +919,14 @@
   "@showReplyChoices": {
     "description": "Chat composer button tooltip"
   },
+  "pinReplyChoicesPanel": "Pin panel",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "unpinReplyChoicesPanel": "Unpin panel",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  },
   "createQuickReply": "Create Quick Reply",
   "@createQuickReply": {
     "description": "Create quick reply button"
