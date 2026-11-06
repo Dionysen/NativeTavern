@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -20,7 +21,8 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 /// Simple HTML tags are converted to Markdown equivalents.
 /// - Markdown: bold, italic, strikethrough, code blocks, lists, links, etc.
 /// - Complex HTML: rendered via WebView for full CSS support
-/// - Text selection with context menu (copy, select all)
+/// - Touch: long-press opens [onLongPress] (message menu); double-tap arms
+///   text selection. Desktop: drag-select + secondary-click menu.
 class MessageContentWidget extends ConsumerStatefulWidget {
   final String content;
   final Color textColor;
@@ -29,6 +31,9 @@ class MessageContentWidget extends ConsumerStatefulWidget {
   final VoidCallback? onCopy;
   final void Function(String)? onCopySelection;
   final VoidCallback? onLongPress;
+  /// Notifies parents when touch selection mode is armed/disarmed so outer
+  /// long-press handlers can step aside.
+  final ValueChanged<bool>? onSelectionModeChanged;
   /// Whether the message is currently being streamed (AI is still generating)
   /// When true, WebView will not be used even for complex HTML to avoid rendering issues
   final bool isStreaming;
@@ -47,6 +52,7 @@ class MessageContentWidget extends ConsumerStatefulWidget {
     this.onCopy,
     this.onCopySelection,
     this.onLongPress,
+    this.onSelectionModeChanged,
     this.isStreaming = false,
     this.messageId,
     this.isUser = false,
@@ -62,6 +68,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
   /// Content key for forcing WebView re-render after streaming ends
   int _contentVersion = 0;
 
+  /// Touch-only: SelectionArea is mounted after a double-tap so long-press can
+  /// open the message menu instead of starting a text selection.
+  bool _selectionArmed = false;
+
   /// Cached subtree: during streaming every chunk rebuilds all visible
   /// bubbles; returning an identical widget instance for unchanged content
   /// lets Flutter skip re-parsing markdown/HTML for those bubbles
@@ -73,6 +83,33 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
   int? _cachedVersion;
   Brightness? _cachedBrightness;
   bool? _cachedNeutralizeHtml;
+  bool? _cachedSelectionArmed;
+
+  bool get _isTouchPrimary {
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.iOS:
+      case TargetPlatform.android:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  /// Whether SelectionArea should be active for this build.
+  bool get _selectionEnabled {
+    if (!widget.selectable) return false;
+    if (!_isTouchPrimary) return true;
+    return _selectionArmed;
+  }
+
+  void _setSelectionArmed(bool armed) {
+    if (_selectionArmed == armed) return;
+    setState(() {
+      _selectionArmed = armed;
+      if (!armed) _selectedText = null;
+    });
+    widget.onSelectionModeChanged?.call(armed);
+  }
 
   @override
   void didUpdateWidget(MessageContentWidget oldWidget) {
@@ -165,14 +202,20 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
   }
 
   void _showContextMenu(BuildContext context, Offset position) {
+    // Leave touch selection mode before opening the message menu.
+    if (_selectionArmed) {
+      _setSelectionArmed(false);
+    }
+
     // If onLongPress callback is provided, use it instead of showing copy menu
     if (widget.onLongPress != null) {
       widget.onLongPress!();
       return;
     }
-    
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    
+
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+
     showMenu<String>(
       context: context,
       position: RelativeRect.fromRect(
@@ -217,6 +260,29 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     });
   }
 
+  void _armSelectionForTouch() {
+    if (!_isTouchPrimary || !widget.selectable || _selectionArmed) return;
+    _setSelectionArmed(true);
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).dragToSelectText),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+  }
+
+  void _onContentTap() {
+    if (!_selectionArmed) return;
+    // Exit selection mode when there is nothing selected (handles are gone).
+    if (_selectedText == null || _selectedText!.isEmpty) {
+      _setSelectionArmed(false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.content.isEmpty) {
@@ -234,7 +300,8 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         _cachedIsUser == widget.isUser &&
         _cachedVersion == _contentVersion &&
         _cachedBrightness == brightness &&
-        _cachedNeutralizeHtml == neutralizeHtml) {
+        _cachedNeutralizeHtml == neutralizeHtml &&
+        _cachedSelectionArmed == _selectionArmed) {
       return _cachedWidget!;
     }
 
@@ -247,6 +314,7 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     _cachedVersion = _contentVersion;
     _cachedBrightness = brightness;
     _cachedNeutralizeHtml = neutralizeHtml;
+    _cachedSelectionArmed = _selectionArmed;
     return result;
   }
 
@@ -259,18 +327,17 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       context,
       isUser: widget.isUser,
     );
+    final useWebView =
+        hasHtml && !widget.isStreaming && isComplexHtml(widget.content);
 
     Widget contentWidget;
-    
-    // If content has complex HTML (flexbox, grid, shadows, etc.) AND streaming is complete,
-    // use WebView for full CSS support. During streaming, always use Markdown to avoid
-    // rendering issues with constantly updating content.
-    if (hasHtml && !widget.isStreaming && isComplexHtml(widget.content)) {
-      // Generate a content key that changes when streaming ends, forcing a re-render
+
+    // Complex HTML → WebView (own long-press; no double-tap selection arm).
+    if (useWebView) {
       final contentKey =
           '${widget.messageId ?? widget.content.hashCode}_v$_contentVersion';
       final surface = _htmlSurfaceColor(context);
-      contentWidget = HtmlWebViewWidget(
+      return HtmlWebViewWidget(
         htmlContent: widget.content,
         backgroundColor: surface,
         textColor: widget.textColor,
@@ -282,25 +349,30 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         neutralizeStyle: neutralizeHtml,
       );
     }
-    // For all other content (including simple HTML), convert to Markdown and render
-    else {
-      // Convert HTML to Markdown-friendly format
-      final processedContent = hasHtml ? _convertHtmlToMarkdown(widget.content) : widget.content;
-      contentWidget = _buildMarkdownContent(
-        context,
-        processedContent,
-        dialogueColor: dialogueColor,
-      );
-    }
 
-    // Wrap with gesture detector for context menu (except for WebView which handles its own)
-    if (hasHtml && !widget.isStreaming && isComplexHtml(widget.content)) {
-      return contentWidget;
-    }
-    
+    final processedContent =
+        hasHtml ? _convertHtmlToMarkdown(widget.content) : widget.content;
+    contentWidget = _buildMarkdownContent(
+      context,
+      processedContent,
+      dialogueColor: dialogueColor,
+      enableSelection: _selectionEnabled,
+    );
+
+    // Touch + selection armed: do not claim long-press — SelectionArea needs it.
+    final claimLongPressForMenu = !_isTouchPrimary || !_selectionEnabled;
+
     return GestureDetector(
-      onSecondaryTapDown: (details) => _showContextMenu(context, details.globalPosition),
-      onLongPressStart: (details) => _showContextMenu(context, details.globalPosition),
+      behavior: HitTestBehavior.translucent,
+      onSecondaryTapDown: (details) =>
+          _showContextMenu(context, details.globalPosition),
+      onLongPressStart: claimLongPressForMenu
+          ? (details) => _showContextMenu(context, details.globalPosition)
+          : null,
+      onDoubleTap: _isTouchPrimary && widget.selectable
+          ? _armSelectionForTouch
+          : null,
+      onTap: _selectionArmed ? _onContentTap : null,
       child: contentWidget,
     );
   }
@@ -470,6 +542,7 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     BuildContext context,
     String content, {
     required Color dialogueColor,
+    required bool enableSelection,
   }) {
     final effectiveFontSize =
         widget.fontSize ?? ZephyrChatChrome.messageFontSize(context);
@@ -486,178 +559,175 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     );
     const codeblockPadding = EdgeInsets.all(12);
 
+    final markdown = MarkdownBody(
+      data: content,
+      // Must stay false when wrapped in SelectionArea to avoid conflict.
+      selectable: false,
+      shrinkWrap: true,
+      softLineBreak: true,
+      inlineSyntaxes: [DialogueQuoteSyntax()],
+      builders: {
+        'dialogue': DialogueQuoteBuilder(dialogueStyle),
+        // Override default horizontal-scrolling pre/code blocks with wrap.
+        'pre': WrappingCodeBlockBuilder(
+          codeStyle: codeStyle,
+          padding: codeblockPadding,
+        ),
+      },
+      imageBuilder: (uri, title, alt) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: CachedNetworkImage(
+              imageUrl: uri.toString(),
+              fit: BoxFit.contain,
+              placeholder: (context, url) => Container(
+                height: 200,
+                color: AppTheme.darkBackground,
+                child: const Center(
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+              errorWidget: (context, url, error) => Container(
+                height: 150,
+                color: AppTheme.darkBackground,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.broken_image, color: AppTheme.textMuted),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Image failed to load',
+                      style: TextStyle(
+                        color: AppTheme.textMuted,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+      styleSheet: MarkdownStyleSheet(
+        p: TextStyle(
+          color: widget.textColor,
+          fontSize: effectiveFontSize,
+        ),
+        strong: TextStyle(
+          color: widget.textColor,
+          fontWeight: FontWeight.bold,
+        ),
+        em: TextStyle(
+          color: widget.textColor,
+          fontStyle: FontStyle.italic,
+        ),
+        del: TextStyle(
+          color: widget.textColor,
+          decoration: TextDecoration.lineThrough,
+        ),
+        code: codeStyle,
+        codeblockDecoration: BoxDecoration(
+          color: AppTheme.darkBackground.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        codeblockPadding: codeblockPadding,
+        blockquote: TextStyle(
+          color: AppTheme.textSecondary,
+          fontStyle: FontStyle.italic,
+        ),
+        blockquoteDecoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(
+              color: AppTheme.primaryColor,
+              width: 3,
+            ),
+          ),
+        ),
+        blockquotePadding: const EdgeInsets.only(left: 12),
+        h1: TextStyle(
+          color: widget.textColor,
+          fontSize: effectiveFontSize * 1.8,
+          fontWeight: FontWeight.bold,
+        ),
+        h2: TextStyle(
+          color: widget.textColor,
+          fontSize: effectiveFontSize * 1.5,
+          fontWeight: FontWeight.bold,
+        ),
+        h3: TextStyle(
+          color: widget.textColor,
+          fontSize: effectiveFontSize * 1.3,
+          fontWeight: FontWeight.bold,
+        ),
+        h4: TextStyle(
+          color: widget.textColor,
+          fontSize: effectiveFontSize * 1.1,
+          fontWeight: FontWeight.bold,
+        ),
+        h5: TextStyle(
+          color: widget.textColor,
+          fontSize: effectiveFontSize,
+          fontWeight: FontWeight.bold,
+        ),
+        h6: TextStyle(
+          color: widget.textColor,
+          fontSize: effectiveFontSize * 0.9,
+          fontWeight: FontWeight.bold,
+        ),
+        a: TextStyle(
+          color: AppTheme.primaryColor,
+          decoration: TextDecoration.underline,
+        ),
+        listBullet: TextStyle(
+          color: widget.textColor,
+        ),
+        horizontalRuleDecoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: AppTheme.darkDivider,
+              width: 1,
+            ),
+          ),
+        ),
+      ),
+      onTapLink: (text, href, title) {
+        if (href != null) {
+          _launchUrl(href);
+        }
+      },
+    );
+
+    if (!enableSelection) return markdown;
+
     return SelectionArea(
       onSelectionChanged: (selection) {
         _selectedText = selection?.plainText;
       },
-      child: MarkdownBody(
-        data: content,
-        selectable: false, // Must be false when wrapped in SelectionArea to avoid conflict
-        shrinkWrap: true,
-        softLineBreak: true, // Enable soft line breaks for proper text wrapping
-        inlineSyntaxes: [DialogueQuoteSyntax()],
-        builders: {
-          'dialogue': DialogueQuoteBuilder(dialogueStyle),
-          // Override default horizontal-scrolling pre/code blocks with wrap.
-          'pre': WrappingCodeBlockBuilder(
-            codeStyle: codeStyle,
-            padding: codeblockPadding,
-          ),
-        },
-        imageBuilder: (uri, title, alt) {
-          // Custom image builder using CachedNetworkImage
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: uri.toString(),
-                fit: BoxFit.contain,
-                placeholder: (context, url) => Container(
-                  height: 200,
-                  color: AppTheme.darkBackground,
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  height: 150,
-                  color: AppTheme.darkBackground,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.broken_image, color: AppTheme.textMuted),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Image failed to load',
-                        style: TextStyle(
-                          color: AppTheme.textMuted,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-        styleSheet: MarkdownStyleSheet(
-          p: TextStyle(
-            color: widget.textColor,
-            fontSize: effectiveFontSize,
-          ),
-          strong: TextStyle(
-            color: widget.textColor,
-            fontWeight: FontWeight.bold,
-          ),
-          em: TextStyle(
-            color: widget.textColor,
-            fontStyle: FontStyle.italic,
-          ),
-          del: TextStyle(
-            color: widget.textColor,
-            decoration: TextDecoration.lineThrough,
-          ),
-          code: codeStyle,
-          codeblockDecoration: BoxDecoration(
-            color: AppTheme.darkBackground.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          codeblockPadding: codeblockPadding,
-          blockquote: TextStyle(
-            color: AppTheme.textSecondary,
-            fontStyle: FontStyle.italic,
-          ),
-          blockquoteDecoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(
-                color: AppTheme.primaryColor,
-                width: 3,
-              ),
-            ),
-          ),
-          blockquotePadding: const EdgeInsets.only(left: 12),
-          h1: TextStyle(
-            color: widget.textColor,
-            fontSize: effectiveFontSize * 1.8,
-            fontWeight: FontWeight.bold,
-          ),
-          h2: TextStyle(
-            color: widget.textColor,
-            fontSize: effectiveFontSize * 1.5,
-            fontWeight: FontWeight.bold,
-          ),
-          h3: TextStyle(
-            color: widget.textColor,
-            fontSize: effectiveFontSize * 1.3,
-            fontWeight: FontWeight.bold,
-          ),
-          h4: TextStyle(
-            color: widget.textColor,
-            fontSize: effectiveFontSize * 1.1,
-            fontWeight: FontWeight.bold,
-          ),
-          h5: TextStyle(
-            color: widget.textColor,
-            fontSize: effectiveFontSize,
-            fontWeight: FontWeight.bold,
-          ),
-          h6: TextStyle(
-            color: widget.textColor,
-            fontSize: effectiveFontSize * 0.9,
-            fontWeight: FontWeight.bold,
-          ),
-          a: TextStyle(
-            color: AppTheme.primaryColor,
-            decoration: TextDecoration.underline,
-          ),
-          listBullet: TextStyle(
-            color: widget.textColor,
-          ),
-          horizontalRuleDecoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: AppTheme.darkDivider,
-                width: 1,
-              ),
-            ),
-          ),
-        ),
-        onTapLink: (text, href, title) {
-          if (href != null) {
-            _launchUrl(href);
-          }
-        },
-      ),
+      child: markdown,
     );
   }
 
   Widget _buildPlainText(BuildContext context) {
     final effectiveFontSize =
         widget.fontSize ?? ZephyrChatChrome.messageFontSize(context);
-    
-    if (widget.selectable) {
-      return SelectionArea(
-        onSelectionChanged: (selection) {
-          _selectedText = selection?.plainText;
-        },
-        child: Text(
-          widget.content,
-          style: TextStyle(
-            color: widget.textColor,
-            fontSize: effectiveFontSize,
-          ),
-        ),
-      );
-    }
-    
-    return Text(
+    final text = Text(
       widget.content,
       style: TextStyle(
         color: widget.textColor,
         fontSize: effectiveFontSize,
       ),
+    );
+
+    if (!widget.selectable || !_selectionEnabled) return text;
+
+    return SelectionArea(
+      onSelectionChanged: (selection) {
+        _selectedText = selection?.plainText;
+      },
+      child: text,
     );
   }
 

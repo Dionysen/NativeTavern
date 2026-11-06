@@ -212,6 +212,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get copiedToClipboard => '클립보드에 복사됨';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => '새 응답 생성';
 
   @override

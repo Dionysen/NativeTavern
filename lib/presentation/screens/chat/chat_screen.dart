@@ -3825,6 +3825,8 @@ class _MessageBubble extends ConsumerStatefulWidget {
 
 class _MessageBubbleState extends ConsumerState<_MessageBubble> {
   bool _isEditing = false;
+  /// When true, touch text-selection is armed — skip outer long-press menu.
+  bool _contentSelectionArmed = false;
   late TextEditingController _editController;
 
   @override
@@ -3906,6 +3908,10 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                     isUser: isUser,
                     selectable: true,
                     onLongPress: () => _showMessageOptions(context),
+                    onSelectionModeChanged: (armed) {
+                      if (_contentSelectionArmed == armed) return;
+                      setState(() => _contentSelectionArmed = armed);
+                    },
                     isStreaming: widget.isGenerating,
                     messageId: widget.message.id,
                   ),
@@ -3923,7 +3929,11 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
       children: [
         GestureDetector(
           onTap: () {},
-          onLongPress: () => _showMessageOptions(context),
+          // Step aside while touch selection is armed so SelectionArea can
+          // receive long-press. Content / empty areas still open the menu.
+          onLongPress: _contentSelectionArmed
+              ? null
+              : () => _showMessageOptions(context),
           child: ZephyrChatChrome.maybeFrosted(
             sigma: widget.hasImageBackground ? bubbleBlurSigma : 0,
             shape: ZephyrChatChrome.messageBubbleShape(

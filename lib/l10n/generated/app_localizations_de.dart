@@ -219,6 +219,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get copiedToClipboard => 'In die Zwischenablage kopiert';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => 'Neue Antwort generieren';
 
   @override

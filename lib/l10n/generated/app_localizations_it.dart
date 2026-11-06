@@ -219,6 +219,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get copiedToClipboard => 'Copiato negli appunti';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => 'Genera nuova risposta';
 
   @override

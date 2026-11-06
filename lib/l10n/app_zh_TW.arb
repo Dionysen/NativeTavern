@@ -284,6 +284,10 @@
   "@copiedToClipboard": {
     "description": "Copied to clipboard snackbar"
   },
+  "dragToSelectText": "拖曳選擇文字",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
   "generateNewResponse": "生成新的回覆",
   "@generateNewResponse": {
     "description": "Regenerate tooltip"

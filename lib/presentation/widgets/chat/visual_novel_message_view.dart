@@ -49,6 +49,8 @@ class _VisualNovelMessageViewState
     extends ConsumerState<VisualNovelMessageView> {
   late PageController _pageController;
   int _currentIndex = 0;
+  /// When true, touch text-selection is armed — skip outer long-press menu.
+  bool _contentSelectionArmed = false;
 
   @override
   void initState() {
@@ -206,7 +208,10 @@ class _VisualNovelMessageViewState
           controller: _pageController,
           itemCount: widget.messages.length,
           onPageChanged: (index) {
-            setState(() => _currentIndex = index);
+            setState(() {
+              _currentIndex = index;
+              _contentSelectionArmed = false;
+            });
           },
           itemBuilder: (context, index) {
             final message = widget.messages[index];
@@ -249,7 +254,9 @@ class _VisualNovelMessageViewState
         : 0;
 
     return GestureDetector(
-      onLongPress: () => widget.onLongPress(message),
+      onLongPress: _contentSelectionArmed
+          ? null
+          : () => widget.onLongPress(message),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -272,6 +279,10 @@ class _VisualNovelMessageViewState
                 isUser: isUser,
                 selectable: true,
                 onLongPress: () => widget.onLongPress(message),
+                onSelectionModeChanged: (armed) {
+                  if (_contentSelectionArmed == armed) return;
+                  setState(() => _contentSelectionArmed = armed);
+                },
                 isStreaming: isGenerating,
                 messageId: message.id,
               ),

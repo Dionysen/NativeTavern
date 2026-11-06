@@ -218,6 +218,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get copiedToClipboard => 'क्लिपबोर्ड पर कॉपी किया गया';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => 'नया उत्तर उत्पन्न करें';
 
   @override

@@ -214,6 +214,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get copiedToClipboard => 'クリップボードにコピーしました';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => '新しい応答を生成';
 
   @override

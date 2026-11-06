@@ -218,6 +218,9 @@ class AppLocalizationsNl extends AppLocalizations {
   String get copiedToClipboard => 'Gekopieerd naar klembord';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => 'Genereer nieuw antwoord';
 
   @override

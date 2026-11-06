@@ -523,6 +523,12 @@ abstract class AppLocalizations {
   /// **'Copied to clipboard'**
   String get copiedToClipboard;
 
+  /// SnackBar after double-tapping a chat bubble to arm text selection on touch
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to select text'**
+  String get dragToSelectText;
+
   /// Regenerate tooltip
   ///
   /// In en, this message translates to:

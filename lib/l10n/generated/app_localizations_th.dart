@@ -216,6 +216,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get copiedToClipboard => 'คัดลอกไปยังคลิปบอร์ดแล้ว';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => 'สร้างคำตอบใหม่';
 
   @override

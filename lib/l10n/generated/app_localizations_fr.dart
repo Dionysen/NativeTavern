@@ -219,6 +219,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get copiedToClipboard => 'Copié dans le presse-papiers';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => 'Générer une nouvelle réponse';
 
   @override

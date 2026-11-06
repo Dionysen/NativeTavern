@@ -218,6 +218,9 @@ class AppLocalizationsMs extends AppLocalizations {
   String get copiedToClipboard => 'Disalin ke papan keratan';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => 'Jana respons baharu';
 
   @override

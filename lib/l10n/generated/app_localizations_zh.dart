@@ -212,6 +212,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get copiedToClipboard => '已复制到剪贴板';
 
   @override
+  String get dragToSelectText => '拖动选择文字';
+
+  @override
   String get generateNewResponse => '生成新的回复';
 
   @override
@@ -7213,6 +7216,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get copiedToClipboard => '已複製到剪貼簿';
+
+  @override
+  String get dragToSelectText => '拖曳選擇文字';
 
   @override
   String get generateNewResponse => '生成新的回覆';

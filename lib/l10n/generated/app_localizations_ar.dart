@@ -215,6 +215,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get copiedToClipboard => 'تم النسخ إلى الحافظة';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => 'توليد رد جديد';
 
   @override

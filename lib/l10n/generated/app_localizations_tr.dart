@@ -218,6 +218,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get copiedToClipboard => 'Panoya kopyalandı';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => 'Yeni yanıt oluştur';
 
   @override

@@ -218,6 +218,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get copiedToClipboard => 'Disalin ke clipboard';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => 'Buat respons baru';
 
   @override

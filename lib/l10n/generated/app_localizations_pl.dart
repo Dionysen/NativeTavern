@@ -218,6 +218,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get copiedToClipboard => 'Skopiowano do schowka';
 
   @override
+  String get dragToSelectText => 'Drag to select text';
+
+  @override
   String get generateNewResponse => 'Wygeneruj nową odpowiedź';
 
   @override
