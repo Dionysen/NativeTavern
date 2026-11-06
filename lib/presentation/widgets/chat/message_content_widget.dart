@@ -424,7 +424,8 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
   
   /// Convert simple HTML tags to Markdown equivalents
   String _convertHtmlToMarkdown(String html) {
-    var result = html;
+    // Keep author line breaks before tags are stripped / collapsed.
+    var result = preserveHtmlTextNewlines(html);
     
     // Convert bold tags
     result = result.replaceAllMapped(
@@ -513,19 +514,22 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     // Convert horizontal rule
     result = result.replaceAll(RegExp(r'<hr\s*/?\s*>', caseSensitive: false), '\n---\n');
     
-    // Convert line breaks
-    result = result.replaceAll(RegExp(r'<br\s*/?\s*>', caseSensitive: false), '\n');
+    // Convert line breaks to paragraph breaks (Markdown needs a blank line).
+    result = result.replaceAll(
+      RegExp(r'<br\s*/?\s*>', caseSensitive: false),
+      '\n\n',
+    );
     
     // Convert paragraphs
     result = result.replaceAllMapped(
       RegExp(r'<p[^>]*>(.*?)</p>', caseSensitive: false, dotAll: true),
-      (m) => '\n${m.group(1)}\n',
+      (m) => '\n\n${m.group(1)}\n\n',
     );
     
     // Convert divs to paragraphs
     result = result.replaceAllMapped(
       RegExp(r'<div[^>]*>(.*?)</div>', caseSensitive: false, dotAll: true),
-      (m) => '\n${m.group(1)}\n',
+      (m) => '\n\n${m.group(1)}\n\n',
     );
     
     // Convert unordered lists

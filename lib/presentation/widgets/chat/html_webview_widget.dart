@@ -350,9 +350,11 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
       widget.overrideFont ? widget.fontFamily : null,
     );
     final content = wrapDialogueQuotesInHtml(
-      widget.htmlContent.replaceAllMapped(
-        RegExp(r'<details\b', caseSensitive: false),
-        (match) => '<details open',
+      preserveHtmlTextNewlines(
+        widget.htmlContent.replaceAllMapped(
+          RegExp(r'<details\b', caseSensitive: false),
+          (match) => '<details open',
+        ),
       ),
     );
 
@@ -1035,6 +1037,65 @@ double? resolveHtmlWebViewHeight({
   if (newHeight > currentHeight) return newHeight;
   if (updateCount <= 3) return newHeight;
   return null;
+}
+
+/// Convert literal newlines inside HTML **text nodes** into `<br>` tags.
+///
+/// Browsers collapse `\n` in normal HTML flow, so character-card messages that
+/// rely on source newlines (without `<br>`/`<p>`) render as one wall of text.
+/// Skips `pre` / `script` / `style` / `textarea` so those keep raw content.
+String preserveHtmlTextNewlines(String html) {
+  if (!html.contains('\n') && !html.contains('\r')) return html;
+
+  final out = StringBuffer();
+  final tagRe = RegExp(r'<!--.*?-->|<[^>]+>', dotAll: true);
+  var cursor = 0;
+  var skipDepth = 0;
+  final openSkip = RegExp(
+    r'^<\s*(pre|script|style|textarea)\b',
+    caseSensitive: false,
+  );
+  final closeSkip = RegExp(
+    r'^<\s*/\s*(pre|script|style|textarea)\s*>',
+    caseSensitive: false,
+  );
+
+  void writeText(String text) {
+    if (skipDepth > 0) {
+      out.write(text);
+      return;
+    }
+    // Pure whitespace between tags is layout noise; block elements already
+    // separate. Only prose text nodes need explicit <br> for source newlines.
+    if (text.trim().isEmpty) {
+      out.write(text);
+      return;
+    }
+    out.write(
+      text
+          .replaceAll('\r\n', '\n')
+          .replaceAll('\r', '\n')
+          .replaceAll('\n', '<br>\n'),
+    );
+  }
+
+  for (final match in tagRe.allMatches(html)) {
+    if (match.start > cursor) {
+      writeText(html.substring(cursor, match.start));
+    }
+    final tag = match.group(0)!;
+    out.write(tag);
+    if (openSkip.hasMatch(tag) && !RegExp(r'/>\s*$').hasMatch(tag)) {
+      skipDepth++;
+    } else if (closeSkip.hasMatch(tag) && skipDepth > 0) {
+      skipDepth--;
+    }
+    cursor = match.end;
+  }
+  if (cursor < html.length) {
+    writeText(html.substring(cursor));
+  }
+  return out.toString();
 }
 
 /// CSS `font-family` stack for HTML WebViews.

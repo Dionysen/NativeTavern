@@ -62,4 +62,23 @@ void main() {
     expect(cssFontFamilyStack(null), contains('sans-serif'));
   });
 
+  test('html text newlines become br outside pre/script', () {
+    expect(
+      preserveHtmlTextNewlines('第一段\n第二段'),
+      '第一段<br>\n第二段',
+    );
+    expect(
+      preserveHtmlTextNewlines('<div>甲\n乙</div>'),
+      '<div>甲<br>\n乙</div>',
+    );
+    expect(
+      preserveHtmlTextNewlines('<pre>keep\nnewline</pre>'),
+      '<pre>keep\nnewline</pre>',
+    );
+    // Whitespace-only nodes between blocks stay untouched.
+    expect(
+      preserveHtmlTextNewlines('<div>a</div>\n<div>b</div>'),
+      '<div>a</div>\n<div>b</div>',
+    );
+  });
 }
