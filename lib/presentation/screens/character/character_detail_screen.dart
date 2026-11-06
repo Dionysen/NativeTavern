@@ -1,7 +1,11 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:native_tavern/core/utils/path_utils.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -76,6 +80,138 @@ class _CharacterDetailContent extends ConsumerStatefulWidget {
 class _CharacterDetailContentState
     extends ConsumerState<_CharacterDetailContent> {
   bool _isCreatingChat = false;
+
+  /// Avatar height / width. Scroll-up from the resting hero reveals the full card.
+  double? _avatarAspectRatio;
+  final ScrollController _scrollController = ScrollController();
+
+  /// True after we've jumped to the half-screen resting offset (or no jump needed).
+  bool _heroResting = false;
+
+  /// When false, [expandedHeight] stays at half-screen so the first paint matches
+  /// the old crop. Flipped on just before jumping to the tall-hero offset.
+  bool _fullHeroEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAvatarAspectRatio();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant _CharacterDetailContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.character.assets?.avatarPath !=
+        widget.character.assets?.avatarPath) {
+      _avatarAspectRatio = null;
+      _heroResting = false;
+      _fullHeroEnabled = false;
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+      _loadAvatarAspectRatio();
+    }
+  }
+
+  Future<void> _loadAvatarAspectRatio() async {
+    final path = widget.character.assets?.avatarPath;
+    if (path == null || path.isEmpty) {
+      if (mounted) setState(() => _heroResting = true);
+      return;
+    }
+    try {
+      final absolute = await PathUtils.toAbsolutePath(path);
+      final bytes = await File(absolute).readAsBytes();
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      final image = frame.image;
+      final ratio = image.height / image.width;
+      image.dispose();
+      if (!mounted || ratio <= 0 || !ratio.isFinite) {
+        if (mounted) setState(() => _heroResting = true);
+        return;
+      }
+      setState(() {
+        _avatarAspectRatio = ratio;
+        _heroResting = false;
+        _fullHeroEnabled = false;
+      });
+      _scheduleRestingJump();
+    } catch (_) {
+      if (mounted) setState(() => _heroResting = true);
+    }
+  }
+
+  void _scheduleRestingJump() {
+    var attempts = 0;
+    void tryJump() {
+      if (!mounted || _avatarAspectRatio == null) return;
+      attempts++;
+
+      final screen = MediaQuery.sizeOf(context);
+      final restingHeight = screen.height * 0.5;
+      final fullCardHeight = screen.width * _avatarAspectRatio!;
+      if (fullCardHeight <= restingHeight) {
+        // Card already fits in the half-screen hero — nothing to expand.
+        if (!_heroResting) setState(() => _heroResting = true);
+        return;
+      }
+
+      if (!_fullHeroEnabled) {
+        // Expand to full-card height, then jump on the next frame once extent
+        // has updated. A half-screen mask covers the one-frame offset-0 flash.
+        setState(() => _fullHeroEnabled = true);
+        WidgetsBinding.instance.addPostFrameCallback((_) => tryJump());
+        return;
+      }
+
+      if (_jumpToRestingHero()) {
+        if (!_heroResting) setState(() => _heroResting = true);
+        return;
+      }
+      // maxScrollExtent often lags the expandedHeight change by a few frames.
+      if (attempts < 16) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => tryJump());
+      } else if (!_heroResting) {
+        setState(() => _heroResting = true);
+      }
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => tryJump());
+  }
+
+  /// Jump so only the legacy half-screen hero is visible. Returns true when
+  /// settled (or no jump needed); false when scroll extent is not ready yet.
+  bool _jumpToRestingHero() {
+    if (!_scrollController.hasClients ||
+        _avatarAspectRatio == null ||
+        !_fullHeroEnabled) {
+      return false;
+    }
+
+    final screen = MediaQuery.sizeOf(context);
+    final restingHeight = screen.height * 0.5;
+    final fullCardHeight = screen.width * _avatarAspectRatio!;
+    final expandedHeight =
+        fullCardHeight < restingHeight ? restingHeight : fullCardHeight;
+    final desired = expandedHeight - restingHeight;
+    if (desired <= 0) return true;
+
+    final maxExtent = _scrollController.position.maxScrollExtent;
+    if (maxExtent + 0.5 < desired) return false;
+
+    final target = desired.clamp(0.0, maxExtent);
+    if ((_scrollController.offset - target).abs() > 0.5) {
+      _scrollController.jumpTo(target);
+    }
+    return (_scrollController.offset - target).abs() <= 0.5;
+  }
 
   Future<void> _startChat() async {
     if (_isCreatingChat) return;
@@ -198,82 +334,105 @@ class _CharacterDetailContentState
     final scheme = Theme.of(context).colorScheme;
     final character = widget.character;
     final screen = MediaQuery.sizeOf(context);
-    // Enter with the card filling roughly the top half of the screen;
-    // pull-to-stretch can still reveal more of the art.
-    final expandedHeight = screen.height * 0.5;
+    // Keep expandedHeight at half-screen until [_fullHeroEnabled], then jump to
+    // a resting offset so scroll-up can reveal the full card without a flash.
+    final restingHeight = screen.height * 0.5;
+    final fullCardHeight = _avatarAspectRatio == null
+        ? restingHeight
+        : screen.width * _avatarAspectRatio!;
+    final expandedHeight = !_fullHeroEnabled || _avatarAspectRatio == null
+        ? restingHeight
+        : (fullCardHeight < restingHeight ? restingHeight : fullCardHeight);
+
+    // Covers the one frame where the tall hero is at offset 0 before the jump.
+    final showRestingMask = _fullHeroEnabled && !_heroResting;
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: expandedHeight,
-            pinned: true,
-            stretch: true,
-            // Collapsed toolbar title: AppBar lays this out between leading
-            // and actions, so it never overlaps Live2D / edit / overflow.
-            centerTitle: true,
-            title: _CharacterDetailAppBarTitle(
-              name: character.name,
-              collapsed: true,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          CustomScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
             ),
-            flexibleSpace: FlexibleSpaceBar(
-              stretchModes: const [
-                StretchMode.zoomBackground,
-                StretchMode.fadeTitle,
-              ],
-              centerTitle: true,
-              titlePadding: const EdgeInsets.fromLTRB(40, 0, 40, 16),
-              // Expanded hero title: may wrap; fades out as the bar collapses.
-              title: _CharacterDetailAppBarTitle(
-                name: character.name,
-                collapsed: false,
-              ),
-              background: _buildAvatarBackground(character, scheme),
-            ),
-            actions: spacedAppBarActions([
-              ChromeIconButton(density: ChromeIconButtonDensity.compact, 
-                icon: const Icon(Icons.animation),
-                tooltip: 'Live2D',
-                onPressed: () =>
-                    context.push('/characters/${character.id}/live2d'),
-              ),
-              ChromeIconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () =>
-                    context.push('/characters/${character.id}/edit'),
-              ),
-              AdaptiveActionMenuButton<String>(
-                title: character.name,
-                onSelected: (value) => _handleMenuAction(value, character),
-                itemBuilder: (context) => [
-                  AdaptiveActionDrawerItem(
-                    value: 'export',
-                    title: Text(l10n.exportAsPng),
+            slivers: [
+              SliverAppBar(
+                expandedHeight: expandedHeight,
+                pinned: true,
+                stretch: true,
+                // Collapsed toolbar title: AppBar lays this out between leading
+                // and actions, so it never overlaps Live2D / edit / overflow.
+                centerTitle: true,
+                title: _CharacterDetailAppBarTitle(
+                  name: character.name,
+                  collapsed: true,
+                ),
+                flexibleSpace: FlexibleSpaceBar(
+                  // No zoomBackground: expanding must reveal more of the card.
+                  stretchModes: const [
+                    StretchMode.fadeTitle,
+                  ],
+                  centerTitle: true,
+                  titlePadding: const EdgeInsets.fromLTRB(40, 0, 40, 16),
+                  // Expanded hero title: may wrap; fades out as the bar collapses.
+                  title: _CharacterDetailAppBarTitle(
+                    name: character.name,
+                    collapsed: false,
                   ),
-                  AdaptiveActionDrawerItem(
-                    value: 'export_charx',
-                    title: Text(l10n.exportAsCharx),
+                  background: _buildAvatarBackground(
+                    character,
+                    scheme,
+                    restingHeight: restingHeight,
+                    fullCardHeight: fullCardHeight,
                   ),
-                  AdaptiveActionDrawerItem(
-                    value: 'duplicate',
-                    title: Text(l10n.duplicate),
+                ),
+                actions: spacedAppBarActions([
+                  ChromeIconButton(
+                    density: ChromeIconButtonDensity.compact,
+                    icon: const Icon(Icons.animation),
+                    tooltip: 'Live2D',
+                    onPressed: () =>
+                        context.push('/characters/${character.id}/live2d'),
                   ),
-                  AdaptiveActionDrawerItem(
-                    value: 'delete',
-                    title: Text(l10n.delete),
-                    destructive: true,
-                    showDividerAbove: true,
+                  ChromeIconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () =>
+                        context.push('/characters/${character.id}/edit'),
                   ),
-                ],
+                  AdaptiveActionMenuButton<String>(
+                    title: character.name,
+                    onSelected: (value) =>
+                        _handleMenuAction(value, character),
+                    itemBuilder: (context) => [
+                      AdaptiveActionDrawerItem(
+                        value: 'export',
+                        title: Text(l10n.exportAsPng),
+                      ),
+                      AdaptiveActionDrawerItem(
+                        value: 'export_charx',
+                        title: Text(l10n.exportAsCharx),
+                      ),
+                      AdaptiveActionDrawerItem(
+                        value: 'duplicate',
+                        title: Text(l10n.duplicate),
+                      ),
+                      AdaptiveActionDrawerItem(
+                        value: 'delete',
+                        title: Text(l10n.delete),
+                        destructive: true,
+                        showDividerAbove: true,
+                      ),
+                    ],
+                  ),
+                ]),
               ),
-            ]),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                   // Tags
                   if (character.tags.isNotEmpty)
                     Wrap(
@@ -443,10 +602,53 @@ class _CharacterDetailContentState
                     const SizedBox(height: 16),
 
                   const SizedBox(height: 80), // Space for FAB
-                ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (showRestingMask)
+            Positioned.fill(
+              child: ColoredBox(
+                color: scheme.surface,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      height: restingHeight,
+                      child: character.assets?.avatarPath != null
+                          ? Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                CharacterAvatarImage(
+                                  imagePath: character.assets!.avatarPath!,
+                                  fit: BoxFit.cover,
+                                  alignment: Alignment.topCenter,
+                                  errorBuilder: (_, __, ___) =>
+                                      _defaultBackground(scheme),
+                                ),
+                                DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.transparent,
+                                        scheme.surface.withValues(alpha: 0.85),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : _defaultBackground(scheme),
+                    ),
+                    const Expanded(child: SizedBox.shrink()),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -468,30 +670,46 @@ class _CharacterDetailContentState
     );
   }
 
-  Widget _buildAvatarBackground(Character character, ColorScheme scheme) {
+  Widget _buildAvatarBackground(
+    Character character,
+    ColorScheme scheme, {
+    required double restingHeight,
+    required double fullCardHeight,
+  }) {
     if (character.assets?.avatarPath != null) {
-      return Stack(
-        fit: StackFit.expand,
-        children: [
-          CharacterAvatarImage(
-            imagePath: character.assets!.avatarPath!,
-            fit: BoxFit.cover,
-            alignment: Alignment.topCenter,
-            errorBuilder: (_, __, ___) => _defaultBackground(scheme),
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  scheme.surface.withValues(alpha: 0.85),
-                ],
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          // While the hero is near its resting size, keep cover crop. Once the
+          // user overscrolls enough to approach the full card height, switch to
+          // fitWidth so the complete artwork is visible.
+          final showFullCard = constraints.maxHeight >=
+              (fullCardHeight < restingHeight
+                  ? restingHeight
+                  : fullCardHeight * 0.92);
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              CharacterAvatarImage(
+                imagePath: character.assets!.avatarPath!,
+                fit: showFullCard ? BoxFit.fitWidth : BoxFit.cover,
+                alignment: Alignment.topCenter,
+                errorBuilder: (_, __, ___) => _defaultBackground(scheme),
               ),
-            ),
-          ),
-        ],
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      scheme.surface.withValues(alpha: 0.85),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       );
     }
     return _defaultBackground(scheme);
