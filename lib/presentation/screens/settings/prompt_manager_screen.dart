@@ -107,41 +107,52 @@ class PromptManagerScreen extends ConsumerWidget {
             ),
           ),
           Expanded(
-            child: ReorderableListView.builder(
+            child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              buildDefaultDragHandles: false,
-              itemCount: sortedSections.length,
-              onReorder: (oldIndex, newIndex) {
-                ref
-                    .read(promptManagerProvider.notifier)
-                    .reorder(oldIndex, newIndex);
-              },
-              itemBuilder: (context, index) {
-                final section = sortedSections[index];
-                final key = section.identifier != null
-                    ? ValueKey('${section.identifier}_$index')
-                    : ValueKey('${section.type.name}_$index');
-                return _PromptSectionTile(
-                  key: key,
-                  section: section,
-                  index: index,
-                  onToggle: () {
-                    if (section.isCustom) {
-                      ref
-                          .read(promptManagerProvider.notifier)
-                          .toggleSectionByIndex(index);
-                    } else {
-                      ref
-                          .read(promptManagerProvider.notifier)
-                          .toggleSection(section.type);
-                    }
+              child: SettingsGroupedPanel(
+                padding: EdgeInsets.zero,
+                child: ReorderableListView.builder(
+                  buildDefaultDragHandles: false,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  itemCount: sortedSections.length,
+                  onReorder: (oldIndex, newIndex) {
+                    ref
+                        .read(promptManagerProvider.notifier)
+                        .reorder(oldIndex, newIndex);
                   },
-                  onEdit: section.isEditable
-                      ? () =>
-                          _showEditContentDialog(context, ref, section, index)
-                      : null,
-                );
-              },
+                  itemBuilder: (context, index) {
+                    final section = sortedSections[index];
+                    final key = section.identifier != null
+                        ? ValueKey('${section.identifier}_$index')
+                        : ValueKey('${section.type.name}_$index');
+                    return _PromptSectionTile(
+                      key: key,
+                      section: section,
+                      index: index,
+                      showDivider: index < sortedSections.length - 1,
+                      onToggle: () {
+                        if (section.isCustom) {
+                          ref
+                              .read(promptManagerProvider.notifier)
+                              .toggleSectionByIndex(index);
+                        } else {
+                          ref
+                              .read(promptManagerProvider.notifier)
+                              .toggleSection(section.type);
+                        }
+                      },
+                      onEdit: section.isEditable
+                          ? () => _showEditContentDialog(
+                                context,
+                                ref,
+                                section,
+                                index,
+                              )
+                          : null,
+                    );
+                  },
+                ),
+              ),
             ),
           ),
         ],
@@ -688,6 +699,7 @@ class _PromptSectionTile extends StatelessWidget {
   final int index;
   final VoidCallback onToggle;
   final VoidCallback? onEdit;
+  final bool showDivider;
 
   const _PromptSectionTile({
     super.key,
@@ -695,15 +707,14 @@ class _PromptSectionTile extends StatelessWidget {
     required this.index,
     required this.onToggle,
     this.onEdit,
+    this.showDivider = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
 
-    // Determine display name and description
     final displayName = section.isCustom
         ? section.name
         : _promptSectionName(section.type, l10n);
@@ -713,7 +724,6 @@ class _PromptSectionTile extends StatelessWidget {
             : l10n.customPrompt)
         : _promptSectionDescription(section.type, l10n);
 
-    // Determine icon based on type
     IconData typeIcon;
     if (section.isCustom) {
       typeIcon = Icons.code;
@@ -763,95 +773,66 @@ class _PromptSectionTile extends StatelessWidget {
     final primary = colorScheme.primary;
     final secondary = colorScheme.secondary;
     final muted = colorScheme.onSurfaceVariant;
-    final onSurface = colorScheme.onSurface;
     final accent = section.isCustom ? secondary : primary;
-    final iconColor = enabled ? accent : muted;
-    final titleColor = enabled ? onSurface : muted;
-    final subtitleColor = enabled ? muted : muted.withValues(alpha: 0.7);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      color: enabled
-          ? colorScheme.surfaceContainerLow
-          : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      child: ListTile(
-        leading: ReorderableDragStartListener(
-          index: index,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.drag_handle, color: muted),
-              const SizedBox(width: 8),
-              Icon(typeIcon, size: 20, color: iconColor),
-            ],
+    final titleExtras = <Widget>[
+      if (section.isCustom)
+        Container(
+          margin: const EdgeInsets.only(left: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: secondary.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            l10n.customPrompt,
+            style: TextStyle(
+              fontSize: 10,
+              color: enabled ? secondary : muted,
+            ),
           ),
         ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                displayName,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: titleColor,
-                  fontWeight: enabled ? FontWeight.w500 : FontWeight.normal,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+      if (section.isEditable && !section.isCustom)
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Icon(
+            Icons.edit_note,
+            size: 16,
+            color: enabled ? primary : muted,
+          ),
+        ),
+    ];
+
+    return SettingsControlTile(
+      dragIndex: index,
+      icon: typeIcon,
+      iconColor: enabled ? accent : muted,
+      title: displayName,
+      subtitle: description,
+      maxSubtitleLines: 1,
+      titleExtras: titleExtras.isEmpty ? null : titleExtras,
+      enabled: enabled,
+      showDivider: showDivider,
+      onTap: onEdit != null && enabled ? onEdit : null,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (onEdit != null)
+            ChromeIconButton(
+              density: ChromeIconButtonDensity.compact,
+              icon: Icon(
+                Icons.edit,
+                size: 20,
+                color: enabled ? primary : muted,
               ),
+              onPressed: enabled ? onEdit : null,
+              tooltip: AppLocalizations.of(context)!.edit,
             ),
-            if (section.isCustom)
-              Container(
-                margin: const EdgeInsets.only(left: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: secondary.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  l10n.customPrompt,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: enabled ? secondary : muted,
-                  ),
-                ),
-              ),
-            if (section.isEditable && !section.isCustom)
-              Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: Icon(
-                  Icons.edit_note,
-                  size: 16,
-                  color: enabled ? primary : muted,
-                ),
-              ),
-          ],
-        ),
-        subtitle: Text(
-          description,
-          style: theme.textTheme.bodySmall?.copyWith(color: subtitleColor),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (onEdit != null)
-              ChromeIconButton(
-                icon: Icon(
-                  Icons.edit,
-                  size: 20,
-                  color: enabled ? primary : muted,
-                ),
-                onPressed: enabled ? onEdit : null,
-                tooltip: AppLocalizations.of(context)!.edit,
-              ),
-            ThemedSwitch(
-              value: enabled,
-              onChanged: (_) => onToggle(),
-            ),
-          ],
-        ),
-        onTap: onEdit != null && enabled ? onEdit : null,
+          ThemedSwitch(
+            value: enabled,
+            onChanged: (_) => onToggle(),
+          ),
+        ],
       ),
     );
   }

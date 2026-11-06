@@ -40,6 +40,60 @@ class SettingsCategoryHeader extends StatelessWidget {
   }
 }
 
+/// Shared spacing for settings-style control rows.
+abstract final class SettingsTileMetrics {
+  static const double iconSize = 22;
+  static const double iconGap = 14;
+  static const double horizontalPadding = 16;
+  static const double verticalPadding = 10;
+  static const double minHeight = 52;
+}
+
+/// Card chrome shared by [SettingsSection] and grouped reorderable lists.
+class SettingsGroupedPanel extends StatelessWidget {
+  const SettingsGroupedPanel({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.symmetric(vertical: 6),
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  static BoxDecoration decoration(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final dark = theme.brightness == Brightness.dark;
+    return BoxDecoration(
+      color: scheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(context.appCornerRadius),
+      boxShadow: [
+        BoxShadow(
+          color: scheme.shadow.withValues(alpha: dark ? 0.10 : 0.12),
+          blurRadius: 12,
+          offset: const Offset(0, 3),
+          spreadRadius: -1,
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(context.appCornerRadius);
+    return DecoratedBox(
+      decoration: decoration(context),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Padding(padding: padding, child: child),
+        ),
+      ),
+    );
+  }
+}
+
 /// Grouped block of settings tiles with an optional icon + title header.
 class SettingsSection extends StatelessWidget {
   const SettingsSection({
@@ -61,10 +115,6 @@ class SettingsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final radius = context.appCornerRadius;
-    final dark = theme.brightness == Brightness.dark;
-    final fill = scheme.surfaceContainerHigh;
-    final shadowColor = scheme.shadow.withValues(alpha: dark ? 0.10 : 0.12);
 
     return Padding(
       padding: margin,
@@ -89,29 +139,8 @@ class SettingsSection extends StatelessWidget {
                 ),
               ),
           ],
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: fill,
-              borderRadius: BorderRadius.circular(radius),
-              boxShadow: [
-                BoxShadow(
-                  color: shadowColor,
-                  blurRadius: 12,
-                  offset: const Offset(0, 3),
-                  spreadRadius: -1,
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(radius),
-              child: Material(
-                type: MaterialType.transparency,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Column(children: children),
-                ),
-              ),
-            ),
+          SettingsGroupedPanel(
+            child: Column(children: children),
           ),
           if (footer != null) ...[
             const SizedBox(height: 8),
@@ -131,39 +160,45 @@ class SettingsSection extends StatelessWidget {
   }
 }
 
-/// Horizontal settings row: leading icon, title, optional trailing.
-class SettingsListTile extends StatelessWidget {
-  const SettingsListTile({
+/// Settings-style control row used by settings pages and reorderable managers.
+class SettingsControlTile extends StatelessWidget {
+  const SettingsControlTile({
     super.key,
-    required this.icon,
+    this.icon,
+    this.leading,
+    this.dragIndex,
     required this.title,
     this.subtitle,
+    this.titleExtras,
     this.trailing,
     this.onTap,
     this.onLongPress,
     this.showDivider = true,
     this.enabled = true,
+    this.iconColor,
+    this.maxSubtitleLines = 3,
   });
 
-  static const double iconSize = 22;
-  static const double _iconGap = 14;
-  static const double _horizontalPadding = 16;
-
-  final IconData icon;
+  final IconData? icon;
+  final Widget? leading;
+  final int? dragIndex;
   final String title;
   final String? subtitle;
+  final List<Widget>? titleExtras;
   final Widget? trailing;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final bool showDivider;
   final bool enabled;
+  final Color? iconColor;
+  final int maxSubtitleLines;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final iconColor = enabled
-        ? theme.colorScheme.onSurfaceVariant
-        : theme.disabledColor;
+    final scheme = theme.colorScheme;
+    final muted = enabled ? scheme.onSurfaceVariant : theme.disabledColor;
+    final resolvedIconColor = iconColor ?? muted;
     final titleStyle = theme.textTheme.titleSmall?.copyWith(
       color: enabled ? null : theme.disabledColor,
     );
@@ -171,9 +206,18 @@ class SettingsListTile extends StatelessWidget {
       fontSize: 11,
       height: 1.3,
       color: enabled
-          ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.72)
+          ? scheme.onSurfaceVariant.withValues(alpha: 0.72)
           : theme.disabledColor,
     );
+
+    Widget? leadingWidget = leading;
+    if (leadingWidget == null && icon != null) {
+      leadingWidget = Icon(
+        icon,
+        size: SettingsTileMetrics.iconSize,
+        color: resolvedIconColor,
+      );
+    }
 
     return Column(
       children: [
@@ -181,31 +225,53 @@ class SettingsListTile extends StatelessWidget {
           onTap: enabled ? onTap : null,
           onLongPress: enabled ? onLongPress : null,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 52),
+            constraints: const BoxConstraints(
+              minHeight: SettingsTileMetrics.minHeight,
+            ),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: _horizontalPadding,
-                vertical: 10,
+                horizontal: SettingsTileMetrics.horizontalPadding,
+                vertical: SettingsTileMetrics.verticalPadding,
               ),
               child: Row(
                 children: [
-                  Icon(icon, size: iconSize, color: iconColor),
-                  const SizedBox(width: _iconGap),
+                  if (dragIndex != null) ...[
+                    ReorderableDragStartListener(
+                      index: dragIndex!,
+                      child: Icon(
+                        Icons.drag_handle,
+                        size: SettingsTileMetrics.iconSize,
+                        color: muted,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  if (leadingWidget != null) ...[
+                    leadingWidget,
+                    const SizedBox(width: SettingsTileMetrics.iconGap),
+                  ],
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: titleStyle,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: titleStyle,
+                              ),
+                            ),
+                            if (titleExtras != null) ...titleExtras!,
+                          ],
                         ),
                         if (subtitle != null && subtitle!.isNotEmpty) ...[
                           const SizedBox(height: 3),
                           Text(
                             subtitle!,
-                            maxLines: 3,
+                            maxLines: maxSubtitleLines,
                             overflow: TextOverflow.ellipsis,
                             style: subtitleStyle,
                           ),
@@ -225,11 +291,51 @@ class SettingsListTile extends StatelessWidget {
         if (showDivider)
           Divider(
             height: 1,
-            indent: _horizontalPadding,
-            endIndent: _horizontalPadding,
+            indent: SettingsTileMetrics.horizontalPadding,
+            endIndent: SettingsTileMetrics.horizontalPadding,
             color: theme.dividerColor.withValues(alpha: 0.5),
           ),
       ],
+    );
+  }
+}
+
+/// Horizontal settings row: leading icon, title, optional trailing.
+class SettingsListTile extends StatelessWidget {
+  const SettingsListTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    this.onTap,
+    this.onLongPress,
+    this.showDivider = true,
+    this.enabled = true,
+  });
+
+  static const double iconSize = SettingsTileMetrics.iconSize;
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final bool showDivider;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsControlTile(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      trailing: trailing,
+      onTap: onTap,
+      onLongPress: onLongPress,
+      showDivider: showDivider,
+      enabled: enabled,
     );
   }
 }

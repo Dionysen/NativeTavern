@@ -5,6 +5,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:uuid/uuid.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
+import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 /// Show the shared regex script editor as a modal bottom sheet.
 Future<void> showRegexScriptEditor(
@@ -40,6 +41,8 @@ class RegexScriptTile extends StatelessWidget {
   final VoidCallback onToggle;
   final VoidCallback onDelete;
   final bool showDragHandle;
+  final int? dragIndex;
+  final bool showDivider;
 
   const RegexScriptTile({
     super.key,
@@ -48,53 +51,39 @@ class RegexScriptTile extends StatelessWidget {
     required this.onToggle,
     required this.onDelete,
     this.showDragHandle = true,
+    this.dragIndex,
+    this.showDivider = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final muted = scheme.onSurfaceVariant;
-    final active = scheme.primary;
-    return ListTile(
-      leading: Icon(
-        Icons.find_replace,
-        color: script.disabled ? muted : active,
-      ),
-      title: Text(
-        script.scriptName,
-        style: TextStyle(
-          color: script.disabled ? muted : null,
-          decoration: script.disabled ? TextDecoration.lineThrough : null,
-        ),
-      ),
-      subtitle: Text(
-        script.findRegex,
-        style: TextStyle(
-          fontSize: 12,
-          fontFamily: 'monospace',
-          color: muted,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
+    final enabled = !script.disabled;
+
+    return SettingsControlTile(
+      dragIndex: showDragHandle ? dragIndex : null,
+      icon: Icons.find_replace,
+      iconColor: enabled ? scheme.primary : scheme.onSurfaceVariant,
+      title: script.scriptName,
+      subtitle: script.findRegex,
+      maxSubtitleLines: 1,
+      enabled: enabled,
+      showDivider: showDivider,
+      onTap: onTap,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ChromeIconButton(
-            icon: Icon(
-              script.disabled ? Icons.toggle_off : Icons.toggle_on,
-              color: script.disabled ? muted : active,
-            ),
-            onPressed: onToggle,
+          ThemedSwitch(
+            value: enabled,
+            onChanged: (_) => onToggle(),
           ),
           ChromeIconButton(
-            icon: Icon(Icons.delete, color: scheme.error),
+            density: ChromeIconButtonDensity.compact,
+            icon: Icon(Icons.delete_outline, color: scheme.error),
             onPressed: onDelete,
           ),
-          if (showDragHandle) Icon(Icons.drag_handle, color: muted),
         ],
       ),
-      onTap: onTap,
     );
   }
 }

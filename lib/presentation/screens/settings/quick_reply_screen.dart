@@ -121,8 +121,13 @@ class QuickReplyScreen extends ConsumerWidget {
                       ],
                     ),
                   )
-                : ReorderableListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                : Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                    child: SettingsGroupedPanel(
+                      padding: EdgeInsets.zero,
+                      child: ReorderableListView.builder(
+                    buildDefaultDragHandles: false,
+                    padding: const EdgeInsets.symmetric(vertical: 6),
                     itemCount: sortedReplies.length,
                     onReorder: (oldIndex, newIndex) {
                       if (newIndex > oldIndex) newIndex--;
@@ -135,6 +140,8 @@ class QuickReplyScreen extends ConsumerWidget {
                       return _QuickReplyTile(
                         key: ValueKey(reply.id),
                         reply: reply,
+                        index: index,
+                        showDivider: index < sortedReplies.length - 1,
                         onEdit: () => _showEditDialog(context, ref, reply),
                         onToggle: () {
                           ref
@@ -144,6 +151,8 @@ class QuickReplyScreen extends ConsumerWidget {
                         onDelete: () => _showDeleteDialog(context, ref, reply),
                       );
                     },
+                      ),
+                    ),
                   ),
           ),
         ],
@@ -218,6 +227,8 @@ class QuickReplyScreen extends ConsumerWidget {
 
 class _QuickReplyTile extends StatelessWidget {
   final QuickReply reply;
+  final int index;
+  final bool showDivider;
   final VoidCallback onEdit;
   final VoidCallback onToggle;
   final VoidCallback onDelete;
@@ -225,84 +236,70 @@ class _QuickReplyTile extends StatelessWidget {
   const _QuickReplyTile({
     super.key,
     required this.reply,
+    required this.index,
     required this.onEdit,
     required this.onToggle,
     required this.onDelete,
+    this.showDivider = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final scheme = Theme.of(context).colorScheme;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: ReorderableDragStartListener(
-          index: reply.order,
-          child: Icon(
-            Icons.drag_handle,
-            color: theme.colorScheme.outline,
-          ),
-        ),
-        title: Text(
-          reply.label,
-          style: TextStyle(
-            color: reply.enabled ? null : theme.colorScheme.outline,
-          ),
-        ),
-        subtitle: Text(
-          reply.message.isEmpty
-              ? AppLocalizations.of(context)!.continueOrEmpty
-              : reply.message,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: reply.enabled
-                ? theme.colorScheme.onSurfaceVariant
-                : theme.colorScheme.outline,
-          ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (reply.autoSend)
-              Tooltip(
+    return SettingsControlTile(
+      dragIndex: index,
+      icon: Icons.quickreply_outlined,
+      title: reply.label,
+      subtitle: reply.message.isEmpty
+          ? AppLocalizations.of(context)!.continueOrEmpty
+          : reply.message,
+      maxSubtitleLines: 1,
+      enabled: reply.enabled,
+      showDivider: showDivider,
+      onTap: onEdit,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (reply.autoSend)
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Tooltip(
                 message: AppLocalizations.of(context).autoSendTooltip,
                 child: Icon(
                   Icons.send,
                   size: 16,
-                  color: theme.colorScheme.primary,
+                  color: scheme.primary,
                 ),
               ),
-            const SizedBox(width: 8),
-            Switch(
-              value: reply.enabled,
-              onChanged: (_) => onToggle(),
             ),
-            AdaptiveActionMenuButton<String>(
-              itemBuilder: (context) => [
-                AdaptiveActionDrawerItem(
-                  value: 'edit',
-                  leading: const Icon(Icons.edit),
-                  title: Text(AppLocalizations.of(context)!.edit),
-                ),
-                AdaptiveActionDrawerItem(
-                  value: 'delete',
-                  leading: const Icon(Icons.delete),
-                  title: Text(AppLocalizations.of(context)!.delete),
-                  destructive: true,
-                ),
-              ],
-              onSelected: (value) {
-                if (value == 'edit') {
-                  onEdit();
-                } else if (value == 'delete') {
-                  onDelete();
-                }
-              },
-            ),
-          ],
-        ),
+          ThemedSwitch(
+            value: reply.enabled,
+            onChanged: (_) => onToggle(),
+          ),
+          AdaptiveActionMenuButton<String>(
+            itemBuilder: (context) => [
+              AdaptiveActionDrawerItem(
+                value: 'edit',
+                leading: const Icon(Icons.edit),
+                title: Text(AppLocalizations.of(context)!.edit),
+              ),
+              AdaptiveActionDrawerItem(
+                value: 'delete',
+                leading: const Icon(Icons.delete),
+                title: Text(AppLocalizations.of(context)!.delete),
+                destructive: true,
+              ),
+            ],
+            onSelected: (value) {
+              if (value == 'edit') {
+                onEdit();
+              } else if (value == 'delete') {
+                onDelete();
+              }
+            },
+          ),
+        ],
       ),
     );
   }

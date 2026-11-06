@@ -173,6 +173,7 @@ class RegexSettingsScreen extends ConsumerWidget {
                 ReorderableListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
+                  buildDefaultDragHandles: false,
                   itemCount: scripts.length,
                   onReorder: (oldIndex, newIndex) {
                     if (newIndex > oldIndex) newIndex--;
@@ -185,6 +186,8 @@ class RegexSettingsScreen extends ConsumerWidget {
                     return RegexScriptTile(
                       key: ValueKey(script.id),
                       script: script,
+                      dragIndex: index,
+                      showDivider: index < scripts.length - 1,
                       onTap: () => _showScriptEditor(context, ref, script),
                       onToggle: () {
                         ref
