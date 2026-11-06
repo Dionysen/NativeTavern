@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
+import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/screens/character/character_view_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -196,6 +197,9 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     await _refreshFolderChrome();
     ref.invalidate(characterLibraryTagLabelsProvider);
     ref.invalidate(characterDetailProvider(character.id));
+    await ref
+        .read(activeChatProvider.notifier)
+        .refreshCharacterData(character.id);
     await refresh();
   }
 

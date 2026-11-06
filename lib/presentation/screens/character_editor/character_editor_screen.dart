@@ -8,6 +8,7 @@ import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/data/repositories/chat_repository.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/providers/background_providers.dart';
 import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
@@ -254,6 +255,12 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
       ref.invalidate(characterChatsProvider(character.id));
       ref.invalidate(pagedChatsProvider);
       ref.invalidate(allChatsProvider);
+      ref.invalidate(characterLibraryTagLabelsProvider);
+      ref.invalidate(selectedCharacterProvider);
+      ref.invalidate(effectiveBackgroundProvider(character.id));
+      await ref
+          .read(activeChatProvider.notifier)
+          .refreshCharacterData(character.id);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

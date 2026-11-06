@@ -3958,6 +3958,37 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     return buffer.toString();
   }
 
+  /// Refresh card fields in the open chat without reloading messages.
+  ///
+  /// Used after the character editor saves so the next prompt/AppBar/avatar
+  /// use the updated card immediately.
+  Future<void> refreshCharacterData(String characterId) async {
+    final updated = await _characterRepository.getCharacter(characterId);
+    if (updated == null) return;
+
+    final isPrimary = state.character?.id == characterId;
+    final inGroup = state.groupCharacters.containsKey(characterId);
+    if (!isPrimary && !inGroup) return;
+
+    Chat? chat = state.chat;
+    if (chat != null &&
+        chat.characterId == characterId &&
+        !chat.isGroupChat) {
+      chat = await _chatRepository.getChat(chat.id) ?? chat;
+    }
+
+    final nextGroup = inGroup
+        ? (Map<String, Character>.from(state.groupCharacters)
+          ..[characterId] = updated)
+        : state.groupCharacters;
+
+    state = state.copyWith(
+      chat: chat,
+      character: isPrimary ? updated : null,
+      groupCharacters: nextGroup,
+    );
+  }
+
   Future<void> updateLive2DStageTransform({
     required double scale,
     required double offsetX,
