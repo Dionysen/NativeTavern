@@ -1,9 +1,44 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/prompt_manager.dart';
+import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
+/// Selected character for viewing card-owned prompt fields (null = none).
+final promptPreviewCharacterIdProvider =
+    StateProvider.autoDispose<String?>((ref) => null);
+
+/// Characters available for the Prompt Manager character dropdown.
+final promptPreviewCharactersProvider =
+    FutureProvider.autoDispose<List<Character>>((ref) async {
+  final repo = ref.watch(characterRepositoryProvider);
+  final characters = await repo.getAllCharacters();
+  characters.sort(
+    (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+  );
+  return characters;
+});
+
+/// Resolved character for Prompt Manager field preview.
+final promptPreviewCharacterProvider =
+    Provider.autoDispose<AsyncValue<Character?>>((ref) {
+  final id = ref.watch(promptPreviewCharacterIdProvider);
+  final characters = ref.watch(promptPreviewCharactersProvider);
+  if (id == null) return const AsyncData(null);
+  return characters.when(
+    data: (list) {
+      for (final c in list) {
+        if (c.id == id) return AsyncData(c);
+      }
+      return const AsyncData(null);
+    },
+    loading: () => const AsyncLoading(),
+    error: AsyncError.new,
+  );
+});
 
 const _promptManagerKey = 'prompt_manager_config';
 const _customPresetsKey = 'prompt_manager_custom_presets';

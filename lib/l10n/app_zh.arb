@@ -7282,5 +7282,25 @@
         "type": "int"
       }
     }
+  },
+  "promptPreviewCharacter": "角色卡",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewHint": "选一个角色卡后，可点开查看描述、性格等内容；这里只能看，要改请去角色卡。",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "先在上方选择角色卡再查看",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "promptPreviewEmptyField": "该角色卡此处没有内容",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptOwnedByCharacter": "来自角色卡 · 仅可查看",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
   }
 }

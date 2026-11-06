@@ -6880,6 +6880,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String importedPromptCount(int count) {
     return '已导入 $count 条提示词';
   }
+
+  @override
+  String get promptPreviewCharacter => '角色卡';
+
+  @override
+  String get promptPreviewHint => '选一个角色卡后，可点开查看描述、性格等内容；这里只能看，要改请去角色卡。';
+
+  @override
+  String get promptPreviewSelectToView => '先在上方选择角色卡再查看';
+
+  @override
+  String get promptPreviewEmptyField => '该角色卡此处没有内容';
+
+  @override
+  String get promptOwnedByCharacter => '来自角色卡 · 仅可查看';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -13752,4 +13767,19 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String importedPromptCount(int count) {
     return '已匯入 $count 條提示詞';
   }
+
+  @override
+  String get promptPreviewCharacter => '角色卡';
+
+  @override
+  String get promptPreviewHint => '選一個角色卡後，可點開查看描述、性格等內容；此處只能看，要改請到角色卡。';
+
+  @override
+  String get promptPreviewSelectToView => '先在上方選擇角色卡再查看';
+
+  @override
+  String get promptPreviewEmptyField => '此角色卡此處沒有內容';
+
+  @override
+  String get promptOwnedByCharacter => '來自角色卡 · 僅可查看';
 }

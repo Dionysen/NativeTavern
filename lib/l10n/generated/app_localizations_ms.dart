@@ -7159,4 +7159,21 @@ class AppLocalizationsMs extends AppLocalizations {
   String importedPromptCount(int count) {
     return 'Imported $count prompts';
   }
+
+  @override
+  String get promptPreviewCharacter => 'Character card';
+
+  @override
+  String get promptPreviewHint =>
+      'Pick a character to open description, personality, and other card fields here. They are view-only.';
+
+  @override
+  String get promptPreviewSelectToView =>
+      'Pick a character above to view this field';
+
+  @override
+  String get promptPreviewEmptyField => 'This character has no content here';
+
+  @override
+  String get promptOwnedByCharacter => 'From character card · view only';
 }

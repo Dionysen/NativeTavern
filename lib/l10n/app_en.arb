@@ -7398,5 +7398,25 @@
         "type": "int"
       }
     }
+  },
+  "promptPreviewCharacter": "Character card",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewHint": "Pick a character to open description, personality, and other card fields here. They are view-only.",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "Pick a character above to view this field",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "promptPreviewEmptyField": "This character has no content here",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptOwnedByCharacter": "From character card · view only",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
   }
 }

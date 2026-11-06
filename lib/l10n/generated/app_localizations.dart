@@ -12704,6 +12704,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Imported {count} prompts'**
   String importedPromptCount(int count);
+
+  /// Dropdown label for character used to view card-owned prompt fields
+  ///
+  /// In en, this message translates to:
+  /// **'Character card'**
+  String get promptPreviewCharacter;
+
+  /// Hint under the character picker in Prompt Manager
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a character to open description, personality, and other card fields here. They are view-only.'**
+  String get promptPreviewHint;
+
+  /// Subtitle on character-owned prompt rows before a card is selected
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a character above to view this field'**
+  String get promptPreviewSelectToView;
+
+  /// Subtitle when selected character field is empty
+  ///
+  /// In en, this message translates to:
+  /// **'This character has no content here'**
+  String get promptPreviewEmptyField;
+
+  /// Label on expanded character-owned prompt content
+  ///
+  /// In en, this message translates to:
+  /// **'From character card · view only'**
+  String get promptOwnedByCharacter;
 }
 
 class _AppLocalizationsDelegate
