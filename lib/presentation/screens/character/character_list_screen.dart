@@ -162,7 +162,16 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
       }
     });
 
-    return Scaffold(
+    return PopScope(
+      // System/back: leave multi-select first; do not pop the shell/tab route.
+      canPop: !_selectionMode,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (_selectionMode) {
+          _exitSelectionMode();
+        }
+      },
+      child: Scaffold(
       appBar: AppBar(
         leading: browseFolderId != null && !_selectionMode
             ? ChromeIconButton(
@@ -326,6 +335,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }
