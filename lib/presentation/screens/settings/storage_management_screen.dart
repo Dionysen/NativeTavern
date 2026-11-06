@@ -289,7 +289,7 @@ class _StorageManagementScreenState
       final closedReason = await ScaffoldMessenger.of(context)
           .showSnackBar(
             SnackBar(
-              duration: const Duration(seconds: 6),
+              duration: const Duration(milliseconds: 2800),
               content: Text(l10n.storageCleanupMoved(receipt.movedCount)),
               action: SnackBarAction(
                 label: l10n.storageUndo,

@@ -20,7 +20,6 @@ import 'package:path/path.dart' as p;
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/external_call_audit_providers.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
 /// Import service provider
@@ -495,10 +494,14 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               : l10n.importSummarySuccess(successCount)
           : l10n.importSummaryFailed;
 
+      final scheme = Theme.of(context).colorScheme;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: errorCount > 0 ? Colors.orange : Colors.green,
+          duration: const Duration(milliseconds: 1600),
+          backgroundColor: errorCount > 0
+              ? scheme.tertiaryContainer
+              : scheme.secondaryContainer,
         ),
       );
 
@@ -619,10 +622,10 @@ class _FilePickerViewState extends State<_FilePickerView> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(48),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard,
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppTheme.darkDivider,
+                    color: Theme.of(context).colorScheme.outlineVariant,
                     width: 2,
                   ),
                 ),
@@ -631,10 +634,10 @@ class _FilePickerViewState extends State<_FilePickerView> {
                     if (widget.isLoading)
                       const CircularProgressIndicator()
                     else ...[
-                      const Icon(
+                      Icon(
                         Icons.file_upload_outlined,
                         size: 64,
-                        color: AppTheme.textMuted,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -646,7 +649,7 @@ class _FilePickerViewState extends State<_FilePickerView> {
                         AppLocalizations.of(context)!
                             .supportedCharacterCardFormats,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textMuted,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                       ),
                       const SizedBox(height: 24),
@@ -689,10 +692,10 @@ class _FilePickerViewState extends State<_FilePickerView> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard,
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppTheme.darkDivider,
+                    color: Theme.of(context).colorScheme.outlineVariant,
                     width: 2,
                   ),
                 ),
@@ -703,8 +706,8 @@ class _FilePickerViewState extends State<_FilePickerView> {
                           setState(() => _showUrlInput = !_showUrlInput),
                       child: Row(
                         children: [
-                          const Icon(Icons.link,
-                              size: 24, color: AppTheme.accentColor),
+                          Icon(Icons.link,
+                              size: 24, color: Theme.of(context).colorScheme.primary),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -716,7 +719,7 @@ class _FilePickerViewState extends State<_FilePickerView> {
                             _showUrlInput
                                 ? Icons.expand_less
                                 : Icons.expand_more,
-                            color: AppTheme.textMuted,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ],
                       ),
@@ -728,7 +731,7 @@ class _FilePickerViewState extends State<_FilePickerView> {
                         decoration: InputDecoration(
                           hintText: AppLocalizations.of(context)!
                               .enterCharacterCardUrl,
-                          hintStyle: const TextStyle(color: AppTheme.textMuted),
+                          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                           prefixIcon: const Icon(Icons.link, size: 20),
                           suffixIcon: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -760,7 +763,7 @@ class _FilePickerViewState extends State<_FilePickerView> {
                       Text(
                         AppLocalizations.of(context)!.supportedCommunities,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textMuted,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                       ),
                       const SizedBox(height: 8),
@@ -768,7 +771,7 @@ class _FilePickerViewState extends State<_FilePickerView> {
                         spacing: 8,
                         runSpacing: 8,
                         alignment: WrapAlignment.center,
-                        children: const [
+                        children: [
                           _CommunityChip(
                               name: 'NativeTavern',
                               url: 'https://nativetavern.com',
@@ -792,7 +795,7 @@ class _FilePickerViewState extends State<_FilePickerView> {
                       Text(
                         AppLocalizations.of(context)!.publicCardLinksSupported,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textMuted,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                       ),
                     ],
@@ -802,24 +805,29 @@ class _FilePickerViewState extends State<_FilePickerView> {
 
               if (widget.error != null) ...[
                 const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.error, color: Colors.red, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.error!,
-                          style: const TextStyle(color: Colors.red),
-                        ),
+                Builder(
+                  builder: (context) {
+                    final scheme = Theme.of(context).colorScheme;
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: scheme.errorContainer.withValues(alpha: 0.65),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ],
-                  ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error, color: scheme.error, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              widget.error!,
+                              style: TextStyle(color: scheme.onErrorContainer),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
               const SizedBox(height: 32),
@@ -838,7 +846,7 @@ class _FilePickerViewState extends State<_FilePickerView> {
         Text(
           AppLocalizations.of(context)!.supportedFormats,
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: AppTheme.accentColor,
+                color: Theme.of(context).colorScheme.primary,
               ),
         ),
         const SizedBox(height: 12),
@@ -888,7 +896,7 @@ class _FormatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: AppTheme.textMuted),
+        Icon(icon, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -901,7 +909,7 @@ class _FormatTile extends StatelessWidget {
               Text(
                 description,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.textMuted,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
             ],
@@ -929,18 +937,18 @@ class _CommunityChip extends StatelessWidget {
       avatar: Icon(
         isPrimary ? Icons.star : Icons.open_in_new,
         size: 14,
-        color: isPrimary ? AppTheme.accentColor : AppTheme.textMuted,
+        color: isPrimary ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       label: Text(
         name,
         style: TextStyle(
           fontSize: 12,
-          color: isPrimary ? AppTheme.accentColor : null,
+          color: isPrimary ? Theme.of(context).colorScheme.primary : null,
           fontWeight: isPrimary ? FontWeight.bold : null,
         ),
       ),
       side: isPrimary
-          ? const BorderSide(color: AppTheme.accentColor, width: 1)
+          ? BorderSide(color: Theme.of(context).colorScheme.primary, width: 1)
           : null,
       onPressed: () async {
         final uri = Uri.parse(url);
@@ -979,7 +987,7 @@ class _BatchImportResults extends StatelessWidget {
         // Progress header
         Container(
           padding: const EdgeInsets.all(16),
-          color: AppTheme.darkCard,
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
           child: Column(
             children: [
               if (isLoading) ...[
@@ -997,19 +1005,19 @@ class _BatchImportResults extends StatelessWidget {
                       icon: Icons.check_circle,
                       label: l10n.importSuccessLabel,
                       count: successCount,
-                      color: Colors.green,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     _StatChip(
                       icon: Icons.error,
                       label: l10n.importFailureLabel,
                       count: errorCount,
-                      color: Colors.red,
+                      color: Theme.of(context).colorScheme.error,
                     ),
                     _StatChip(
                       icon: Icons.folder,
                       label: l10n.totalLabel,
                       count: totalFiles,
-                      color: AppTheme.accentColor,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ],
                 ),
@@ -1076,7 +1084,7 @@ class _StatChip extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppTheme.textMuted,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
       ],
@@ -1099,7 +1107,7 @@ class _ImportResultCard extends StatelessWidget {
         child: Row(
           children: [
             // Status icon
-            _buildStatusIcon(),
+            _buildStatusIcon(context),
             const SizedBox(width: 16),
 
             // File info
@@ -1117,15 +1125,15 @@ class _ImportResultCard extends StatelessWidget {
                   if (result.urlSource != null)
                     Row(
                       children: [
-                        const Icon(Icons.link,
-                            size: 12, color: AppTheme.textMuted),
+                        Icon(Icons.link,
+                            size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             result.fileName,
                             style:
                                 Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppTheme.textMuted,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -1137,7 +1145,7 @@ class _ImportResultCard extends StatelessWidget {
                     Text(
                       result.fileName,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textMuted,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1149,7 +1157,7 @@ class _ImportResultCard extends StatelessWidget {
                     Row(
                       children: [
                         Icon(Icons.auto_stories,
-                            size: 14, color: AppTheme.accentColor),
+                            size: 14, color: Theme.of(context).colorScheme.primary),
                         const SizedBox(width: 4),
                         Text(
                           l10n.entriesCount(
@@ -1157,7 +1165,7 @@ class _ImportResultCard extends StatelessWidget {
                           ),
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppTheme.accentColor,
+                                    color: Theme.of(context).colorScheme.primary,
                                   ),
                         ),
                       ],
@@ -1168,7 +1176,7 @@ class _ImportResultCard extends StatelessWidget {
                     Text(
                       result.error!,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.red,
+                            color: Theme.of(context).colorScheme.error,
                           ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -1183,7 +1191,8 @@ class _ImportResultCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusIcon() {
+  Widget _buildStatusIcon(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     if (result.isProcessing) {
       return const SizedBox(
         width: 24,
@@ -1191,12 +1200,11 @@ class _ImportResultCard extends StatelessWidget {
         child: CircularProgressIndicator(strokeWidth: 2),
       );
     } else if (result.character != null) {
-      return const Icon(Icons.check_circle, color: Colors.green, size: 32);
+      return Icon(Icons.check_circle, color: scheme.primary, size: 32);
     } else if (result.error != null) {
-      return const Icon(Icons.error, color: Colors.red, size: 32);
+      return Icon(Icons.error, color: scheme.error, size: 32);
     } else {
-      return const Icon(Icons.help_outline,
-          color: AppTheme.textMuted, size: 32);
+      return Icon(Icons.help_outline, color: scheme.onSurfaceVariant, size: 32);
     }
   }
 }
@@ -1228,7 +1236,7 @@ class _CharacterPreview extends StatelessWidget {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: AppTheme.darkDivider,
+                      color: Theme.of(context).colorScheme.outlineVariant,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: character.assets?.avatarPath != null
@@ -1239,11 +1247,13 @@ class _CharacterPreview extends StatelessWidget {
                               fit: BoxFit.cover,
                             ),
                           )
-                        : const Center(
+                        : Center(
                             child: Icon(
                               Icons.person,
                               size: 48,
-                              color: AppTheme.textMuted,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             ),
                           ),
                   ),
@@ -1265,7 +1275,7 @@ class _CharacterPreview extends StatelessWidget {
                                 .textTheme
                                 .bodyMedium
                                 ?.copyWith(
-                                  color: AppTheme.textMuted,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                           ),
                         ],
@@ -1275,7 +1285,7 @@ class _CharacterPreview extends StatelessWidget {
                             'Version: ${character.version}',
                             style:
                                 Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppTheme.textMuted,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                           ),
                         ],
@@ -1300,7 +1310,7 @@ class _CharacterPreview extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context)!.tags,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: AppTheme.accentColor,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                     ),
                     const SizedBox(height: 8),
@@ -1361,14 +1371,14 @@ class _CharacterPreview extends StatelessWidget {
                     Row(
                       children: [
                         Icon(Icons.format_list_bulleted,
-                            size: 20, color: AppTheme.accentColor),
+                            size: 20, color: Theme.of(context).colorScheme.primary),
                         const SizedBox(width: 8),
                         Text(
                           AppLocalizations.of(context)!.alternateGreetingsCount(
                               character.alternateGreetings.length),
                           style:
                               Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    color: AppTheme.accentColor,
+                                    color: Theme.of(context).colorScheme.primary,
                                   ),
                         ),
                       ],
@@ -1385,7 +1395,7 @@ class _CharacterPreview extends StatelessWidget {
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(
-                                      color: AppTheme.textMuted,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                               ),
                             )),
@@ -1407,14 +1417,14 @@ class _CharacterPreview extends StatelessWidget {
                     Row(
                       children: [
                         Icon(Icons.auto_stories,
-                            size: 20, color: AppTheme.accentColor),
+                            size: 20, color: Theme.of(context).colorScheme.primary),
                         const SizedBox(width: 8),
                         Text(
                           AppLocalizations.of(context)!.embeddedLorebookEntries(
                               character.characterBook!.entries.length),
                           style:
                               Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    color: AppTheme.accentColor,
+                                    color: Theme.of(context).colorScheme.primary,
                                   ),
                         ),
                       ],
@@ -1424,7 +1434,7 @@ class _CharacterPreview extends StatelessWidget {
                       Text(
                         character.characterBook!.name!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textMuted,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                       ),
                     ],
@@ -1432,7 +1442,7 @@ class _CharacterPreview extends StatelessWidget {
                     Text(
                       '${AppLocalizations.of(context)!.keywords}: ${character.characterBook!.entries.expand((e) => e.keys).take(10).join(", ")}${character.characterBook!.entries.expand((e) => e.keys).length > 10 ? "..." : ""}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textMuted,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -1499,12 +1509,12 @@ class _ExpandableSectionState extends State<_ExpandableSection> {
                   Text(
                     widget.title,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: AppTheme.accentColor,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                   ),
                   Icon(
                     _expanded ? Icons.expand_less : Icons.expand_more,
-                    color: AppTheme.textMuted,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ],
               ),
@@ -1523,7 +1533,7 @@ class _ExpandableSectionState extends State<_ExpandableSection> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textMuted,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
               ],

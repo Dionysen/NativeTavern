@@ -129,6 +129,9 @@ class _ChatVoiceInputButtonState extends ConsumerState<ChatVoiceInputButton> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(next.message!),
+          duration: next.phase == STTSessionPhase.permissionPermanentlyDenied
+              ? const Duration(milliseconds: 2800)
+              : const Duration(milliseconds: 1600),
           action: next.phase == STTSessionPhase.permissionPermanentlyDenied
               ? SnackBarAction(
                   label: AppLocalizations.of(context).openSystemSettings,

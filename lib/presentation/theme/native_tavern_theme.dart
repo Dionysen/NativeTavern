@@ -449,9 +449,16 @@ ThemeData buildNativeTavernTheme(
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
+      backgroundColor: control,
+      actionTextColor: accent,
+      disabledActionTextColor: mutedText,
+      closeIconColor: mutedText,
       elevation: 4,
       insetPadding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
-      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+      shape: RoundedRectangleBorder(
+        borderRadius: borderRadius,
+        side: hairline,
+      ),
       contentTextStyle: TextStyle(
         color: primaryText,
         fontFamily: ui.fontFamily,
