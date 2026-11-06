@@ -174,26 +174,8 @@ class _ThemeSettingsPanelsState extends ConsumerState<ThemeSettingsPanels> {
       icon: Icons.palette_outlined,
       title: l10n.themeColorsSectionTitle,
       children: [
-              SettingsChoiceTile<AppThemeMode>(
-                icon: Icons.brightness_6_outlined,
-                title: l10n.themeModeTitle,
-                subtitle: l10n.themeModeSubtitle,
+              _ThemeModeSegmentTile(
                 selected: themeState.themeMode,
-                choices: [
-                  SettingsChoice(
-                    value: AppThemeMode.system,
-                    label: l10n.themeModeSystem,
-                  ),
-                  SettingsChoice(
-                    value: AppThemeMode.light,
-                    label: l10n.themeModeLight,
-                  ),
-                  SettingsChoice(
-                    value: AppThemeMode.dark,
-                    label: l10n.themeModeDark,
-                  ),
-                ],
-                valueLabel: _themeModeLabel(l10n, themeState.themeMode),
                 onSelected: _notifier.setThemeMode,
               ),
               SettingsListTile(
@@ -455,12 +437,110 @@ Widget? _packTrailing(
   );
 }
 
-String _themeModeLabel(AppLocalizations l10n, AppThemeMode mode) =>
-    switch (mode) {
-      AppThemeMode.system => l10n.themeModeSystem,
-      AppThemeMode.light => l10n.themeModeLight,
-      AppThemeMode.dark => l10n.themeModeDark,
-    };
+class _ThemeModeSegmentTile extends StatelessWidget {
+  const _ThemeModeSegmentTile({
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final AppThemeMode selected;
+  final ValueChanged<AppThemeMode> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: SettingsTileMetrics.horizontalPadding,
+            vertical: SettingsTileMetrics.verticalPadding,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.brightness_6_outlined,
+                size: SettingsTileMetrics.iconSize,
+                color: scheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: SettingsTileMetrics.iconGap),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.themeModeTitle,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      l10n.themeModeSubtitle,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        fontSize: 11,
+                        height: 1.3,
+                        color: scheme.onSurfaceVariant.withValues(alpha: 0.72),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            SettingsTileMetrics.horizontalPadding,
+            0,
+            SettingsTileMetrics.horizontalPadding,
+            10,
+          ),
+          child: SegmentedButton<AppThemeMode>(
+            showSelectedIcon: false,
+            expandedInsets: EdgeInsets.zero,
+            style: const ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            segments: [
+              ButtonSegment(
+                value: AppThemeMode.system,
+                icon: const Icon(Icons.brightness_auto, size: 16),
+                label: Text(l10n.themeModeSystem),
+                tooltip: l10n.themeModeSystem,
+              ),
+              ButtonSegment(
+                value: AppThemeMode.light,
+                icon: const Icon(Icons.light_mode_outlined, size: 16),
+                label: Text(l10n.themeModeLight),
+                tooltip: l10n.themeModeLight,
+              ),
+              ButtonSegment(
+                value: AppThemeMode.dark,
+                icon: const Icon(Icons.dark_mode_outlined, size: 16),
+                label: Text(l10n.themeModeDark),
+                tooltip: l10n.themeModeDark,
+              ),
+            ],
+            selected: {selected},
+            onSelectionChanged: (next) {
+              if (next.isNotEmpty) onSelected(next.first);
+            },
+          ),
+        ),
+        Divider(
+          height: 1,
+          indent: SettingsTileMetrics.horizontalPadding,
+          endIndent: SettingsTileMetrics.horizontalPadding,
+          color: theme.dividerColor.withValues(alpha: 0.5),
+        ),
+      ],
+    );
+  }
+}
 
 String _packTitle(AppLocalizations l10n, ThemeColorPack pack) {
   final preset = pack.builtInPreset;
