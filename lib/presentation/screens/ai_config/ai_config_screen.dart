@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:native_tavern/presentation/screens/settings/prompt_manager_screen.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
+import 'package:native_tavern/presentation/widgets/settings/ai_presets_panel.dart';
 import '../../../data/models/instruct_template.dart';
 import '../../../domain/services/llm_service.dart';
 import '../../../domain/services/region_service.dart';
@@ -20,11 +22,26 @@ final isChinaRegionProvider = FutureProvider<bool>((ref) async {
 });
 
 /// AI Configuration screen - top-level entry for all AI-related settings
-class AIConfigScreen extends ConsumerWidget {
+class AIConfigScreen extends ConsumerStatefulWidget {
   const AIConfigScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AIConfigScreen> createState() => _AIConfigScreenState();
+}
+
+class _AIConfigScreenState extends ConsumerState<AIConfigScreen> {
+  var _aiPresetsExpanded = false;
+  var _promptManagerExpanded = false;
+
+  void _expandAiPresets() {
+    setState(() {
+      _aiPresetsExpanded = true;
+      _promptManagerExpanded = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final activePreset = ref.watch(activeAIPresetProvider);
     final scheme = Theme.of(context).colorScheme;
@@ -32,13 +49,6 @@ class AIConfigScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.aiConfiguration),
-        actions: [
-          ChromeIconButton(
-            icon: const Icon(Icons.file_download),
-            tooltip: l10n.importPreset,
-            onPressed: () => context.push(AppRoutes.aiPresets),
-          ),
-        ],
       ),
       body: SettingsPageBody(
         children: [
@@ -87,7 +97,7 @@ class AIConfigScreen extends ConsumerWidget {
                         ),
                       ),
                       TextButton(
-                        onPressed: () => context.push(AppRoutes.aiPresets),
+                        onPressed: _expandAiPresets,
                         child: Text(l10n.change),
                       ),
                     ],
@@ -97,36 +107,58 @@ class AIConfigScreen extends ConsumerWidget {
             ),
           SettingsSection(
             icon: Icons.auto_awesome,
-            title: l10n.presetsAndTemplates,
+            title: l10n.aiPresets,
+            footer: l10n.aiPresetsDescription,
             children: [
-              SettingsValueTile(
+              SettingsListTile(
                 icon: Icons.auto_awesome,
                 title: l10n.aiPresets,
-                valueText: activePreset?.name ?? l10n.noPresetSelected,
-                onTap: () => context.push(AppRoutes.aiPresets),
+                subtitle: activePreset?.name ?? l10n.noPresetSelected,
+                showDivider: _aiPresetsExpanded,
+                trailing: Icon(
+                  _aiPresetsExpanded ? Icons.expand_less : Icons.expand_more,
+                  color: scheme.onSurfaceVariant,
+                ),
+                onTap: () => setState(() {
+                  _aiPresetsExpanded = !_aiPresetsExpanded;
+                  if (_aiPresetsExpanded) _promptManagerExpanded = false;
+                }),
               ),
-              const _InstructTemplateTile(),
-              SettingsValueTile(
-                icon: Icons.reorder,
-                title: l10n.promptManager,
-                subtitle: l10n.orderAndTogglePromptSections,
-                valueText: '',
-                showDivider: false,
-                onTap: () => context.push(AppRoutes.promptManager),
-              ),
+              if (_aiPresetsExpanded)
+                const SettingsExpandedBlock(
+                  children: [
+                    AIPresetsPanel(),
+                  ],
+                ),
             ],
           ),
           SettingsSection(
-            icon: Icons.cloud_outlined,
-            title: l10n.llmConnection,
-            children: const [
-              _ConnectionProfilesTile(),
-              _LLMProviderTile(),
-              _ApiKeyTile(),
-              _ApiUrlTile(),
-              _ModelTile(),
-              _OpenRouterProviderTile(),
-              _ConnectionTestTile(),
+            icon: Icons.reorder,
+            title: l10n.presetPromptManager,
+            footer: l10n.orderAndTogglePromptSections,
+            children: [
+              SettingsListTile(
+                icon: Icons.reorder,
+                title: l10n.presetPromptManager,
+                subtitle: l10n.orderAndTogglePromptSections,
+                showDivider: _promptManagerExpanded,
+                trailing: Icon(
+                  _promptManagerExpanded
+                      ? Icons.expand_less
+                      : Icons.expand_more,
+                  color: scheme.onSurfaceVariant,
+                ),
+                onTap: () => setState(() {
+                  _promptManagerExpanded = !_promptManagerExpanded;
+                  if (_promptManagerExpanded) _aiPresetsExpanded = false;
+                }),
+              ),
+              if (_promptManagerExpanded)
+                const SettingsExpandedBlock(
+                  children: [
+                    PromptManagerScreen(embedded: true),
+                  ],
+                ),
             ],
           ),
           SettingsSection(
@@ -151,6 +183,26 @@ class AIConfigScreen extends ConsumerWidget {
               ),
             ],
           ),
+          SettingsSection(
+            icon: Icons.code,
+            title: l10n.instructTemplate,
+            children: const [
+              _InstructTemplateTile(showDivider: false),
+            ],
+          ),
+          SettingsSection(
+            icon: Icons.cloud_outlined,
+            title: l10n.llmConnection,
+            children: const [
+              _ConnectionProfilesTile(),
+              _LLMProviderTile(),
+              _ApiKeyTile(),
+              _ApiUrlTile(),
+              _ModelTile(),
+              _OpenRouterProviderTile(),
+              _ConnectionTestTile(),
+            ],
+          ),
         ],
       ),
     );
@@ -158,7 +210,9 @@ class AIConfigScreen extends ConsumerWidget {
 }
 
 class _InstructTemplateTile extends ConsumerWidget {
-  const _InstructTemplateTile();
+  const _InstructTemplateTile({this.showDivider = true});
+
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -167,8 +221,9 @@ class _InstructTemplateTile extends ConsumerWidget {
 
     return SettingsValueTile(
       icon: Icons.code,
-      title: AppLocalizations.of(context)!.instructTemplate,
+      title: AppLocalizations.of(context).instructTemplate,
       valueText: activeTemplate.name,
+      showDivider: showDivider,
       onTap: () =>
           _showTemplatePicker(context, ref, activeTemplate, allTemplates),
     );

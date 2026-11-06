@@ -6882,6 +6882,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get presetPromptManager => '预设提示词管理';
+
+  @override
   String get promptPreviewCharacter => '预览角色卡';
 
   @override
@@ -13768,6 +13771,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String importedPromptCount(int count) {
     return '已匯入 $count 條提示詞';
   }
+
+  @override
+  String get presetPromptManager => '預設提示詞管理';
 
   @override
   String get promptPreviewCharacter => '預覽角色卡';

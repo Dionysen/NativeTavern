@@ -7283,6 +7283,10 @@
       }
     }
   },
+  "presetPromptManager": "预设提示词管理",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
   "promptPreviewCharacter": "预览角色卡",
   "@promptPreviewCharacter": {
     "description": "Dropdown label for character used to view card-owned prompt fields"

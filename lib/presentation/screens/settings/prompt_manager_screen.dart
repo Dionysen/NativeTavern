@@ -15,9 +15,74 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
-/// Screen for managing prompt section order and visibility
+/// Screen / embeddable panel for prompt section order and visibility.
 class PromptManagerScreen extends ConsumerWidget {
-  const PromptManagerScreen({super.key});
+  const PromptManagerScreen({
+    super.key,
+    this.embedded = false,
+  });
+
+  /// When true, renders without Scaffold for AI Config expand blocks.
+  final bool embedded;
+
+  List<AdaptiveActionDrawerItem<String>> _menuItems(AppLocalizations l10n) {
+    return [
+      AdaptiveActionDrawerItem(
+        value: 'presets',
+        leading: const Icon(Icons.list),
+        title: Text(l10n.loadPreset),
+      ),
+      AdaptiveActionDrawerItem(
+        value: 'save',
+        leading: const Icon(Icons.save),
+        title: Text(l10n.saveAsPresetLabel),
+      ),
+      AdaptiveActionDrawerItem(
+        value: 'import',
+        leading: const Icon(Icons.file_download),
+        title: Text(l10n.importPresetLabel),
+        showDividerAbove: true,
+      ),
+      AdaptiveActionDrawerItem(
+        value: 'export',
+        leading: const Icon(Icons.file_upload),
+        title: Text(l10n.exportPreset),
+      ),
+      AdaptiveActionDrawerItem(
+        value: 'reset',
+        leading: const Icon(Icons.restore),
+        title: Text(l10n.resetToDefault),
+        showDividerAbove: true,
+      ),
+      AdaptiveActionDrawerItem(
+        value: 'help',
+        leading: const Icon(Icons.help_outline),
+        title: Text(l10n.help),
+      ),
+    ];
+  }
+
+  void _onMenuSelected(
+    BuildContext context,
+    WidgetRef ref,
+    String value,
+    List<PromptManagerPreset> allPresets,
+  ) {
+    switch (value) {
+      case 'presets':
+        _showPresetsDialog(context, ref, allPresets);
+      case 'import':
+        _importPreset(context, ref);
+      case 'export':
+        _exportPreset(context, ref);
+      case 'save':
+        _saveAsPreset(context, ref);
+      case 'reset':
+        _showResetConfirmation(context, ref);
+      case 'help':
+        _showHelpDialog(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,82 +93,122 @@ class PromptManagerScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final previewCharacter =
         ref.watch(promptPreviewCharacterProvider).valueOrNull;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.promptManager),
-        actions: [
-          AdaptiveActionMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            tooltip: l10n.moreOptions,
-            onSelected: (value) {
-              switch (value) {
-                case 'presets':
-                  _showPresetsDialog(context, ref, allPresets);
-                case 'import':
-                  _importPreset(context, ref);
-                case 'export':
-                  _exportPreset(context, ref);
-                case 'save':
-                  _saveAsPreset(context, ref);
-                case 'reset':
-                  _showResetConfirmation(context, ref);
-                case 'help':
-                  _showHelpDialog(context);
-              }
-            },
-            itemBuilder: (context) {
-              final menuL10n = AppLocalizations.of(context);
-              return [
-                AdaptiveActionDrawerItem(
-                  value: 'presets',
-                  leading: const Icon(Icons.list),
-                  title: Text(menuL10n.loadPreset),
-                ),
-                AdaptiveActionDrawerItem(
-                  value: 'save',
-                  leading: const Icon(Icons.save),
-                  title: Text(menuL10n.saveAsPresetLabel),
-                ),
-                AdaptiveActionDrawerItem(
-                  value: 'import',
-                  leading: const Icon(Icons.file_download),
-                  title: Text(menuL10n.importPresetLabel),
-                  showDividerAbove: true,
-                ),
-                AdaptiveActionDrawerItem(
-                  value: 'export',
-                  leading: const Icon(Icons.file_upload),
-                  title: Text(menuL10n.exportPreset),
-                ),
-                AdaptiveActionDrawerItem(
-                  value: 'reset',
-                  leading: const Icon(Icons.restore),
-                  title: Text(menuL10n.resetToDefault),
-                  showDividerAbove: true,
-                ),
-                AdaptiveActionDrawerItem(
-                  value: 'help',
-                  leading: const Icon(Icons.help_outline),
-                  title: Text(menuL10n.help),
-                ),
-              ];
-            },
+
+    final list = ReorderableListView.builder(
+      shrinkWrap: embedded,
+      physics: embedded ? const NeverScrollableScrollPhysics() : null,
+      buildDefaultDragHandles: false,
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      itemCount: sortedSections.length,
+      onReorder: (oldIndex, newIndex) {
+        ref.read(promptManagerProvider.notifier).reorder(oldIndex, newIndex);
+      },
+      itemBuilder: (context, index) {
+        final section = sortedSections[index];
+        final key = section.identifier != null
+            ? ValueKey('${section.identifier}_$index')
+            : ValueKey('${section.type.name}_$index');
+        final characterContent = section.isCharacterOwned
+            ? PromptSection.contentFromCharacter(
+                section.type,
+                previewCharacter,
+              )
+            : null;
+        final canViewCharacter = previewCharacter != null &&
+            characterContent != null &&
+            characterContent.trim().isNotEmpty;
+
+        return _PromptSectionTile(
+          key: key,
+          section: section,
+          index: index,
+          character: previewCharacter,
+          showDivider: index < sortedSections.length - 1,
+          onToggle: () {
+            if (section.isCustom) {
+              ref
+                  .read(promptManagerProvider.notifier)
+                  .toggleSectionByIndex(index);
+            } else {
+              ref
+                  .read(promptManagerProvider.notifier)
+                  .toggleSection(section.type);
+            }
+          },
+          onEdit: section.isEditable
+              ? () => _showEditContentDialog(
+                    context,
+                    ref,
+                    section,
+                    index,
+                  )
+              : null,
+          onView: canViewCharacter
+              ? () => _showViewCharacterContentDialog(
+                    context,
+                    section,
+                    previewCharacter,
+                    characterContent,
+                  )
+              : null,
+          onDuplicate: () =>
+              _duplicatePromptEntry(context, ref, index, section),
+          onDelete: section.isCustom
+              ? () => _deletePromptEntry(context, ref, index, section)
+              : null,
+        );
+      },
+    );
+
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            embedded ? 8 : 16,
+            embedded ? 8 : 12,
+            embedded ? 8 : 16,
+            embedded ? 4 : 8,
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddPromptDialog(context, ref),
-        tooltip: l10n.addPrompt,
-        child: const Icon(Icons.add),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const _PromptCharacterPicker(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (embedded)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.dragToReorder,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                        ),
+                      ),
+                      ChromeIconButton(
+                        density: ChromeIconButtonDensity.compact,
+                        icon: const Icon(Icons.add),
+                        tooltip: l10n.addPrompt,
+                        onPressed: () => _showAddPromptDialog(context, ref),
+                      ),
+                      AdaptiveActionMenuButton<String>(
+                        density: ChromeIconButtonDensity.compact,
+                        icon: const Icon(Icons.more_vert),
+                        tooltip: l10n.moreOptions,
+                        onSelected: (value) =>
+                            _onMenuSelected(context, ref, value, allPresets),
+                        itemBuilder: (context) =>
+                            _menuItems(AppLocalizations.of(context)),
+                      ),
+                    ],
+                  ),
+                ),
+              const _PromptCharacterPicker(),
+              if (!embedded) ...[
                 const SizedBox(height: 12),
                 SettingsCategoryHeader(
                   icon: Icons.reorder,
@@ -115,85 +220,60 @@ class PromptManagerScreen extends ConsumerWidget {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
+              ] else ...[
+                const SizedBox(height: 8),
+                SettingsCategoryHeader(
+                  icon: Icons.reorder,
+                  title: l10n.promptManager,
+                  padding: const EdgeInsets.fromLTRB(4, 4, 4, 6),
+                ),
               ],
-            ),
+            ],
           ),
+        ),
+        if (embedded)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            child: SettingsGroupedPanel(
+              padding: EdgeInsets.zero,
+              child: list,
+            ),
+          )
+        else
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               child: SettingsGroupedPanel(
                 padding: EdgeInsets.zero,
-                child: ReorderableListView.builder(
-                  buildDefaultDragHandles: false,
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  itemCount: sortedSections.length,
-                  onReorder: (oldIndex, newIndex) {
-                    ref
-                        .read(promptManagerProvider.notifier)
-                        .reorder(oldIndex, newIndex);
-                  },
-                  itemBuilder: (context, index) {
-                    final section = sortedSections[index];
-                    final key = section.identifier != null
-                        ? ValueKey('${section.identifier}_$index')
-                        : ValueKey('${section.type.name}_$index');
-                    final characterContent = section.isCharacterOwned
-                        ? PromptSection.contentFromCharacter(
-                            section.type,
-                            previewCharacter,
-                          )
-                        : null;
-                    final canViewCharacter = previewCharacter != null &&
-                        characterContent != null &&
-                        characterContent.trim().isNotEmpty;
-
-                    return _PromptSectionTile(
-                      key: key,
-                      section: section,
-                      index: index,
-                      character: previewCharacter,
-                      showDivider: index < sortedSections.length - 1,
-                      onToggle: () {
-                        if (section.isCustom) {
-                          ref
-                              .read(promptManagerProvider.notifier)
-                              .toggleSectionByIndex(index);
-                        } else {
-                          ref
-                              .read(promptManagerProvider.notifier)
-                              .toggleSection(section.type);
-                        }
-                      },
-                      onEdit: section.isEditable
-                          ? () => _showEditContentDialog(
-                                context,
-                                ref,
-                                section,
-                                index,
-                              )
-                          : null,
-                      onView: canViewCharacter
-                          ? () => _showViewCharacterContentDialog(
-                                context,
-                                section,
-                                previewCharacter,
-                                characterContent,
-                              )
-                          : null,
-                      onDuplicate: () =>
-                          _duplicatePromptEntry(context, ref, index, section),
-                      onDelete: section.isCustom
-                          ? () =>
-                              _deletePromptEntry(context, ref, index, section)
-                          : null,
-                    );
-                  },
-                ),
+                child: list,
               ),
             ),
           ),
+      ],
+    );
+
+    if (embedded) return content;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.promptManager),
+        actions: [
+          AdaptiveActionMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: l10n.moreOptions,
+            onSelected: (value) =>
+                _onMenuSelected(context, ref, value, allPresets),
+            itemBuilder: (context) =>
+                _menuItems(AppLocalizations.of(context)),
+          ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddPromptDialog(context, ref),
+        tooltip: l10n.addPrompt,
+        child: const Icon(Icons.add),
+      ),
+      body: content,
     );
   }
 

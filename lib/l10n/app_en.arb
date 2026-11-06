@@ -7399,6 +7399,10 @@
       }
     }
   },
+  "presetPromptManager": "Preset prompt manager",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
   "promptPreviewCharacter": "Preview character card",
   "@promptPreviewCharacter": {
     "description": "Dropdown label for character used to view card-owned prompt fields"

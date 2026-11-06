@@ -49,6 +49,25 @@ abstract final class SettingsTileMetrics {
   static const double minHeight = 52;
 }
 
+/// Nested block shown under an expandable settings row (theme-colors style).
+class SettingsExpandedBlock extends StatelessWidget {
+  const SettingsExpandedBlock({
+    super.key,
+    required this.children,
+  });
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Material(
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        ),
+      );
+}
+
 /// Card chrome shared by [SettingsSection] and grouped reorderable lists.
 class SettingsGroupedPanel extends StatelessWidget {
   const SettingsGroupedPanel({

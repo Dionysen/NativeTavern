@@ -12705,6 +12705,12 @@ abstract class AppLocalizations {
   /// **'Imported {count} prompts'**
   String importedPromptCount(int count);
 
+  /// AI Config section for prompt assembly belonging to the preset
+  ///
+  /// In en, this message translates to:
+  /// **'Preset prompt manager'**
+  String get presetPromptManager;
+
   /// Dropdown label for character used to view card-owned prompt fields
   ///
   /// In en, this message translates to:

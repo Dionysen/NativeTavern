@@ -209,7 +209,7 @@ class _ThemeSettingsPanelsState extends ConsumerState<ThemeSettingsPanels> {
                     setState(() => _presetsExpanded = !_presetsExpanded),
               ),
               if (_presetsExpanded)
-                _ExpandedSettingsBlock(
+                SettingsExpandedBlock(
                   children: [
                     for (var i = 0; i < packs.length; i++)
                       SettingsListTile(
@@ -248,7 +248,7 @@ class _ThemeSettingsPanelsState extends ConsumerState<ThemeSettingsPanels> {
                 ),
               ),
               if (_customColorsExpanded)
-                _ExpandedSettingsBlock(
+                SettingsExpandedBlock(
                   children: [
                     for (final token in ThemeToken.values)
                       SettingsListTile(
@@ -276,21 +276,6 @@ class _ThemeSettingsPanelsState extends ConsumerState<ThemeSettingsPanels> {
 }
 
 enum _PackMenuAction { rename, copy, delete }
-
-class _ExpandedSettingsBlock extends StatelessWidget {
-  const _ExpandedSettingsBlock({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) => ColoredBox(
-        color: Theme.of(context).colorScheme.surfaceContainerLowest,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: children,
-        ),
-      );
-}
 
 class _CustomColorActions extends StatelessWidget {
   const _CustomColorActions({

@@ -7135,6 +7135,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get presetPromptManager => 'Preset prompt manager';
+
+  @override
   String get promptPreviewCharacter => 'Preview character card';
 
   @override
