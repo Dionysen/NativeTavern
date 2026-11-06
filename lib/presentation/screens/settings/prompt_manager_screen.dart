@@ -232,13 +232,7 @@ class PromptManagerScreen extends ConsumerWidget {
           ),
         ),
         if (embedded)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-            child: SettingsGroupedPanel(
-              padding: EdgeInsets.zero,
-              child: list,
-            ),
-          )
+          list
         else
           Expanded(
             child: Padding(

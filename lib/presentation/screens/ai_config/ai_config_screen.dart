@@ -29,15 +29,19 @@ class AIConfigScreen extends ConsumerStatefulWidget {
   ConsumerState<AIConfigScreen> createState() => _AIConfigScreenState();
 }
 
+enum _PresetExpandPanel { none, presets, prompts, generation }
+
 class _AIConfigScreenState extends ConsumerState<AIConfigScreen> {
-  var _aiPresetsExpanded = false;
-  var _promptManagerExpanded = false;
+  var _expanded = _PresetExpandPanel.none;
+
+  void _toggleExpand(_PresetExpandPanel panel) {
+    setState(() {
+      _expanded = _expanded == panel ? _PresetExpandPanel.none : panel;
+    });
+  }
 
   void _expandAiPresets() {
-    setState(() {
-      _aiPresetsExpanded = true;
-      _promptManagerExpanded = false;
-    });
+    setState(() => _expanded = _PresetExpandPanel.presets);
   }
 
   @override
@@ -45,6 +49,9 @@ class _AIConfigScreenState extends ConsumerState<AIConfigScreen> {
     final l10n = AppLocalizations.of(context);
     final activePreset = ref.watch(activeAIPresetProvider);
     final scheme = Theme.of(context).colorScheme;
+    final presetsOpen = _expanded == _PresetExpandPanel.presets;
+    final promptsOpen = _expanded == _PresetExpandPanel.prompts;
+    final generationOpen = _expanded == _PresetExpandPanel.generation;
 
     return Scaffold(
       appBar: AppBar(
@@ -52,59 +59,12 @@ class _AIConfigScreenState extends ConsumerState<AIConfigScreen> {
       ),
       body: SettingsPageBody(
         children: [
-          if (activePreset != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Material(
-                color: scheme.primaryContainer.withValues(alpha: 0.45),
-                borderRadius: BorderRadius.circular(16),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: scheme.primary,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          Icons.auto_awesome,
-                          color: scheme.onPrimary,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.activePreset,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall
-                                  ?.copyWith(color: scheme.onSurfaceVariant),
-                            ),
-                            Text(
-                              activePreset.name,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: _expandAiPresets,
-                        child: Text(l10n.change),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          _ActivePresetBanner(
+            title: l10n.activePreset,
+            presetName: activePreset?.name ?? l10n.noPresetSelected,
+            changeLabel: l10n.change,
+            onChange: _expandAiPresets,
+          ),
           SettingsSection(
             icon: Icons.auto_awesome,
             title: l10n.aiPresets,
@@ -114,80 +74,68 @@ class _AIConfigScreenState extends ConsumerState<AIConfigScreen> {
                 icon: Icons.auto_awesome,
                 title: l10n.aiPresets,
                 subtitle: activePreset?.name ?? l10n.noPresetSelected,
-                showDivider: _aiPresetsExpanded,
+                showDivider: true,
                 trailing: Icon(
-                  _aiPresetsExpanded ? Icons.expand_less : Icons.expand_more,
+                  presetsOpen ? Icons.expand_less : Icons.expand_more,
                   color: scheme.onSurfaceVariant,
                 ),
-                onTap: () => setState(() {
-                  _aiPresetsExpanded = !_aiPresetsExpanded;
-                  if (_aiPresetsExpanded) _promptManagerExpanded = false;
-                }),
+                onTap: () => _toggleExpand(_PresetExpandPanel.presets),
               ),
-              if (_aiPresetsExpanded)
+              if (presetsOpen)
                 const SettingsExpandedBlock(
                   children: [
                     AIPresetsPanel(),
                   ],
                 ),
-            ],
-          ),
-          SettingsSection(
-            icon: Icons.reorder,
-            title: l10n.presetPromptManager,
-            footer: l10n.orderAndTogglePromptSections,
-            children: [
               SettingsListTile(
                 icon: Icons.reorder,
                 title: l10n.presetPromptManager,
                 subtitle: l10n.orderAndTogglePromptSections,
-                showDivider: _promptManagerExpanded,
+                showDivider: true,
                 trailing: Icon(
-                  _promptManagerExpanded
-                      ? Icons.expand_less
-                      : Icons.expand_more,
+                  promptsOpen ? Icons.expand_less : Icons.expand_more,
                   color: scheme.onSurfaceVariant,
                 ),
-                onTap: () => setState(() {
-                  _promptManagerExpanded = !_promptManagerExpanded;
-                  if (_promptManagerExpanded) _aiPresetsExpanded = false;
-                }),
+                onTap: () => _toggleExpand(_PresetExpandPanel.prompts),
               ),
-              if (_promptManagerExpanded)
+              if (promptsOpen)
                 const SettingsExpandedBlock(
                   children: [
                     PromptManagerScreen(embedded: true),
                   ],
                 ),
-            ],
-          ),
-          SettingsSection(
-            icon: Icons.tune,
-            title: l10n.generationSettings,
-            children: [
-              const _ContextLengthTile(),
-              const _MaxTokensTile(),
-              const _TemperatureTile(),
-              const _TopPTile(),
-              const _ReasoningEffortTile(),
-              const _PromptCacheTile(),
-              const _MergeRolesTile(),
-              const _StreamingTile(),
-              SettingsValueTile(
+              SettingsListTile(
                 icon: Icons.tune,
-                title: l10n.advancedSamplerSettings,
-                subtitle: l10n.fullControlOverSampling,
-                valueText: '',
-                showDivider: false,
-                onTap: () => context.push(AppRoutes.advancedSettings),
+                title: l10n.generationSettings,
+                showDivider: true,
+                trailing: Icon(
+                  generationOpen ? Icons.expand_less : Icons.expand_more,
+                  color: scheme.onSurfaceVariant,
+                ),
+                onTap: () => _toggleExpand(_PresetExpandPanel.generation),
               ),
-            ],
-          ),
-          SettingsSection(
-            icon: Icons.code,
-            title: l10n.instructTemplate,
-            children: const [
-              _InstructTemplateTile(showDivider: false),
+              if (generationOpen)
+                SettingsExpandedBlock(
+                  children: [
+                    const _ContextLengthTile(),
+                    const _MaxTokensTile(),
+                    const _TemperatureTile(),
+                    const _TopPTile(),
+                    const _ReasoningEffortTile(),
+                    const _PromptCacheTile(),
+                    const _MergeRolesTile(),
+                    const _StreamingTile(),
+                    SettingsValueTile(
+                      icon: Icons.tune,
+                      title: l10n.advancedSamplerSettings,
+                      subtitle: l10n.fullControlOverSampling,
+                      valueText: '',
+                      showDivider: false,
+                      onTap: () => context.push(AppRoutes.advancedSettings),
+                    ),
+                  ],
+                ),
+              const _InstructTemplateTile(showDivider: false),
             ],
           ),
           SettingsSection(
@@ -204,6 +152,84 @@ class _AIConfigScreenState extends ConsumerState<AIConfigScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActivePresetBanner extends StatelessWidget {
+  const _ActivePresetBanner({
+    required this.title,
+    required this.presetName,
+    required this.changeLabel,
+    required this.onChange,
+  });
+
+  final String title;
+  final String presetName;
+  final String changeLabel;
+  final VoidCallback onChange;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final radius = BorderRadius.circular(16);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: scheme.primaryContainer.withValues(alpha: 0.45),
+        borderRadius: radius,
+        child: InkWell(
+          onTap: onChange,
+          borderRadius: radius,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: scheme.primary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.auto_awesome,
+                    color: scheme.onPrimary,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                      Text(
+                        presetName,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: onChange,
+                  child: Text(changeLabel),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

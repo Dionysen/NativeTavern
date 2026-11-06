@@ -49,7 +49,10 @@ abstract final class SettingsTileMetrics {
   static const double minHeight = 52;
 }
 
-/// Nested block shown under an expandable settings row (theme-colors style).
+/// Nested block shown under an expandable settings row.
+///
+/// Inset + quieter surface so expanded content reads as a child of the
+/// parent grouped panel, not another sibling card.
 class SettingsExpandedBlock extends StatelessWidget {
   const SettingsExpandedBlock({
     super.key,
@@ -59,13 +62,22 @@ class SettingsExpandedBlock extends StatelessWidget {
   final List<Widget> children;
 
   @override
-  Widget build(BuildContext context) => Material(
-        color: Theme.of(context).colorScheme.surfaceContainerLowest,
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final radius = BorderRadius.circular(context.appCornerRadius);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+      child: Material(
+        color: scheme.surfaceContainerLowest,
+        borderRadius: radius,
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: children,
         ),
-      );
+      ),
+    );
+  }
 }
 
 /// Card chrome shared by [SettingsSection] and grouped reorderable lists.
