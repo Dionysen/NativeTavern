@@ -10,6 +10,7 @@ import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/data/repositories/chat_repository.dart';
 import 'package:native_tavern/data/repositories/group_repository.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
@@ -324,8 +325,7 @@ class _ChatListTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final characterAsync =
-        ref.watch(_characterForChatProvider(chat.characterId));
+    final characterAsync = ref.watch(characterDetailProvider(chat.characterId));
     final groupPresentationAsync = chat.groupId == null
         ? null
         : ref.watch(_groupPresentationProvider(chat.groupId!));
@@ -563,13 +563,6 @@ class _ChatListTile extends ConsumerWidget {
     }
   }
 }
-
-/// Provider to get character for a chat
-final _characterForChatProvider =
-    FutureProvider.family((ref, String characterId) async {
-  final repo = ref.watch(characterRepositoryProvider);
-  return repo.getCharacter(characterId);
-});
 
 class _GroupPresentation {
   const _GroupPresentation({required this.group, required this.characters});

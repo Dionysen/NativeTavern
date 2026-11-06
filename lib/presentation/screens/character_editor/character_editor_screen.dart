@@ -6,9 +6,11 @@ import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
+import 'package:native_tavern/data/repositories/chat_repository.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
+import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Character editor screen for creating/editing characters
@@ -184,12 +186,15 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
           .where((t) => t.isNotEmpty)
           .toList();
 
+      final l10n = AppLocalizations.of(context)!;
+      final name = _nameController.text.trim();
+      final previousName = _character?.name;
       Character character;
 
       if (_character != null) {
         // Update existing character
         character = _character!.copyWith(
-          name: _nameController.text,
+          name: name,
           description: _descriptionController.text,
           personality: _personalityController.text,
           scenario: _scenarioController.text,
@@ -205,11 +210,21 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
           modifiedAt: now,
         );
         character = await repo.updateCharacter(character);
+        if (previousName != null &&
+            previousName != character.name &&
+            previousName.isNotEmpty) {
+          await _syncDefaultChatTitles(
+            characterId: character.id,
+            oldName: previousName,
+            newName: character.name,
+            l10n: l10n,
+          );
+        }
       } else {
         // Create new character
         character = Character(
           id: '',
-          name: _nameController.text,
+          name: name,
           description: _descriptionController.text,
           personality: _personalityController.text,
           scenario: _scenarioController.text,
@@ -236,6 +251,9 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
       ref.invalidate(characterListProvider);
       ref.invalidate(characterFoldersProvider);
       ref.invalidate(characterDetailProvider(character.id));
+      ref.invalidate(characterChatsProvider(character.id));
+      ref.invalidate(pagedChatsProvider);
+      ref.invalidate(allChatsProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -256,6 +274,26 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  /// Keep auto-generated chat titles in sync when the card name changes.
+  Future<void> _syncDefaultChatTitles({
+    required String characterId,
+    required String oldName,
+    required String newName,
+    required AppLocalizations l10n,
+  }) async {
+    final oldTitle = l10n.chatWithName(oldName);
+    final newTitle = l10n.chatWithName(newName);
+    if (oldTitle == newTitle) return;
+
+    final chatRepo = ref.read(chatRepositoryProvider);
+    final chats = await chatRepo.getChatsForCharacter(characterId);
+    for (final chat in chats) {
+      if (chat.title == oldTitle) {
+        await chatRepo.updateChat(chat.copyWith(title: newTitle));
       }
     }
   }

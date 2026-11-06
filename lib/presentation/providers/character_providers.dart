@@ -195,6 +195,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     await repo.updateCharacter(character);
     await _refreshFolderChrome();
     ref.invalidate(characterLibraryTagLabelsProvider);
+    ref.invalidate(characterDetailProvider(character.id));
     await refresh();
   }
 
