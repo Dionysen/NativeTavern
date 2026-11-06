@@ -3846,11 +3846,17 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     final showUserAvatar = ref.watch(
       appSettingsProvider.select((s) => s.showUserAvatar),
     );
+    final avatarAboveBubble = ref.watch(
+      appSettingsProvider.select((s) => s.avatarAboveBubble),
+    );
     final bubbleBlurSigma = ref.watch(
       appSettingsProvider.select((s) => s.bubbleBlurSigma),
     );
-    // Keep bubbles out of the opposite avatar column when that avatar is on.
+    // Keep bubbles out of the opposite avatar column when that avatar is on
+    // (side-by-side layout only).
     const avatarColumnWidth = 32.0 + 8.0;
+    final showOwnAvatar =
+        isUser ? showUserAvatar : showCharacterAvatar;
     final bubble = Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
@@ -3890,6 +3896,106 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
             ),
     );
 
+    final bubbleColumn = Column(
+      crossAxisAlignment:
+          isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {},
+          onLongPress: () => _showMessageOptions(context),
+          child: ZephyrChatChrome.maybeFrosted(
+            sigma: widget.hasImageBackground ? bubbleBlurSigma : 0,
+            shape: ZephyrChatChrome.messageBubbleShape(
+              isUser: isUser,
+              radius: context.appChatBubbleCornerRadius,
+            ),
+            child: bubble,
+          ),
+        ),
+
+        // Swipe controls
+        if (hasSwipes && !widget.isGenerating)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ChromeIconButton(
+                  density: ChromeIconButtonDensity.compact,
+                  icon: const Icon(Icons.chevron_left, size: 20),
+                  onPressed: widget.message.currentSwipeIndex > 0
+                      ? () => widget.onSwipe(
+                            widget.message.currentSwipeIndex - 1,
+                          )
+                      : null,
+                ),
+                GestureDetector(
+                  // Long press opens the Swipe Picker (ST 1.17+)
+                  onLongPress: () => _openSwipePicker(context),
+                  onTap: () => _openSwipePicker(context),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      '${widget.message.currentSwipeIndex + 1}/${widget.message.swipes.length}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: AppTheme.textMuted),
+                    ),
+                  ),
+                ),
+                ChromeIconButton(
+                  density: ChromeIconButtonDensity.compact,
+                  icon: const Icon(Icons.chevron_right, size: 20),
+                  onPressed: widget.message.currentSwipeIndex <
+                          widget.message.swipes.length - 1
+                      ? () => widget.onSwipe(
+                            widget.message.currentSwipeIndex + 1,
+                          )
+                      : null,
+                ),
+              ],
+            ),
+          ),
+        if (!isUser && !widget.isGenerating)
+          ChatTTSMessageButton(
+            text: widget.message.content,
+            ownerId: widget.chatId,
+            sourceId: widget.message.id,
+            characterId:
+                widget.message.characterId ?? widget.character?.id,
+          ),
+        if (isUser && !_isEditing && !widget.isGenerating)
+          ChromeIconButton(
+            density: ChromeIconButtonDensity.compact,
+            icon: const Icon(Icons.edit, size: 16),
+            tooltip: AppLocalizations.of(context).edit,
+            onPressed: () {
+              _editController.text = widget.message.content;
+              setState(() => _isEditing = true);
+            },
+          ),
+      ],
+    );
+
+    if (avatarAboveBubble) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          crossAxisAlignment:
+              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            if (showOwnAvatar) ...[
+              isUser ? _buildUserAvatar() : _buildAvatar(),
+              const SizedBox(height: 6),
+            ],
+            // No side avatar columns — bubble can use the full row width.
+            SizedBox(width: double.infinity, child: bubbleColumn),
+          ],
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -3902,89 +4008,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
             const SizedBox(width: 8),
           ] else if (isUser && showCharacterAvatar)
             const SizedBox(width: avatarColumnWidth),
-          Flexible(
-            child: Column(
-              crossAxisAlignment:
-                  isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () {},
-                  onLongPress: () => _showMessageOptions(context),
-                  child: ZephyrChatChrome.maybeFrosted(
-                    sigma: widget.hasImageBackground ? bubbleBlurSigma : 0,
-                    shape: ZephyrChatChrome.messageBubbleShape(
-                      isUser: isUser,
-                      radius: context.appChatBubbleCornerRadius,
-                    ),
-                    child: bubble,
-                  ),
-                ),
-
-                // Swipe controls
-                if (hasSwipes && !widget.isGenerating)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ChromeIconButton(
-                          density: ChromeIconButtonDensity.compact,
-                          icon: const Icon(Icons.chevron_left, size: 20),
-                          onPressed: widget.message.currentSwipeIndex > 0
-                              ? () => widget.onSwipe(
-                                    widget.message.currentSwipeIndex - 1,
-                                  )
-                              : null,
-                        ),
-                        GestureDetector(
-                          // Long press opens the Swipe Picker (ST 1.17+)
-                          onLongPress: () => _openSwipePicker(context),
-                          onTap: () => _openSwipePicker(context),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Text(
-                              '${widget.message.currentSwipeIndex + 1}/${widget.message.swipes.length}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(color: AppTheme.textMuted),
-                            ),
-                          ),
-                        ),
-                        ChromeIconButton(
-                          density: ChromeIconButtonDensity.compact,
-                          icon: const Icon(Icons.chevron_right, size: 20),
-                          onPressed: widget.message.currentSwipeIndex <
-                                  widget.message.swipes.length - 1
-                              ? () => widget.onSwipe(
-                                    widget.message.currentSwipeIndex + 1,
-                                  )
-                              : null,
-                        ),
-                      ],
-                    ),
-                  ),
-                if (!isUser && !widget.isGenerating)
-                  ChatTTSMessageButton(
-                    text: widget.message.content,
-                    ownerId: widget.chatId,
-                    sourceId: widget.message.id,
-                    characterId:
-                        widget.message.characterId ?? widget.character?.id,
-                  ),
-                if (isUser && !_isEditing && !widget.isGenerating)
-                  ChromeIconButton(
-                    density: ChromeIconButtonDensity.compact,
-                    icon: const Icon(Icons.edit, size: 16),
-                    tooltip: AppLocalizations.of(context).edit,
-                    onPressed: () {
-                      _editController.text = widget.message.content;
-                      setState(() => _isEditing = true);
-                    },
-                  ),
-              ],
-            ),
-          ),
+          Flexible(child: bubbleColumn),
           if (isUser && showUserAvatar) ...[
             const SizedBox(width: 8),
             _buildUserAvatar(),

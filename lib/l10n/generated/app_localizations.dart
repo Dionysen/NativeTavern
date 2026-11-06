@@ -12153,6 +12153,18 @@ abstract class AppLocalizations {
   /// **'Show your persona avatar next to your messages.'**
   String get showUserAvatarSubtitle;
 
+  /// No description provided for @avatarAboveBubbleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar above bubble'**
+  String get avatarAboveBubbleTitle;
+
+  /// No description provided for @avatarAboveBubbleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Place avatars above messages so bubbles can use the full width.'**
+  String get avatarAboveBubbleSubtitle;
+
   /// No description provided for @showReasoningTitle.
   ///
   /// In en, this message translates to:

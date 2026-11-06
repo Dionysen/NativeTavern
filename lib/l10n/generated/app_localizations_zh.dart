@@ -6579,6 +6579,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get showUserAvatarSubtitle => '在你的消息旁边显示人设头像。';
 
   @override
+  String get avatarAboveBubbleTitle => '头像显示在气泡上方';
+
+  @override
+  String get avatarAboveBubbleSubtitle => '把头像放在消息上方，气泡可占满整行宽度。';
+
+  @override
   String get showReasoningTitle => '思考过程';
 
   @override
@@ -13395,6 +13401,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get showUserAvatarSubtitle => '在你的訊息旁邊顯示人設頭像。';
+
+  @override
+  String get avatarAboveBubbleTitle => '頭像顯示在氣泡上方';
+
+  @override
+  String get avatarAboveBubbleSubtitle => '把頭像放在訊息上方，氣泡可佔滿整行寬度。';
 
   @override
   String get showReasoningTitle => '思考過程';

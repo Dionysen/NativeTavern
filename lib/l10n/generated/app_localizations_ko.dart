@@ -6817,6 +6817,13 @@ class AppLocalizationsKo extends AppLocalizations {
       'Show your persona avatar next to your messages.';
 
   @override
+  String get avatarAboveBubbleTitle => 'Avatar above bubble';
+
+  @override
+  String get avatarAboveBubbleSubtitle =>
+      'Place avatars above messages so bubbles can use the full width.';
+
+  @override
   String get showReasoningTitle => 'Thinking process';
 
   @override

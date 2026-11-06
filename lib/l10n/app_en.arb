@@ -7160,6 +7160,8 @@
   "showCharacterAvatarSubtitle": "Show character avatars next to their messages.",
   "showUserAvatarTitle": "Your avatar",
   "showUserAvatarSubtitle": "Show your persona avatar next to your messages.",
+  "avatarAboveBubbleTitle": "Avatar above bubble",
+  "avatarAboveBubbleSubtitle": "Place avatars above messages so bubbles can use the full width.",
   "showReasoningTitle": "Thinking process",
   "showReasoningSubtitle": "Show the model's thinking above AI replies.",
   "hideChatAppBarOnScrollTitle": "Hide top bar while scrolling",

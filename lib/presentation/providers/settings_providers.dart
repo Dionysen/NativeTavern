@@ -802,6 +802,8 @@ class AppSettings {
   final String chatLayoutMode;
   final bool showCharacterAvatar;
   final bool showUserAvatar;
+  /// When true, avatars sit above bubbles so messages can use full width.
+  final bool avatarAboveBubble;
   final bool showReasoning;
   /// Hide the chat top bar while scrolling toward newer messages.
   final bool hideChatAppBarOnScroll;
@@ -832,6 +834,7 @@ class AppSettings {
     this.chatLayoutMode = 'bubble',
     this.showCharacterAvatar = true,
     this.showUserAvatar = true,
+    this.avatarAboveBubble = false,
     this.showReasoning = true,
     this.hideChatAppBarOnScroll = false,
     this.neutralizeMessageHtmlStyle = true,
@@ -861,6 +864,7 @@ class AppSettings {
     String? chatLayoutMode,
     bool? showCharacterAvatar,
     bool? showUserAvatar,
+    bool? avatarAboveBubble,
     bool? showReasoning,
     bool? hideChatAppBarOnScroll,
     bool? neutralizeMessageHtmlStyle,
@@ -892,6 +896,7 @@ class AppSettings {
       showCharacterAvatar:
           showCharacterAvatar ?? this.showCharacterAvatar,
       showUserAvatar: showUserAvatar ?? this.showUserAvatar,
+      avatarAboveBubble: avatarAboveBubble ?? this.avatarAboveBubble,
       showReasoning: showReasoning ?? this.showReasoning,
       hideChatAppBarOnScroll:
           hideChatAppBarOnScroll ?? this.hideChatAppBarOnScroll,
@@ -928,6 +933,7 @@ class AppSettings {
         'chatLayoutMode': chatLayoutMode,
         'showCharacterAvatar': showCharacterAvatar,
         'showUserAvatar': showUserAvatar,
+        'avatarAboveBubble': avatarAboveBubble,
         'showReasoning': showReasoning,
         'hideChatAppBarOnScroll': hideChatAppBarOnScroll,
         'neutralizeMessageHtmlStyle': neutralizeMessageHtmlStyle,
@@ -966,6 +972,7 @@ class AppSettings {
       chatLayoutMode: json['chatLayoutMode'] as String? ?? 'bubble',
       showCharacterAvatar: json['showCharacterAvatar'] as bool? ?? true,
       showUserAvatar: json['showUserAvatar'] as bool? ?? true,
+      avatarAboveBubble: json['avatarAboveBubble'] as bool? ?? false,
       showReasoning: json['showReasoning'] as bool? ?? true,
       hideChatAppBarOnScroll:
           json['hideChatAppBarOnScroll'] as bool? ?? false,
@@ -1165,6 +1172,11 @@ class AppSettingsNotifier extends StateNotifier<AppSettings> {
 
   void updateShowUserAvatar(bool enabled) {
     state = state.copyWith(showUserAvatar: enabled);
+    _saveSettings();
+  }
+
+  void updateAvatarAboveBubble(bool enabled) {
+    state = state.copyWith(avatarAboveBubble: enabled);
     _saveSettings();
   }
 

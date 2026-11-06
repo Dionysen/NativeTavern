@@ -124,6 +124,13 @@ class _AppearanceScreenState extends ConsumerState<AppearanceScreen> {
                 onChanged: appSettingsNotifier.updateShowUserAvatar,
               ),
               SettingsSwitchTile(
+                icon: Icons.person_pin_outlined,
+                title: l10n.avatarAboveBubbleTitle,
+                subtitle: l10n.avatarAboveBubbleSubtitle,
+                value: appSettings.avatarAboveBubble,
+                onChanged: appSettingsNotifier.updateAvatarAboveBubble,
+              ),
+              SettingsSwitchTile(
                 icon: Icons.psychology_outlined,
                 title: l10n.showReasoningTitle,
                 subtitle: l10n.showReasoningSubtitle,
