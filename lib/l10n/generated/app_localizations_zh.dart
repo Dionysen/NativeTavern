@@ -1236,6 +1236,37 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get deleteSelectedCharacters => '删除角色';
+
+  @override
+  String deleteSelectedCharactersConfirmation(int count) {
+    return '确定删除选中的 $count 个角色吗？与这些角色相关的聊天也会被删除，此操作无法撤销。';
+  }
+
+  @override
+  String charactersDeletedCount(int count) {
+    return '已删除 $count 个角色';
+  }
+
+  @override
+  String chatsSelected(int count) {
+    return '已选择 $count 个聊天';
+  }
+
+  @override
+  String get deleteSelectedChats => '删除聊天';
+
+  @override
+  String deleteSelectedChatsConfirmation(int count) {
+    return '确定删除选中的 $count 个聊天吗？此操作无法撤销。';
+  }
+
+  @override
+  String chatsDeletedCount(int count) {
+    return '已删除 $count 个聊天';
+  }
+
+  @override
   String get characterFolderNameLabel => '文件夹名称';
 
   @override
@@ -8130,6 +8161,37 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String charactersSelected(int count) {
     return '已選擇 $count 個角色';
+  }
+
+  @override
+  String get deleteSelectedCharacters => '刪除角色';
+
+  @override
+  String deleteSelectedCharactersConfirmation(int count) {
+    return '確定刪除選中的 $count 個角色嗎？與這些角色相關的聊天也會被刪除，此操作無法撤銷。';
+  }
+
+  @override
+  String charactersDeletedCount(int count) {
+    return '已刪除 $count 個角色';
+  }
+
+  @override
+  String chatsSelected(int count) {
+    return '已選擇 $count 個聊天';
+  }
+
+  @override
+  String get deleteSelectedChats => '刪除聊天';
+
+  @override
+  String deleteSelectedChatsConfirmation(int count) {
+    return '確定刪除選中的 $count 個聊天嗎？此操作無法撤銷。';
+  }
+
+  @override
+  String chatsDeletedCount(int count) {
+    return '已刪除 $count 個聊天';
   }
 
   @override

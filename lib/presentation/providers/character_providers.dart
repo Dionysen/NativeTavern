@@ -206,6 +206,18 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     await refresh();
   }
 
+  Future<void> deleteCharacters(Iterable<String> ids) async {
+    final uniqueIds = ids.toSet();
+    if (uniqueIds.isEmpty) return;
+    final repo = ref.read(characterRepositoryProvider);
+    for (final id in uniqueIds) {
+      await repo.deleteCharacter(id);
+    }
+    await _refreshFolderChrome();
+    ref.invalidate(characterLibraryTagLabelsProvider);
+    await refresh();
+  }
+
   Future<void> _refreshFolderChrome() async {
     await ref.read(characterFoldersProvider.notifier).refresh();
   }

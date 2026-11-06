@@ -1709,6 +1709,53 @@
       }
     }
   },
+  "deleteSelectedCharacters": "删除角色",
+  "deleteSelectedCharactersConfirmation": "确定删除选中的 {count} 个角色吗？与这些角色相关的聊天也会被删除，此操作无法撤销。",
+  "@deleteSelectedCharactersConfirmation": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "charactersDeletedCount": "已删除 {count} 个角色",
+  "@charactersDeletedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "已选择 {count} 个聊天",
+  "@chatsSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "删除聊天",
+  "deleteSelectedChatsConfirmation": "确定删除选中的 {count} 个聊天吗？此操作无法撤销。",
+  "@deleteSelectedChatsConfirmation": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "已删除 {count} 个聊天",
+  "@chatsDeletedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
   "characterFolderNameLabel": "文件夹名称",
   "createCharacterFolder": "新建文件夹",
   "createFolderFromSelection": "将所选放入新文件夹",

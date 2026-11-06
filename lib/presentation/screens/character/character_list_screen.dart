@@ -135,6 +135,27 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     _exitSelectionMode();
   }
 
+  Future<void> _deleteSelectedCharacters() async {
+    if (_selectedCharacterIds.isEmpty) return;
+    final l10n = AppLocalizations.of(context);
+    final count = _selectedCharacterIds.length;
+    final confirmed = await confirmDestructiveAction(
+      context,
+      ref,
+      title: l10n.deleteSelectedCharacters,
+      body: l10n.deleteSelectedCharactersConfirmation(count),
+    );
+    if (!confirmed || !mounted) return;
+
+    final ids = List<String>.from(_selectedCharacterIds);
+    await ref.read(characterListProvider.notifier).deleteCharacters(ids);
+    _exitSelectionMode();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.charactersDeletedCount(count))),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -224,6 +245,12 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                 icon: const Icon(Icons.create_new_folder_outlined),
                 tooltip: l10n.createFolderFromSelection,
                 onPressed: _createFolderFromSelection,
+              ),
+            if (_selectedCharacterIds.isNotEmpty)
+              ChromeIconButton(
+                icon: const Icon(Icons.delete_outline),
+                tooltip: l10n.delete,
+                onPressed: _deleteSelectedCharacters,
               ),
             ChromeIconButton(
               icon: const Icon(Icons.check),

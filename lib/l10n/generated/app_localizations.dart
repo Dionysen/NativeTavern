@@ -2443,6 +2443,48 @@ abstract class AppLocalizations {
   /// **'{count} character(s) selected'**
   String charactersSelected(int count);
 
+  /// Title for deleting multiple selected characters
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Characters'**
+  String get deleteSelectedCharacters;
+
+  /// Confirmation body for bulk character delete
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {count} selected characters? This will also delete all chats with these characters. This cannot be undone.'**
+  String deleteSelectedCharactersConfirmation(int count);
+
+  /// Snackbar after bulk character delete
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {count} characters'**
+  String charactersDeletedCount(int count);
+
+  /// Chats selected count on home list
+  ///
+  /// In en, this message translates to:
+  /// **'{count} chat(s) selected'**
+  String chatsSelected(int count);
+
+  /// Title for deleting multiple selected chats
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Chats'**
+  String get deleteSelectedChats;
+
+  /// Confirmation body for bulk chat delete
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {count} selected chats? This cannot be undone.'**
+  String deleteSelectedChatsConfirmation(int count);
+
+  /// Snackbar after bulk chat delete
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {count} chats'**
+  String chatsDeletedCount(int count);
+
   /// Label for character folder name field
   ///
   /// In en, this message translates to:

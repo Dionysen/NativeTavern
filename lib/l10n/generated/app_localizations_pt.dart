@@ -1262,6 +1262,37 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get deleteSelectedCharacters => 'Delete Characters';
+
+  @override
+  String deleteSelectedCharactersConfirmation(int count) {
+    return 'Delete $count selected characters? This will also delete all chats with these characters. This cannot be undone.';
+  }
+
+  @override
+  String charactersDeletedCount(int count) {
+    return 'Deleted $count characters';
+  }
+
+  @override
+  String chatsSelected(int count) {
+    return '$count chat(s) selected';
+  }
+
+  @override
+  String get deleteSelectedChats => 'Delete Chats';
+
+  @override
+  String deleteSelectedChatsConfirmation(int count) {
+    return 'Delete $count selected chats? This cannot be undone.';
+  }
+
+  @override
+  String chatsDeletedCount(int count) {
+    return 'Deleted $count chats';
+  }
+
+  @override
   String get characterFolderNameLabel => 'Nome da pasta';
 
   @override

@@ -28,6 +28,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with WidgetsBindingObserver {
+  bool _selectionMode = false;
+  final Set<String> _selectedChatIds = {};
+
   @override
   void initState() {
     super.initState();
@@ -62,38 +65,146 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     ref.invalidate(_groupPresentationProvider);
   }
 
+  void _exitSelectionMode() {
+    setState(() {
+      _selectionMode = false;
+      _selectedChatIds.clear();
+    });
+  }
+
+  void _enterSelectionMode([String? chatId]) {
+    setState(() {
+      _selectionMode = true;
+      _selectedChatIds.clear();
+      if (chatId != null) {
+        _selectedChatIds.add(chatId);
+      }
+    });
+  }
+
+  void _toggleChatSelection(String chatId) {
+    setState(() {
+      if (_selectedChatIds.contains(chatId)) {
+        _selectedChatIds.remove(chatId);
+        if (_selectedChatIds.isEmpty) {
+          _selectionMode = false;
+        }
+      } else {
+        _selectedChatIds.add(chatId);
+      }
+    });
+  }
+
+  Future<void> _deleteSelectedChats() async {
+    if (_selectedChatIds.isEmpty) return;
+    final l10n = AppLocalizations.of(context);
+    final count = _selectedChatIds.length;
+    final confirmed = await confirmDestructiveAction(
+      context,
+      ref,
+      title: l10n.deleteSelectedChats,
+      body: l10n.deleteSelectedChatsConfirmation(count),
+    );
+    if (!confirmed || !mounted) return;
+
+    final repo = ref.read(chatRepositoryProvider);
+    final ids = List<String>.from(_selectedChatIds);
+    for (final id in ids) {
+      await repo.deleteChat(id);
+      ref.invalidate(_lastMessageProvider(id));
+    }
+    ref.invalidate(pagedChatsProvider);
+    ref.invalidate(allChatsProvider);
+    _exitSelectionMode();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.chatsDeletedCount(count))),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.appTitle),
-        actions: spacedAppBarActions([
-          ChromeIconButton(
-            icon: const Icon(Icons.groups),
-            tooltip: l10n.groupChats,
-            onPressed: () => context.push(AppRoutes.groups),
+    return PopScope(
+      canPop: !_selectionMode,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (_selectionMode) {
+          _exitSelectionMode();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: _selectionMode
+              ? ChromeIconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: l10n.cancel,
+                  onPressed: _exitSelectionMode,
+                )
+              : null,
+          title: Text(
+            _selectionMode
+                ? l10n.chatsSelected(_selectedChatIds.length)
+                : l10n.appTitle,
           ),
-          ChromeIconButton(
-            icon: const Icon(Icons.file_download_outlined),
-            tooltip: l10n.import,
-            onPressed: () => context.push(AppRoutes.import_),
-          ),
-        ]),
-      ),
-      body: const _ChatListView(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push(AppRoutes.characters),
-        tooltip: l10n.newChat,
-        child: const Icon(Icons.add),
+          actions: spacedAppBarActions([
+            if (_selectionMode) ...[
+              if (_selectedChatIds.isNotEmpty)
+                ChromeIconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: l10n.delete,
+                  onPressed: _deleteSelectedChats,
+                ),
+              ChromeIconButton(
+                icon: const Icon(Icons.check),
+                tooltip: l10n.done,
+                onPressed: _exitSelectionMode,
+              ),
+            ] else ...[
+              ChromeIconButton(
+                icon: const Icon(Icons.groups),
+                tooltip: l10n.groupChats,
+                onPressed: () => context.push(AppRoutes.groups),
+              ),
+              ChromeIconButton(
+                icon: const Icon(Icons.file_download_outlined),
+                tooltip: l10n.import,
+                onPressed: () => context.push(AppRoutes.import_),
+              ),
+            ],
+          ]),
+        ),
+        body: _ChatListView(
+          selectionMode: _selectionMode,
+          selectedIds: _selectedChatIds,
+          onToggleSelect: _toggleChatSelection,
+          onEnterSelection: _enterSelectionMode,
+        ),
+        floatingActionButton: _selectionMode
+            ? null
+            : FloatingActionButton(
+                onPressed: () => context.push(AppRoutes.characters),
+                tooltip: l10n.newChat,
+                child: const Icon(Icons.add),
+              ),
       ),
     );
   }
 }
 
 class _ChatListView extends ConsumerWidget {
-  const _ChatListView();
+  const _ChatListView({
+    required this.selectionMode,
+    required this.selectedIds,
+    required this.onToggleSelect,
+    required this.onEnterSelection,
+  });
+
+  final bool selectionMode;
+  final Set<String> selectedIds;
+  final ValueChanged<String> onToggleSelect;
+  final ValueChanged<String> onEnterSelection;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -169,7 +280,13 @@ class _ChatListView extends ConsumerWidget {
               itemCount: chats.length,
               itemBuilder: (context, index) {
                 final chat = chats[index];
-                return _ChatListTile(chat: chat);
+                return _ChatListTile(
+                  chat: chat,
+                  selectionMode: selectionMode,
+                  selected: selectedIds.contains(chat.id),
+                  onToggleSelect: onToggleSelect,
+                  onEnterSelection: onEnterSelection,
+                );
               },
             ),
           ),
@@ -181,12 +298,23 @@ class _ChatListView extends ConsumerWidget {
 
 class _ChatListTile extends ConsumerWidget {
   final Chat chat;
+  final bool selectionMode;
+  final bool selected;
+  final ValueChanged<String> onToggleSelect;
+  final ValueChanged<String> onEnterSelection;
 
-  const _ChatListTile({required this.chat});
+  const _ChatListTile({
+    required this.chat,
+    required this.selectionMode,
+    required this.selected,
+    required this.onToggleSelect,
+    required this.onEnterSelection,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final characterAsync =
         ref.watch(_characterForChatProvider(chat.characterId));
     final groupPresentationAsync = chat.groupId == null
@@ -196,27 +324,34 @@ class _ChatListTile extends ConsumerWidget {
 
     return Card(
       child: ListTile(
+        selected: selectionMode && selected,
         contentPadding: const EdgeInsets.only(left: 16, right: 4),
-        leading: groupPresentationAsync != null
-            ? groupPresentationAsync.when(
-                loading: () => const SizedBox.square(
-                  dimension: 56,
-                  child: Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-                error: (_, __) => const GroupAvatar(characters: []),
-                data: (presentation) => GroupAvatar(
-                  characters: presentation?.characters ?? const [],
-                ),
+        leading: selectionMode
+            ? Icon(
+                selected ? Icons.check_circle : Icons.circle_outlined,
+                color: selected ? scheme.primary : scheme.outline,
               )
-            : characterAsync.when(
-                loading: () => const CircleAvatar(
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-                error: (_, __) => const CircleAvatar(child: Icon(Icons.person)),
-                data: _buildCharacterAvatar,
-              ),
+            : groupPresentationAsync != null
+                ? groupPresentationAsync.when(
+                    loading: () => const SizedBox.square(
+                      dimension: 56,
+                      child: Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    error: (_, __) => const GroupAvatar(characters: []),
+                    data: (presentation) => GroupAvatar(
+                      characters: presentation?.characters ?? const [],
+                    ),
+                  )
+                : characterAsync.when(
+                    loading: () => const CircleAvatar(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    error: (_, __) =>
+                        const CircleAvatar(child: Icon(Icons.person)),
+                    data: _buildCharacterAvatar,
+                  ),
         title: groupPresentationAsync != null
             ? groupPresentationAsync.when(
                 loading: () => Text(l10n.loading),
@@ -247,23 +382,34 @@ class _ChatListTile extends ConsumerWidget {
                     color: AppTheme.textMuted,
                   ),
             ),
-            AdaptiveActionMenuButton<String>(
-              title: chat.title,
-              onSelected: (value) => _handleMenuAction(context, ref, value),
-              itemBuilder: (context) => [
-                AdaptiveActionDrawerItem(
-                  value: 'delete',
-                  leading: const Icon(Icons.delete),
-                  title: Text(l10n.delete),
-                  destructive: true,
-                ),
-              ],
-            ),
+            if (!selectionMode)
+              AdaptiveActionMenuButton<String>(
+                title: chat.title,
+                onSelected: (value) => _handleMenuAction(context, ref, value),
+                itemBuilder: (context) => [
+                  AdaptiveActionDrawerItem(
+                    value: 'delete',
+                    leading: const Icon(Icons.delete),
+                    title: Text(l10n.delete),
+                    destructive: true,
+                  ),
+                ],
+              ),
           ],
         ),
         onTap: () {
-          // Navigate to chat screen
+          if (selectionMode) {
+            onToggleSelect(chat.id);
+            return;
+          }
           context.push('/chat/${chat.id}');
+        },
+        onLongPress: () {
+          if (selectionMode) {
+            onToggleSelect(chat.id);
+          } else {
+            onEnterSelection(chat.id);
+          }
         },
       ),
     );
