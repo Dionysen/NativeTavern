@@ -6978,6 +6978,13 @@ class AppLocalizationsTr extends AppLocalizations {
       'Sohbette aşağı kaydırınca üst çubuk gizlenir; yukarı kaydırınca yeniden görünür.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle =>
       'Kart HTML arka planlarını temizle';
 

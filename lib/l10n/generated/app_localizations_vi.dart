@@ -6974,6 +6974,13 @@ class AppLocalizationsVi extends AppLocalizations {
       'Cuộn xuống trong chat để ẩn thanh trên; cuộn lên để hiện lại.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => 'Xóa nền HTML của thẻ';
 
   @override

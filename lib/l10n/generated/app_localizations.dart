@@ -12387,6 +12387,18 @@ abstract class AppLocalizations {
   /// **'Scroll down in chat to hide the top bar; scroll up to show it again.'**
   String get hideChatAppBarOnScrollSubtitle;
 
+  /// No description provided for @renderMessageHtmlTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Render HTML'**
+  String get renderMessageHtmlTitle;
+
+  /// No description provided for @renderMessageHtmlSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.'**
+  String get renderMessageHtmlSubtitle;
+
   /// No description provided for @neutralizeMessageHtmlStyleTitle.
   ///
   /// In en, this message translates to:

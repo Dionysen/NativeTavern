@@ -6968,6 +6968,13 @@ class AppLocalizationsAr extends AppLocalizations {
       'مرّر للأسفل في الدردشة لإخفاء الشريط العلوي؛ مرّر للأعلى لإظهاره مجددًا.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => 'مسح خلفيات HTML للبطاقة';
 
   @override

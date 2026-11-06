@@ -6706,6 +6706,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hideChatAppBarOnScrollSubtitle => '在聊天里向下滚动会隐藏顶栏，向上滚动再显示。';
 
   @override
+  String get renderMessageHtmlTitle => '渲染 HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      '在聊天消息里显示 HTML 排版。关闭后按普通文字和 Markdown 显示。';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => '清除角色卡 HTML 背景';
 
   @override
@@ -13711,6 +13718,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get hideChatAppBarOnScrollSubtitle => '在聊天裡向下捲動會隱藏頂欄，向上捲動再顯示。';
+
+  @override
+  String get renderMessageHtmlTitle => '渲染 HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      '在聊天訊息裡顯示 HTML 排版。關閉後按普通文字和 Markdown 顯示。';
 
   @override
   String get neutralizeMessageHtmlStyleTitle => '清除角色卡 HTML 背景';

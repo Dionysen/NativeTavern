@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "tr",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7452,6 +7452,8 @@
     "description": "Linear gradient style"
   },
   "neutralizeMessageHtmlStyleSubtitle": "Karakter kartı HTML arka planlarını sohbet balonu ve metin renginizle değiştirir. Balonun kendisini değiştirmez — yanlış görünüyorsa Görünüm’de «Karakter balonu»nu ayarlayın.",
+  "renderMessageHtmlTitle": "Render HTML",
+  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
   "neutralizeMessageHtmlStyleTitle": "Kart HTML arka planlarını temizle",
   "pinReplyChoicesPanel": "Paneli sabitle",
   "@pinReplyChoicesPanel": {

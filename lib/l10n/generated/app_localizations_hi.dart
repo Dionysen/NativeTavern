@@ -6973,6 +6973,13 @@ class AppLocalizationsHi extends AppLocalizations {
       'चैट में नीचे स्क्रॉल करें तो ऊपरी बार छिपेगा; ऊपर स्क्रॉल करें तो फिर दिखेगा।';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => 'कार्ड HTML बैकग्राउंड हटाएँ';
 
   @override

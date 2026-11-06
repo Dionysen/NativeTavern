@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "ar",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7452,6 +7452,8 @@
     "description": "Linear gradient style"
   },
   "neutralizeMessageHtmlStyleSubtitle": "استبدل خلفيات HTML في بطاقة الشخصية بلون فقاعة الدردشة ولون النص. هذا لا يغيّر الفقاعة نفسها — عدّل «فقاعة الشخصية» في المظهر إن بدت خاطئة.",
+  "renderMessageHtmlTitle": "Render HTML",
+  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
   "neutralizeMessageHtmlStyleTitle": "مسح خلفيات HTML للبطاقة",
   "pinReplyChoicesPanel": "تثبيت اللوحة",
   "@pinReplyChoicesPanel": {

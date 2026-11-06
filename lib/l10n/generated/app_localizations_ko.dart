@@ -6943,6 +6943,13 @@ class AppLocalizationsKo extends AppLocalizations {
       '채팅에서 아래로 스크롤하면 상단 바가 숨겨지고, 위로 스크롤하면 다시 나타납니다.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => '카드 HTML 배경 지우기';
 
   @override

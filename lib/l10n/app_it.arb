@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "it",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7452,6 +7452,8 @@
     "description": "Linear gradient style"
   },
   "neutralizeMessageHtmlStyleSubtitle": "Sostituisce gli sfondi HTML della scheda personaggio con il colore della bolla e del testo della chat. Non cambia la bolla stessa — regola «Bolla personaggio» in Aspetto se sembra sbagliata.",
+  "renderMessageHtmlTitle": "Render HTML",
+  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
   "neutralizeMessageHtmlStyleTitle": "Rimuovi sfondi HTML della scheda",
   "pinReplyChoicesPanel": "Fissa pannello",
   "@pinReplyChoicesPanel": {

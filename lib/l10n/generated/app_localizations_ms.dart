@@ -6978,6 +6978,13 @@ class AppLocalizationsMs extends AppLocalizations {
       'Tatal ke bawah dalam sembang untuk sembunyikan bar atas; tatal ke atas untuk paparkan semula.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => 'Kosongkan latar HTML kad';
 
   @override

@@ -6980,6 +6980,13 @@ class AppLocalizationsId extends AppLocalizations {
       'Gulir ke bawah di chat untuk menyembunyikan bilah atas; gulir ke atas untuk menampilkannya lagi.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => 'Hapus latar HTML kartu';
 
   @override

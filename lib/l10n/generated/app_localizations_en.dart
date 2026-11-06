@@ -6976,6 +6976,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Scroll down in chat to hide the top bar; scroll up to show it again.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => 'Clear card HTML backgrounds';
 
   @override

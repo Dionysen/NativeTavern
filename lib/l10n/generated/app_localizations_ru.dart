@@ -6979,6 +6979,13 @@ class AppLocalizationsRu extends AppLocalizations {
       'Прокрутите чат вниз, чтобы скрыть верхнюю панель; вверх — чтобы показать снова.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => 'Убрать HTML-фоны карточки';
 
   @override

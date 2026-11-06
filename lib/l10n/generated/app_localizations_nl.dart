@@ -6982,6 +6982,13 @@ class AppLocalizationsNl extends AppLocalizations {
       'Scroll omlaag in de chat om de bovenbalk te verbergen; omhoog om hem weer te tonen.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle =>
       'HTML-achtergronden van kaart wissen';
 

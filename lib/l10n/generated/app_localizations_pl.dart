@@ -6981,6 +6981,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'Przewiń w dół na czacie, by ukryć górny pasek; w górę, by pokazać go ponownie.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => 'Wyczyść tła HTML karty';
 
   @override

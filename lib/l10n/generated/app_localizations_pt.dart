@@ -6981,6 +6981,13 @@ class AppLocalizationsPt extends AppLocalizations {
       'Role para baixo no chat para ocultar a barra superior; para cima para mostrá-la de novo.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => 'Limpar fundos HTML do cartão';
 
   @override

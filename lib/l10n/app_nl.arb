@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "nl",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7452,6 +7452,8 @@
     "description": "Linear gradient style"
   },
   "neutralizeMessageHtmlStyleSubtitle": "Vervangt HTML-achtergronden van de personagekaart door je chatbubbel- en tekstkleur. De bubbel zelf verandert niet — pas «Personagebubbel» onder Weergave aan als die er verkeerd uitziet.",
+  "renderMessageHtmlTitle": "Render HTML",
+  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
   "neutralizeMessageHtmlStyleTitle": "HTML-achtergronden van kaart wissen",
   "pinReplyChoicesPanel": "Paneel vastzetten",
   "@pinReplyChoicesPanel": {

@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "es",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7452,6 +7452,8 @@
     "description": "Linear gradient style"
   },
   "neutralizeMessageHtmlStyleSubtitle": "Sustituye los fondos HTML de la tarjeta del personaje por el color de burbuja y de texto del chat. No cambia la burbuja en sí: ajusta «Burbuja del personaje» en Apariencia si se ve mal.",
+  "renderMessageHtmlTitle": "Render HTML",
+  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
   "neutralizeMessageHtmlStyleTitle": "Quitar fondos HTML de la tarjeta",
   "pinReplyChoicesPanel": "Fijar panel",
   "@pinReplyChoicesPanel": {

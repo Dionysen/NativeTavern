@@ -6983,6 +6983,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Desplázate hacia abajo en el chat para ocultar la barra superior; hacia arriba para mostrarla de nuevo.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle =>
       'Quitar fondos HTML de la tarjeta';
 

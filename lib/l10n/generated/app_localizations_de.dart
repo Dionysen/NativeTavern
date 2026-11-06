@@ -6980,6 +6980,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Im Chat nach unten scrollen, um die obere Leiste auszublenden; nach oben scrollen, um sie wieder anzuzeigen.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle =>
       'HTML-Hintergründe der Karte entfernen';
 

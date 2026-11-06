@@ -6989,6 +6989,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Faites défiler vers le bas pour masquer la barre du haut ; vers le haut pour la réafficher.';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle =>
       'Effacer les fonds HTML de la carte';
 

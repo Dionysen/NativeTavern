@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "fr",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7452,6 +7452,8 @@
     "description": "Linear gradient style"
   },
   "neutralizeMessageHtmlStyleSubtitle": "Remplace les fonds HTML de la carte personnage par la couleur de bulle et de texte du chat. Cela ne modifie pas la bulle elle-même — réglez « Bulle du personnage » dans Apparence si besoin.",
+  "renderMessageHtmlTitle": "Render HTML",
+  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
   "neutralizeMessageHtmlStyleTitle": "Effacer les fonds HTML de la carte",
   "pinReplyChoicesPanel": "Épingler le panneau",
   "@pinReplyChoicesPanel": {

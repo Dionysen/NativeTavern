@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "ru",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7452,6 +7452,8 @@
     "description": "Linear gradient style"
   },
   "neutralizeMessageHtmlStyleSubtitle": "Заменяет HTML-фоны карточки персонажа цветом пузыря и текста чата. Сам пузырь не меняется — при белёсом виде настройте «Пузырь персонажа» во Внешнем виде.",
+  "renderMessageHtmlTitle": "Render HTML",
+  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
   "neutralizeMessageHtmlStyleTitle": "Убрать HTML-фоны карточки",
   "pinReplyChoicesPanel": "Закрепить панель",
   "@pinReplyChoicesPanel": {

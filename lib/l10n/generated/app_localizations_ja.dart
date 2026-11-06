@@ -6944,6 +6944,13 @@ class AppLocalizationsJa extends AppLocalizations {
       'チャットで下にスクロールすると上部バーが隠れ、上にスクロールすると再表示されます。';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => 'カードの HTML 背景をクリア';
 
   @override

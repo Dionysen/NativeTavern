@@ -6968,6 +6968,13 @@ class AppLocalizationsTh extends AppLocalizations {
       'เลื่อนลงในแชทเพื่อซ่อนแถบด้านบน เลื่อนขึ้นเพื่อแสดงอีกครั้ง';
 
   @override
+  String get renderMessageHtmlTitle => 'Render HTML';
+
+  @override
+  String get renderMessageHtmlSubtitle =>
+      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+
+  @override
   String get neutralizeMessageHtmlStyleTitle => 'ล้างพื้นหลัง HTML ของการ์ด';
 
   @override

@@ -82,6 +82,7 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
   bool? _cachedIsUser;
   int? _cachedVersion;
   Brightness? _cachedBrightness;
+  bool? _cachedRenderHtml;
   bool? _cachedNeutralizeHtml;
   bool? _cachedSelectionArmed;
 
@@ -290,6 +291,9 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     }
 
     final brightness = Theme.of(context).brightness;
+    final renderHtml = ref.watch(
+      appSettingsProvider.select((s) => s.renderMessageHtml),
+    );
     final neutralizeHtml = ref.watch(
       appSettingsProvider.select((s) => s.neutralizeMessageHtmlStyle),
     );
@@ -300,12 +304,17 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         _cachedIsUser == widget.isUser &&
         _cachedVersion == _contentVersion &&
         _cachedBrightness == brightness &&
+        _cachedRenderHtml == renderHtml &&
         _cachedNeutralizeHtml == neutralizeHtml &&
         _cachedSelectionArmed == _selectionArmed) {
       return _cachedWidget!;
     }
 
-    final result = _buildContent(context, neutralizeHtml: neutralizeHtml);
+    final result = _buildContent(
+      context,
+      renderHtml: renderHtml,
+      neutralizeHtml: neutralizeHtml,
+    );
     _cachedWidget = result;
     _cachedContent = widget.content;
     _cachedStreaming = widget.isStreaming;
@@ -313,6 +322,7 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     _cachedIsUser = widget.isUser;
     _cachedVersion = _contentVersion;
     _cachedBrightness = brightness;
+    _cachedRenderHtml = renderHtml;
     _cachedNeutralizeHtml = neutralizeHtml;
     _cachedSelectionArmed = _selectionArmed;
     return result;
@@ -320,9 +330,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
 
   Widget _buildContent(
     BuildContext context, {
+    required bool renderHtml,
     required bool neutralizeHtml,
   }) {
-    final hasHtml = _containsHtml(widget.content);
+    final hasHtml = renderHtml && _containsHtml(widget.content);
     final dialogueColor = ZephyrChatChrome.dialogueTextColor(
       context,
       isUser: widget.isUser,

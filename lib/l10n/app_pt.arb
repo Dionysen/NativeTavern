@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "pt",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7452,6 +7452,8 @@
     "description": "Linear gradient style"
   },
   "neutralizeMessageHtmlStyleSubtitle": "Substitui fundos HTML do cartão do personagem pela cor da bolha e do texto do chat. Isso não altera a bolha em si — ajuste «Bolha do personagem» em Aparência se estiver estranha.",
+  "renderMessageHtmlTitle": "Render HTML",
+  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
   "neutralizeMessageHtmlStyleTitle": "Limpar fundos HTML do cartão",
   "pinReplyChoicesPanel": "Fixar painel",
   "@pinReplyChoicesPanel": {

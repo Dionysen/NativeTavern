@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "ko",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7452,6 +7452,8 @@
     "description": "Linear gradient style"
   },
   "neutralizeMessageHtmlStyleSubtitle": "캐릭터 카드 HTML 배경을 채팅 말풍선 색과 글자 색으로 바꿉니다. 말풍선 자체는 바뀌지 않습니다. 하얗게 보이면 모양새의 «캐릭터 말풍선»을 조정하세요.",
+  "renderMessageHtmlTitle": "Render HTML",
+  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
   "neutralizeMessageHtmlStyleTitle": "카드 HTML 배경 지우기",
   "pinReplyChoicesPanel": "패널 고정",
   "@pinReplyChoicesPanel": {

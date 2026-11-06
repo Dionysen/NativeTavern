@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "ja",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7452,6 +7452,8 @@
     "description": "Linear gradient style"
   },
   "neutralizeMessageHtmlStyleSubtitle": "キャラクターカードの HTML 背景を、チャットの吹き出し色と文字色に置き換えます。吹き出し自体は変わりません。白っぽい場合は外観の「キャラクター吹き出し」を調整してください。",
+  "renderMessageHtmlTitle": "Render HTML",
+  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
   "neutralizeMessageHtmlStyleTitle": "カードの HTML 背景をクリア",
   "pinReplyChoicesPanel": "パネルを固定",
   "@pinReplyChoicesPanel": {

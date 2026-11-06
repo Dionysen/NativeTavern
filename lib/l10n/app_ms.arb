@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "ms",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7452,6 +7452,8 @@
     "description": "Linear gradient style"
   },
   "neutralizeMessageHtmlStyleSubtitle": "Ganti latar HTML kad watak dengan warna gelembung dan teks sembang anda. Ini tidak ubah gelembung itu sendiri — laraskan «Gelembung watak» dalam Penampilan jika nampak salah.",
+  "renderMessageHtmlTitle": "Render HTML",
+  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
   "neutralizeMessageHtmlStyleTitle": "Kosongkan latar HTML kad",
   "pinReplyChoicesPanel": "Sematkan panel",
   "@pinReplyChoicesPanel": {

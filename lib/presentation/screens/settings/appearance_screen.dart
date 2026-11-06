@@ -145,11 +145,20 @@ class _AppearanceScreenState extends ConsumerState<AppearanceScreen> {
                 onChanged: appSettingsNotifier.updateHideChatAppBarOnScroll,
               ),
               SettingsSwitchTile(
+                icon: Icons.code_outlined,
+                title: l10n.renderMessageHtmlTitle,
+                subtitle: l10n.renderMessageHtmlSubtitle,
+                value: appSettings.renderMessageHtml,
+                onChanged: appSettingsNotifier.updateRenderMessageHtml,
+              ),
+              SettingsSwitchTile(
                 icon: Icons.layers_clear_outlined,
                 title: l10n.neutralizeMessageHtmlStyleTitle,
                 subtitle: l10n.neutralizeMessageHtmlStyleSubtitle,
                 value: appSettings.neutralizeMessageHtmlStyle,
-                onChanged: appSettingsNotifier.updateNeutralizeMessageHtmlStyle,
+                onChanged: appSettings.renderMessageHtml
+                    ? appSettingsNotifier.updateNeutralizeMessageHtmlStyle
+                    : null,
               ),
               SettingsSwitchTile(
                 icon: Icons.border_style,
