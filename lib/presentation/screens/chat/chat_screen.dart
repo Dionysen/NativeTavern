@@ -1925,38 +1925,42 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final opacity = _composerShellOpacity(background);
     final fill = ZephyrChatChrome.composerFill(scheme, theme.brightness);
     final color = opacity >= 1.0 ? fill : fill.withValues(alpha: opacity);
-    return Material(
-      elevation: 3,
-      color: color,
-      shadowColor: scheme.shadow.withValues(alpha: 0.28),
-      shape: const StadiumBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          _jumpToLatestArmed = false;
-          if (_showScrollToBottomButton) {
-            setState(() => _showScrollToBottomButton = false);
-          }
-          _scrollToBottom(animate: true, force: true, soft: true);
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.keyboard_arrow_down_rounded,
-                size: 20,
-                color: scheme.onSurface,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                l10n.scrollToBottom,
-                style: theme.textTheme.labelLarge?.copyWith(
+    return ZephyrChatChrome.withComposerShadow(
+      context: context,
+      opacity: opacity,
+      child: Material(
+        elevation: 0,
+        color: color,
+        shadowColor: Colors.transparent,
+        shape: const StadiumBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            _jumpToLatestArmed = false;
+            if (_showScrollToBottomButton) {
+              setState(() => _showScrollToBottomButton = false);
+            }
+            _scrollToBottom(animate: true, force: true, soft: true);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
                   color: scheme.onSurface,
                 ),
-              ),
-            ],
+                const SizedBox(width: 6),
+                Text(
+                  l10n.scrollToBottom,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: scheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

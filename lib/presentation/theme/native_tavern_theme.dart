@@ -333,8 +333,27 @@ ThemeData buildNativeTavernTheme(
         overlayColor: accent.withValues(alpha: .12),
       ),
     ),
+    // Floating CTAs (empty states, etc.) use [ZephyrChatChrome.withComposerShadow]
+    // for the chat-composer drop shadow; keep Material elevation at 0.
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: control,
+        foregroundColor: accent,
+        disabledBackgroundColor: control.withValues(alpha: 0.45),
+        disabledForegroundColor: mutedText,
+        iconSize: ChromeControls.iconSize,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: shape.labeledButtonShape,
+        visualDensity: VisualDensity.compact,
+      ),
+    ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
+        elevation: 0,
+        shadowColor: Colors.transparent,
         foregroundColor: primaryText,
         // Idle fill so outlined actions still read as tappable chips.
         backgroundColor: control,
@@ -355,6 +374,9 @@ ThemeData buildNativeTavernTheme(
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         foregroundColor: primaryText,
         backgroundColor: accent.withValues(alpha: .24),
         iconSize: ChromeControls.iconSize,

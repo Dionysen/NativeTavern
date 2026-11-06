@@ -15,6 +15,7 @@ import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
@@ -947,16 +948,22 @@ class _EmptyState extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton.icon(
-                onPressed: () => context.push(AppRoutes.characterCreate),
-                icon: const Icon(Icons.add),
-                label: Text(l10n.createCharacter),
+              ZephyrChatChrome.withComposerShadow(
+                context: context,
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push(AppRoutes.characterCreate),
+                  icon: const Icon(Icons.add),
+                  label: Text(l10n.createCharacter),
+                ),
               ),
               const SizedBox(width: 16),
-              OutlinedButton.icon(
-                onPressed: () => context.push(AppRoutes.import_),
-                icon: const Icon(Icons.file_download),
-                label: Text(l10n.import),
+              ZephyrChatChrome.withComposerShadow(
+                context: context,
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push(AppRoutes.import_),
+                  icon: const Icon(Icons.file_download),
+                  label: Text(l10n.import),
+                ),
               ),
             ],
           ),

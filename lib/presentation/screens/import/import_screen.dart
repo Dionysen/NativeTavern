@@ -664,13 +664,16 @@ class _FilePickerViewState extends State<_FilePickerView> {
                       ),
                       const SizedBox(height: 24),
                       if (_isMobile) ...[
-                        ElevatedButton.icon(
-                          onPressed: widget.onPickFromGallery,
-                          icon: const Icon(Icons.photo_library),
-                          label: Text(
-                              AppLocalizations.of(context)!.chooseFromGallery),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(200, 48),
+                        ZephyrChatChrome.withComposerShadow(
+                          context: context,
+                          child: ElevatedButton.icon(
+                            onPressed: widget.onPickFromGallery,
+                            icon: const Icon(Icons.photo_library),
+                            label: Text(AppLocalizations.of(context)!
+                                .chooseFromGallery),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(200, 48),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -684,11 +687,14 @@ class _FilePickerViewState extends State<_FilePickerView> {
                           ),
                         ),
                       ] else
-                        ElevatedButton.icon(
-                          onPressed: widget.onPickFile,
-                          icon: const Icon(Icons.folder_open),
-                          label:
-                              Text(AppLocalizations.of(context)!.browseFiles),
+                        ZephyrChatChrome.withComposerShadow(
+                          context: context,
+                          child: ElevatedButton.icon(
+                            onPressed: widget.onPickFile,
+                            icon: const Icon(Icons.folder_open),
+                            label: Text(
+                                AppLocalizations.of(context)!.browseFiles),
+                          ),
                         ),
                     ],
                   ],

@@ -12,6 +12,7 @@ import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/widgets/common/group_avatar.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
@@ -221,9 +222,12 @@ class _ChatListView extends ConsumerWidget {
             const SizedBox(height: 16),
             Text(l10n.errorLoadingChats(error.toString())),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => ref.invalidate(pagedChatsProvider),
-              child: Text(l10n.retry),
+            ZephyrChatChrome.withComposerShadow(
+              context: context,
+              child: ElevatedButton(
+                onPressed: () => ref.invalidate(pagedChatsProvider),
+                child: Text(l10n.retry),
+              ),
             ),
           ],
         ),
@@ -254,10 +258,13 @@ class _ChatListView extends ConsumerWidget {
                       ),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () => context.push(AppRoutes.characters),
-                  icon: const Icon(Icons.people),
-                  label: Text(l10n.browseCharacters),
+                ZephyrChatChrome.withComposerShadow(
+                  context: context,
+                  child: ElevatedButton.icon(
+                    onPressed: () => context.push(AppRoutes.characters),
+                    icon: const Icon(Icons.people),
+                    label: Text(l10n.browseCharacters),
+                  ),
                 ),
               ],
             ),

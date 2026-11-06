@@ -8,6 +8,7 @@ import 'package:native_tavern/data/models/tag.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/screens/personas/persona_editor_screen.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
@@ -109,10 +110,13 @@ class PersonasScreen extends ConsumerWidget {
             style: theme.textTheme.bodyMedium?.copyWith(color: muted),
           ),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () => _showCreatePersonaDialog(context, ref),
-            icon: const Icon(Icons.add),
-            label: Text(AppLocalizations.of(context)!.createPersona),
+          ZephyrChatChrome.withComposerShadow(
+            context: context,
+            child: ElevatedButton.icon(
+              onPressed: () => _showCreatePersonaDialog(context, ref),
+              icon: const Icon(Icons.add),
+              label: Text(AppLocalizations.of(context)!.createPersona),
+            ),
           ),
         ],
       ),

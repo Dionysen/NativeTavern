@@ -36,6 +36,28 @@ abstract final class ZephyrChatChrome {
     ];
   }
 
+  /// Same soft drop shadow as [composerShell], for floating buttons / chips.
+  ///
+  /// Wrap Material buttons that use `elevation: 0` so they do not double-draw
+  /// a Material elevation shadow.
+  static Widget withComposerShadow({
+    required BuildContext context,
+    required Widget child,
+    BorderRadius? borderRadius,
+    double opacity = 1.0,
+  }) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: borderRadius ?? BorderRadius.circular(999),
+        boxShadow: composerShadows(
+          Theme.of(context).brightness,
+          opacity: opacity,
+        ),
+      ),
+      child: child,
+    );
+  }
+
   /// Floating continuous-curve composer shell.
   ///
   /// [opacity] tints the fill when chatting over an image background
