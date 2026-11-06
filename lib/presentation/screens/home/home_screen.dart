@@ -361,23 +361,23 @@ class _ChatListTile extends ConsumerWidget {
                   ),
         title: groupPresentationAsync != null
             ? groupPresentationAsync.when(
-                loading: () => Text(l10n.loading),
-                error: (_, __) => Text(chat.title),
+                loading: () => _titleText(l10n.loading),
+                error: (_, __) => _titleText(chat.title),
                 data: (presentation) =>
-                    Text(presentation?.group.name ?? chat.title),
+                    _titleText(presentation?.group.name ?? chat.title),
               )
             : characterAsync.when(
-                loading: () => Text(l10n.loading),
-                error: (_, __) => Text(chat.title),
-                data: (character) => Text(character?.name ?? chat.title),
+                loading: () => _titleText(l10n.loading),
+                error: (_, __) => _titleText(chat.title),
+                data: (character) =>
+                    _titleText(character?.name ?? chat.title),
               ),
         subtitle: lastMessageAsync.when(
-          loading: () => const Text('...'),
-          error: (_, __) => Text(l10n.noMessages),
-          data: (message) => Text(
+          loading: () => _previewText(context, '...'),
+          error: (_, __) => _previewText(context, l10n.noMessages),
+          data: (message) => _previewText(
+            context,
             message?.content ?? l10n.noMessagesYet,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ),
         trailing: Row(
@@ -419,6 +419,25 @@ class _ChatListTile extends ConsumerWidget {
           }
         },
       ),
+    );
+  }
+
+  Widget _titleText(String text) {
+    return Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _previewText(BuildContext context, String text) {
+    return Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: AppTheme.textSecondary,
+          ),
     );
   }
 
