@@ -237,11 +237,6 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                 tooltip: l10n.createCharacterFolder,
                 onPressed: _createEmptyFolder,
               ),
-            ChromeIconButton(
-              icon: const Icon(Icons.checklist),
-              tooltip: l10n.characterListSelectMode,
-              onPressed: () => _enterSelectionMode(),
-            ),
             if (viewMode == CharacterViewMode.list)
               ChromeIconButton(
                 icon: Icon(avatarShape.icon),
@@ -412,6 +407,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
       selectionMode: _selectionMode,
       selectedIds: _selectedCharacterIds,
       onToggleSelect: _toggleCharacterSelection,
+      onEnterSelection: _enterSelectionMode,
     );
 
     final visibleFolders = showFolders ? folders : const <CharacterFolder>[];
@@ -488,11 +484,21 @@ class _CharacterTileInteraction {
     required this.selectionMode,
     required this.selectedIds,
     required this.onToggleSelect,
+    required this.onEnterSelection,
   });
 
   final bool selectionMode;
   final Set<String> selectedIds;
   final ValueChanged<String> onToggleSelect;
+  final ValueChanged<String> onEnterSelection;
+
+  void handleLongPress(String characterId) {
+    if (selectionMode) {
+      onToggleSelect(characterId);
+    } else {
+      onEnterSelection(characterId);
+    }
+  }
 }
 
 Widget _selectionBadge(BuildContext context, bool selected) {
@@ -753,46 +759,83 @@ Future<void> _handleCharacterAction(
   }
 }
 
+List<AdaptiveActionDrawerItem<String>> _characterActionItems(
+  BuildContext context,
+) {
+  final l10n = AppLocalizations.of(context);
+  return [
+    AdaptiveActionDrawerItem(
+      value: 'chat',
+      leading: const Icon(Icons.chat),
+      title: Text(l10n.startChat),
+    ),
+    AdaptiveActionDrawerItem(
+      value: 'edit',
+      leading: const Icon(Icons.edit),
+      title: Text(l10n.edit),
+    ),
+    AdaptiveActionDrawerItem(
+      value: 'move',
+      leading: const Icon(Icons.drive_file_move_outline),
+      title: Text(l10n.moveToFolder),
+    ),
+    AdaptiveActionDrawerItem(
+      value: 'export',
+      leading: const Icon(Icons.file_upload),
+      title: Text(l10n.exportChat),
+    ),
+    AdaptiveActionDrawerItem(
+      value: 'delete',
+      leading: const Icon(Icons.delete_outline),
+      title: Text(l10n.delete),
+      destructive: true,
+    ),
+  ];
+}
+
 Future<void> _showCharacterActionMenu(
   BuildContext context,
   WidgetRef ref,
   Character character,
 ) async {
-  final l10n = AppLocalizations.of(context);
   final selected = await showAdaptiveActionDrawer<String>(
     context: context,
     title: character.name,
-    actions: [
-      AdaptiveActionDrawerItem(
-        value: 'chat',
-        leading: const Icon(Icons.chat),
-        title: Text(l10n.startChat),
-      ),
-      AdaptiveActionDrawerItem(
-        value: 'edit',
-        leading: const Icon(Icons.edit),
-        title: Text(l10n.edit),
-      ),
-      AdaptiveActionDrawerItem(
-        value: 'move',
-        leading: const Icon(Icons.drive_file_move_outline),
-        title: Text(l10n.moveToFolder),
-      ),
-      AdaptiveActionDrawerItem(
-        value: 'export',
-        leading: const Icon(Icons.file_upload),
-        title: Text(l10n.exportChat),
-      ),
-      AdaptiveActionDrawerItem(
-        value: 'delete',
-        leading: const Icon(Icons.delete_outline),
-        title: Text(l10n.delete),
-        destructive: true,
-      ),
-    ],
+    actions: _characterActionItems(context),
   );
   if (selected == null || !context.mounted) return;
   await _handleCharacterAction(context, ref, character, selected);
+}
+
+/// Top-right overflow control on grid/compact character cards.
+Widget _characterCardMoreOverlay({
+  required BuildContext context,
+  required WidgetRef ref,
+  required Character character,
+}) {
+  final l10n = AppLocalizations.of(context);
+  final scheme = Theme.of(context).colorScheme;
+  return Positioned(
+    top: 4,
+    right: 4,
+    child: Material(
+      color: scheme.surface.withValues(alpha: 0.82),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: AdaptiveActionMenuButton<String>(
+        density: ChromeIconButtonDensity.compact,
+        tooltip: l10n.moreOptions,
+        title: character.name,
+        itemBuilder: _characterActionItems,
+        onSelected: (value) => _handleCharacterAction(
+          context,
+          ref,
+          character,
+          value,
+        ),
+      ),
+    ),
+  );
 }
 
 Future<void> _startCharacterChat(
@@ -918,18 +961,10 @@ class _CharacterGridCard extends ConsumerWidget {
           }
           context.push('/characters/${character.id}');
         },
-        onLongPress: () {
-          if (interaction.selectionMode) {
-            interaction.onToggleSelect(character.id);
-            return;
-          }
-          _showCharacterActionMenu(context, ref, character);
-        },
-        onSecondaryTap: () => _showCharacterActionMenu(
-          context,
-          ref,
-          character,
-        ),
+        onLongPress: () => interaction.handleLongPress(character.id),
+        onSecondaryTap: interaction.selectionMode
+            ? () => interaction.onToggleSelect(character.id)
+            : () => _showCharacterActionMenu(context, ref, character),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -967,7 +1002,13 @@ class _CharacterGridCard extends ConsumerWidget {
           ],
             ),
             if (interaction.selectionMode)
-              _selectionBadge(context, selected),
+              _selectionBadge(context, selected)
+            else
+              _characterCardMoreOverlay(
+                context: context,
+                ref: ref,
+                character: character,
+              ),
           ],
         ),
       ),
@@ -1061,18 +1102,10 @@ class _CharacterCompactGridCard extends ConsumerWidget {
           }
           context.push('/characters/${character.id}');
         },
-        onLongPress: () {
-          if (interaction.selectionMode) {
-            interaction.onToggleSelect(character.id);
-            return;
-          }
-          _showCharacterActionMenu(context, ref, character);
-        },
-        onSecondaryTap: () => _showCharacterActionMenu(
-          context,
-          ref,
-          character,
-        ),
+        onLongPress: () => interaction.handleLongPress(character.id),
+        onSecondaryTap: interaction.selectionMode
+            ? () => interaction.onToggleSelect(character.id)
+            : () => _showCharacterActionMenu(context, ref, character),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -1110,7 +1143,13 @@ class _CharacterCompactGridCard extends ConsumerWidget {
           ],
             ),
             if (interaction.selectionMode)
-              _selectionBadge(context, selected),
+              _selectionBadge(context, selected)
+            else
+              _characterCardMoreOverlay(
+                context: context,
+                ref: ref,
+                character: character,
+              ),
           ],
         ),
       ),
@@ -1217,18 +1256,10 @@ class _CharacterListTile extends ConsumerWidget {
           }
           context.push('/characters/${character.id}');
         },
-        onLongPress: () {
-          if (interaction.selectionMode) {
-            interaction.onToggleSelect(character.id);
-            return;
-          }
-          _showCharacterActionMenu(context, ref, character);
-        },
-        onSecondaryTap: () => _showCharacterActionMenu(
-          context,
-          ref,
-          character,
-        ),
+        onLongPress: () => interaction.handleLongPress(character.id),
+        onSecondaryTap: interaction.selectionMode
+            ? () => interaction.onToggleSelect(character.id)
+            : () => _showCharacterActionMenu(context, ref, character),
         child: Padding(
           // Matching vertical insets: title top == tags bottom.
           padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
@@ -1299,39 +1330,18 @@ class _CharacterListTile extends ConsumerWidget {
                   ],
                 ),
               ),
-              AdaptiveActionMenuButton<String>(
-                tooltip: l10n.moreOptions,
-                title: character.name,
-                itemBuilder: (context) => [
-                  AdaptiveActionDrawerItem(
-                    value: 'chat',
-                    leading: const Icon(Icons.chat),
-                    title: Text(l10n.startChat),
+              if (!interaction.selectionMode)
+                AdaptiveActionMenuButton<String>(
+                  tooltip: l10n.moreOptions,
+                  title: character.name,
+                  itemBuilder: _characterActionItems,
+                  onSelected: (value) => _handleCharacterAction(
+                    context,
+                    ref,
+                    character,
+                    value,
                   ),
-                  AdaptiveActionDrawerItem(
-                    value: 'edit',
-                    leading: const Icon(Icons.edit),
-                    title: Text(l10n.edit),
-                  ),
-                  AdaptiveActionDrawerItem(
-                    value: 'export',
-                    leading: const Icon(Icons.file_upload),
-                    title: Text(l10n.exportChat),
-                  ),
-                  AdaptiveActionDrawerItem(
-                    value: 'delete',
-                    leading: const Icon(Icons.delete_outline),
-                    title: Text(l10n.delete),
-                    destructive: true,
-                  ),
-                ],
-                onSelected: (value) => _handleCharacterAction(
-                  context,
-                  ref,
-                  character,
-                  value,
                 ),
-              ),
             ],
           ),
         ),
