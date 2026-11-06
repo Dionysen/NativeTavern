@@ -12,3 +12,7 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+# Personal multi-machine builds: track the current release signing materials.
+# Replace these before any public distribution.
+!key.properties
+!nativetavern-release.keystore
