@@ -2351,6 +2351,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       },
       child: ListView.builder(
         controller: _scrollController,
+        // Keep nearby HTML WebViews mounted a bit longer to cut recycle flash.
+        cacheExtent: 1600,
         // Chronological list like Zephyr: newest at maxScrollExtent.
         physics: const AlwaysScrollableScrollPhysics(
           parent: ClampingScrollPhysics(),

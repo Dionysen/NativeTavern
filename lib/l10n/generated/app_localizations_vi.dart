@@ -6978,7 +6978,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get renderMessageHtmlSubtitle =>
-      'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.';
+      'Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.';
 
   @override
   String get neutralizeMessageHtmlStyleTitle => 'Xóa nền HTML của thẻ';

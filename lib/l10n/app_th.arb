@@ -7453,7 +7453,7 @@
   },
   "neutralizeMessageHtmlStyleSubtitle": "แทนที่พื้นหลัง HTML ของการ์ดตัวละครด้วยสีฟองแชทและสีข้อความของคุณ สิ่งนี้ไม่เปลี่ยนฟองข้อความเอง — หากดูผิด ให้ปรับ «ฟองตัวละคร» ในลักษณะที่ปรากฏ",
   "renderMessageHtmlTitle": "Render HTML",
-  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
+  "renderMessageHtmlSubtitle": "Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.",
   "neutralizeMessageHtmlStyleTitle": "ล้างพื้นหลัง HTML ของการ์ด",
   "pinReplyChoicesPanel": "ปักหมุดแผง",
   "@pinReplyChoicesPanel": {

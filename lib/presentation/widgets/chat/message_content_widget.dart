@@ -125,14 +125,17 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     }
   }
 
-  /// Check if content contains HTML tags
+  /// Check if content contains HTML / ST wrapper tags that Markdown would
+  /// otherwise swallow or leak as raw markup.
   bool _containsHtml(String text) {
-    // Common HTML tags used in SillyTavern
+    // Common HTML tags used in SillyTavern, plus frequent ST wrappers.
     final htmlPattern = RegExp(
-      r'<\s*(b|i|u|s|em|strong|br|p|div|span|a|ul|ol|li|h[1-6]|blockquote|pre|code|hr|img|table|tr|td|th|font|center|sub|sup|mark|del|ins|small|big|q|cite|abbr|details|summary)(\s|>|/>)',
+      r'<\s*(b|i|u|s|em|strong|br|p|div|span|a|ul|ol|li|h[1-6]|blockquote|pre|code|hr|img|table|tr|td|th|thead|tbody|font|center|sub|sup|mark|del|ins|small|big|q|cite|abbr|details|summary|maintext|section|article|header|footer|nav|aside|figure|figcaption|style|script)(\s|/?>)',
       caseSensitive: false,
     );
-    return htmlPattern.hasMatch(text);
+    if (htmlPattern.hasMatch(text)) return true;
+    // Closing / unknown custom tags (e.g. </maintext>) still need stripping.
+    return RegExp(r'</?\s*[a-zA-Z][\w:-]*\b[^>]*>').hasMatch(text);
   }
 
   /// Theme-matching fill for HTML WebViews. Avoids a pure-white WebView plate
@@ -333,13 +336,16 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     required bool renderHtml,
     required bool neutralizeHtml,
   }) {
-    final hasHtml = renderHtml && _containsHtml(widget.content);
+    final containsHtml = _containsHtml(widget.content);
     final dialogueColor = ZephyrChatChrome.dialogueTextColor(
       context,
       isUser: widget.isUser,
     );
-    final useWebView =
-        hasHtml && !widget.isStreaming && isComplexHtml(widget.content);
+    // Off = no WebView layouts; still strip/convert HTML so text is not lost.
+    final useWebView = renderHtml &&
+        containsHtml &&
+        !widget.isStreaming &&
+        isComplexHtml(widget.content);
 
     Widget contentWidget;
 
@@ -361,8 +367,9 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       );
     }
 
-    final processedContent =
-        hasHtml ? _convertHtmlToMarkdown(widget.content) : widget.content;
+    final processedContent = containsHtml
+        ? _convertHtmlToMarkdown(widget.content)
+        : widget.content;
     contentWidget = _buildMarkdownContent(
       context,
       processedContent,

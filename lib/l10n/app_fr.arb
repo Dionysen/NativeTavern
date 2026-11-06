@@ -7453,7 +7453,7 @@
   },
   "neutralizeMessageHtmlStyleSubtitle": "Remplace les fonds HTML de la carte personnage par la couleur de bulle et de texte du chat. Cela ne modifie pas la bulle elle-même — réglez « Bulle du personnage » dans Apparence si besoin.",
   "renderMessageHtmlTitle": "Render HTML",
-  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
+  "renderMessageHtmlSubtitle": "Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.",
   "neutralizeMessageHtmlStyleTitle": "Effacer les fonds HTML de la carte",
   "pinReplyChoicesPanel": "Épingler le panneau",
   "@pinReplyChoicesPanel": {

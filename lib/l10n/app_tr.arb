@@ -7453,7 +7453,7 @@
   },
   "neutralizeMessageHtmlStyleSubtitle": "Karakter kartı HTML arka planlarını sohbet balonu ve metin renginizle değiştirir. Balonun kendisini değiştirmez — yanlış görünüyorsa Görünüm’de «Karakter balonu»nu ayarlayın.",
   "renderMessageHtmlTitle": "Render HTML",
-  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
+  "renderMessageHtmlSubtitle": "Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.",
   "neutralizeMessageHtmlStyleTitle": "Kart HTML arka planlarını temizle",
   "pinReplyChoicesPanel": "Paneli sabitle",
   "@pinReplyChoicesPanel": {

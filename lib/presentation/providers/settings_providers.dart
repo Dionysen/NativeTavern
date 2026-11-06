@@ -807,7 +807,7 @@ class AppSettings {
   final bool showReasoning;
   /// Hide the chat top bar while scrolling toward newer messages.
   final bool hideChatAppBarOnScroll;
-  /// When false, skip WebView / HTML→Markdown and treat message text as Markdown.
+  /// When false, skip WebView HTML layouts; tags are still stripped to Markdown.
   final bool renderMessageHtml;
   /// Strip opaque fills/colors from character-card HTML so chat theme shows.
   final bool neutralizeMessageHtmlStyle;

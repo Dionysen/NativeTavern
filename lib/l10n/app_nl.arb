@@ -7453,7 +7453,7 @@
   },
   "neutralizeMessageHtmlStyleSubtitle": "Vervangt HTML-achtergronden van de personagekaart door je chatbubbel- en tekstkleur. De bubbel zelf verandert niet — pas «Personagebubbel» onder Weergave aan als die er verkeerd uitziet.",
   "renderMessageHtmlTitle": "Render HTML",
-  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
+  "renderMessageHtmlSubtitle": "Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.",
   "neutralizeMessageHtmlStyleTitle": "HTML-achtergronden van kaart wissen",
   "pinReplyChoicesPanel": "Paneel vastzetten",
   "@pinReplyChoicesPanel": {

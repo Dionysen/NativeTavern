@@ -7453,7 +7453,7 @@
   },
   "neutralizeMessageHtmlStyleSubtitle": "Thay nền HTML của thẻ nhân vật bằng màu bong bóng và chữ chat của bạn. Không đổi bản thân bong bóng — nếu trông sai, chỉnh «Bong bóng nhân vật» trong Giao diện.",
   "renderMessageHtmlTitle": "Render HTML",
-  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
+  "renderMessageHtmlSubtitle": "Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.",
   "neutralizeMessageHtmlStyleTitle": "Xóa nền HTML của thẻ",
   "pinReplyChoicesPanel": "Ghim bảng",
   "@pinReplyChoicesPanel": {

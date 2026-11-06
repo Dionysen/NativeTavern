@@ -7453,7 +7453,7 @@
   },
   "neutralizeMessageHtmlStyleSubtitle": "Sustituye los fondos HTML de la tarjeta del personaje por el color de burbuja y de texto del chat. No cambia la burbuja en sí: ajusta «Burbuja del personaje» en Apariencia si se ve mal.",
   "renderMessageHtmlTitle": "Render HTML",
-  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
+  "renderMessageHtmlSubtitle": "Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.",
   "neutralizeMessageHtmlStyleTitle": "Quitar fondos HTML de la tarjeta",
   "pinReplyChoicesPanel": "Fijar panel",
   "@pinReplyChoicesPanel": {

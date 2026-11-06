@@ -7453,7 +7453,7 @@
   },
   "neutralizeMessageHtmlStyleSubtitle": "Ganti latar HTML kad watak dengan warna gelembung dan teks sembang anda. Ini tidak ubah gelembung itu sendiri — laraskan «Gelembung watak» dalam Penampilan jika nampak salah.",
   "renderMessageHtmlTitle": "Render HTML",
-  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
+  "renderMessageHtmlSubtitle": "Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.",
   "neutralizeMessageHtmlStyleTitle": "Kosongkan latar HTML kad",
   "pinReplyChoicesPanel": "Sematkan panel",
   "@pinReplyChoicesPanel": {

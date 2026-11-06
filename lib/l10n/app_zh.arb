@@ -7136,7 +7136,7 @@
   "hideChatAppBarOnScrollTitle": "滚动时隐藏顶栏",
   "hideChatAppBarOnScrollSubtitle": "在聊天里向下滚动会隐藏顶栏，向上滚动再显示。",
   "renderMessageHtmlTitle": "渲染 HTML",
-  "renderMessageHtmlSubtitle": "在聊天消息里显示 HTML 排版。关闭后按普通文字和 Markdown 显示。",
+  "renderMessageHtmlSubtitle": "在聊天里显示 HTML 排版。关闭后仍会保留文字，并转成 Markdown 显示。",
   "neutralizeMessageHtmlStyleTitle": "清除角色卡 HTML 背景",
   "neutralizeMessageHtmlStyleSubtitle": "用你的聊天气泡色和文字色替换角色卡 HTML 自带底色。这不会改气泡本身；若气泡发白，请到外观里调整「角色气泡」颜色。",
   "showBordersTitle": "显示边框",

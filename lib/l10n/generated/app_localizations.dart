@@ -12396,7 +12396,7 @@ abstract class AppLocalizations {
   /// No description provided for @renderMessageHtmlSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Show HTML layouts in chat messages. When off, messages show as plain Markdown text.'**
+  /// **'Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.'**
   String get renderMessageHtmlSubtitle;
 
   /// No description provided for @neutralizeMessageHtmlStyleTitle.

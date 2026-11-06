@@ -5,6 +5,35 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/chat/dialogue_quote_style.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Survives ListView recycle so scrolling back does not collapse to a stub height.
+final Map<String, double> _htmlWebViewHeightCache = <String, double>{};
+
+/// Keeps a bounded set of HTML WebViews alive so nearby scroll does not
+/// tear down native platform views (the main scroll-flash source).
+class _HtmlWebViewKeepAliveGate {
+  static const int maxKeepAlive = 8;
+  static final List<String> _lru = <String>[];
+  static final Map<String, VoidCallback> _listeners = <String, VoidCallback>{};
+
+  static bool isKept(String key) => _lru.contains(key);
+
+  static void touch(String key, VoidCallback onChanged) {
+    _listeners[key] = onChanged;
+    _lru.remove(key);
+    _lru.add(key);
+    while (_lru.length > maxKeepAlive) {
+      final evicted = _lru.removeAt(0);
+      // Notify the evicted WebView so it can drop keep-alive and be recycled.
+      _listeners.remove(evicted)?.call();
+    }
+  }
+
+  static void release(String key) {
+    _listeners.remove(key);
+    _lru.remove(key);
+  }
+}
+
 /// Widget that renders HTML content using a WebView for full CSS support
 ///
 /// This widget uses flutter_inappwebview to render complex HTML content
@@ -38,10 +67,12 @@ class HtmlWebViewWidget extends StatefulWidget {
   State<HtmlWebViewWidget> createState() => _HtmlWebViewWidgetState();
 }
 
-class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
+class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
+    with AutomaticKeepAliveClientMixin {
   double _contentHeight = 100; // Initial height - start smaller, will expand
   final double _minHeight = 50; // Minimum height to prevent collapse
   bool _isLoading = true;
+  bool _restoredFromCache = false;
   bool _hasError = false;
   String? _errorMessage;
   InAppWebViewController? _webViewController;
@@ -49,8 +80,16 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
   bool _imagesLoaded = false;
 
   @override
+  bool get wantKeepAlive {
+    final key = widget.contentKey;
+    return key != null && _HtmlWebViewKeepAliveGate.isKept(key);
+  }
+
+  @override
   void initState() {
     super.initState();
+    _restoreCachedHeight();
+    _claimKeepAlive();
     // Auto-hide loading after timeout
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted && _isLoading) {
@@ -59,9 +98,39 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
     });
   }
 
+  void _restoreCachedHeight() {
+    final key = widget.contentKey;
+    if (key == null) return;
+    final cached = _htmlWebViewHeightCache[key];
+    if (cached == null || cached <= _minHeight) return;
+    _contentHeight = cached;
+    _restoredFromCache = true;
+    _isLoading = false;
+  }
+
+  void _cacheHeight(double height) {
+    final key = widget.contentKey;
+    if (key == null || height <= _minHeight) return;
+    _htmlWebViewHeightCache[key] = height;
+  }
+
+  void _claimKeepAlive() {
+    final key = widget.contentKey;
+    if (key == null) return;
+    _HtmlWebViewKeepAliveGate.touch(key, _onKeepAliveChanged);
+  }
+
+  void _onKeepAliveChanged() {
+    if (mounted) updateKeepAlive();
+  }
+
   @override
   void dispose() {
     debugPrint('🌐 WebView disposing');
+    final key = widget.contentKey;
+    if (key != null) {
+      _HtmlWebViewKeepAliveGate.release(key);
+    }
     // Clear the controller reference to prevent issues with disposed WebView
     _webViewController = null;
     super.dispose();
@@ -70,44 +139,64 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
   @override
   void didUpdateWidget(HtmlWebViewWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.contentKey != oldWidget.contentKey) {
+      if (oldWidget.contentKey != null) {
+        _HtmlWebViewKeepAliveGate.release(oldWidget.contentKey!);
+      }
+      _restoreCachedHeight();
+      _claimKeepAlive();
+    }
     // Check if content has changed (important for swipe switching)
     final contentChanged = widget.htmlContent != oldWidget.htmlContent;
     // Check if contentKey has changed (e.g., streaming ended)
-    final keyChanged = widget.contentKey != oldWidget.contentKey && widget.contentKey != null;
+    final keyChanged =
+        widget.contentKey != oldWidget.contentKey && widget.contentKey != null;
     final styleChanged = widget.neutralizeStyle != oldWidget.neutralizeStyle ||
         widget.textColor != oldWidget.textColor ||
         widget.dialogueColor != oldWidget.dialogueColor ||
         widget.fontSize != oldWidget.fontSize;
 
     if (contentChanged || keyChanged || styleChanged) {
-      debugPrint('🌐 didUpdateWidget: contentChanged=$contentChanged, keyChanged=$keyChanged');
-      debugPrint('🌐 Old key: ${oldWidget.contentKey}, New key: ${widget.contentKey}');
+      debugPrint(
+        '🌐 didUpdateWidget: contentChanged=$contentChanged, keyChanged=$keyChanged',
+      );
+      debugPrint(
+        '🌐 Old key: ${oldWidget.contentKey}, New key: ${widget.contentKey}',
+      );
       _reloadContent();
     }
   }
 
   /// Track if a reload is in progress to prevent multiple simultaneous reloads
   bool _isReloading = false;
-  
+
   void _reloadContent() async {
     // Prevent multiple simultaneous reloads
     if (_isReloading) {
       debugPrint('🌐 Reload already in progress, skipping');
       return;
     }
-    
+
     if (_webViewController != null && mounted) {
       _isReloading = true;
       debugPrint('🌐 Starting content reload');
-      
+
+      final cached = widget.contentKey == null
+          ? null
+          : _htmlWebViewHeightCache[widget.contentKey!];
       setState(() {
-        _isLoading = true;
+        // Keep prior / cached height so the list does not collapse while reload.
+        if (cached != null && cached > _minHeight) {
+          _contentHeight = cached;
+          _restoredFromCache = true;
+          _isLoading = false;
+        } else {
+          _isLoading = true;
+        }
         _heightUpdateCount = 0;
         _imagesLoaded = false;
-        // Reset content height to prevent showing stale height
-        _contentHeight = 100;
       });
-      
+
       try {
         // Reload the WebView with updated content
         await _webViewController!.loadData(
@@ -127,7 +216,9 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
         _isReloading = false;
       }
     } else {
-      debugPrint('🌐 Cannot reload: controller=${_webViewController != null}, mounted=$mounted');
+      debugPrint(
+        '🌐 Cannot reload: controller=${_webViewController != null}, mounted=$mounted',
+      );
     }
   }
 
@@ -571,7 +662,10 @@ ${widget.neutralizeStyle ? '''
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final fullHtml = _buildHtml();
+    // Avoid spinner flash when height is already known from a prior visit.
+    final showLoading = _isLoading && !_restoredFromCache;
 
     if (_hasError) {
       return Container(
@@ -597,9 +691,8 @@ ${widget.neutralizeStyle ? '''
 
     return GestureDetector(
       onLongPress: widget.onLongPress,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
+      // No AnimatedContainer: height animation during recycle caused list flash.
+      child: Container(
         color: widget.neutralizeStyle
             ? widget.backgroundColor
             : Colors.transparent,
@@ -621,7 +714,8 @@ ${widget.neutralizeStyle ? '''
               initialSettings: InAppWebViewSettings(
                 transparentBackground: true,
                 disableHorizontalScroll: true,
-                disableVerticalScroll: true, // Disable scroll, we adjust container height
+                disableVerticalScroll:
+                    true, // Disable scroll, we adjust container height
                 supportZoom: false,
                 javaScriptEnabled: true,
                 mediaPlaybackRequiresUserGesture: false,
@@ -633,7 +727,7 @@ ${widget.neutralizeStyle ? '''
               onWebViewCreated: (controller) {
                 debugPrint('🌐 WebView created');
                 _webViewController = controller;
-                
+
                 // Handler for content height updates
                 controller.addJavaScriptHandler(
                   handlerName: 'contentHeight',
@@ -658,10 +752,12 @@ ${widget.neutralizeStyle ? '''
                     setState(() {
                       _contentHeight = resolved;
                       _isLoading = false;
+                      _restoredFromCache = true;
                     });
+                    _cacheHeight(resolved);
                   },
                 );
-                
+
                 // Handler for images loaded notification
                 controller.addJavaScriptHandler(
                   handlerName: 'imagesLoaded',
@@ -673,7 +769,7 @@ ${widget.neutralizeStyle ? '''
                       });
                       // Request final height update after images loaded
                       Future.delayed(const Duration(milliseconds: 200), () {
-                        _requestHeightUpdate();
+                        if (mounted) _requestHeightUpdate();
                       });
                     }
                   },
@@ -701,10 +797,14 @@ ${widget.neutralizeStyle ? '''
                 }
                 // Trigger height calculation
                 await controller.evaluateJavascript(source: 'sendHeight();');
-                
+
                 // Additional height checks after load
-                Future.delayed(const Duration(milliseconds: 300), _requestHeightUpdate);
-                Future.delayed(const Duration(milliseconds: 800), _requestHeightUpdate);
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  if (mounted) _requestHeightUpdate();
+                });
+                Future.delayed(const Duration(milliseconds: 800), () {
+                  if (mounted) _requestHeightUpdate();
+                });
               },
               onLoadError: (controller, url, code, message) {
                 debugPrint('🌐 WebView error: $code - $message');
@@ -731,7 +831,7 @@ ${widget.neutralizeStyle ? '''
                 return NavigationActionPolicy.ALLOW;
               },
             ),
-            if (_isLoading)
+            if (showLoading)
               const Positioned.fill(
                 child: ColoredBox(
                   color: Colors.transparent,
@@ -795,7 +895,8 @@ bool isComplexHtml(String html) {
 }
 
 /// Decide the Flutter WebView height from a JS content measurement.
-/// Always grows to fit content; only shrinks during early layout.
+/// Always grows to fit content; only shrinks during the first few measurements
+/// so ResizeObserver noise does not make the chat list jump while scrolling.
 double? resolveHtmlWebViewHeight({
   required double currentHeight,
   required double measuredHeight,
@@ -804,8 +905,9 @@ double? resolveHtmlWebViewHeight({
   if (measuredHeight <= 10 || measuredHeight >= 50000) return null;
   final newHeight = measuredHeight + 12;
   final diff = (newHeight - currentHeight).abs();
-  if (diff < 1) return null;
+  // Ignore sub-pixel / tiny jitter that still caused list flash.
+  if (diff < 8) return null;
   if (newHeight > currentHeight) return newHeight;
-  if (updateCount <= 6) return newHeight;
+  if (updateCount <= 3) return newHeight;
   return null;
 }

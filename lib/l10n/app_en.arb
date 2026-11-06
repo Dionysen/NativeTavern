@@ -7293,7 +7293,7 @@
   "hideChatAppBarOnScrollTitle": "Hide top bar while scrolling",
   "hideChatAppBarOnScrollSubtitle": "Scroll down in chat to hide the top bar; scroll up to show it again.",
   "renderMessageHtmlTitle": "Render HTML",
-  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
+  "renderMessageHtmlSubtitle": "Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.",
   "neutralizeMessageHtmlStyleTitle": "Clear card HTML backgrounds",
   "neutralizeMessageHtmlStyleSubtitle": "Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.",
   "showBordersTitle": "Show borders",

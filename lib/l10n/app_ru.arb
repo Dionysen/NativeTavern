@@ -7453,7 +7453,7 @@
   },
   "neutralizeMessageHtmlStyleSubtitle": "Заменяет HTML-фоны карточки персонажа цветом пузыря и текста чата. Сам пузырь не меняется — при белёсом виде настройте «Пузырь персонажа» во Внешнем виде.",
   "renderMessageHtmlTitle": "Render HTML",
-  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
+  "renderMessageHtmlSubtitle": "Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.",
   "neutralizeMessageHtmlStyleTitle": "Убрать HTML-фоны карточки",
   "pinReplyChoicesPanel": "Закрепить панель",
   "@pinReplyChoicesPanel": {

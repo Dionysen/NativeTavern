@@ -44,4 +44,15 @@ void main() {
       252,
     );
   });
+
+  test('tiny height jitter is ignored to avoid scroll flash', () {
+    expect(
+      resolveHtmlWebViewHeight(
+        currentHeight: 432,
+        measuredHeight: 422,
+        updateCount: 2,
+      ),
+      isNull,
+    );
+  });
 }

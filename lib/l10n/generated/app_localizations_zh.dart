@@ -6710,7 +6710,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get renderMessageHtmlSubtitle =>
-      '在聊天消息里显示 HTML 排版。关闭后按普通文字和 Markdown 显示。';
+      '在聊天里显示 HTML 排版。关闭后仍会保留文字，并转成 Markdown 显示。';
 
   @override
   String get neutralizeMessageHtmlStyleTitle => '清除角色卡 HTML 背景';
@@ -13724,7 +13724,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get renderMessageHtmlSubtitle =>
-      '在聊天訊息裡顯示 HTML 排版。關閉後按普通文字和 Markdown 顯示。';
+      '在聊天裡顯示 HTML 排版。關閉後仍會保留文字，並轉成 Markdown 顯示。';
 
   @override
   String get neutralizeMessageHtmlStyleTitle => '清除角色卡 HTML 背景';

@@ -7391,7 +7391,7 @@
     "description": "Label on expanded character-owned prompt content"
   },
   "renderMessageHtmlTitle": "渲染 HTML",
-  "renderMessageHtmlSubtitle": "在聊天訊息裡顯示 HTML 排版。關閉後按普通文字和 Markdown 顯示。",
+  "renderMessageHtmlSubtitle": "在聊天裡顯示 HTML 排版。關閉後仍會保留文字，並轉成 Markdown 顯示。",
   "neutralizeMessageHtmlStyleTitle": "清除角色卡 HTML 背景",
   "neutralizeMessageHtmlStyleSubtitle": "用你的聊天氣泡色和文字色替換角色卡 HTML 自帶底色。這不會改氣泡本身；若氣泡發白，請到外觀裡調整「角色氣泡」顏色。"
 }

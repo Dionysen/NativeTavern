@@ -7453,7 +7453,7 @@
   },
   "neutralizeMessageHtmlStyleSubtitle": "Zastępuje tła HTML karty postaci kolorem dymka i tekstu czatu. Sam dymek się nie zmienia — w Wyglądzie ustaw «Dymek postaci», jeśli wygląda źle.",
   "renderMessageHtmlTitle": "Render HTML",
-  "renderMessageHtmlSubtitle": "Show HTML layouts in chat messages. When off, messages show as plain Markdown text.",
+  "renderMessageHtmlSubtitle": "Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.",
   "neutralizeMessageHtmlStyleTitle": "Wyczyść tła HTML karty",
   "pinReplyChoicesPanel": "Przypnij panel",
   "@pinReplyChoicesPanel": {
