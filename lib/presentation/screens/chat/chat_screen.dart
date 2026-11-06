@@ -14,6 +14,7 @@ import 'package:native_tavern/data/models/chat.dart';
 import 'package:native_tavern/data/models/chat_background.dart';
 import 'package:native_tavern/data/models/live2d.dart';
 import 'package:native_tavern/data/models/rpg/rpg.dart';
+import 'package:native_tavern/data/repositories/group_repository.dart';
 import 'package:native_tavern/core/flags/rpg_product_ui.dart';
 import 'package:native_tavern/core/utils/share_utils.dart';
 import 'package:native_tavern/domain/services/chat_export_service.dart';
@@ -1614,6 +1615,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 title: const Text('Live2D'),
               ),
             AdaptiveActionDrawerItem(
+              value: 'new_chat',
+              showDividerAbove: true,
+              leading: const Icon(Icons.add_comment_outlined),
+              title: Text(l10n.newChat),
+            ),
+            AdaptiveActionDrawerItem(
               value: 'author_note',
               showDividerAbove: true,
               leading: Icon(
@@ -1770,6 +1777,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 if (characterId != null) {
                   context.push('/characters/$characterId/live2d');
                 }
+                break;
+              case 'new_chat':
+                await _startNewChatWithSameCard();
                 break;
               case 'start_reply_with':
                 _showStartReplyWithDialog();
@@ -2611,6 +2621,49 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.bookmarkCreated)));
     }
+  }
+
+  Future<void> _startNewChatWithSameCard() async {
+    final l10n = AppLocalizations.of(context);
+    final chatState = ref.read(activeChatProvider);
+    final chat = chatState.chat;
+    final notifier = ref.read(activeChatProvider.notifier);
+
+    final String? newChatId;
+    final groupId = chat?.groupId;
+    if (groupId != null) {
+      final group = chatState.group ??
+          await ref.read(groupRepositoryProvider).getGroup(groupId);
+      if (group == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.failedToCreateChat)),
+        );
+        return;
+      }
+      newChatId = await notifier.createGroupChat(group);
+    } else {
+      final characterId =
+          chatState.character?.id ?? chat?.characterId;
+      if (characterId == null || characterId.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.failedToCreateChat)),
+        );
+        return;
+      }
+      newChatId = await notifier.createChat(characterId);
+    }
+
+    if (!mounted) return;
+    if (newChatId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.failedToCreateChat)),
+      );
+      return;
+    }
+    ref.invalidate(allChatsProvider);
+    context.push('/chat/$newChatId');
   }
 
   Future<void> _branchChatFromMessage(String messageId) async {

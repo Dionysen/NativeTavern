@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -395,6 +397,11 @@ class _ChatListTile extends ConsumerWidget {
                 onSelected: (value) => _handleMenuAction(context, ref, value),
                 itemBuilder: (context) => [
                   AdaptiveActionDrawerItem(
+                    value: 'new_chat',
+                    leading: const Icon(Icons.add_comment_outlined),
+                    title: Text(l10n.newChat),
+                  ),
+                  AdaptiveActionDrawerItem(
                     value: 'delete',
                     leading: const Icon(Icons.delete),
                     title: Text(l10n.delete),
@@ -486,10 +493,50 @@ class _ChatListTile extends ConsumerWidget {
 
   void _handleMenuAction(BuildContext context, WidgetRef ref, String action) {
     switch (action) {
+      case 'new_chat':
+        unawaited(_startNewChatWithSameCard(context, ref));
+        break;
       case 'delete':
         _showDeleteConfirmation(context, ref);
         break;
     }
+  }
+
+  Future<void> _startNewChatWithSameCard(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final notifier = ref.read(activeChatProvider.notifier);
+
+    final String? newChatId;
+    if (chat.groupId != null) {
+      final group =
+          await ref.read(groupRepositoryProvider).getGroup(chat.groupId!);
+      if (group == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.failedToCreateChat)),
+          );
+        }
+        return;
+      }
+      newChatId = await notifier.createGroupChat(group);
+    } else {
+      newChatId = await notifier.createChat(chat.characterId);
+    }
+
+    if (!context.mounted) return;
+    if (newChatId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.failedToCreateChat)),
+      );
+      return;
+    }
+
+    ref.invalidate(pagedChatsProvider);
+    ref.invalidate(allChatsProvider);
+    context.push('/chat/$newChatId');
   }
 
   Future<void> _showDeleteConfirmation(
