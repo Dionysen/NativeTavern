@@ -6882,10 +6882,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get promptPreviewCharacter => '角色卡';
+  String get promptPreviewCharacter => '预览角色卡';
 
   @override
-  String get promptPreviewHint => '选一个角色卡后，可点开查看描述、性格等内容；这里只能看，要改请去角色卡。';
+  String get promptPreviewHint =>
+      '选一个角色卡后，可点开查看描述、性格等内容的预览；这里只是预览将角色卡中的内容映射到预设中的结果，预设与角色卡互不影响。';
 
   @override
   String get promptPreviewSelectToView => '先在上方选择角色卡再查看';
@@ -13769,10 +13770,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   }
 
   @override
-  String get promptPreviewCharacter => '角色卡';
+  String get promptPreviewCharacter => '預覽角色卡';
 
   @override
-  String get promptPreviewHint => '選一個角色卡後，可點開查看描述、性格等內容；此處只能看，要改請到角色卡。';
+  String get promptPreviewHint =>
+      '選一個角色卡後，可點開查看描述、性格等內容的預覽；這裡只是預覽將角色卡中的內容對應到預設中的結果，預設與角色卡互不影響。';
 
   @override
   String get promptPreviewSelectToView => '先在上方選擇角色卡再查看';

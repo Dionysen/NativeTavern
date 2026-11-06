@@ -12708,13 +12708,13 @@ abstract class AppLocalizations {
   /// Dropdown label for character used to view card-owned prompt fields
   ///
   /// In en, this message translates to:
-  /// **'Character card'**
+  /// **'Preview character card'**
   String get promptPreviewCharacter;
 
   /// Hint under the character picker in Prompt Manager
   ///
   /// In en, this message translates to:
-  /// **'Pick a character to open description, personality, and other card fields here. They are view-only.'**
+  /// **'Pick a character to preview how description, personality, and other card fields map into this preset. This is preview only—the preset and character card stay independent.'**
   String get promptPreviewHint;
 
   /// Subtitle on character-owned prompt rows before a card is selected

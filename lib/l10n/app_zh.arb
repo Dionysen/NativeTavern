@@ -7283,11 +7283,11 @@
       }
     }
   },
-  "promptPreviewCharacter": "角色卡",
+  "promptPreviewCharacter": "预览角色卡",
   "@promptPreviewCharacter": {
     "description": "Dropdown label for character used to view card-owned prompt fields"
   },
-  "promptPreviewHint": "选一个角色卡后，可点开查看描述、性格等内容；这里只能看，要改请去角色卡。",
+  "promptPreviewHint": "选一个角色卡后，可点开查看描述、性格等内容的预览；这里只是预览将角色卡中的内容映射到预设中的结果，预设与角色卡互不影响。",
   "@promptPreviewHint": {
     "description": "Hint under the character picker in Prompt Manager"
   },

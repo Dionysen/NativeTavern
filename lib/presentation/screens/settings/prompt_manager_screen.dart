@@ -1012,82 +1012,50 @@ class _PromptCharacterPicker extends ConsumerWidget {
     final selectedCharacter =
         ref.watch(promptPreviewCharacterProvider).valueOrNull;
 
-    return SettingsGroupedPanel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          charactersAsync.when(
-            loading: () => const LinearProgressIndicator(minHeight: 2),
-            error: (_, __) => Text(
-              l10n.promptPreviewHint,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-            ),
-            data: (characters) {
-              if (selectedId != null &&
-                  characters.every((c) => c.id != selectedId)) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  ref.read(promptPreviewCharacterIdProvider.notifier).state =
-                      null;
-                });
-              }
+    // Keep selection valid if a character was deleted.
+    charactersAsync.whenData((characters) {
+      if (selectedId != null &&
+          characters.every((c) => c.id != selectedId)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(promptPreviewCharacterIdProvider.notifier).state = null;
+        });
+      }
+    });
 
-              return Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(8),
-                  onTap: () => _openPicker(context, ref),
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: l10n.promptPreviewCharacter,
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-                      suffixIcon: Icon(
-                        Icons.unfold_more,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        if (selectedCharacter != null) ...[
-                          _CharacterPickerAvatar(character: selectedCharacter),
-                          const SizedBox(width: 10),
-                        ] else
-                          Icon(
-                            Icons.person_outline,
-                            size: 20,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        if (selectedCharacter == null) const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            selectedCharacter?.name ?? l10n.none,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
+    final Widget leading;
+    if (selectedCharacter != null) {
+      leading = _CharacterPickerAvatar(character: selectedCharacter, size: 22);
+    } else {
+      leading = Icon(
+        Icons.person_outline,
+        size: SettingsTileMetrics.iconSize,
+        color: scheme.onSurfaceVariant,
+      );
+    }
+
+    return SettingsSection(
+      icon: Icons.badge_outlined,
+      title: l10n.promptPreviewCharacter,
+      footer: l10n.promptPreviewHint,
+      margin: EdgeInsets.zero,
+      children: [
+        SettingsControlTile(
+          leading: leading,
+          title: selectedCharacter?.name ?? l10n.none,
+          subtitle: selectedCharacter == null
+              ? l10n.promptPreviewSelectToView
+              : null,
+          showDivider: false,
+          onTap: charactersAsync.hasValue
+              ? () => _openPicker(context, ref)
+              : null,
+          trailing: Icon(
+            Icons.chevron_right,
+            color: scheme.onSurfaceVariant,
+            size: 20,
           ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.promptPreviewHint,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

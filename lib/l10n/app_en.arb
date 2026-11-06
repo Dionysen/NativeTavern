@@ -7399,11 +7399,11 @@
       }
     }
   },
-  "promptPreviewCharacter": "Character card",
+  "promptPreviewCharacter": "Preview character card",
   "@promptPreviewCharacter": {
     "description": "Dropdown label for character used to view card-owned prompt fields"
   },
-  "promptPreviewHint": "Pick a character to open description, personality, and other card fields here. They are view-only.",
+  "promptPreviewHint": "Pick a character to preview how description, personality, and other card fields map into this preset. This is preview only—the preset and character card stay independent.",
   "@promptPreviewHint": {
     "description": "Hint under the character picker in Prompt Manager"
   },

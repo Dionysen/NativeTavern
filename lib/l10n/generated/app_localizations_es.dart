@@ -7166,11 +7166,11 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get promptPreviewCharacter => 'Character card';
+  String get promptPreviewCharacter => 'Preview character card';
 
   @override
   String get promptPreviewHint =>
-      'Pick a character to open description, personality, and other card fields here. They are view-only.';
+      'Pick a character to preview how description, personality, and other card fields map into this preset. This is preview only—the preset and character card stay independent.';
 
   @override
   String get promptPreviewSelectToView =>
