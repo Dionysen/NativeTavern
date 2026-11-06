@@ -25,6 +25,7 @@ import 'package:native_tavern/domain/services/chat_regex_facade.dart';
 import 'package:native_tavern/domain/services/macro_service.dart';
 import 'package:native_tavern/domain/services/chat_summarization_service.dart';
 import 'package:native_tavern/domain/services/chat_generation_pipeline.dart';
+import 'package:native_tavern/domain/services/tokenizer_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/chat_extension_providers.dart';
 import 'package:native_tavern/presentation/providers/data_bank_providers.dart';
@@ -38,6 +39,7 @@ import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/story_timeline_providers.dart';
 import 'package:native_tavern/presentation/providers/prompt_manager_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
+import 'package:native_tavern/presentation/providers/statistics_providers.dart';
 import 'package:native_tavern/presentation/providers/tool_calling_providers.dart';
 import 'package:native_tavern/presentation/providers/vector_storage_providers.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';
@@ -163,6 +165,8 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
   int _chatLoadGeneration = 0;
   ChatGenerationSession? _activeGenerationSession;
   DataBankContextSnapshot? _pendingDataBankContext;
+  Stopwatch? _generationStopwatch;
+  static final TokenizerService _tokenizer = TokenizerService();
 
   ActiveChatNotifier({
     required ChatRepository chatRepository,
@@ -316,6 +320,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     String? characterId,
   }) {
     _pendingDataBankContext = null;
+    _generationStopwatch = Stopwatch()..start();
     final previousSession = _activeGenerationSession;
     if (previousSession != null) {
       unawaited(previousSession.cancel('Superseded by a new generation'));
@@ -334,6 +339,52 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         'messageCount': state.messages.length,
       },
     );
+  }
+
+  /// Record generation tokens/time for app + chat statistics.
+  /// Returns metadata keys to merge into the assistant message.
+  Map<String, dynamic> _recordGenerationStats({
+    required String completionText,
+    String? reasoningText,
+  }) {
+    final chatId = state.chat?.id;
+    final stopwatch = _generationStopwatch;
+    _generationStopwatch = null;
+    if (chatId == null || stopwatch == null) return const {};
+
+    stopwatch.stop();
+    final assembly = _ref.read(lastContextAssemblyProvider);
+    final promptTokens = assembly != null && assembly.chatId == chatId
+        ? assembly.estimatedTokens
+        : 0;
+    final completionTokens = _tokenizer.estimateTokenCount(
+      reasoningText == null || reasoningText.isEmpty
+          ? completionText
+          : '$completionText\n$reasoningText',
+    );
+    final generationTime = stopwatch.elapsed;
+
+    try {
+      _ref.read(appStatisticsProvider.notifier).recordGeneration(
+            promptTokens: promptTokens,
+            completionTokens: completionTokens,
+            generationTime: generationTime,
+          );
+      _ref.read(chatStatisticsProvider(chatId).notifier).recordGeneration(
+            promptTokens: promptTokens,
+            completionTokens: completionTokens,
+            generationTime: generationTime,
+          );
+    } catch (e) {
+      debugPrint('⚠️ Failed to record generation stats: $e');
+    }
+
+    return {
+      'promptTokens': promptTokens,
+      'completionTokens': completionTokens,
+      'totalTokens': promptTokens + completionTokens,
+      'generationTimeMs': generationTime.inMilliseconds,
+    };
   }
 
   Future<List<Map<String, dynamic>>> _applyContextContributors(
@@ -555,6 +606,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
   /// Cancel current generation
   Future<void> cancelGeneration() async {
     _isCancelling = true;
+    _generationStopwatch = null;
     _ref.read(toolRuntimeProvider.notifier).cancelGeneration();
     final pipelineCancellation = _generationPipeline.cancelActiveSessions();
     // Abort the HTTP request so server-side generation actually stops
@@ -1095,6 +1147,10 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       }
 
       finalContent = _persistAiRegex(finalContent);
+      final statsMeta = _recordGenerationStats(
+        completionText: finalContent,
+        reasoningText: finalReasoning,
+      );
 
       // Save the final message
       final finalMessage = assistantMessage.copyWith(
@@ -1102,6 +1158,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         swipes: [finalContent],
         reasoning: finalReasoning,
         reasoningSwipes: finalReasoning != null ? [finalReasoning] : null,
+        metadata: {...assistantMetadata, ...statsMeta},
       );
       await _persistAddMessage(finalMessage);
 
@@ -1116,6 +1173,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       );
       unawaited(_refreshReplyChoicesIfEnabled(config));
     } catch (e, stackTrace) {
+      _generationStopwatch = null;
       _closeGenerationSession();
       if (e is ChatGenerationCancelledException) {
         _discardTrailingEmptyAssistantPlaceholder();
@@ -1207,6 +1265,10 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       }
 
       finalContent = _persistAiRegex(finalContent);
+      final statsMeta = _recordGenerationStats(
+        completionText: finalContent,
+        reasoningText: finalReasoning,
+      );
 
       // Save the updated message
       final newSwipes = List<String>.from(lastMessage.swipes);
@@ -1230,7 +1292,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         reasoning: finalReasoning,
         reasoningSwipes:
             newReasoningSwipes.isNotEmpty ? newReasoningSwipes : null,
-        metadata: responseMetadata,
+        metadata: {...responseMetadata, ...statsMeta},
       );
       await _persistUpdateMessage(finalMessage);
 
@@ -1238,6 +1300,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       await _restoreRecentMessagesPage();
       unawaited(_refreshReplyChoicesIfEnabled(config));
     } catch (e, stackTrace) {
+      _generationStopwatch = null;
       _closeGenerationSession();
       if (e is ChatGenerationCancelledException) {
         state = state.copyWith(isGenerating: false);
@@ -1509,6 +1572,10 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       }
 
       finalContent = _persistAiRegex(finalContent);
+      final statsMeta = _recordGenerationStats(
+        completionText: finalContent,
+        reasoningText: finalReasoning,
+      );
 
       // Save the updated message
       final newSwipes = List<String>.from(message.swipes);
@@ -1532,7 +1599,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         reasoning: finalReasoning,
         reasoningSwipes:
             newReasoningSwipes.isNotEmpty ? newReasoningSwipes : null,
-        metadata: responseMetadata,
+        metadata: {...responseMetadata, ...statsMeta},
       );
       await _persistUpdateMessage(finalMessage);
 
@@ -1540,6 +1607,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       await _restoreRecentMessagesPage();
       unawaited(_refreshReplyChoicesIfEnabled(config));
     } catch (e, stackTrace) {
+      _generationStopwatch = null;
       _closeGenerationSession();
       if (e is ChatGenerationCancelledException) {
         state = state.copyWith(isGenerating: false);
@@ -1637,11 +1705,13 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       // Deliberately bypass the assistant prefill - it steers the AI's
       // voice, not the user's
       final response = await _generateWithoutPrefill(context, config);
+      _recordGenerationStats(completionText: response.content);
       state = state.copyWith(isGenerating: false);
       await _restoreRecentMessagesPage();
       final text = response.content.trim();
       return text.isEmpty ? null : text;
     } catch (e) {
+      _generationStopwatch = null;
       _closeGenerationSession();
       if (e is ChatGenerationCancelledException) {
         state = state.copyWith(isGenerating: false);
@@ -1730,6 +1800,10 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       }
 
       finalContent = _persistAiRegex(finalContent);
+      final statsMeta = _recordGenerationStats(
+        completionText: finalContent,
+        reasoningText: finalReasoning,
+      );
 
       // Save the final message
       final finalMessage = assistantMessage.copyWith(
@@ -1737,6 +1811,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         swipes: [finalContent],
         reasoning: finalReasoning,
         reasoningSwipes: finalReasoning != null ? [finalReasoning] : null,
+        metadata: {...assistantMetadata, ...statsMeta},
       );
       await _persistAddMessage(finalMessage);
 
@@ -1744,6 +1819,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       await _restoreRecentMessagesPage();
       unawaited(_refreshReplyChoicesIfEnabled(config));
     } catch (e, stackTrace) {
+      _generationStopwatch = null;
       _closeGenerationSession();
       if (e is ChatGenerationCancelledException) {
         _discardTrailingEmptyAssistantPlaceholder();
@@ -3633,6 +3709,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     LLMConfig config,
   ) async {
     final assistantMessage = prepared.message;
+    _generationStopwatch = Stopwatch()..start();
     try {
       String finalContent;
       String? finalReasoning;
@@ -3682,18 +3759,25 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         characterId: assistantMessage.characterId,
         characterName: assistantMessage.characterName,
       );
+      final statsMeta = _recordGenerationStats(
+        completionText: finalContent,
+        reasoningText: finalReasoning,
+      );
 
       final finalMessage = assistantMessage.copyWith(
         content: finalContent,
         swipes: [finalContent],
         reasoning: finalReasoning,
         reasoningSwipes: finalReasoning != null ? [finalReasoning] : null,
+        metadata: {...assistantMessage.metadata, ...statsMeta},
       );
       _replaceMessage(assistantMessage.id, finalMessage);
       await _persistAddMessage(finalMessage);
     } on ChatGenerationCancelledException {
+      _generationStopwatch = null;
       _removeEmptyMessage(assistantMessage.id);
     } catch (error, stackTrace) {
+      _generationStopwatch = null;
       debugPrint(
         '❌ ChatProvider group response error: $error\n$stackTrace',
       );

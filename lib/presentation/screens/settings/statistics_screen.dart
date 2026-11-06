@@ -66,93 +66,99 @@ class _AppStatisticsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final stats = ref.watch(appStatisticsProvider);
-    final summary = ref.watch(statisticsSummaryProvider);
+    final summaryAsync = ref.watch(statisticsSummaryProvider);
     final l10n = AppLocalizations.of(context);
 
-    return SettingsPageBody(
-      children: [
-        SettingsSection(
-          icon: Icons.dashboard,
-          title: l10n.overview,
+    return summaryAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('${l10n.error}: $e')),
+      data: (summary) {
+        final stats = summary.appStats;
+        return SettingsPageBody(
           children: [
-            _StatRow(
-              icon: Icons.calendar_today,
-              label: l10n.firstUsed,
-              value: stats.appFirstUsed != null
-                  ? _formatDate(stats.appFirstUsed!)
-                  : l10n.unknown,
+            SettingsSection(
+              icon: Icons.dashboard,
+              title: l10n.overview,
+              children: [
+                _StatRow(
+                  icon: Icons.calendar_today,
+                  label: l10n.firstUsed,
+                  value: stats.appFirstUsed != null
+                      ? _formatDate(stats.appFirstUsed!)
+                      : l10n.unknown,
+                ),
+                _StatRow(
+                  icon: Icons.person_outline,
+                  label: l10n.totalCharacters,
+                  value: summary.characterCount.toString(),
+                ),
+                _StatRow(
+                  icon: Icons.chat_bubble_outline,
+                  label: l10n.totalChats,
+                  value: summary.chatCount.toString(),
+                ),
+                _StatRow(
+                  icon: Icons.groups_outlined,
+                  label: l10n.totalGroups,
+                  value: summary.groupCount.toString(),
+                  showDivider: false,
+                ),
+              ],
             ),
-            _StatRow(
-              icon: Icons.person_outline,
-              label: l10n.totalCharacters,
-              value: summary.characterCount.toString(),
+            SettingsSection(
+              icon: Icons.message,
+              title: l10n.messages,
+              children: [
+                _StatRow(
+                  icon: Icons.forum_outlined,
+                  label: l10n.totalMessages,
+                  value: _formatNumber(summary.messageCount),
+                ),
+                _StatRow(
+                  icon: Icons.auto_awesome,
+                  label: l10n.totalGenerations,
+                  value: _formatNumber(stats.totalGenerations),
+                  showDivider: false,
+                ),
+              ],
             ),
-            _StatRow(
-              icon: Icons.chat_bubble_outline,
-              label: l10n.totalChats,
-              value: stats.totalChats.toString(),
+            SettingsSection(
+              icon: Icons.token,
+              title: l10n.tokenUsage,
+              children: [
+                _StatRow(
+                  icon: Icons.numbers,
+                  label: l10n.totalTokensUsed,
+                  value: _formatNumber(stats.totalTokensUsed),
+                ),
+                _StatRow(
+                  icon: Icons.analytics_outlined,
+                  label: l10n.avgTokensPerGeneration,
+                  value: stats.averageTokensPerGeneration.toStringAsFixed(1),
+                  showDivider: false,
+                ),
+              ],
             ),
-            _StatRow(
-              icon: Icons.groups_outlined,
-              label: l10n.totalGroups,
-              value: stats.totalGroups.toString(),
-              showDivider: false,
+            SettingsSection(
+              icon: Icons.speed,
+              title: l10n.performance,
+              children: [
+                _StatRow(
+                  icon: Icons.timer_outlined,
+                  label: l10n.totalGenerationTime,
+                  value: _formatDuration(stats.totalGenerationTime),
+                ),
+                _StatRow(
+                  icon: Icons.timelapse,
+                  label: l10n.avgGenerationTime,
+                  value: _formatDuration(stats.averageGenerationTime),
+                  showDivider: false,
+                ),
+              ],
             ),
           ],
-        ),
-        SettingsSection(
-          icon: Icons.message,
-          title: l10n.messages,
-          children: [
-            _StatRow(
-              icon: Icons.forum_outlined,
-              label: l10n.totalMessages,
-              value: _formatNumber(stats.totalMessages),
-            ),
-            _StatRow(
-              icon: Icons.auto_awesome,
-              label: l10n.totalGenerations,
-              value: _formatNumber(stats.totalGenerations),
-              showDivider: false,
-            ),
-          ],
-        ),
-        SettingsSection(
-          icon: Icons.token,
-          title: l10n.tokenUsage,
-          children: [
-            _StatRow(
-              icon: Icons.numbers,
-              label: l10n.totalTokensUsed,
-              value: _formatNumber(stats.totalTokensUsed),
-            ),
-            _StatRow(
-              icon: Icons.analytics_outlined,
-              label: l10n.avgTokensPerGeneration,
-              value: stats.averageTokensPerGeneration.toStringAsFixed(1),
-              showDivider: false,
-            ),
-          ],
-        ),
-        SettingsSection(
-          icon: Icons.speed,
-          title: l10n.performance,
-          children: [
-            _StatRow(
-              icon: Icons.timer_outlined,
-              label: l10n.totalGenerationTime,
-              value: _formatDuration(stats.totalGenerationTime),
-            ),
-            _StatRow(
-              icon: Icons.timelapse,
-              label: l10n.avgGenerationTime,
-              value: _formatDuration(stats.averageGenerationTime),
-              showDivider: false,
-            ),
-          ],
-        ),
-      ],
+        );
+      },
     );
   }
 }

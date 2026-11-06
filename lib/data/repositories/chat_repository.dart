@@ -254,6 +254,15 @@ class ChatRepository {
     return row.read(countExpression) ?? 0;
   }
 
+  /// Total messages across all chats (for app statistics).
+  Future<int> getTotalMessageCount() async {
+    final countExpression = _db.messages.id.count();
+    final row = await (_db.selectOnly(_db.messages)
+          ..addColumns([countExpression]))
+        .getSingle();
+    return row.read(countExpression) ?? 0;
+  }
+
   /// Get last message of a chat
   Future<models.ChatMessage?> getLastMessage(String chatId) async {
     final row = await (_db.select(_db.messages)

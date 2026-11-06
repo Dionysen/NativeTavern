@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/models/chat_statistics.dart';
 import '../../data/models/chat.dart';
-import '../../data/models/character.dart';
 import '../../data/repositories/chat_repository.dart';
+import 'group_providers.dart';
 import 'settings_providers.dart';
 import 'character_providers.dart';
 
@@ -171,16 +171,21 @@ class ChatStatisticsNotifier extends StateNotifier<ChatStatistics> {
 }
 
 /// Provider to compute statistics from messages
-final computedChatStatisticsProvider = FutureProvider.family<ChatStatistics, String>((ref, chatId) async {
+final computedChatStatisticsProvider =
+    FutureProvider.family<ChatStatistics, String>((ref, chatId) async {
   final chatRepo = ref.watch(chatRepositoryProvider);
   final messages = await chatRepo.getMessages(chatId);
-  
+
   int userCount = 0;
   int assistantCount = 0;
   int systemCount = 0;
+  int metadataPromptTokens = 0;
+  int metadataCompletionTokens = 0;
+  int metadataGenerationCount = 0;
+  int metadataGenerationTimeMs = 0;
   DateTime? firstMessage;
   DateTime? lastMessage;
-  
+
   for (final message in messages) {
     switch (message.role) {
       case MessageRole.user:
@@ -193,7 +198,17 @@ final computedChatStatisticsProvider = FutureProvider.family<ChatStatistics, Str
         systemCount++;
         break;
     }
-    
+
+    final prompt = message.metadata['promptTokens'];
+    final completion = message.metadata['completionTokens'];
+    final genMs = message.metadata['generationTimeMs'];
+    if (prompt is int || completion is int) {
+      metadataGenerationCount++;
+      if (prompt is int) metadataPromptTokens += prompt;
+      if (completion is int) metadataCompletionTokens += completion;
+      if (genMs is int) metadataGenerationTimeMs += genMs;
+    }
+
     if (firstMessage == null || message.timestamp.isBefore(firstMessage)) {
       firstMessage = message.timestamp;
     }
@@ -201,40 +216,59 @@ final computedChatStatisticsProvider = FutureProvider.family<ChatStatistics, Str
       lastMessage = message.timestamp;
     }
   }
-  
-  // Get stored stats for token/generation info
+
+  // Prefer accumulated prefs; fall back to per-message metadata for older data.
   final storedStats = ref.read(chatStatisticsProvider(chatId));
-  
+  final promptTokens = storedStats.promptTokens > 0
+      ? storedStats.promptTokens
+      : metadataPromptTokens;
+  final completionTokens = storedStats.completionTokens > 0
+      ? storedStats.completionTokens
+      : metadataCompletionTokens;
+  final generationCount = storedStats.generationCount > 0
+      ? storedStats.generationCount
+      : metadataGenerationCount;
+  final totalGenerationTime = storedStats.totalGenerationTime > Duration.zero
+      ? storedStats.totalGenerationTime
+      : Duration(milliseconds: metadataGenerationTimeMs);
+
   return ChatStatistics(
     chatId: chatId,
     totalMessages: messages.length,
     userMessages: userCount,
     assistantMessages: assistantCount,
     systemMessages: systemCount,
-    totalTokensUsed: storedStats.totalTokensUsed,
-    promptTokens: storedStats.promptTokens,
-    completionTokens: storedStats.completionTokens,
-    totalGenerationTime: storedStats.totalGenerationTime,
-    generationCount: storedStats.generationCount,
+    totalTokensUsed: promptTokens + completionTokens,
+    promptTokens: promptTokens,
+    completionTokens: completionTokens,
+    totalGenerationTime: totalGenerationTime,
+    generationCount: generationCount,
     firstMessageAt: firstMessage,
     lastMessageAt: lastMessage,
   );
 });
 
-/// Provider for overall statistics summary
-final statisticsSummaryProvider = Provider<StatisticsSummary>((ref) {
+/// Live inventory counts + persisted generation/token totals.
+final statisticsSummaryProvider =
+    FutureProvider<StatisticsSummary>((ref) async {
   final appStats = ref.watch(appStatisticsProvider);
-  final charactersAsync = ref.watch(characterListProvider);
-  
-  final characterCount = charactersAsync.when(
-    data: (List<Character> chars) => chars.length,
-    loading: () => 0,
-    error: (_, __) => 0,
-  );
-  
+  final characters = await ref.watch(characterListProvider.future);
+  final chatRepo = ref.watch(chatRepositoryProvider);
+  final chats = await chatRepo.getAllChats();
+  final groups = await ref.watch(allGroupsProvider.future);
+  final messageCount = await chatRepo.getTotalMessageCount();
+
   return StatisticsSummary(
-    appStats: appStats,
-    characterCount: characterCount,
+    appStats: appStats.copyWith(
+      totalCharacters: characters.length,
+      totalChats: chats.length,
+      totalGroups: groups.length,
+      totalMessages: messageCount,
+    ),
+    characterCount: characters.length,
+    chatCount: chats.length,
+    groupCount: groups.length,
+    messageCount: messageCount,
   );
 });
 
@@ -242,9 +276,15 @@ final statisticsSummaryProvider = Provider<StatisticsSummary>((ref) {
 class StatisticsSummary {
   final AppStatistics appStats;
   final int characterCount;
+  final int chatCount;
+  final int groupCount;
+  final int messageCount;
 
   const StatisticsSummary({
     required this.appStats,
     required this.characterCount,
+    this.chatCount = 0,
+    this.groupCount = 0,
+    this.messageCount = 0,
   });
 }

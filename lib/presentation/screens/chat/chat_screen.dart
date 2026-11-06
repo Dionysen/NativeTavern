@@ -1721,8 +1721,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 title: Text(l10n.saveChat),
               ),
             AdaptiveActionDrawerItem(
-              value: 'export',
+              value: 'statistics',
               showDividerAbove: true,
+              leading: const Icon(Icons.bar_chart_outlined),
+              title: Text(l10n.chatStatistics),
+            ),
+            AdaptiveActionDrawerItem(
+              value: 'export',
               leading: const Icon(Icons.upload),
               title: Text(l10n.exportChat),
               subtitle: Text(l10n.saveAsJsonl),
@@ -1747,6 +1752,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 if (characterId != null) {
                   context.push('/characters/$characterId');
                 }
+                break;
+              case 'statistics':
+                context.push('/chat/${widget.chatId}/statistics');
                 break;
               case 'group':
                 final groupId = chatState.group?.id;
