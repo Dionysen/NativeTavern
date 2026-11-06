@@ -9,6 +9,7 @@ import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/widgets/chat/dialogue_quote_style.dart';
 import 'package:native_tavern/presentation/widgets/chat/html_webview_widget.dart';
+import 'package:native_tavern/presentation/widgets/chat/wrapping_code_block_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
@@ -477,7 +478,14 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       fontSize: effectiveFontSize,
       fontWeight: ZephyrChatChrome.dialogueFontWeight,
     );
-    
+    final codeStyle = TextStyle(
+      color: widget.textColor,
+      backgroundColor: AppTheme.darkBackground.withValues(alpha: 0.5),
+      fontFamily: 'monospace',
+      fontSize: effectiveFontSize * 0.9,
+    );
+    const codeblockPadding = EdgeInsets.all(12);
+
     return SelectionArea(
       onSelectionChanged: (selection) {
         _selectedText = selection?.plainText;
@@ -490,6 +498,11 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         inlineSyntaxes: [DialogueQuoteSyntax()],
         builders: {
           'dialogue': DialogueQuoteBuilder(dialogueStyle),
+          // Override default horizontal-scrolling pre/code blocks with wrap.
+          'pre': WrappingCodeBlockBuilder(
+            codeStyle: codeStyle,
+            padding: codeblockPadding,
+          ),
         },
         imageBuilder: (uri, title, alt) {
           // Custom image builder using CachedNetworkImage
@@ -546,17 +559,12 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
             color: widget.textColor,
             decoration: TextDecoration.lineThrough,
           ),
-          code: TextStyle(
-            color: widget.textColor,
-            backgroundColor: AppTheme.darkBackground.withValues(alpha: 0.5),
-            fontFamily: 'monospace',
-            fontSize: effectiveFontSize * 0.9,
-          ),
+          code: codeStyle,
           codeblockDecoration: BoxDecoration(
             color: AppTheme.darkBackground.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(8),
           ),
-          codeblockPadding: const EdgeInsets.all(12),
+          codeblockPadding: codeblockPadding,
           blockquote: TextStyle(
             color: AppTheme.textSecondary,
             fontStyle: FontStyle.italic,
