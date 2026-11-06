@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import '../../../domain/services/slash_command_service.dart';
 import '../../theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
-/// Widget that shows slash command suggestions
+/// Slash command picker content for the composer expansion panel.
+///
+/// Shell chrome (frost / surface) is provided by the chat composer; this widget
+/// matches [ChatChoicePanel] layout: header + themed tappable chips.
 class SlashCommandSuggestions extends ConsumerWidget {
   final String input;
   final Function(SlashCommand) onSelect;
@@ -22,71 +26,61 @@ class SlashCommandSuggestions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final slashService = ref.watch(slashCommandServiceProvider);
     final suggestions = slashService.getSuggestions(input);
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
 
     if (suggestions.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      constraints: const BoxConstraints(maxHeight: 250),
-      decoration: BoxDecoration(
-        color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 8, 4),
-            child: Row(
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 280),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.terminal,
-                  size: 16,
-                  color: AppTheme.accentColor,
+                  size: 18,
+                  color: scheme.primary,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context)!.commands,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: AppTheme.textMuted,
+                Expanded(
+                  child: Text(
+                    l10n.commands,
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
-                const Spacer(),
-                ChromeIconButton(density: ChromeIconButtonDensity.compact, 
-                  icon: const Icon(Icons.close, size: 16),
+                ChromeIconButton(
+                  density: ChromeIconButtonDensity.compact,
+                  tooltip: l10n.close,
+                  icon: const Icon(Icons.close, size: 20),
                   onPressed: onDismiss,
-                  color: AppTheme.textMuted,
                 ),
               ],
             ),
-          ),
-          const Divider(height: 1),
-          // Suggestions list
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              itemCount: suggestions.length,
-              itemBuilder: (context, index) {
-                final command = suggestions[index];
-                return _CommandSuggestionTile(
-                  command: command,
-                  onTap: () => onSelect(command),
-                );
-              },
+            const SizedBox(height: 8),
+            Flexible(
+              child: ListView.separated(
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                itemCount: suggestions.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final command = suggestions[index];
+                  return _CommandSuggestionTile(
+                    command: command,
+                    onTap: () => onSelect(command),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -103,53 +97,51 @@ class _CommandSuggestionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+
+    return ZephyrChatChrome.tappableMenuChip(
+      context,
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppTheme.accentColor.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                '/${command.name}',
-                style: const TextStyle(
-                  fontFamily: 'monospace',
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.accentColor,
-                ),
-              ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '/${command.name}',
+            style: TextStyle(
+              fontFamily: 'monospace',
+              fontWeight: FontWeight.bold,
+              color: scheme.primary,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    command.description,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.textPrimary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (command.aliases.isNotEmpty)
-                    Text(
-                      AppLocalizations.of(context)!.aliasesLabel(command.aliases.map((a) => '/$a').join(', ')),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textMuted,
-                        fontSize: 10,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  command.description,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurface,
                       ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (command.aliases.isNotEmpty)
+                  Text(
+                    l10n.aliasesLabel(
+                      command.aliases.map((a) => '/$a').join(', '),
                     ),
-                ],
-              ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.textMuted,
+                          fontSize: 10,
+                        ),
+                  ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -161,14 +153,17 @@ class SlashCommandHelpDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final slashService = ref.watch(slashCommandServiceProvider);
+    // Keep provider warm so custom/user commands stay registered.
+    ref.watch(slashCommandServiceProvider);
+    final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
       title: Row(
         children: [
-          const Icon(Icons.terminal, color: AppTheme.accentColor),
+          Icon(Icons.terminal, color: scheme.primary),
           const SizedBox(width: 8),
-          Text(AppLocalizations.of(context)!.slashCommands),
+          Text(l10n.slashCommands),
         ],
       ),
       content: SizedBox(
@@ -185,28 +180,22 @@ class SlashCommandHelpDialog extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.accentColor.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          '/${command.name}',
-                          style: const TextStyle(
-                            fontFamily: 'monospace',
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.accentColor,
-                          ),
+                      Text(
+                        '/${command.name}',
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.bold,
+                          color: scheme.primary,
                         ),
                       ),
                       if (command.aliases.isNotEmpty) ...[
                         const SizedBox(width: 8),
                         Text(
                           command.aliases.map((a) => '/$a').join(', '),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textMuted,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppTheme.textMuted,
+                                  ),
                         ),
                       ],
                     ],
@@ -220,9 +209,9 @@ class SlashCommandHelpDialog extends ConsumerWidget {
                   Text(
                     command.usage,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontFamily: 'monospace',
-                      color: AppTheme.textMuted,
-                    ),
+                          fontFamily: 'monospace',
+                          color: AppTheme.textMuted,
+                        ),
                   ),
                 ],
               ),
@@ -233,7 +222,7 @@ class SlashCommandHelpDialog extends ConsumerWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(AppLocalizations.of(context)!.close),
+          child: Text(l10n.close),
         ),
       ],
     );

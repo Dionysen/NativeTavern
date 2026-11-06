@@ -271,13 +271,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   void _dismissComposerOptionPanels() {
-    if (!_showInputMenu && !_showChoicePanel) return;
+    if (!_showInputMenu && !_showChoicePanel && !_showSlashSuggestions) {
+      return;
+    }
     setState(() {
       _showInputMenu = false;
       // Pinned choice panel survives tap-outside / focus loss.
       if (!_choicePanelPinned) {
         _showChoicePanel = false;
       }
+      _showSlashSuggestions = false;
     });
   }
 
@@ -1453,18 +1456,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           ),
 
                         ToolActivityPanel(chatId: widget.chatId),
-
-                        // Slash command suggestions
-                        if (_showSlashSuggestions)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: SlashCommandSuggestions(
-                              input: _messageController.text,
-                              onSelect: _onSlashCommandSelected,
-                              onDismiss: () =>
-                                  setState(() => _showSlashSuggestions = false),
-                            ),
-                          ),
 
                         // Input area
                         _buildInputArea(chatState),
@@ -2742,6 +2733,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       onRefresh: _refreshReplyChoices,
                       isPinned: _choicePanelPinned,
                       onTogglePin: _toggleChoicePanelPinned,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+              if (_showSlashSuggestions) ...[
+                _composerOptionsDismissable(
+                  child: _composerExpansionPanel(
+                    opacity: composerOpacity,
+                    frostSigma: composerFrostSigma,
+                    child: SlashCommandSuggestions(
+                      input: _messageController.text,
+                      onSelect: _onSlashCommandSelected,
+                      onDismiss: () =>
+                          setState(() => _showSlashSuggestions = false),
                     ),
                   ),
                 ),
