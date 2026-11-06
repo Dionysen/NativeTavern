@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:native_tavern/data/models/ai_preset.dart';
+import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/world_info.dart';
 import 'package:native_tavern/domain/services/import_service.dart';
 import 'package:native_tavern/domain/services/macro_service.dart';
@@ -206,6 +207,67 @@ void main() {
       expect(entry.group, 'vault-group');
       expect(entry.groupWeight, 150);
       expect(entry.secondaryKeys, ['password']);
+    });
+
+    test('character_book lifts behavioral fields from extensions', () {
+      final book = CharacterBook(
+        name: 'Embedded',
+        entries: [
+          CharacterBookEntry.fromJson({
+            'id': 1,
+            'keys': ['hero'],
+            'secondary_keys': ['ally'],
+            'content': 'A legendary hero.',
+            'comment': 'hero lore',
+            'enabled': true,
+            'insertion_order': 7,
+            'case_sensitive': true,
+            'constant': false,
+            'selective': true,
+            'position': 1,
+            'extensions': {
+              'probability': 40,
+              'useProbability': true,
+              'depth': 3,
+              'sticky': 2,
+              'cooldown': 4,
+              'delay': 1,
+              'prevent_recursion': true,
+              'exclude_recursion': true,
+              'delay_until_recursion': true,
+              'role': 1,
+              'scan_depth': 8,
+              'match_whole_words': true,
+              'group': 'heroes',
+              'group_weight': 120,
+            },
+          }),
+        ],
+      );
+
+      final entry =
+          WorldInfoImport.parseCharacterBookEntries(book, 'wi-card').single;
+
+      expect(entry.keys, ['hero']);
+      expect(entry.secondaryKeys, ['ally']);
+      expect(entry.insertionOrder, 7);
+      expect(entry.caseSensitive, isTrue);
+      expect(entry.selective, isTrue);
+      expect(entry.position, WorldInfoPosition.after);
+      expect(entry.probability, 40);
+      expect(entry.useProbability, isTrue);
+      expect(entry.depth, 3);
+      expect(entry.timedEffects.sticky, 2);
+      expect(entry.timedEffects.cooldown, 4);
+      expect(entry.timedEffects.delay, 1);
+      expect(entry.preventRecursion, isTrue);
+      expect(entry.excludeRecursion, isTrue);
+      expect(entry.delayUntilRecursion, isTrue);
+      expect(entry.role, WorldInfoRole.user);
+      expect(entry.scanDepth, 8);
+      expect(entry.matchWholeWords, isTrue);
+      expect(entry.group, 'heroes');
+      expect(entry.groupWeight, 120);
     });
   });
 

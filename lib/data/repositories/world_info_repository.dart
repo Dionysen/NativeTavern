@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/database/database.dart' hide WorldInfo, WorldInfoEntry;
 import 'package:native_tavern/data/database/database.dart' as db;
 import 'package:native_tavern/data/models/world_info.dart' as models;
+import 'package:native_tavern/domain/services/world_info_import.dart';
 import 'package:uuid/uuid.dart';
 
 /// Provider for WorldInfo repository
@@ -263,6 +264,7 @@ class WorldInfoRepository {
 
   /// Update entry
   Future<models.WorldInfoEntry> updateEntry(models.WorldInfoEntry entry) async {
+    final extensions = WorldInfoImport.extensionsForPersistence(entry);
     await (_db.update(_db.worldInfoEntries)
           ..where((t) => t.id.equals(entry.id)))
         .write(
@@ -287,7 +289,7 @@ class WorldInfoRepository {
         preventRecursion: Value(entry.preventRecursion),
         delayUntilRecursion: Value(entry.delayUntilRecursion),
         scanDepth: Value(entry.scanDepth),
-        extensionsJson: Value(jsonEncode(entry.extensions)),
+        extensionsJson: Value(jsonEncode(extensions)),
       ),
     );
     
@@ -296,7 +298,7 @@ class WorldInfoRepository {
           ..where((t) => t.id.equals(entry.worldInfoId)))
         .write(WorldInfosCompanion(modifiedAt: Value(DateTime.now())));
     
-    return entry;
+    return entry.copyWith(extensions: extensions);
   }
 
   /// Delete entry
@@ -423,7 +425,8 @@ class WorldInfoRepository {
   }
 
   models.WorldInfoEntry _entryFromRow(db.WorldInfoEntry row) {
-    return models.WorldInfoEntry(
+    final extensions = _parseJsonMap(row.extensionsJson);
+    final base = models.WorldInfoEntry(
       id: row.id,
       worldInfoId: row.worldInfoId,
       keys: _parseJsonList(row.keys),
@@ -446,8 +449,9 @@ class WorldInfoRepository {
       preventRecursion: row.preventRecursion,
       delayUntilRecursion: row.delayUntilRecursion,
       scanDepth: row.scanDepth,
-      extensions: _parseJsonMap(row.extensionsJson),
+      extensions: extensions,
     );
+    return WorldInfoImport.withExtensionsRestored(base, extensions);
   }
 
   List<String> _parseJsonList(String json) {

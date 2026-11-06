@@ -335,36 +335,27 @@ class ImportService {
   CharacterBook _parseCharacterBook(Map<String, dynamic> json) {
     final entriesJson = json['entries'] as List<dynamic>? ?? [];
     final entries = entriesJson.map((e) {
-      final entry = e as Map<String, dynamic>;
-      return CharacterBookEntry(
-        id: _parseIntSafe(entry['id']) ?? 0,
-        keys: _parseStringList(entry['keys']),
-        secondaryKeys: _parseStringList(entry['secondary_keys']),
-        content: entry['content']?.toString() ?? '',
-        comment: entry['comment']?.toString() ?? '',
-        enabled: !(_parseBoolSafe(entry['disable']) ?? false) &&
-            (_parseBoolSafe(entry['enabled']) ?? true),
-        insertionOrder: _parseIntSafe(entry['insertion_order']) ??
-            _parseIntSafe(entry['order']) ??
-            0,
-        caseSensitive: _parseBoolSafe(entry['case_sensitive']) ?? false,
-        name: entry['name']?.toString() ?? entry['comment']?.toString() ?? '',
-        priority: _parseIntSafe(entry['priority']) ?? 10,
-        constant: _parseBoolSafe(entry['constant']) ?? false,
-        selective: _parseBoolSafe(entry['selective']) ?? false,
-        position: _parseIntSafe(entry['position']) ?? 0,
-        extensions: entry['extensions'] as Map<String, dynamic>? ?? {},
-      );
+      final entry = Map<String, dynamic>.from(e as Map);
+      return CharacterBookEntry.fromJson(entry);
     }).toList();
+
+    // ST uses numeric scan_depth; keep legacy bool-ish CharacterBook field.
+    final scanDepthValue = json['scan_depth'];
+    final scanDepth = scanDepthValue is bool
+        ? scanDepthValue
+        : (_parseIntSafe(scanDepthValue) ?? 0) != 0 ||
+            (_parseBoolSafe(scanDepthValue) ?? true);
 
     return CharacterBook(
       name: json['name']?.toString(),
       description: json['description']?.toString(),
-      scanDepth: _parseBoolSafe(json['scan_depth']) ?? true,
+      scanDepth: scanDepth,
       tokenBudget: _parseIntSafe(json['token_budget']) ?? 2048,
       recursiveScanning: _parseBoolSafe(json['recursive_scanning']) ?? false,
       entries: entries,
-      extensions: json['extensions'] as Map<String, dynamic>? ?? {},
+      extensions: json['extensions'] is Map
+          ? Map<String, dynamic>.from(json['extensions'] as Map)
+          : const {},
     );
   }
 
@@ -443,24 +434,7 @@ class ImportService {
       'token_budget': book.tokenBudget,
       'recursive_scanning': book.recursiveScanning,
       'extensions': book.extensions,
-      'entries': book.entries
-          .map((e) => {
-                'id': e.id,
-                'keys': e.keys,
-                'secondary_keys': e.secondaryKeys,
-                'content': e.content,
-                'comment': e.comment,
-                'enabled': e.enabled,
-                'insertion_order': e.insertionOrder,
-                'case_sensitive': e.caseSensitive,
-                'name': e.name,
-                'priority': e.priority,
-                'constant': e.constant,
-                'selective': e.selective,
-                'position': e.position,
-                'extensions': e.extensions,
-              })
-          .toList(),
+      'entries': book.entries.map((e) => e.toJson()).toList(),
     };
   }
 

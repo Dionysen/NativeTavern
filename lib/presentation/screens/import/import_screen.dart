@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:native_tavern/data/models/character.dart';
-import 'package:native_tavern/data/models/world_info.dart';
 import 'package:native_tavern/data/repositories/world_info_repository.dart';
 import 'package:native_tavern/data/models/live2d.dart';
 import 'package:native_tavern/domain/services/import_service.dart';
@@ -15,6 +14,8 @@ import 'package:native_tavern/domain/services/character_regex_import_service.dar
 import 'package:native_tavern/domain/services/live2d_import_service.dart';
 import 'package:native_tavern/domain/services/live2d_service.dart';
 import 'package:native_tavern/domain/services/url_import_service.dart';
+import 'package:native_tavern/domain/services/world_info_import.dart';
+import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:path/path.dart' as p;
 import 'package:native_tavern/presentation/providers/character_providers.dart';
@@ -526,7 +527,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     }
   }
 
-  /// Import embedded lorebook (character_book) as a WorldInfo entry linked to the character
+  /// Import embedded lorebook (character_book) as a WorldInfo linked to the character.
+  /// Uses the same full-fidelity parser as standalone world-info import.
   Future<void> _importEmbeddedLorebook(
     WidgetRef ref,
     String characterId,
@@ -535,7 +537,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   ) async {
     final worldInfoRepo = ref.read(worldInfoRepositoryProvider);
 
-    // Create a WorldInfo entry linked to this character
     final worldInfoName = characterBook.name ?? '$characterName Lorebook';
     final worldInfo = await worldInfoRepo.createWorldInfo(
       name: worldInfoName,
@@ -543,35 +544,39 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
           characterBook.description ?? 'Embedded lorebook from $characterName',
       isGlobal: false,
       characterId: characterId,
+      recursionDepth: characterBook.recursiveScanning ? null : 0,
+      extensions: {
+        ...characterBook.extensions,
+        'token_budget': characterBook.tokenBudget,
+        'recursive_scanning': characterBook.recursiveScanning,
+        'from_character_book': true,
+      },
     );
 
-    // Convert and add all CharacterBookEntry as WorldInfoEntry
-    for (final entry in characterBook.entries) {
-      // Map CharacterBookEntry position to WorldInfoPosition
-      // In character card spec: 0 = before char defs, 1 = after char defs
-      WorldInfoPosition position;
-      switch (entry.position) {
-        case 0:
-          position = WorldInfoPosition.before; // Before Character Definition
-          break;
-        case 1:
-          position = WorldInfoPosition.after; // After Character Definition
-          break;
-        default:
-          position = WorldInfoPosition.after;
-      }
+    final parsedEntries = WorldInfoImport.parseCharacterBookEntries(
+      characterBook,
+      worldInfo.id,
+    );
 
-      await worldInfoRepo.addEntry(
+    for (final entry in parsedEntries) {
+      final created = await worldInfoRepo.addEntry(
         worldInfoId: worldInfo.id,
         keys: entry.keys,
         content: entry.content,
         secondaryKeys:
             entry.secondaryKeys.isNotEmpty ? entry.secondaryKeys : null,
-        comment: entry.name.isNotEmpty ? entry.name : entry.comment,
-        position: position,
-        depth: 4, // Default depth
+        comment: entry.comment,
+        position: entry.position,
+        constant: entry.constant,
+        selective: entry.selective,
+        insertionOrder: entry.insertionOrder,
+        depth: entry.depth,
       );
+      // Persist remaining behavioral fields (probability, recursion, sticky…)
+      await worldInfoRepo.updateEntry(entry.copyWith(id: created.id));
     }
+
+    ref.invalidate(worldInfoNotifierProvider);
   }
 }
 

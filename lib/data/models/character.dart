@@ -385,6 +385,9 @@ class CharacterBookEntry {
   final int position; // 0 = before char defs, 1 = after char defs
   final Map<String, dynamic> extensions;
 
+  /// Original ST/V2 entry JSON so WorldInfo import can keep full fidelity.
+  final Map<String, dynamic> raw;
+
   const CharacterBookEntry({
     required this.id,
     this.keys = const [],
@@ -400,42 +403,59 @@ class CharacterBookEntry {
     this.selective = false,
     this.position = 0,
     this.extensions = const {},
+    this.raw = const {},
   });
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'keys': keys,
-        'secondary_keys': secondaryKeys,
-        'content': content,
-        'comment': comment,
-        'enabled': enabled,
-        'insertion_order': insertionOrder,
-        'case_sensitive': caseSensitive,
-        'name': name,
-        'priority': priority,
-        'constant': constant,
-        'selective': selective,
-        'position': position,
-        'extensions': extensions,
-      };
+  Map<String, dynamic> toJson() {
+    if (raw.isNotEmpty) return Map<String, dynamic>.from(raw);
+    return {
+      'id': id,
+      'keys': keys,
+      'secondary_keys': secondaryKeys,
+      'content': content,
+      'comment': comment,
+      'enabled': enabled,
+      'insertion_order': insertionOrder,
+      'case_sensitive': caseSensitive,
+      'name': name,
+      'priority': priority,
+      'constant': constant,
+      'selective': selective,
+      'position': position,
+      'extensions': extensions,
+    };
+  }
 
   factory CharacterBookEntry.fromJson(Map<String, dynamic> json) =>
       CharacterBookEntry(
         id: _intValue(json['id']) ?? 0,
-        keys: (json['keys'] as List<dynamic>?)?.cast<String>() ?? [],
-        secondaryKeys:
-            (json['secondary_keys'] as List<dynamic>?)?.cast<String>() ?? [],
+        keys: (json['keys'] as List<dynamic>?)
+                ?.map((e) => e?.toString() ?? '')
+                .where((s) => s.isNotEmpty)
+                .toList() ??
+            [],
+        secondaryKeys: (json['secondary_keys'] as List<dynamic>?)
+                ?.map((e) => e?.toString() ?? '')
+                .where((s) => s.isNotEmpty)
+                .toList() ??
+            [],
         content: json['content'] as String? ?? '',
         comment: json['comment'] as String? ?? '',
-        enabled: _boolValue(json['enabled']) ?? true,
-        insertionOrder: _intValue(json['insertion_order']) ?? 0,
+        enabled: !(_boolValue(json['disable']) ?? false) &&
+            (_boolValue(json['enabled']) ?? true),
+        insertionOrder: _intValue(json['insertion_order']) ??
+            _intValue(json['order']) ??
+            0,
         caseSensitive: _boolValue(json['case_sensitive']) ?? false,
         name: json['name'] as String? ?? '',
         priority: _intValue(json['priority']) ?? 10,
         constant: _boolValue(json['constant']) ?? false,
         selective: _boolValue(json['selective']) ?? false,
         position: _intValue(json['position']) ?? 0,
-        extensions: json['extensions'] as Map<String, dynamic>? ?? {},
+        extensions: json['extensions'] is Map
+            ? Map<String, dynamic>.from(json['extensions'] as Map)
+            : const {},
+        raw: Map<String, dynamic>.from(json),
       );
 }
 
