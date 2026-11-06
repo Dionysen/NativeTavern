@@ -13713,6 +13713,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get hideChatAppBarOnScrollSubtitle => '在聊天裡向下捲動會隱藏頂欄，向上捲動再顯示。';
 
   @override
+  String get neutralizeMessageHtmlStyleTitle => '清除角色卡 HTML 背景';
+
+  @override
+  String get neutralizeMessageHtmlStyleSubtitle =>
+      '用你的聊天氣泡色和文字色替換角色卡 HTML 自帶底色。這不會改氣泡本身；若氣泡發白，請到外觀裡調整「角色氣泡」顏色。';
+
+  @override
   String get showBordersTitle => '顯示邊框';
 
   @override

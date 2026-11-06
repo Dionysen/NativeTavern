@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "Ketuk untuk memilih font. Komputer menampilkan font terpasang; di ponsel Anda dapat mengimpor file font.",
   "uiFontFamilySystem": "Default sistem",
-  "uiFontFamilyTitle": "Font"
+  "uiFontFamilyTitle": "Font",
+  "addPrompt": "Tambah prompt",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "Suhu lebih tinggi untuk respons lebih kreatif",
+  "aiPresetCreativeName": "Kreatif",
+  "aiPresetDefaultDescription": "Pengaturan seimbang untuk penggunaan umum",
+  "aiPresetDefaultName": "Default",
+  "aiPresetDeterministicDescription": "Keacakan sangat rendah untuk keluaran yang konsisten",
+  "aiPresetDeterministicName": "Deterministik",
+  "aiPresetLongFormDescription": "Dioptimalkan untuk respons lebih panjang",
+  "aiPresetLongFormName": "Bentuk panjang",
+  "aiPresetMirostatDescription": "Menggunakan sampling Mirostat untuk perplexity adaptif",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "Suhu lebih rendah untuk respons lebih terfokus",
+  "aiPresetPreciseName": "Presisi",
+  "avatarAboveBubbleSubtitle": "Taruh avatar di atas pesan agar gelembung memakai lebar penuh.",
+  "avatarAboveBubbleTitle": "Avatar di atas gelembung",
+  "characterDisplayMode": "Mode tampilan",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "{count} karakter dihapus",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "{count} chat dihapus",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "{count} chat dipilih",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "Warna & gradien",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "Kisi ringkas",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "«{name}» disalin ke preset kustom",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "Salinan {name}",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " salinan",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "Salin ke kustom",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "Isian kustom",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "Hapus «{name}»? Tindakan ini tidak dapat dibatalkan.",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "Hapus prompt",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "Hapus karakter",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "Hapus {count} karakter terpilih? Semua chat dengan karakter ini juga dihapus. Tidak dapat dibatalkan.",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "Hapus chat",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "Hapus {count} chat terpilih? Tidak dapat dibatalkan.",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "Seret untuk memilih teks",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "Blur gelembung",
+  "enableBubbleBlurHint": "0 berarti mati. Nilai lebih tinggi membuat blur di belakang gelembung dan input.",
+  "gradientDirection": "Arah",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "Warna akhir",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "Gradien",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "Radius",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "Warna awal",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "Gulir ke bawah di chat untuk menyembunyikan bilah atas; gulir ke atas untuk menampilkannya lagi.",
+  "hideChatAppBarOnScrollTitle": "Sembunyikan bilah atas saat menggulir",
+  "importedPromptCount": "{count} prompt diimpor",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "«{name}» diimpor ({count} prompt)",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "Linear",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "Ganti latar HTML kartu karakter dengan warna gelembung dan teks chat Anda. Ini tidak mengubah gelembung itu sendiri — sesuaikan «Gelembung karakter» di Tampilan jika terlihat salah.",
+  "neutralizeMessageHtmlStyleTitle": "Hapus latar HTML kartu",
+  "pinReplyChoicesPanel": "Sematkan panel",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "Pengelola prompt preset",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "Isi prompt",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "«{name}» ditambahkan",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "«{name}» dihapus",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "Digandakan sebagai «{name}»",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "Dari kartu karakter · hanya lihat",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "Pratinjau kartu karakter",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "Karakter ini tidak punya konten di sini",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "Pilih karakter untuk melihat pratinjau bagaimana deskripsi, kepribadian, dan field kartu lainnya dipetakan ke preset ini. Hanya pratinjau—preset dan kartu karakter tetap terpisah.",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "Pilih karakter di atas untuk melihat field ini",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "Radial",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "Gulir ke bawah",
+  "showCharacterAvatarSubtitle": "Tampilkan avatar karakter di samping pesannya.",
+  "showCharacterAvatarTitle": "Avatar karakter",
+  "showReasoningSubtitle": "Tampilkan pemikiran model di atas balasan AI.",
+  "showReasoningTitle": "Proses berpikir",
+  "showUserAvatarSubtitle": "Tampilkan avatar persona Anda di samping pesan Anda.",
+  "showUserAvatarTitle": "Avatar Anda",
+  "simpleListView": "Daftar sederhana",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "Polos",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "Sedang berpikir…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "Gelembung karakter",
+  "tokenCharacterBubbleDescription": "Gelembung di belakang pesan karakter.",
+  "tokenChatBackground": "Latar chat",
+  "tokenChatBackgroundDescription": "Latar halaman chat saat Anda belum memasang gambar.",
+  "tokenChatText": "Teks pesan",
+  "tokenChatTextDescription": "Teks biasa di dalam gelembung pesan.",
+  "tokenDialogueText": "Dialog diucapkan",
+  "tokenDialogueTextDescription": "Ucapan dalam tanda kutip di pesan. Ditampilkan dengan warna ini dan tebal.",
+  "tokenUserBubble": "Gelembung pengguna",
+  "tokenUserBubbleDescription": "Gelembung di belakang pesan Anda.",
+  "unpinReplyChoicesPanel": "Lepas sematan panel",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

@@ -215,7 +215,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get copiedToClipboard => 'تم النسخ إلى الحافظة';
 
   @override
-  String get dragToSelectText => 'Drag to select text';
+  String get dragToSelectText => 'اسحب لتحديد النص';
 
   @override
   String get generateNewResponse => 'توليد رد جديد';
@@ -364,7 +364,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get thinking => 'جاري التفكير';
 
   @override
-  String get thinkingInProgress => 'Thinking…';
+  String get thinkingInProgress => 'جارٍ التفكير…';
 
   @override
   String get noSwipesAvailable => 'لا توجد تمريرات متاحة';
@@ -675,10 +675,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get showReplyChoices => 'خيارات الرد';
 
   @override
-  String get pinReplyChoicesPanel => 'Pin panel';
+  String get pinReplyChoicesPanel => 'تثبيت اللوحة';
 
   @override
-  String get unpinReplyChoicesPanel => 'Unpin panel';
+  String get unpinReplyChoicesPanel => 'إلغاء تثبيت اللوحة';
 
   @override
   String get createQuickReply => 'إنشاء رد سريع';
@@ -817,16 +817,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get listView => 'عرض القائمة';
 
   @override
-  String get simpleListView => 'Simple list';
+  String get simpleListView => 'قائمة بسيطة';
 
   @override
   String get gridView => 'عرض الشبكة';
 
   @override
-  String get compactGridView => 'Compact grid';
+  String get compactGridView => 'شبكة مدمجة';
 
   @override
-  String get characterDisplayMode => 'Display mode';
+  String get characterDisplayMode => 'وضع العرض';
 
   @override
   String get characterAvatarShapeCircle => 'صورة رمزية دائرية';
@@ -1266,34 +1266,34 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get deleteSelectedCharacters => 'Delete Characters';
+  String get deleteSelectedCharacters => 'حذف الشخصيات';
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
-    return 'Delete $count selected characters? This will also delete all chats with these characters. This cannot be undone.';
+    return 'حذف $count من الشخصيات المحددة؟ ستُحذف أيضًا كل المحادثات معها. لا يمكن التراجع.';
   }
 
   @override
   String charactersDeletedCount(int count) {
-    return 'Deleted $count characters';
+    return 'تم حذف $count من الشخصيات';
   }
 
   @override
   String chatsSelected(int count) {
-    return '$count chat(s) selected';
+    return 'تم تحديد $count من المحادثات';
   }
 
   @override
-  String get deleteSelectedChats => 'Delete Chats';
+  String get deleteSelectedChats => 'حذف المحادثات';
 
   @override
   String deleteSelectedChatsConfirmation(int count) {
-    return 'Delete $count selected chats? This cannot be undone.';
+    return 'حذف $count من المحادثات المحددة؟ لا يمكن التراجع.';
   }
 
   @override
   String chatsDeletedCount(int count) {
-    return 'Deleted $count chats';
+    return 'تم حذف $count من المحادثات';
   }
 
   @override
@@ -1433,44 +1433,42 @@ class AppLocalizationsAr extends AppLocalizations {
   String get customPresets => 'Custom Presets';
 
   @override
-  String get aiPresetDefaultName => 'Default';
+  String get aiPresetDefaultName => 'افتراضي';
 
   @override
-  String get aiPresetDefaultDescription => 'Balanced settings for general use';
+  String get aiPresetDefaultDescription => 'إعدادات متوازنة للاستخدام العام';
 
   @override
-  String get aiPresetCreativeName => 'Creative';
+  String get aiPresetCreativeName => 'إبداعي';
 
   @override
-  String get aiPresetCreativeDescription =>
-      'Higher temperature for more creative responses';
+  String get aiPresetCreativeDescription => 'حرارة أعلى لردود أكثر إبداعًا';
 
   @override
-  String get aiPresetPreciseName => 'Precise';
+  String get aiPresetPreciseName => 'دقيق';
 
   @override
-  String get aiPresetPreciseDescription =>
-      'Lower temperature for more focused responses';
+  String get aiPresetPreciseDescription => 'حرارة أقل لردود أكثر تركيزًا';
 
   @override
-  String get aiPresetDeterministicName => 'Deterministic';
+  String get aiPresetDeterministicName => 'حتمي';
 
   @override
   String get aiPresetDeterministicDescription =>
-      'Very low randomness for consistent outputs';
+      'عشوائية منخفضة جدًا لمخرجات أكثر اتساقًا';
 
   @override
-  String get aiPresetLongFormName => 'Long Form';
+  String get aiPresetLongFormName => 'نص طويل';
 
   @override
-  String get aiPresetLongFormDescription => 'Optimized for longer responses';
+  String get aiPresetLongFormDescription => 'محسّن للردود الأطول';
 
   @override
   String get aiPresetMirostatName => 'Mirostat';
 
   @override
   String get aiPresetMirostatDescription =>
-      'Uses Mirostat sampling for adaptive perplexity';
+      'يستخدم أخذ عينات Mirostat لضبط الحيرة تلقائيًا';
 
   @override
   String get aiPresetsDescription =>
@@ -1671,37 +1669,37 @@ class AppLocalizationsAr extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get colorAndGradientPresets => 'Colors & gradients';
+  String get colorAndGradientPresets => 'ألوان وتدرجات';
 
   @override
   String get customBackgroundColor => 'لون مخصص';
 
   @override
-  String get customBackgroundFill => 'Custom fill';
+  String get customBackgroundFill => 'تعبئة مخصصة';
 
   @override
-  String get solidFill => 'Solid';
+  String get solidFill => 'لون ثابت';
 
   @override
-  String get gradientFill => 'Gradient';
+  String get gradientFill => 'تدرج';
 
   @override
-  String get linearGradient => 'Linear';
+  String get linearGradient => 'خطي';
 
   @override
-  String get radialGradient => 'Radial';
+  String get radialGradient => 'شعاعي';
 
   @override
-  String get gradientDirection => 'Direction';
+  String get gradientDirection => 'الاتجاه';
 
   @override
-  String get gradientRadius => 'Radius';
+  String get gradientRadius => 'نصف القطر';
 
   @override
-  String get gradientStartColor => 'Start color';
+  String get gradientStartColor => 'لون البداية';
 
   @override
-  String get gradientEndColor => 'End color';
+  String get gradientEndColor => 'لون النهاية';
 
   @override
   String get backgroundColorImageMutexHint =>
@@ -4283,7 +4281,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get switchLayout => 'Switch layout';
 
   @override
-  String get scrollToBottom => 'Scroll to bottom';
+  String get scrollToBottom => 'التمرير إلى الأسفل';
 
   @override
   String get stopGenerating => 'Stop generating';
@@ -4307,11 +4305,11 @@ class AppLocalizationsAr extends AppLocalizations {
       'Applies to custom and character image backgrounds';
 
   @override
-  String get enableBubbleBlur => 'Bubble blur';
+  String get enableBubbleBlur => 'ضبابية الفقاعة';
 
   @override
   String get enableBubbleBlurHint =>
-      '0 is off. Higher values blur what\'s behind bubbles and the input.';
+      '0 يعني الإيقاف. القيم الأعلى تضبّب ما خلف الفقاعات وحقل الإدخال.';
 
   @override
   String get enableBackgroundBlur => 'Enable background blur';
@@ -6937,46 +6935,44 @@ class AppLocalizationsAr extends AppLocalizations {
       'Roundness of chat message bubbles.';
 
   @override
-  String get showCharacterAvatarTitle => 'Character avatar';
+  String get showCharacterAvatarTitle => 'صورة الشخصية';
 
   @override
-  String get showCharacterAvatarSubtitle =>
-      'Show character avatars next to their messages.';
+  String get showCharacterAvatarSubtitle => 'أظهر صور الشخصيات بجانب رسائلها.';
 
   @override
-  String get showUserAvatarTitle => 'Your avatar';
+  String get showUserAvatarTitle => 'صورتك';
 
   @override
-  String get showUserAvatarSubtitle =>
-      'Show your persona avatar next to your messages.';
+  String get showUserAvatarSubtitle => 'أظهر صورة شخصيتك بجانب رسائلك.';
 
   @override
-  String get avatarAboveBubbleTitle => 'Avatar above bubble';
+  String get avatarAboveBubbleTitle => 'الصورة الرمزية فوق الفقاعة';
 
   @override
   String get avatarAboveBubbleSubtitle =>
-      'Place avatars above messages so bubbles can use the full width.';
+      'ضع الصور الرمزية فوق الرسائل ليأخذ الفقاعة العرض كاملًا.';
 
   @override
-  String get showReasoningTitle => 'Thinking process';
+  String get showReasoningTitle => 'عملية التفكير';
 
   @override
   String get showReasoningSubtitle =>
-      'Show the model\'s thinking above AI replies.';
+      'اعرض تفكير النموذج فوق ردود الذكاء الاصطناعي.';
 
   @override
-  String get hideChatAppBarOnScrollTitle => 'Hide top bar while scrolling';
+  String get hideChatAppBarOnScrollTitle => 'إخفاء الشريط العلوي أثناء التمرير';
 
   @override
   String get hideChatAppBarOnScrollSubtitle =>
-      'Scroll down in chat to hide the top bar; scroll up to show it again.';
+      'مرّر للأسفل في الدردشة لإخفاء الشريط العلوي؛ مرّر للأعلى لإظهاره مجددًا.';
 
   @override
-  String get neutralizeMessageHtmlStyleTitle => 'Clear card HTML backgrounds';
+  String get neutralizeMessageHtmlStyleTitle => 'مسح خلفيات HTML للبطاقة';
 
   @override
   String get neutralizeMessageHtmlStyleSubtitle =>
-      'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.';
+      'استبدل خلفيات HTML في بطاقة الشخصية بلون فقاعة الدردشة ولون النص. هذا لا يغيّر الفقاعة نفسها — عدّل «فقاعة الشخصية» في المظهر إن بدت خاطئة.';
 
   @override
   String get showBordersTitle => 'Show borders';
@@ -7097,19 +7093,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tokenCursor => 'Cursor';
 
   @override
-  String get tokenChatBackground => 'Chat background';
+  String get tokenChatBackground => 'خلفية الدردشة';
 
   @override
-  String get tokenCharacterBubble => 'Character bubble';
+  String get tokenCharacterBubble => 'فقاعة الشخصية';
 
   @override
-  String get tokenUserBubble => 'User bubble';
+  String get tokenUserBubble => 'فقاعة المستخدم';
 
   @override
-  String get tokenChatText => 'Message text';
+  String get tokenChatText => 'نص الرسالة';
 
   @override
-  String get tokenDialogueText => 'Spoken dialogue';
+  String get tokenDialogueText => 'الحوار المنطوق';
 
   @override
   String get tokenEditorSurfaceDescription => 'Main scaffold background.';
@@ -7152,21 +7148,20 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tokenChatBackgroundDescription =>
-      'The chat page background when you haven’t set a picture.';
+      'خلفية صفحة الدردشة عندما لا تضبط صورة.';
 
   @override
-  String get tokenCharacterBubbleDescription =>
-      'The bubble behind character messages.';
+  String get tokenCharacterBubbleDescription => 'الفقاعة خلف رسائل الشخصية.';
 
   @override
-  String get tokenUserBubbleDescription => 'The bubble behind your messages.';
+  String get tokenUserBubbleDescription => 'الفقاعة خلف رسائلك.';
 
   @override
-  String get tokenChatTextDescription => 'Normal text inside message bubbles.';
+  String get tokenChatTextDescription => 'النص العادي داخل فقاعات الرسائل.';
 
   @override
   String get tokenDialogueTextDescription =>
-      'Quoted speech in messages. Shown in this color and bold.';
+      'الكلام بين علامتي اقتباس في الرسائل. يظهر بهذا اللون وبخط عريض.';
 
   @override
   String get themeColorsSectionTitle => 'Theme colors';
@@ -7216,77 +7211,76 @@ class AppLocalizationsAr extends AppLocalizations {
   String get discardChanges => 'Discard';
 
   @override
-  String get copyToCustom => 'Copy to custom';
+  String get copyToCustom => 'نسخ إلى المخصص';
 
   @override
   String copyNameOf(String name) {
-    return '$name copy';
+    return 'نسخة من $name';
   }
 
   @override
   String copiedPresetToCustom(String name) {
-    return 'Copied \"$name\" to custom presets';
+    return 'تم نسخ «$name» إلى الإعدادات المخصصة';
   }
 
   @override
-  String get copyNameSuffix => ' copy';
+  String get copyNameSuffix => ' نسخة';
 
   @override
-  String get addPrompt => 'Add prompt';
+  String get addPrompt => 'إضافة موجّه';
 
   @override
-  String get promptContent => 'Prompt content';
+  String get promptContent => 'محتوى الموجّه';
 
   @override
   String promptEntryAdded(String name) {
-    return 'Added \"$name\"';
+    return 'تمت إضافة «$name»';
   }
 
   @override
   String promptEntryDuplicated(String name) {
-    return 'Duplicated as \"$name\"';
+    return 'تم النسخ باسم «$name»';
   }
 
   @override
   String promptEntryDeleted(String name) {
-    return 'Deleted \"$name\"';
+    return 'تم حذف «$name»';
   }
 
   @override
-  String get deletePromptEntry => 'Delete prompt';
+  String get deletePromptEntry => 'حذف الموجّه';
 
   @override
   String deletePromptConfirmation(String name) {
-    return 'Delete \"$name\"? This cannot be undone.';
+    return 'حذف «$name»؟ لا يمكن التراجع.';
   }
 
   @override
   String importedPromptSections(String name, int count) {
-    return 'Imported \"$name\" ($count prompts)';
+    return 'تم استيراد «$name» ($count موجّهًا)';
   }
 
   @override
   String importedPromptCount(int count) {
-    return 'Imported $count prompts';
+    return 'تم استيراد $count من الموجّهات';
   }
 
   @override
-  String get presetPromptManager => 'Preset prompt manager';
+  String get presetPromptManager => 'مدير موجّهات الإعداد المسبق';
 
   @override
-  String get promptPreviewCharacter => 'Preview character card';
+  String get promptPreviewCharacter => 'معاينة بطاقة الشخصية';
 
   @override
   String get promptPreviewHint =>
-      'Pick a character to preview how description, personality, and other card fields map into this preset. This is preview only—the preset and character card stay independent.';
+      'اختر شخصية لمعاينة كيف تُعرَض الوصف والشخصية وغيرها من حقول البطاقة في هذا الإعداد. هذه معاينة فقط — الإعداد وبطاقة الشخصية يبقيان منفصلين.';
 
   @override
-  String get promptPreviewSelectToView =>
-      'Pick a character above to view this field';
+  String get promptPreviewSelectToView => 'اختر شخصية أعلاه لعرض هذا الحقل';
 
   @override
-  String get promptPreviewEmptyField => 'This character has no content here';
+  String get promptPreviewEmptyField => 'هذه الشخصية بلا محتوى هنا';
 
   @override
-  String get promptOwnedByCharacter => 'From character card · view only';
+  String get promptOwnedByCharacter => 'من بطاقة الشخصية · عرض فقط';
 }

@@ -218,7 +218,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get copiedToClipboard => 'क्लिपबोर्ड पर कॉपी किया गया';
 
   @override
-  String get dragToSelectText => 'Drag to select text';
+  String get dragToSelectText => 'टेक्स्ट चुनने के लिए खींचें';
 
   @override
   String get generateNewResponse => 'नया उत्तर उत्पन्न करें';
@@ -366,7 +366,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get thinking => 'सोच रहा है';
 
   @override
-  String get thinkingInProgress => 'Thinking…';
+  String get thinkingInProgress => 'सोच रहा है…';
 
   @override
   String get noSwipesAvailable => 'कोई स्वाइप उपलब्ध नहीं';
@@ -679,10 +679,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get showReplyChoices => 'उत्तर विकल्प';
 
   @override
-  String get pinReplyChoicesPanel => 'Pin panel';
+  String get pinReplyChoicesPanel => 'पैनल पिन करें';
 
   @override
-  String get unpinReplyChoicesPanel => 'Unpin panel';
+  String get unpinReplyChoicesPanel => 'पैनल अनपिन करें';
 
   @override
   String get createQuickReply => 'त्वरित उत्तर बनाएं';
@@ -821,16 +821,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get listView => 'सूची दृश्य';
 
   @override
-  String get simpleListView => 'Simple list';
+  String get simpleListView => 'साधारण सूची';
 
   @override
   String get gridView => 'ग्रिड दृश्य';
 
   @override
-  String get compactGridView => 'Compact grid';
+  String get compactGridView => 'सघन ग्रिड';
 
   @override
-  String get characterDisplayMode => 'Display mode';
+  String get characterDisplayMode => 'प्रदर्शन मोड';
 
   @override
   String get characterAvatarShapeCircle => 'गोलाकार अवतार';
@@ -1270,34 +1270,34 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get deleteSelectedCharacters => 'Delete Characters';
+  String get deleteSelectedCharacters => 'पात्र हटाएँ';
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
-    return 'Delete $count selected characters? This will also delete all chats with these characters. This cannot be undone.';
+    return 'चयनित $count पात्र हटाएँ? इनके साथ की सभी चैट भी हट जाएँगी। पूर्ववत नहीं होगा।';
   }
 
   @override
   String charactersDeletedCount(int count) {
-    return 'Deleted $count characters';
+    return '$count पात्र हटाए गए';
   }
 
   @override
   String chatsSelected(int count) {
-    return '$count chat(s) selected';
+    return '$count चैट चयनित';
   }
 
   @override
-  String get deleteSelectedChats => 'Delete Chats';
+  String get deleteSelectedChats => 'चैट हटाएँ';
 
   @override
   String deleteSelectedChatsConfirmation(int count) {
-    return 'Delete $count selected chats? This cannot be undone.';
+    return 'चयनित $count चैट हटाएँ? यह पूर्ववत नहीं होगा।';
   }
 
   @override
   String chatsDeletedCount(int count) {
-    return 'Deleted $count chats';
+    return '$count चैट हटाई गईं';
   }
 
   @override
@@ -1437,44 +1437,45 @@ class AppLocalizationsHi extends AppLocalizations {
   String get customPresets => 'Custom Presets';
 
   @override
-  String get aiPresetDefaultName => 'Default';
+  String get aiPresetDefaultName => 'डिफ़ॉल्ट';
 
   @override
-  String get aiPresetDefaultDescription => 'Balanced settings for general use';
+  String get aiPresetDefaultDescription =>
+      'सामान्य उपयोग के लिए संतुलित सेटिंग्स';
 
   @override
-  String get aiPresetCreativeName => 'Creative';
+  String get aiPresetCreativeName => 'रचनात्मक';
 
   @override
   String get aiPresetCreativeDescription =>
-      'Higher temperature for more creative responses';
+      'अधिक रचनात्मक उत्तरों के लिए उच्च तापमान';
 
   @override
-  String get aiPresetPreciseName => 'Precise';
+  String get aiPresetPreciseName => 'सटीक';
 
   @override
   String get aiPresetPreciseDescription =>
-      'Lower temperature for more focused responses';
+      'अधिक केंद्रित उत्तरों के लिए कम तापमान';
 
   @override
-  String get aiPresetDeterministicName => 'Deterministic';
+  String get aiPresetDeterministicName => 'निर्धारित';
 
   @override
   String get aiPresetDeterministicDescription =>
-      'Very low randomness for consistent outputs';
+      'सुसंगत आउटपुट के लिए बहुत कम यादृच्छिकता';
 
   @override
-  String get aiPresetLongFormName => 'Long Form';
+  String get aiPresetLongFormName => 'लंबा लेख';
 
   @override
-  String get aiPresetLongFormDescription => 'Optimized for longer responses';
+  String get aiPresetLongFormDescription => 'लंबे उत्तरों के लिए अनुकूलित';
 
   @override
   String get aiPresetMirostatName => 'Mirostat';
 
   @override
   String get aiPresetMirostatDescription =>
-      'Uses Mirostat sampling for adaptive perplexity';
+      'अनुकूलनशील perplexity के लिए Mirostat सैंपलिंग का उपयोग';
 
   @override
   String get aiPresetsDescription =>
@@ -1675,37 +1676,37 @@ class AppLocalizationsHi extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get colorAndGradientPresets => 'Colors & gradients';
+  String get colorAndGradientPresets => 'रंग और ग्रेडिएंट';
 
   @override
   String get customBackgroundColor => 'कस्टम रंग';
 
   @override
-  String get customBackgroundFill => 'Custom fill';
+  String get customBackgroundFill => 'कस्टम भरना';
 
   @override
-  String get solidFill => 'Solid';
+  String get solidFill => 'सॉलिड';
 
   @override
-  String get gradientFill => 'Gradient';
+  String get gradientFill => 'ग्रेडिएंट';
 
   @override
-  String get linearGradient => 'Linear';
+  String get linearGradient => 'रैखिक';
 
   @override
-  String get radialGradient => 'Radial';
+  String get radialGradient => 'वृत्तीय';
 
   @override
-  String get gradientDirection => 'Direction';
+  String get gradientDirection => 'दिशा';
 
   @override
-  String get gradientRadius => 'Radius';
+  String get gradientRadius => 'त्रिज्या';
 
   @override
-  String get gradientStartColor => 'Start color';
+  String get gradientStartColor => 'प्रारंभ रंग';
 
   @override
-  String get gradientEndColor => 'End color';
+  String get gradientEndColor => 'अंतिम रंग';
 
   @override
   String get backgroundColorImageMutexHint =>
@@ -4286,7 +4287,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get switchLayout => 'Switch layout';
 
   @override
-  String get scrollToBottom => 'Scroll to bottom';
+  String get scrollToBottom => 'नीचे स्क्रॉल करें';
 
   @override
   String get stopGenerating => 'Stop generating';
@@ -4310,11 +4311,11 @@ class AppLocalizationsHi extends AppLocalizations {
       'Applies to custom and character image backgrounds';
 
   @override
-  String get enableBubbleBlur => 'Bubble blur';
+  String get enableBubbleBlur => 'बबल ब्लर';
 
   @override
   String get enableBubbleBlurHint =>
-      '0 is off. Higher values blur what\'s behind bubbles and the input.';
+      '0 बंद है। अधिक मान बबल और इनपुट के पीछे को धुंधला करते हैं।';
 
   @override
   String get enableBackgroundBlur => 'Enable background blur';
@@ -6938,46 +6939,45 @@ class AppLocalizationsHi extends AppLocalizations {
       'Roundness of chat message bubbles.';
 
   @override
-  String get showCharacterAvatarTitle => 'Character avatar';
+  String get showCharacterAvatarTitle => 'पात्र अवतार';
 
   @override
   String get showCharacterAvatarSubtitle =>
-      'Show character avatars next to their messages.';
+      'पात्र के संदेशों के पास अवतार दिखाएँ।';
 
   @override
-  String get showUserAvatarTitle => 'Your avatar';
+  String get showUserAvatarTitle => 'आपका अवतार';
 
   @override
   String get showUserAvatarSubtitle =>
-      'Show your persona avatar next to your messages.';
+      'अपने संदेशों के पास अपना पर्सोना अवतार दिखाएँ।';
 
   @override
-  String get avatarAboveBubbleTitle => 'Avatar above bubble';
+  String get avatarAboveBubbleTitle => 'बबल के ऊपर अवतार';
 
   @override
   String get avatarAboveBubbleSubtitle =>
-      'Place avatars above messages so bubbles can use the full width.';
+      'अवतार संदेशों के ऊपर रखें ताकि बबल पूरी चौड़ाई ले सकें।';
 
   @override
-  String get showReasoningTitle => 'Thinking process';
+  String get showReasoningTitle => 'सोच प्रक्रिया';
 
   @override
-  String get showReasoningSubtitle =>
-      'Show the model\'s thinking above AI replies.';
+  String get showReasoningSubtitle => 'AI उत्तरों के ऊपर मॉडल की सोच दिखाएँ।';
 
   @override
-  String get hideChatAppBarOnScrollTitle => 'Hide top bar while scrolling';
+  String get hideChatAppBarOnScrollTitle => 'स्क्रॉल करते समय ऊपरी बार छिपाएँ';
 
   @override
   String get hideChatAppBarOnScrollSubtitle =>
-      'Scroll down in chat to hide the top bar; scroll up to show it again.';
+      'चैट में नीचे स्क्रॉल करें तो ऊपरी बार छिपेगा; ऊपर स्क्रॉल करें तो फिर दिखेगा।';
 
   @override
-  String get neutralizeMessageHtmlStyleTitle => 'Clear card HTML backgrounds';
+  String get neutralizeMessageHtmlStyleTitle => 'कार्ड HTML बैकग्राउंड हटाएँ';
 
   @override
   String get neutralizeMessageHtmlStyleSubtitle =>
-      'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.';
+      'कैरेक्टर कार्ड के HTML बैकग्राउंड को आपके चैट बबल और टेक्स्ट रंग से बदलें। इससे बबल खुद नहीं बदलता — गलत लगे तो दिखावट में «कैरेक्टर बबल» ठीक करें।';
 
   @override
   String get showBordersTitle => 'Show borders';
@@ -7098,19 +7098,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get tokenCursor => 'Cursor';
 
   @override
-  String get tokenChatBackground => 'Chat background';
+  String get tokenChatBackground => 'चैट पृष्ठभूमि';
 
   @override
-  String get tokenCharacterBubble => 'Character bubble';
+  String get tokenCharacterBubble => 'पात्र बबल';
 
   @override
-  String get tokenUserBubble => 'User bubble';
+  String get tokenUserBubble => 'उपयोगकर्ता बबल';
 
   @override
-  String get tokenChatText => 'Message text';
+  String get tokenChatText => 'संदेश पाठ';
 
   @override
-  String get tokenDialogueText => 'Spoken dialogue';
+  String get tokenDialogueText => 'कथित संवाद';
 
   @override
   String get tokenEditorSurfaceDescription => 'Main scaffold background.';
@@ -7153,21 +7153,21 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get tokenChatBackgroundDescription =>
-      'The chat page background when you haven’t set a picture.';
+      'जब आपने कोई चित्र सेट नहीं किया हो तो चैट पेज की पृष्ठभूमि।';
 
   @override
   String get tokenCharacterBubbleDescription =>
-      'The bubble behind character messages.';
+      'पात्र के संदेशों के पीछे का बबल।';
 
   @override
-  String get tokenUserBubbleDescription => 'The bubble behind your messages.';
+  String get tokenUserBubbleDescription => 'आपके संदेशों के पीछे का बबल।';
 
   @override
-  String get tokenChatTextDescription => 'Normal text inside message bubbles.';
+  String get tokenChatTextDescription => 'संदेश बबल के अंदर सामान्य पाठ।';
 
   @override
   String get tokenDialogueTextDescription =>
-      'Quoted speech in messages. Shown in this color and bold.';
+      'संदेशों में उद्धृत भाषण। इस रंग में और मोटे अक्षरों में दिखता है।';
 
   @override
   String get themeColorsSectionTitle => 'Theme colors';
@@ -7217,77 +7217,78 @@ class AppLocalizationsHi extends AppLocalizations {
   String get discardChanges => 'Discard';
 
   @override
-  String get copyToCustom => 'Copy to custom';
+  String get copyToCustom => 'कस्टम में कॉपी करें';
 
   @override
   String copyNameOf(String name) {
-    return '$name copy';
+    return '$name की प्रति';
   }
 
   @override
   String copiedPresetToCustom(String name) {
-    return 'Copied \"$name\" to custom presets';
+    return '«$name» को कस्टम प्रीसेट में कॉपी किया';
   }
 
   @override
-  String get copyNameSuffix => ' copy';
+  String get copyNameSuffix => ' प्रति';
 
   @override
-  String get addPrompt => 'Add prompt';
+  String get addPrompt => 'प्रॉम्प्ट जोड़ें';
 
   @override
-  String get promptContent => 'Prompt content';
+  String get promptContent => 'प्रॉम्प्ट सामग्री';
 
   @override
   String promptEntryAdded(String name) {
-    return 'Added \"$name\"';
+    return '«$name» जोड़ा गया';
   }
 
   @override
   String promptEntryDuplicated(String name) {
-    return 'Duplicated as \"$name\"';
+    return '«$name» के रूप में डुप्लिकेट किया';
   }
 
   @override
   String promptEntryDeleted(String name) {
-    return 'Deleted \"$name\"';
+    return '«$name» हटाया गया';
   }
 
   @override
-  String get deletePromptEntry => 'Delete prompt';
+  String get deletePromptEntry => 'प्रॉम्प्ट हटाएँ';
 
   @override
   String deletePromptConfirmation(String name) {
-    return 'Delete \"$name\"? This cannot be undone.';
+    return '«$name» हटाएँ? यह पूर्ववत नहीं होगा।';
   }
 
   @override
   String importedPromptSections(String name, int count) {
-    return 'Imported \"$name\" ($count prompts)';
+    return '«$name» आयात किया ($count प्रॉम्प्ट)';
   }
 
   @override
   String importedPromptCount(int count) {
-    return 'Imported $count prompts';
+    return '$count प्रॉम्प्ट आयात किए गए';
   }
 
   @override
-  String get presetPromptManager => 'Preset prompt manager';
+  String get presetPromptManager => 'प्रीसेट प्रॉम्प्ट प्रबंधक';
 
   @override
-  String get promptPreviewCharacter => 'Preview character card';
+  String get promptPreviewCharacter => 'कैरेक्टर कार्ड पूर्वावलोकन';
 
   @override
   String get promptPreviewHint =>
-      'Pick a character to preview how description, personality, and other card fields map into this preset. This is preview only—the preset and character card stay independent.';
+      'विवरण, व्यक्तित्व और अन्य कार्ड फ़ील्ड इस प्रीसेट में कैसे मैप होते हैं देखने के लिए एक पात्र चुनें। यह केवल पूर्वावलोकन है—प्रीसेट और कार्ड अलग रहते हैं।';
 
   @override
   String get promptPreviewSelectToView =>
-      'Pick a character above to view this field';
+      'यह फ़ील्ड देखने के लिए ऊपर एक पात्र चुनें';
 
   @override
-  String get promptPreviewEmptyField => 'This character has no content here';
+  String get promptPreviewEmptyField =>
+      'इस पात्र के पास यहाँ कोई सामग्री नहीं है';
 
   @override
-  String get promptOwnedByCharacter => 'From character card · view only';
+  String get promptOwnedByCharacter => 'कैरेक्टर कार्ड से · केवल देखें';
 }

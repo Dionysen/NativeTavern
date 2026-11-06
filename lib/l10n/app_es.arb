@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "Toca para elegir una fuente. En el ordenador se muestran las instaladas; en el teléfono puedes importar un archivo de fuente.",
   "uiFontFamilySystem": "Predeterminada del sistema",
-  "uiFontFamilyTitle": "Fuente"
+  "uiFontFamilyTitle": "Fuente",
+  "addPrompt": "Añadir prompt",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "Temperatura más alta para respuestas más creativas",
+  "aiPresetCreativeName": "Creativo",
+  "aiPresetDefaultDescription": "Ajustes equilibrados para uso general",
+  "aiPresetDefaultName": "Predeterminado",
+  "aiPresetDeterministicDescription": "Muy poca aleatoriedad para salidas más coherentes",
+  "aiPresetDeterministicName": "Determinista",
+  "aiPresetLongFormDescription": "Optimizado para respuestas más largas",
+  "aiPresetLongFormName": "Texto largo",
+  "aiPresetMirostatDescription": "Usa muestreo Mirostat para perplejidad adaptable",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "Temperatura más baja para respuestas más centradas",
+  "aiPresetPreciseName": "Preciso",
+  "avatarAboveBubbleSubtitle": "Coloca los avatares encima de los mensajes para que las burbujas usen todo el ancho.",
+  "avatarAboveBubbleTitle": "Avatar encima de la burbuja",
+  "characterDisplayMode": "Modo de visualización",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "Se eliminaron {count} personajes",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "Se eliminaron {count} chats",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "{count} chat(s) seleccionado(s)",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "Colores y degradados",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "Cuadrícula compacta",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "Se copió «{name}» a preajustes personalizados",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "Copia de {name}",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " copia",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "Copiar a personalizados",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "Relleno personalizado",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "¿Eliminar «{name}»? No se puede deshacer.",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "Eliminar prompt",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "Eliminar personajes",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "¿Eliminar {count} personajes seleccionados? También se eliminarán todos los chats con ellos. No se puede deshacer.",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "Eliminar chats",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "¿Eliminar {count} chats seleccionados? No se puede deshacer.",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "Arrastra para seleccionar texto",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "Desenfoque de burbuja",
+  "enableBubbleBlurHint": "0 es desactivado. Valores más altos desenfocan lo que hay detrás de las burbujas y el campo de entrada.",
+  "gradientDirection": "Dirección",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "Color final",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "Degradado",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "Radio",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "Color inicial",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "Desplázate hacia abajo en el chat para ocultar la barra superior; hacia arriba para mostrarla de nuevo.",
+  "hideChatAppBarOnScrollTitle": "Ocultar la barra superior al desplazarse",
+  "importedPromptCount": "Se importaron {count} prompts",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "Se importó «{name}» ({count} prompts)",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "Lineal",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "Sustituye los fondos HTML de la tarjeta del personaje por el color de burbuja y de texto del chat. No cambia la burbuja en sí: ajusta «Burbuja del personaje» en Apariencia si se ve mal.",
+  "neutralizeMessageHtmlStyleTitle": "Quitar fondos HTML de la tarjeta",
+  "pinReplyChoicesPanel": "Fijar panel",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "Gestor de prompts del preajuste",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "Contenido del prompt",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "Se añadió «{name}»",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "Se eliminó «{name}»",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "Duplicado como «{name}»",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "De la tarjeta del personaje · solo ver",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "Vista previa de la tarjeta del personaje",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "Este personaje no tiene contenido aquí",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "Elige un personaje para ver cómo se proyectan descripción, personalidad y otros campos de la tarjeta en este preajuste. Solo es una vista previa: el preajuste y la tarjeta siguen independientes.",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "Elige un personaje arriba para ver este campo",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "Radial",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "Ir al final",
+  "showCharacterAvatarSubtitle": "Muestra los avatares del personaje junto a sus mensajes.",
+  "showCharacterAvatarTitle": "Avatar del personaje",
+  "showReasoningSubtitle": "Muestra el razonamiento del modelo encima de las respuestas de la IA.",
+  "showReasoningTitle": "Proceso de pensamiento",
+  "showUserAvatarSubtitle": "Muestra el avatar de tu persona junto a tus mensajes.",
+  "showUserAvatarTitle": "Tu avatar",
+  "simpleListView": "Lista simple",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "Sólido",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "Pensando…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "Burbuja del personaje",
+  "tokenCharacterBubbleDescription": "La burbuja detrás de los mensajes del personaje.",
+  "tokenChatBackground": "Fondo del chat",
+  "tokenChatBackgroundDescription": "El fondo de la página de chat cuando no has puesto una imagen.",
+  "tokenChatText": "Texto del mensaje",
+  "tokenChatTextDescription": "Texto normal dentro de las burbujas de mensaje.",
+  "tokenDialogueText": "Diálogo hablado",
+  "tokenDialogueTextDescription": "El habla entre comillas en los mensajes. Se muestra en este color y en negrita.",
+  "tokenUserBubble": "Burbuja del usuario",
+  "tokenUserBubbleDescription": "La burbuja detrás de tus mensajes.",
+  "unpinReplyChoicesPanel": "Desfijar panel",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

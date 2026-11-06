@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "Yazı tipi seçmek için dokunun. Bilgisayar yüklü yazı tiplerini gösterir; telefonda bir yazı tipi dosyası içe aktarabilirsiniz.",
   "uiFontFamilySystem": "Sistem varsayılanı",
-  "uiFontFamilyTitle": "Yazı tipi"
+  "uiFontFamilyTitle": "Yazı tipi",
+  "addPrompt": "İstem ekle",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "Daha yaratıcı yanıtlar için daha yüksek sıcaklık",
+  "aiPresetCreativeName": "Yaratıcı",
+  "aiPresetDefaultDescription": "Genel kullanım için dengeli ayarlar",
+  "aiPresetDefaultName": "Varsayılan",
+  "aiPresetDeterministicDescription": "Tutarlı çıktılar için çok düşük rastgelelik",
+  "aiPresetDeterministicName": "Belirleyici",
+  "aiPresetLongFormDescription": "Daha uzun yanıtlar için optimize edildi",
+  "aiPresetLongFormName": "Uzun biçim",
+  "aiPresetMirostatDescription": "Uyarlanabilir perplexity için Mirostat örneklemesi kullanır",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "Daha odaklı yanıtlar için daha düşük sıcaklık",
+  "aiPresetPreciseName": "Kesin",
+  "avatarAboveBubbleSubtitle": "Avatarları mesajların üstüne koyun; balonlar tam genişliği kullanır.",
+  "avatarAboveBubbleTitle": "Balonun üstünde avatar",
+  "characterDisplayMode": "Görüntüleme modu",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "{count} karakter silindi",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "{count} sohbet silindi",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "{count} sohbet seçildi",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "Renkler ve degradeler",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "Kompakt ızgara",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "«{name}» özel ön ayarlara kopyalandı",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "{name} kopyası",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " kopya",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "Özele kopyala",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "Özel dolgu",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "«{name}» silinsin mi? Bu geri alınamaz.",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "İstemi sil",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "Karakterleri sil",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "Seçili {count} karakter silinsin mi? Bunlarla ilgili sohbetler de silinir. Geri alınamaz.",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "Sohbetleri sil",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "Seçili {count} sohbet silinsin mi? Bu geri alınamaz.",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "Metin seçmek için sürükleyin",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "Balon bulanıklığı",
+  "enableBubbleBlurHint": "0 kapalıdır. Daha yüksek değerler balonların ve girişin arkasını bulanıklaştırır.",
+  "gradientDirection": "Yön",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "Bitiş rengi",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "Degrade",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "Yarıçap",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "Başlangıç rengi",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "Sohbette aşağı kaydırınca üst çubuk gizlenir; yukarı kaydırınca yeniden görünür.",
+  "hideChatAppBarOnScrollTitle": "Kaydırırken üst çubuğu gizle",
+  "importedPromptCount": "{count} istem içe aktarıldı",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "«{name}» içe aktarıldı ({count} istem)",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "Doğrusal",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "Karakter kartı HTML arka planlarını sohbet balonu ve metin renginizle değiştirir. Balonun kendisini değiştirmez — yanlış görünüyorsa Görünüm’de «Karakter balonu»nu ayarlayın.",
+  "neutralizeMessageHtmlStyleTitle": "Kart HTML arka planlarını temizle",
+  "pinReplyChoicesPanel": "Paneli sabitle",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "Ön ayar istem yöneticisi",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "İstem içeriği",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "«{name}» eklendi",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "«{name}» silindi",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "«{name}» olarak çoğaltıldı",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "Karakter kartından · yalnızca görüntüle",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "Karakter kartı önizleme",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "Bu karakterin burada içeriği yok",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "Açıklama, kişilik ve diğer kart alanlarının bu ön ayara nasıl yansıdığını görmek için bir karakter seçin. Yalnızca önizleme — ön ayar ve karakter kartı bağımsız kalır.",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "Bu alanı görmek için yukarıdan bir karakter seçin",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "Dairesel",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "Alta kaydır",
+  "showCharacterAvatarSubtitle": "Karakter avatarlarını mesajlarının yanında göster.",
+  "showCharacterAvatarTitle": "Karakter avatarı",
+  "showReasoningSubtitle": "Modelin düşüncesini yapay zekâ yanıtlarının üstünde göster.",
+  "showReasoningTitle": "Düşünme süreci",
+  "showUserAvatarSubtitle": "Mesajlarınızın yanında persona avatarınızı gösterin.",
+  "showUserAvatarTitle": "Avatarınız",
+  "simpleListView": "Basit liste",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "Düz",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "Düşünülüyor…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "Karakter balonu",
+  "tokenCharacterBubbleDescription": "Karakter mesajlarının arkasındaki balon.",
+  "tokenChatBackground": "Sohbet arka planı",
+  "tokenChatBackgroundDescription": "Resim ayarlanmadığında sohbet sayfasının arka planı.",
+  "tokenChatText": "Mesaj metni",
+  "tokenChatTextDescription": "Mesaj balonlarındaki normal metin.",
+  "tokenDialogueText": "Konuşulan diyalog",
+  "tokenDialogueTextDescription": "Mesajlardaki tırnaklı konuşma. Bu renkte ve kalın gösterilir.",
+  "tokenUserBubble": "Kullanıcı balonu",
+  "tokenUserBubbleDescription": "Mesajlarınızın arkasındaki balon.",
+  "unpinReplyChoicesPanel": "Panel sabitlemeyi kaldır",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

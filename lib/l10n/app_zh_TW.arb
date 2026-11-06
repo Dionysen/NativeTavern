@@ -7389,5 +7389,7 @@
   "promptOwnedByCharacter": "來自角色卡 · 僅可查看",
   "@promptOwnedByCharacter": {
     "description": "Label on expanded character-owned prompt content"
-  }
+  },
+  "neutralizeMessageHtmlStyleTitle": "清除角色卡 HTML 背景",
+  "neutralizeMessageHtmlStyleSubtitle": "用你的聊天氣泡色和文字色替換角色卡 HTML 自帶底色。這不會改氣泡本身；若氣泡發白，請到外觀裡調整「角色氣泡」顏色。"
 }

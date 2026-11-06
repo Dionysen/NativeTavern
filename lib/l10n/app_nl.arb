@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "Tik om een lettertype te kiezen. De computer toont geïnstalleerde lettertypen; op de telefoon kun je een lettertypebestand importeren.",
   "uiFontFamilySystem": "Systeemstandaard",
-  "uiFontFamilyTitle": "Lettertype"
+  "uiFontFamilyTitle": "Lettertype",
+  "addPrompt": "Prompt toevoegen",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "Hogere temperatuur voor creatievere antwoorden",
+  "aiPresetCreativeName": "Creatief",
+  "aiPresetDefaultDescription": "Gebalanceerde instellingen voor algemeen gebruik",
+  "aiPresetDefaultName": "Standaard",
+  "aiPresetDeterministicDescription": "Zeer lage willekeur voor consistente uitvoer",
+  "aiPresetDeterministicName": "Deterministisch",
+  "aiPresetLongFormDescription": "Geoptimaliseerd voor langere antwoorden",
+  "aiPresetLongFormName": "Lange vorm",
+  "aiPresetMirostatDescription": "Gebruikt Mirostat-sampling voor adaptieve perplexiteit",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "Lagere temperatuur voor gerichtere antwoorden",
+  "aiPresetPreciseName": "Precies",
+  "avatarAboveBubbleSubtitle": "Zet avatars boven berichten zodat bubbels de volle breedte gebruiken.",
+  "avatarAboveBubbleTitle": "Avatar boven de bubbel",
+  "characterDisplayMode": "Weergavemodus",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "{count} personages verwijderd",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "{count} chats verwijderd",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "{count} chat(s) geselecteerd",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "Kleuren en verlopen",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "Compact raster",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "„{name}” gekopieerd naar aangepaste presets",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "{name} kopie",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " kopie",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "Kopiëren naar aangepast",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "Aangepaste vulling",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "„{name}” verwijderen? Dit kan niet ongedaan worden gemaakt.",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "Prompt verwijderen",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "Personages verwijderen",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "{count} geselecteerde personages verwijderen? Alle chats met hen worden ook verwijderd. Dit kan niet ongedaan worden gemaakt.",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "Chats verwijderen",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "{count} geselecteerde chats verwijderen? Dit kan niet ongedaan worden gemaakt.",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "Sleep om tekst te selecteren",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "Bubbelvervaging",
+  "enableBubbleBlurHint": "0 is uit. Hogere waarden vervagen wat achter bubbels en het invoerveld zit.",
+  "gradientDirection": "Richting",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "Eindkleur",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "Verloop",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "Straal",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "Startkleur",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "Scroll omlaag in de chat om de bovenbalk te verbergen; omhoog om hem weer te tonen.",
+  "hideChatAppBarOnScrollTitle": "Bovenbalk verbergen tijdens scrollen",
+  "importedPromptCount": "{count} prompts geïmporteerd",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "„{name}” geïmporteerd ({count} prompts)",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "Lineair",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "Vervangt HTML-achtergronden van de personagekaart door je chatbubbel- en tekstkleur. De bubbel zelf verandert niet — pas «Personagebubbel» onder Weergave aan als die er verkeerd uitziet.",
+  "neutralizeMessageHtmlStyleTitle": "HTML-achtergronden van kaart wissen",
+  "pinReplyChoicesPanel": "Paneel vastzetten",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "Preset-promptbeheer",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "Promptinhoud",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "„{name}” toegevoegd",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "„{name}” verwijderd",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "Gedupliceerd als „{name}”",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "Van personagekaart · alleen bekijken",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "Voorbeeld personagekaart",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "Dit personage heeft hier geen inhoud",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "Kies een personage om te zien hoe beschrijving, persoonlijkheid en andere kaartvelden in deze preset vallen. Alleen voorbeeld—preset en personagekaart blijven onafhankelijk.",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "Kies hierboven een personage om dit veld te bekijken",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "Radiaal",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "Naar beneden scrollen",
+  "showCharacterAvatarSubtitle": "Toon personage-avatars naast hun berichten.",
+  "showCharacterAvatarTitle": "Personage-avatar",
+  "showReasoningSubtitle": "Toon het denken van het model boven AI-antwoorden.",
+  "showReasoningTitle": "Denkproces",
+  "showUserAvatarSubtitle": "Toon je persona-avatar naast je berichten.",
+  "showUserAvatarTitle": "Jouw avatar",
+  "simpleListView": "Eenvoudige lijst",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "Effen",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "Aan het denken…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "Personagebubbel",
+  "tokenCharacterBubbleDescription": "De bubbel achter personageberichten.",
+  "tokenChatBackground": "Chatachtergrond",
+  "tokenChatBackgroundDescription": "De chatpagina-achtergrond als je geen afbeelding hebt ingesteld.",
+  "tokenChatText": "Berichttekst",
+  "tokenChatTextDescription": "Normale tekst in berichtbubbels.",
+  "tokenDialogueText": "Gesproken dialoog",
+  "tokenDialogueTextDescription": "Geciteerde spraak in berichten. Getoond in deze kleur en vet.",
+  "tokenUserBubble": "Gebruikersbubbel",
+  "tokenUserBubbleDescription": "De bubbel achter jouw berichten.",
+  "unpinReplyChoicesPanel": "Paneel losmaken",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

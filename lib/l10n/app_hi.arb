@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "फ़ॉन्ट चुनने के लिए टैप करें। कंप्यूटर इंस्टॉल फ़ॉन्ट दिखाता है; फ़ोन पर आप फ़ॉन्ट फ़ाइल आयात कर सकते हैं।",
   "uiFontFamilySystem": "सिस्टम डिफ़ॉल्ट",
-  "uiFontFamilyTitle": "फ़ॉन्ट"
+  "uiFontFamilyTitle": "फ़ॉन्ट",
+  "addPrompt": "प्रॉम्प्ट जोड़ें",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "अधिक रचनात्मक उत्तरों के लिए उच्च तापमान",
+  "aiPresetCreativeName": "रचनात्मक",
+  "aiPresetDefaultDescription": "सामान्य उपयोग के लिए संतुलित सेटिंग्स",
+  "aiPresetDefaultName": "डिफ़ॉल्ट",
+  "aiPresetDeterministicDescription": "सुसंगत आउटपुट के लिए बहुत कम यादृच्छिकता",
+  "aiPresetDeterministicName": "निर्धारित",
+  "aiPresetLongFormDescription": "लंबे उत्तरों के लिए अनुकूलित",
+  "aiPresetLongFormName": "लंबा लेख",
+  "aiPresetMirostatDescription": "अनुकूलनशील perplexity के लिए Mirostat सैंपलिंग का उपयोग",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "अधिक केंद्रित उत्तरों के लिए कम तापमान",
+  "aiPresetPreciseName": "सटीक",
+  "avatarAboveBubbleSubtitle": "अवतार संदेशों के ऊपर रखें ताकि बबल पूरी चौड़ाई ले सकें।",
+  "avatarAboveBubbleTitle": "बबल के ऊपर अवतार",
+  "characterDisplayMode": "प्रदर्शन मोड",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "{count} पात्र हटाए गए",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "{count} चैट हटाई गईं",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "{count} चैट चयनित",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "रंग और ग्रेडिएंट",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "सघन ग्रिड",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "«{name}» को कस्टम प्रीसेट में कॉपी किया",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "{name} की प्रति",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " प्रति",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "कस्टम में कॉपी करें",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "कस्टम भरना",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "«{name}» हटाएँ? यह पूर्ववत नहीं होगा।",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "प्रॉम्प्ट हटाएँ",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "पात्र हटाएँ",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "चयनित {count} पात्र हटाएँ? इनके साथ की सभी चैट भी हट जाएँगी। पूर्ववत नहीं होगा।",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "चैट हटाएँ",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "चयनित {count} चैट हटाएँ? यह पूर्ववत नहीं होगा।",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "टेक्स्ट चुनने के लिए खींचें",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "बबल ब्लर",
+  "enableBubbleBlurHint": "0 बंद है। अधिक मान बबल और इनपुट के पीछे को धुंधला करते हैं।",
+  "gradientDirection": "दिशा",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "अंतिम रंग",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "ग्रेडिएंट",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "त्रिज्या",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "प्रारंभ रंग",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "चैट में नीचे स्क्रॉल करें तो ऊपरी बार छिपेगा; ऊपर स्क्रॉल करें तो फिर दिखेगा।",
+  "hideChatAppBarOnScrollTitle": "स्क्रॉल करते समय ऊपरी बार छिपाएँ",
+  "importedPromptCount": "{count} प्रॉम्प्ट आयात किए गए",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "«{name}» आयात किया ({count} प्रॉम्प्ट)",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "रैखिक",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "कैरेक्टर कार्ड के HTML बैकग्राउंड को आपके चैट बबल और टेक्स्ट रंग से बदलें। इससे बबल खुद नहीं बदलता — गलत लगे तो दिखावट में «कैरेक्टर बबल» ठीक करें।",
+  "neutralizeMessageHtmlStyleTitle": "कार्ड HTML बैकग्राउंड हटाएँ",
+  "pinReplyChoicesPanel": "पैनल पिन करें",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "प्रीसेट प्रॉम्प्ट प्रबंधक",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "प्रॉम्प्ट सामग्री",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "«{name}» जोड़ा गया",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "«{name}» हटाया गया",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "«{name}» के रूप में डुप्लिकेट किया",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "कैरेक्टर कार्ड से · केवल देखें",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "कैरेक्टर कार्ड पूर्वावलोकन",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "इस पात्र के पास यहाँ कोई सामग्री नहीं है",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "विवरण, व्यक्तित्व और अन्य कार्ड फ़ील्ड इस प्रीसेट में कैसे मैप होते हैं देखने के लिए एक पात्र चुनें। यह केवल पूर्वावलोकन है—प्रीसेट और कार्ड अलग रहते हैं।",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "यह फ़ील्ड देखने के लिए ऊपर एक पात्र चुनें",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "वृत्तीय",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "नीचे स्क्रॉल करें",
+  "showCharacterAvatarSubtitle": "पात्र के संदेशों के पास अवतार दिखाएँ।",
+  "showCharacterAvatarTitle": "पात्र अवतार",
+  "showReasoningSubtitle": "AI उत्तरों के ऊपर मॉडल की सोच दिखाएँ।",
+  "showReasoningTitle": "सोच प्रक्रिया",
+  "showUserAvatarSubtitle": "अपने संदेशों के पास अपना पर्सोना अवतार दिखाएँ।",
+  "showUserAvatarTitle": "आपका अवतार",
+  "simpleListView": "साधारण सूची",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "सॉलिड",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "सोच रहा है…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "पात्र बबल",
+  "tokenCharacterBubbleDescription": "पात्र के संदेशों के पीछे का बबल।",
+  "tokenChatBackground": "चैट पृष्ठभूमि",
+  "tokenChatBackgroundDescription": "जब आपने कोई चित्र सेट नहीं किया हो तो चैट पेज की पृष्ठभूमि।",
+  "tokenChatText": "संदेश पाठ",
+  "tokenChatTextDescription": "संदेश बबल के अंदर सामान्य पाठ।",
+  "tokenDialogueText": "कथित संवाद",
+  "tokenDialogueTextDescription": "संदेशों में उद्धृत भाषण। इस रंग में और मोटे अक्षरों में दिखता है।",
+  "tokenUserBubble": "उपयोगकर्ता बबल",
+  "tokenUserBubbleDescription": "आपके संदेशों के पीछे का बबल।",
+  "unpinReplyChoicesPanel": "पैनल अनपिन करें",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

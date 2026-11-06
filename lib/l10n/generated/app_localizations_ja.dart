@@ -214,7 +214,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get copiedToClipboard => 'クリップボードにコピーしました';
 
   @override
-  String get dragToSelectText => 'Drag to select text';
+  String get dragToSelectText => 'ドラッグして文字を選択';
 
   @override
   String get generateNewResponse => '新しい応答を生成';
@@ -360,7 +360,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get thinking => '思考中';
 
   @override
-  String get thinkingInProgress => 'Thinking…';
+  String get thinkingInProgress => '思考中…';
 
   @override
   String get noSwipesAvailable => 'スワイプがありません';
@@ -668,10 +668,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get showReplyChoices => '返信選択肢';
 
   @override
-  String get pinReplyChoicesPanel => 'Pin panel';
+  String get pinReplyChoicesPanel => 'パネルを固定';
 
   @override
-  String get unpinReplyChoicesPanel => 'Unpin panel';
+  String get unpinReplyChoicesPanel => 'パネルの固定を解除';
 
   @override
   String get createQuickReply => 'クイック返信を作成';
@@ -810,16 +810,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get listView => 'リスト表示';
 
   @override
-  String get simpleListView => 'Simple list';
+  String get simpleListView => 'シンプルリスト';
 
   @override
   String get gridView => 'グリッド表示';
 
   @override
-  String get compactGridView => 'Compact grid';
+  String get compactGridView => 'コンパクトグリッド';
 
   @override
-  String get characterDisplayMode => 'Display mode';
+  String get characterDisplayMode => '表示モード';
 
   @override
   String get characterAvatarShapeCircle => '円形アバター';
@@ -1258,34 +1258,34 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get deleteSelectedCharacters => 'Delete Characters';
+  String get deleteSelectedCharacters => 'キャラクターを削除';
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
-    return 'Delete $count selected characters? This will also delete all chats with these characters. This cannot be undone.';
+    return '選択した $count 体のキャラクターを削除しますか？関連チャットも削除され、元に戻せません。';
   }
 
   @override
   String charactersDeletedCount(int count) {
-    return 'Deleted $count characters';
+    return '$count 体のキャラクターを削除しました';
   }
 
   @override
   String chatsSelected(int count) {
-    return '$count chat(s) selected';
+    return '$count 件のチャットを選択中';
   }
 
   @override
-  String get deleteSelectedChats => 'Delete Chats';
+  String get deleteSelectedChats => 'チャットを削除';
 
   @override
   String deleteSelectedChatsConfirmation(int count) {
-    return 'Delete $count selected chats? This cannot be undone.';
+    return '選択した $count 件のチャットを削除しますか？元に戻せません。';
   }
 
   @override
   String chatsDeletedCount(int count) {
-    return 'Deleted $count chats';
+    return '$count 件のチャットを削除しました';
   }
 
   @override
@@ -1425,44 +1425,40 @@ class AppLocalizationsJa extends AppLocalizations {
   String get customPresets => 'Custom Presets';
 
   @override
-  String get aiPresetDefaultName => 'Default';
+  String get aiPresetDefaultName => 'デフォルト';
 
   @override
-  String get aiPresetDefaultDescription => 'Balanced settings for general use';
+  String get aiPresetDefaultDescription => '日常向けのバランス設定';
 
   @override
-  String get aiPresetCreativeName => 'Creative';
+  String get aiPresetCreativeName => 'クリエイティブ';
 
   @override
-  String get aiPresetCreativeDescription =>
-      'Higher temperature for more creative responses';
+  String get aiPresetCreativeDescription => '温度を上げて、より創造的な返答に';
 
   @override
-  String get aiPresetPreciseName => 'Precise';
+  String get aiPresetPreciseName => '精密';
 
   @override
-  String get aiPresetPreciseDescription =>
-      'Lower temperature for more focused responses';
+  String get aiPresetPreciseDescription => '温度を下げて、より焦点の定まった返答に';
 
   @override
-  String get aiPresetDeterministicName => 'Deterministic';
+  String get aiPresetDeterministicName => '決定的';
 
   @override
-  String get aiPresetDeterministicDescription =>
-      'Very low randomness for consistent outputs';
+  String get aiPresetDeterministicDescription => 'ランダム性を極力抑え、安定した出力に';
 
   @override
-  String get aiPresetLongFormName => 'Long Form';
+  String get aiPresetLongFormName => '長文';
 
   @override
-  String get aiPresetLongFormDescription => 'Optimized for longer responses';
+  String get aiPresetLongFormDescription => '長めの返答向けに最適化';
 
   @override
   String get aiPresetMirostatName => 'Mirostat';
 
   @override
-  String get aiPresetMirostatDescription =>
-      'Uses Mirostat sampling for adaptive perplexity';
+  String get aiPresetMirostatDescription => 'Mirostat サンプリングで困惑度を適応調整';
 
   @override
   String get aiPresetsDescription =>
@@ -1663,37 +1659,37 @@ class AppLocalizationsJa extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get colorAndGradientPresets => 'Colors & gradients';
+  String get colorAndGradientPresets => '色とグラデーション';
 
   @override
   String get customBackgroundColor => 'カスタムカラー';
 
   @override
-  String get customBackgroundFill => 'Custom fill';
+  String get customBackgroundFill => 'カスタム塗りつぶし';
 
   @override
-  String get solidFill => 'Solid';
+  String get solidFill => '単色';
 
   @override
-  String get gradientFill => 'Gradient';
+  String get gradientFill => 'グラデーション';
 
   @override
-  String get linearGradient => 'Linear';
+  String get linearGradient => '線形';
 
   @override
-  String get radialGradient => 'Radial';
+  String get radialGradient => '放射状';
 
   @override
-  String get gradientDirection => 'Direction';
+  String get gradientDirection => '方向';
 
   @override
-  String get gradientRadius => 'Radius';
+  String get gradientRadius => '半径';
 
   @override
-  String get gradientStartColor => 'Start color';
+  String get gradientStartColor => '開始色';
 
   @override
-  String get gradientEndColor => 'End color';
+  String get gradientEndColor => '終了色';
 
   @override
   String get backgroundColorImageMutexHint =>
@@ -4268,7 +4264,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get switchLayout => 'Switch layout';
 
   @override
-  String get scrollToBottom => 'Scroll to bottom';
+  String get scrollToBottom => '一番下へスクロール';
 
   @override
   String get stopGenerating => 'Stop generating';
@@ -4292,11 +4288,10 @@ class AppLocalizationsJa extends AppLocalizations {
       'Applies to custom and character image backgrounds';
 
   @override
-  String get enableBubbleBlur => 'Bubble blur';
+  String get enableBubbleBlur => '吹き出しのぼかし';
 
   @override
-  String get enableBubbleBlurHint =>
-      '0 is off. Higher values blur what\'s behind bubbles and the input.';
+  String get enableBubbleBlurHint => '0 でオフ。値を上げると吹き出しと入力欄の背後がぼやけます。';
 
   @override
   String get enableBackgroundBlur => 'Enable background blur';
@@ -6918,46 +6913,42 @@ class AppLocalizationsJa extends AppLocalizations {
       'Roundness of chat message bubbles.';
 
   @override
-  String get showCharacterAvatarTitle => 'Character avatar';
+  String get showCharacterAvatarTitle => 'キャラクターアバター';
 
   @override
-  String get showCharacterAvatarSubtitle =>
-      'Show character avatars next to their messages.';
+  String get showCharacterAvatarSubtitle => 'キャラクターのメッセージ横にアバターを表示します。';
 
   @override
-  String get showUserAvatarTitle => 'Your avatar';
+  String get showUserAvatarTitle => 'ユーザーアバター';
 
   @override
-  String get showUserAvatarSubtitle =>
-      'Show your persona avatar next to your messages.';
+  String get showUserAvatarSubtitle => '自分のメッセージ横にペルソナのアバターを表示します。';
 
   @override
-  String get avatarAboveBubbleTitle => 'Avatar above bubble';
+  String get avatarAboveBubbleTitle => '吹き出しの上にアバター';
 
   @override
-  String get avatarAboveBubbleSubtitle =>
-      'Place avatars above messages so bubbles can use the full width.';
+  String get avatarAboveBubbleSubtitle => 'アバターをメッセージの上に置き、吹き出しを全幅にできます。';
 
   @override
-  String get showReasoningTitle => 'Thinking process';
+  String get showReasoningTitle => '思考プロセス';
 
   @override
-  String get showReasoningSubtitle =>
-      'Show the model\'s thinking above AI replies.';
+  String get showReasoningSubtitle => 'AI の返答の上にモデルの思考を表示します。';
 
   @override
-  String get hideChatAppBarOnScrollTitle => 'Hide top bar while scrolling';
+  String get hideChatAppBarOnScrollTitle => 'スクロール中は上部バーを隠す';
 
   @override
   String get hideChatAppBarOnScrollSubtitle =>
-      'Scroll down in chat to hide the top bar; scroll up to show it again.';
+      'チャットで下にスクロールすると上部バーが隠れ、上にスクロールすると再表示されます。';
 
   @override
-  String get neutralizeMessageHtmlStyleTitle => 'Clear card HTML backgrounds';
+  String get neutralizeMessageHtmlStyleTitle => 'カードの HTML 背景をクリア';
 
   @override
   String get neutralizeMessageHtmlStyleSubtitle =>
-      'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.';
+      'キャラクターカードの HTML 背景を、チャットの吹き出し色と文字色に置き換えます。吹き出し自体は変わりません。白っぽい場合は外観の「キャラクター吹き出し」を調整してください。';
 
   @override
   String get showBordersTitle => 'Show borders';
@@ -7078,19 +7069,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tokenCursor => 'Cursor';
 
   @override
-  String get tokenChatBackground => 'Chat background';
+  String get tokenChatBackground => 'チャット背景';
 
   @override
-  String get tokenCharacterBubble => 'Character bubble';
+  String get tokenCharacterBubble => 'キャラクター吹き出し';
 
   @override
-  String get tokenUserBubble => 'User bubble';
+  String get tokenUserBubble => 'ユーザー吹き出し';
 
   @override
-  String get tokenChatText => 'Message text';
+  String get tokenChatText => 'メッセージ文字';
 
   @override
-  String get tokenDialogueText => 'Spoken dialogue';
+  String get tokenDialogueText => 'セリフ文字';
 
   @override
   String get tokenEditorSurfaceDescription => 'Main scaffold background.';
@@ -7130,22 +7121,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tokenCursorDescription => 'Caret color in text fields.';
 
   @override
-  String get tokenChatBackgroundDescription =>
-      'The chat page background when you haven’t set a picture.';
+  String get tokenChatBackgroundDescription => '背景画像を設定していないときのチャット画面の色。';
 
   @override
-  String get tokenCharacterBubbleDescription =>
-      'The bubble behind character messages.';
+  String get tokenCharacterBubbleDescription => 'キャラクターのメッセージ吹き出しの色。';
 
   @override
-  String get tokenUserBubbleDescription => 'The bubble behind your messages.';
+  String get tokenUserBubbleDescription => '自分のメッセージ吹き出しの色。';
 
   @override
-  String get tokenChatTextDescription => 'Normal text inside message bubbles.';
+  String get tokenChatTextDescription => 'メッセージ吹き出し内の通常の文字。';
 
   @override
-  String get tokenDialogueTextDescription =>
-      'Quoted speech in messages. Shown in this color and bold.';
+  String get tokenDialogueTextDescription => 'メッセージ内の引用セリフ。この色で太字表示されます。';
 
   @override
   String get themeColorsSectionTitle => 'Theme colors';
@@ -7195,77 +7183,76 @@ class AppLocalizationsJa extends AppLocalizations {
   String get discardChanges => 'Discard';
 
   @override
-  String get copyToCustom => 'Copy to custom';
+  String get copyToCustom => 'カスタムにコピー';
 
   @override
   String copyNameOf(String name) {
-    return '$name copy';
+    return '$name のコピー';
   }
 
   @override
   String copiedPresetToCustom(String name) {
-    return 'Copied \"$name\" to custom presets';
+    return '「$name」をカスタムプリセットにコピーしました';
   }
 
   @override
-  String get copyNameSuffix => ' copy';
+  String get copyNameSuffix => ' のコピー';
 
   @override
-  String get addPrompt => 'Add prompt';
+  String get addPrompt => 'プロンプトを追加';
 
   @override
-  String get promptContent => 'Prompt content';
+  String get promptContent => 'プロンプト内容';
 
   @override
   String promptEntryAdded(String name) {
-    return 'Added \"$name\"';
+    return '「$name」を追加しました';
   }
 
   @override
   String promptEntryDuplicated(String name) {
-    return 'Duplicated as \"$name\"';
+    return '「$name」として複製しました';
   }
 
   @override
   String promptEntryDeleted(String name) {
-    return 'Deleted \"$name\"';
+    return '「$name」を削除しました';
   }
 
   @override
-  String get deletePromptEntry => 'Delete prompt';
+  String get deletePromptEntry => 'プロンプトを削除';
 
   @override
   String deletePromptConfirmation(String name) {
-    return 'Delete \"$name\"? This cannot be undone.';
+    return '「$name」を削除しますか？元に戻せません。';
   }
 
   @override
   String importedPromptSections(String name, int count) {
-    return 'Imported \"$name\" ($count prompts)';
+    return '「$name」をインポートしました（$count 件）';
   }
 
   @override
   String importedPromptCount(int count) {
-    return 'Imported $count prompts';
+    return '$count 件のプロンプトをインポートしました';
   }
 
   @override
-  String get presetPromptManager => 'Preset prompt manager';
+  String get presetPromptManager => 'プリセットのプロンプト管理';
 
   @override
-  String get promptPreviewCharacter => 'Preview character card';
+  String get promptPreviewCharacter => 'キャラクターカードをプレビュー';
 
   @override
   String get promptPreviewHint =>
-      'Pick a character to preview how description, personality, and other card fields map into this preset. This is preview only—the preset and character card stay independent.';
+      'キャラクターを選ぶと、説明・性格などカード欄がこのプリセットにどう写るか確認できます。プレビューのみで、プリセットとカードは互いに影響しません。';
 
   @override
-  String get promptPreviewSelectToView =>
-      'Pick a character above to view this field';
+  String get promptPreviewSelectToView => 'この項目を見るには上でキャラクターを選んでください';
 
   @override
-  String get promptPreviewEmptyField => 'This character has no content here';
+  String get promptPreviewEmptyField => 'このキャラクターにはここでの内容がありません';
 
   @override
-  String get promptOwnedByCharacter => 'From character card · view only';
+  String get promptOwnedByCharacter => 'キャラクターカード由来 · 表示のみ';
 }

@@ -216,7 +216,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get copiedToClipboard => 'คัดลอกไปยังคลิปบอร์ดแล้ว';
 
   @override
-  String get dragToSelectText => 'Drag to select text';
+  String get dragToSelectText => 'ลากเพื่อเลือกข้อความ';
 
   @override
   String get generateNewResponse => 'สร้างคำตอบใหม่';
@@ -364,7 +364,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get thinking => 'กำลังคิด';
 
   @override
-  String get thinkingInProgress => 'Thinking…';
+  String get thinkingInProgress => 'กำลังคิด…';
 
   @override
   String get noSwipesAvailable => 'ไม่มีการปัดที่ใช้ได้';
@@ -676,10 +676,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get showReplyChoices => 'ตัวเลือกการตอบ';
 
   @override
-  String get pinReplyChoicesPanel => 'Pin panel';
+  String get pinReplyChoicesPanel => 'ปักหมุดแผง';
 
   @override
-  String get unpinReplyChoicesPanel => 'Unpin panel';
+  String get unpinReplyChoicesPanel => 'เลิกปักหมุดแผง';
 
   @override
   String get createQuickReply => 'สร้างการตอบกลับด่วน';
@@ -818,16 +818,16 @@ class AppLocalizationsTh extends AppLocalizations {
   String get listView => 'มุมมองรายการ';
 
   @override
-  String get simpleListView => 'Simple list';
+  String get simpleListView => 'รายการแบบง่าย';
 
   @override
   String get gridView => 'มุมมองตาราง';
 
   @override
-  String get compactGridView => 'Compact grid';
+  String get compactGridView => 'ตารางแบบกระชับ';
 
   @override
-  String get characterDisplayMode => 'Display mode';
+  String get characterDisplayMode => 'โหมดการแสดงผล';
 
   @override
   String get characterAvatarShapeCircle => 'อวาตาร์วงกลม';
@@ -1267,34 +1267,34 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deleteSelectedCharacters => 'Delete Characters';
+  String get deleteSelectedCharacters => 'ลบตัวละคร';
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
-    return 'Delete $count selected characters? This will also delete all chats with these characters. This cannot be undone.';
+    return 'ลบตัวละครที่เลือก $count ตัวหรือไม่? แชทที่เกี่ยวข้องจะถูกลบด้วย และยกเลิกไม่ได้';
   }
 
   @override
   String charactersDeletedCount(int count) {
-    return 'Deleted $count characters';
+    return 'ลบตัวละครแล้ว $count ตัว';
   }
 
   @override
   String chatsSelected(int count) {
-    return '$count chat(s) selected';
+    return 'เลือกแล้ว $count แชท';
   }
 
   @override
-  String get deleteSelectedChats => 'Delete Chats';
+  String get deleteSelectedChats => 'ลบแชท';
 
   @override
   String deleteSelectedChatsConfirmation(int count) {
-    return 'Delete $count selected chats? This cannot be undone.';
+    return 'ลบแชทที่เลือก $count รายการหรือไม่? ยกเลิกไม่ได้';
   }
 
   @override
   String chatsDeletedCount(int count) {
-    return 'Deleted $count chats';
+    return 'ลบแชทแล้ว $count รายการ';
   }
 
   @override
@@ -1434,44 +1434,44 @@ class AppLocalizationsTh extends AppLocalizations {
   String get customPresets => 'Custom Presets';
 
   @override
-  String get aiPresetDefaultName => 'Default';
+  String get aiPresetDefaultName => 'ค่าเริ่มต้น';
 
   @override
-  String get aiPresetDefaultDescription => 'Balanced settings for general use';
+  String get aiPresetDefaultDescription => 'การตั้งค่าสมดุลสำหรับใช้งานทั่วไป';
 
   @override
-  String get aiPresetCreativeName => 'Creative';
+  String get aiPresetCreativeName => 'สร้างสรรค์';
 
   @override
   String get aiPresetCreativeDescription =>
-      'Higher temperature for more creative responses';
+      'อุณหภูมิสูงขึ้นเพื่อคำตอบที่สร้างสรรค์กว่า';
 
   @override
-  String get aiPresetPreciseName => 'Precise';
+  String get aiPresetPreciseName => 'แม่นยำ';
 
   @override
   String get aiPresetPreciseDescription =>
-      'Lower temperature for more focused responses';
+      'อุณหภูมิต่ำลงเพื่อคำตอบที่โฟกัสกว่า';
 
   @override
-  String get aiPresetDeterministicName => 'Deterministic';
+  String get aiPresetDeterministicName => 'แน่นอน';
 
   @override
   String get aiPresetDeterministicDescription =>
-      'Very low randomness for consistent outputs';
+      'สุ่มต่ำมากเพื่อผลลัพธ์ที่สม่ำเสมอ';
 
   @override
-  String get aiPresetLongFormName => 'Long Form';
+  String get aiPresetLongFormName => 'ข้อความยาว';
 
   @override
-  String get aiPresetLongFormDescription => 'Optimized for longer responses';
+  String get aiPresetLongFormDescription => 'ปรับให้เหมาะกับคำตอบที่ยาวขึ้น';
 
   @override
   String get aiPresetMirostatName => 'Mirostat';
 
   @override
   String get aiPresetMirostatDescription =>
-      'Uses Mirostat sampling for adaptive perplexity';
+      'ใช้การสุ่มตัวอย่าง Mirostat เพื่อปรับ perplexity อัตโนมัติ';
 
   @override
   String get aiPresetsDescription =>
@@ -1672,37 +1672,37 @@ class AppLocalizationsTh extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get colorAndGradientPresets => 'Colors & gradients';
+  String get colorAndGradientPresets => 'สีและการไล่ระดับ';
 
   @override
   String get customBackgroundColor => 'สีกำหนดเอง';
 
   @override
-  String get customBackgroundFill => 'Custom fill';
+  String get customBackgroundFill => 'การเติมแบบกำหนดเอง';
 
   @override
-  String get solidFill => 'Solid';
+  String get solidFill => 'สีทึบ';
 
   @override
-  String get gradientFill => 'Gradient';
+  String get gradientFill => 'ไล่ระดับสี';
 
   @override
-  String get linearGradient => 'Linear';
+  String get linearGradient => 'เส้นตรง';
 
   @override
-  String get radialGradient => 'Radial';
+  String get radialGradient => 'รัศมี';
 
   @override
-  String get gradientDirection => 'Direction';
+  String get gradientDirection => 'ทิศทาง';
 
   @override
-  String get gradientRadius => 'Radius';
+  String get gradientRadius => 'รัศมี';
 
   @override
-  String get gradientStartColor => 'Start color';
+  String get gradientStartColor => 'สีเริ่มต้น';
 
   @override
-  String get gradientEndColor => 'End color';
+  String get gradientEndColor => 'สีสิ้นสุด';
 
   @override
   String get backgroundColorImageMutexHint =>
@@ -4283,7 +4283,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get switchLayout => 'Switch layout';
 
   @override
-  String get scrollToBottom => 'Scroll to bottom';
+  String get scrollToBottom => 'เลื่อนไปท้ายสุด';
 
   @override
   String get stopGenerating => 'Stop generating';
@@ -4307,11 +4307,11 @@ class AppLocalizationsTh extends AppLocalizations {
       'Applies to custom and character image backgrounds';
 
   @override
-  String get enableBubbleBlur => 'Bubble blur';
+  String get enableBubbleBlur => 'เบลอฟองข้อความ';
 
   @override
   String get enableBubbleBlurHint =>
-      '0 is off. Higher values blur what\'s behind bubbles and the input.';
+      '0 คือปิด ค่าสูงขึ้นจะเบลอสิ่งที่อยู่หลังฟองข้อความและช่องพิมพ์';
 
   @override
   String get enableBackgroundBlur => 'Enable background blur';
@@ -6935,46 +6935,44 @@ class AppLocalizationsTh extends AppLocalizations {
       'Roundness of chat message bubbles.';
 
   @override
-  String get showCharacterAvatarTitle => 'Character avatar';
+  String get showCharacterAvatarTitle => 'อวาตาร์ตัวละคร';
 
   @override
   String get showCharacterAvatarSubtitle =>
-      'Show character avatars next to their messages.';
+      'แสดงอวาตาร์ตัวละครข้างข้อความของพวกเขา';
 
   @override
-  String get showUserAvatarTitle => 'Your avatar';
+  String get showUserAvatarTitle => 'อวาตาร์ของคุณ';
 
   @override
-  String get showUserAvatarSubtitle =>
-      'Show your persona avatar next to your messages.';
+  String get showUserAvatarSubtitle => 'แสดงอวาตาร์เพอร์โซนาข้างข้อความของคุณ';
 
   @override
-  String get avatarAboveBubbleTitle => 'Avatar above bubble';
+  String get avatarAboveBubbleTitle => 'อวาตาร์เหนือฟองข้อความ';
 
   @override
   String get avatarAboveBubbleSubtitle =>
-      'Place avatars above messages so bubbles can use the full width.';
+      'วางอวาตาร์เหนือข้อความเพื่อให้ฟองข้อความใช้ความกว้างเต็มที่';
 
   @override
-  String get showReasoningTitle => 'Thinking process';
+  String get showReasoningTitle => 'กระบวนการคิด';
 
   @override
-  String get showReasoningSubtitle =>
-      'Show the model\'s thinking above AI replies.';
+  String get showReasoningSubtitle => 'แสดงการคิดของโมเดลเหนือคำตอบ AI';
 
   @override
-  String get hideChatAppBarOnScrollTitle => 'Hide top bar while scrolling';
+  String get hideChatAppBarOnScrollTitle => 'ซ่อนแถบด้านบนขณะเลื่อน';
 
   @override
   String get hideChatAppBarOnScrollSubtitle =>
-      'Scroll down in chat to hide the top bar; scroll up to show it again.';
+      'เลื่อนลงในแชทเพื่อซ่อนแถบด้านบน เลื่อนขึ้นเพื่อแสดงอีกครั้ง';
 
   @override
-  String get neutralizeMessageHtmlStyleTitle => 'Clear card HTML backgrounds';
+  String get neutralizeMessageHtmlStyleTitle => 'ล้างพื้นหลัง HTML ของการ์ด';
 
   @override
   String get neutralizeMessageHtmlStyleSubtitle =>
-      'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.';
+      'แทนที่พื้นหลัง HTML ของการ์ดตัวละครด้วยสีฟองแชทและสีข้อความของคุณ สิ่งนี้ไม่เปลี่ยนฟองข้อความเอง — หากดูผิด ให้ปรับ «ฟองตัวละคร» ในลักษณะที่ปรากฏ';
 
   @override
   String get showBordersTitle => 'Show borders';
@@ -7095,19 +7093,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String get tokenCursor => 'Cursor';
 
   @override
-  String get tokenChatBackground => 'Chat background';
+  String get tokenChatBackground => 'พื้นหลังแชท';
 
   @override
-  String get tokenCharacterBubble => 'Character bubble';
+  String get tokenCharacterBubble => 'ฟองตัวละคร';
 
   @override
-  String get tokenUserBubble => 'User bubble';
+  String get tokenUserBubble => 'ฟองผู้ใช้';
 
   @override
-  String get tokenChatText => 'Message text';
+  String get tokenChatText => 'ข้อความในฟอง';
 
   @override
-  String get tokenDialogueText => 'Spoken dialogue';
+  String get tokenDialogueText => 'บทพูด';
 
   @override
   String get tokenEditorSurfaceDescription => 'Main scaffold background.';
@@ -7150,21 +7148,20 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get tokenChatBackgroundDescription =>
-      'The chat page background when you haven’t set a picture.';
+      'พื้นหลังหน้าแชทเมื่อยังไม่ได้ตั้งรูปภาพ';
 
   @override
-  String get tokenCharacterBubbleDescription =>
-      'The bubble behind character messages.';
+  String get tokenCharacterBubbleDescription => 'สีฟองข้อความของตัวละคร';
 
   @override
-  String get tokenUserBubbleDescription => 'The bubble behind your messages.';
+  String get tokenUserBubbleDescription => 'สีฟองข้อความของคุณ';
 
   @override
-  String get tokenChatTextDescription => 'Normal text inside message bubbles.';
+  String get tokenChatTextDescription => 'ข้อความปกติในฟองข้อความ';
 
   @override
   String get tokenDialogueTextDescription =>
-      'Quoted speech in messages. Shown in this color and bold.';
+      'คำพูดในเครื่องหมายคำพูดในข้อความ แสดงด้วยสีนี้และตัวหนา';
 
   @override
   String get themeColorsSectionTitle => 'Theme colors';
@@ -7214,77 +7211,76 @@ class AppLocalizationsTh extends AppLocalizations {
   String get discardChanges => 'Discard';
 
   @override
-  String get copyToCustom => 'Copy to custom';
+  String get copyToCustom => 'คัดลอกไปยังที่กำหนดเอง';
 
   @override
   String copyNameOf(String name) {
-    return '$name copy';
+    return 'สำเนาของ $name';
   }
 
   @override
   String copiedPresetToCustom(String name) {
-    return 'Copied \"$name\" to custom presets';
+    return 'คัดลอก «$name» ไปยังพรีเซ็ตที่กำหนดเองแล้ว';
   }
 
   @override
-  String get copyNameSuffix => ' copy';
+  String get copyNameSuffix => ' สำเนา';
 
   @override
-  String get addPrompt => 'Add prompt';
+  String get addPrompt => 'เพิ่มพรอมต์';
 
   @override
-  String get promptContent => 'Prompt content';
+  String get promptContent => 'เนื้อหาพรอมต์';
 
   @override
   String promptEntryAdded(String name) {
-    return 'Added \"$name\"';
+    return 'เพิ่ม «$name» แล้ว';
   }
 
   @override
   String promptEntryDuplicated(String name) {
-    return 'Duplicated as \"$name\"';
+    return 'ทำสำเนาเป็น «$name» แล้ว';
   }
 
   @override
   String promptEntryDeleted(String name) {
-    return 'Deleted \"$name\"';
+    return 'ลบ «$name» แล้ว';
   }
 
   @override
-  String get deletePromptEntry => 'Delete prompt';
+  String get deletePromptEntry => 'ลบพรอมต์';
 
   @override
   String deletePromptConfirmation(String name) {
-    return 'Delete \"$name\"? This cannot be undone.';
+    return 'ลบ «$name» หรือไม่? ยกเลิกไม่ได้';
   }
 
   @override
   String importedPromptSections(String name, int count) {
-    return 'Imported \"$name\" ($count prompts)';
+    return 'นำเข้า «$name» แล้ว ($count พรอมต์)';
   }
 
   @override
   String importedPromptCount(int count) {
-    return 'Imported $count prompts';
+    return 'นำเข้าพรอมต์แล้ว $count รายการ';
   }
 
   @override
-  String get presetPromptManager => 'Preset prompt manager';
+  String get presetPromptManager => 'ตัวจัดการพรอมต์ของพรีเซ็ต';
 
   @override
-  String get promptPreviewCharacter => 'Preview character card';
+  String get promptPreviewCharacter => 'ดูตัวอย่างการ์ดตัวละคร';
 
   @override
   String get promptPreviewHint =>
-      'Pick a character to preview how description, personality, and other card fields map into this preset. This is preview only—the preset and character card stay independent.';
+      'เลือกตัวละครเพื่อดูตัวอย่างว่าคำอธิบาย บุคลิก และช่องอื่นของการ์ดถูกแมปเข้าพรีเซ็ตนี้อย่างไร เป็นเพียงตัวอย่าง—พรีเซ็ตและการ์ดยังแยกกัน';
 
   @override
-  String get promptPreviewSelectToView =>
-      'Pick a character above to view this field';
+  String get promptPreviewSelectToView => 'เลือกตัวละครด้านบนเพื่อดูช่องนี้';
 
   @override
-  String get promptPreviewEmptyField => 'This character has no content here';
+  String get promptPreviewEmptyField => 'ตัวละครนี้ไม่มีเนื้อหาที่นี่';
 
   @override
-  String get promptOwnedByCharacter => 'From character card · view only';
+  String get promptOwnedByCharacter => 'จากการ์ดตัวละคร · ดูอย่างเดียว';
 }

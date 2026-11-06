@@ -217,7 +217,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get copiedToClipboard => 'Đã sao chép vào clipboard';
 
   @override
-  String get dragToSelectText => 'Drag to select text';
+  String get dragToSelectText => 'Kéo để chọn chữ';
 
   @override
   String get generateNewResponse => 'Tạo phản hồi mới';
@@ -366,7 +366,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get thinking => 'Đang suy nghĩ';
 
   @override
-  String get thinkingInProgress => 'Thinking…';
+  String get thinkingInProgress => 'Đang suy nghĩ…';
 
   @override
   String get noSwipesAvailable => 'Không có swipe nào';
@@ -679,10 +679,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get showReplyChoices => 'Lựa chọn trả lời';
 
   @override
-  String get pinReplyChoicesPanel => 'Pin panel';
+  String get pinReplyChoicesPanel => 'Ghim bảng';
 
   @override
-  String get unpinReplyChoicesPanel => 'Unpin panel';
+  String get unpinReplyChoicesPanel => 'Bỏ ghim bảng';
 
   @override
   String get createQuickReply => 'Tạo trả lời nhanh';
@@ -821,16 +821,16 @@ class AppLocalizationsVi extends AppLocalizations {
   String get listView => 'Xem danh sách';
 
   @override
-  String get simpleListView => 'Simple list';
+  String get simpleListView => 'Danh sách đơn giản';
 
   @override
   String get gridView => 'Xem lưới';
 
   @override
-  String get compactGridView => 'Compact grid';
+  String get compactGridView => 'Lưới gọn';
 
   @override
-  String get characterDisplayMode => 'Display mode';
+  String get characterDisplayMode => 'Chế độ hiển thị';
 
   @override
   String get characterAvatarShapeCircle => 'Ảnh đại diện tròn';
@@ -1270,34 +1270,34 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get deleteSelectedCharacters => 'Delete Characters';
+  String get deleteSelectedCharacters => 'Xóa nhân vật';
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
-    return 'Delete $count selected characters? This will also delete all chats with these characters. This cannot be undone.';
+    return 'Xóa $count nhân vật đã chọn? Các cuộc trò chuyện liên quan cũng bị xóa. Không thể hoàn tác.';
   }
 
   @override
   String charactersDeletedCount(int count) {
-    return 'Deleted $count characters';
+    return 'Đã xóa $count nhân vật';
   }
 
   @override
   String chatsSelected(int count) {
-    return '$count chat(s) selected';
+    return 'Đã chọn $count cuộc trò chuyện';
   }
 
   @override
-  String get deleteSelectedChats => 'Delete Chats';
+  String get deleteSelectedChats => 'Xóa cuộc trò chuyện';
 
   @override
   String deleteSelectedChatsConfirmation(int count) {
-    return 'Delete $count selected chats? This cannot be undone.';
+    return 'Xóa $count cuộc trò chuyện đã chọn? Không thể hoàn tác.';
   }
 
   @override
   String chatsDeletedCount(int count) {
-    return 'Deleted $count chats';
+    return 'Đã xóa $count cuộc trò chuyện';
   }
 
   @override
@@ -1437,44 +1437,45 @@ class AppLocalizationsVi extends AppLocalizations {
   String get customPresets => 'Custom Presets';
 
   @override
-  String get aiPresetDefaultName => 'Default';
+  String get aiPresetDefaultName => 'Mặc định';
 
   @override
-  String get aiPresetDefaultDescription => 'Balanced settings for general use';
+  String get aiPresetDefaultDescription =>
+      'Cài đặt cân bằng cho sử dụng hàng ngày';
 
   @override
-  String get aiPresetCreativeName => 'Creative';
+  String get aiPresetCreativeName => 'Sáng tạo';
 
   @override
   String get aiPresetCreativeDescription =>
-      'Higher temperature for more creative responses';
+      'Nhiệt độ cao hơn để phản hồi sáng tạo hơn';
 
   @override
-  String get aiPresetPreciseName => 'Precise';
+  String get aiPresetPreciseName => 'Chính xác';
 
   @override
   String get aiPresetPreciseDescription =>
-      'Lower temperature for more focused responses';
+      'Nhiệt độ thấp hơn để phản hồi tập trung hơn';
 
   @override
-  String get aiPresetDeterministicName => 'Deterministic';
+  String get aiPresetDeterministicName => 'Xác định';
 
   @override
   String get aiPresetDeterministicDescription =>
-      'Very low randomness for consistent outputs';
+      'Độ ngẫu nhiên rất thấp để đầu ra ổn định hơn';
 
   @override
-  String get aiPresetLongFormName => 'Long Form';
+  String get aiPresetLongFormName => 'Văn dài';
 
   @override
-  String get aiPresetLongFormDescription => 'Optimized for longer responses';
+  String get aiPresetLongFormDescription => 'Tối ưu cho phản hồi dài hơn';
 
   @override
   String get aiPresetMirostatName => 'Mirostat';
 
   @override
   String get aiPresetMirostatDescription =>
-      'Uses Mirostat sampling for adaptive perplexity';
+      'Dùng lấy mẫu Mirostat để điều chỉnh perplexity thích ứng';
 
   @override
   String get aiPresetsDescription =>
@@ -1675,37 +1676,37 @@ class AppLocalizationsVi extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get colorAndGradientPresets => 'Colors & gradients';
+  String get colorAndGradientPresets => 'Màu và gradient';
 
   @override
   String get customBackgroundColor => 'Màu tùy chỉnh';
 
   @override
-  String get customBackgroundFill => 'Custom fill';
+  String get customBackgroundFill => 'Tô tùy chỉnh';
 
   @override
-  String get solidFill => 'Solid';
+  String get solidFill => 'Đồng màu';
 
   @override
   String get gradientFill => 'Gradient';
 
   @override
-  String get linearGradient => 'Linear';
+  String get linearGradient => 'Tuyến tính';
 
   @override
-  String get radialGradient => 'Radial';
+  String get radialGradient => 'Xuyên tâm';
 
   @override
-  String get gradientDirection => 'Direction';
+  String get gradientDirection => 'Hướng';
 
   @override
-  String get gradientRadius => 'Radius';
+  String get gradientRadius => 'Bán kính';
 
   @override
-  String get gradientStartColor => 'Start color';
+  String get gradientStartColor => 'Màu bắt đầu';
 
   @override
-  String get gradientEndColor => 'End color';
+  String get gradientEndColor => 'Màu kết thúc';
 
   @override
   String get backgroundColorImageMutexHint =>
@@ -4286,7 +4287,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get switchLayout => 'Switch layout';
 
   @override
-  String get scrollToBottom => 'Scroll to bottom';
+  String get scrollToBottom => 'Cuộn xuống cuối';
 
   @override
   String get stopGenerating => 'Stop generating';
@@ -4310,11 +4311,11 @@ class AppLocalizationsVi extends AppLocalizations {
       'Applies to custom and character image backgrounds';
 
   @override
-  String get enableBubbleBlur => 'Bubble blur';
+  String get enableBubbleBlur => 'Làm mờ bong bóng';
 
   @override
   String get enableBubbleBlurHint =>
-      '0 is off. Higher values blur what\'s behind bubbles and the input.';
+      '0 là tắt. Giá trị càng cao, phía sau bong bóng và ô nhập càng mờ.';
 
   @override
   String get enableBackgroundBlur => 'Enable background blur';
@@ -6938,46 +6939,46 @@ class AppLocalizationsVi extends AppLocalizations {
       'Roundness of chat message bubbles.';
 
   @override
-  String get showCharacterAvatarTitle => 'Character avatar';
+  String get showCharacterAvatarTitle => 'Avatar nhân vật';
 
   @override
   String get showCharacterAvatarSubtitle =>
-      'Show character avatars next to their messages.';
+      'Hiện avatar nhân vật cạnh tin nhắn của họ.';
 
   @override
-  String get showUserAvatarTitle => 'Your avatar';
+  String get showUserAvatarTitle => 'Avatar của bạn';
 
   @override
   String get showUserAvatarSubtitle =>
-      'Show your persona avatar next to your messages.';
+      'Hiện avatar nhân cách cạnh tin nhắn của bạn.';
 
   @override
-  String get avatarAboveBubbleTitle => 'Avatar above bubble';
+  String get avatarAboveBubbleTitle => 'Avatar phía trên bong bóng';
 
   @override
   String get avatarAboveBubbleSubtitle =>
-      'Place avatars above messages so bubbles can use the full width.';
+      'Đặt avatar phía trên tin nhắn để bong bóng dùng hết chiều rộng.';
 
   @override
-  String get showReasoningTitle => 'Thinking process';
+  String get showReasoningTitle => 'Quá trình suy nghĩ';
 
   @override
   String get showReasoningSubtitle =>
-      'Show the model\'s thinking above AI replies.';
+      'Hiện quá trình suy nghĩ của mô hình phía trên câu trả lời AI.';
 
   @override
-  String get hideChatAppBarOnScrollTitle => 'Hide top bar while scrolling';
+  String get hideChatAppBarOnScrollTitle => 'Ẩn thanh trên khi cuộn';
 
   @override
   String get hideChatAppBarOnScrollSubtitle =>
-      'Scroll down in chat to hide the top bar; scroll up to show it again.';
+      'Cuộn xuống trong chat để ẩn thanh trên; cuộn lên để hiện lại.';
 
   @override
-  String get neutralizeMessageHtmlStyleTitle => 'Clear card HTML backgrounds';
+  String get neutralizeMessageHtmlStyleTitle => 'Xóa nền HTML của thẻ';
 
   @override
   String get neutralizeMessageHtmlStyleSubtitle =>
-      'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.';
+      'Thay nền HTML của thẻ nhân vật bằng màu bong bóng và chữ chat của bạn. Không đổi bản thân bong bóng — nếu trông sai, chỉnh «Bong bóng nhân vật» trong Giao diện.';
 
   @override
   String get showBordersTitle => 'Show borders';
@@ -7098,19 +7099,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get tokenCursor => 'Cursor';
 
   @override
-  String get tokenChatBackground => 'Chat background';
+  String get tokenChatBackground => 'Nền chat';
 
   @override
-  String get tokenCharacterBubble => 'Character bubble';
+  String get tokenCharacterBubble => 'Bong bóng nhân vật';
 
   @override
-  String get tokenUserBubble => 'User bubble';
+  String get tokenUserBubble => 'Bong bóng người dùng';
 
   @override
-  String get tokenChatText => 'Message text';
+  String get tokenChatText => 'Chữ tin nhắn';
 
   @override
-  String get tokenDialogueText => 'Spoken dialogue';
+  String get tokenDialogueText => 'Lời thoại';
 
   @override
   String get tokenEditorSurfaceDescription => 'Main scaffold background.';
@@ -7153,21 +7154,21 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get tokenChatBackgroundDescription =>
-      'The chat page background when you haven’t set a picture.';
+      'Nền trang chat khi bạn chưa đặt ảnh nền.';
 
   @override
   String get tokenCharacterBubbleDescription =>
-      'The bubble behind character messages.';
+      'Màu bong bóng tin nhắn nhân vật.';
 
   @override
-  String get tokenUserBubbleDescription => 'The bubble behind your messages.';
+  String get tokenUserBubbleDescription => 'Màu bong bóng tin nhắn của bạn.';
 
   @override
-  String get tokenChatTextDescription => 'Normal text inside message bubbles.';
+  String get tokenChatTextDescription => 'Chữ thường trong bong bóng tin nhắn.';
 
   @override
   String get tokenDialogueTextDescription =>
-      'Quoted speech in messages. Shown in this color and bold.';
+      'Lời nói trong dấu ngoặc kép trong tin nhắn. Hiện màu này và in đậm.';
 
   @override
   String get themeColorsSectionTitle => 'Theme colors';
@@ -7217,77 +7218,77 @@ class AppLocalizationsVi extends AppLocalizations {
   String get discardChanges => 'Discard';
 
   @override
-  String get copyToCustom => 'Copy to custom';
+  String get copyToCustom => 'Sao chép sang tùy chỉnh';
 
   @override
   String copyNameOf(String name) {
-    return '$name copy';
+    return 'Bản sao $name';
   }
 
   @override
   String copiedPresetToCustom(String name) {
-    return 'Copied \"$name\" to custom presets';
+    return 'Đã sao chép «$name» sang preset tùy chỉnh';
   }
 
   @override
-  String get copyNameSuffix => ' copy';
+  String get copyNameSuffix => ' bản sao';
 
   @override
-  String get addPrompt => 'Add prompt';
+  String get addPrompt => 'Thêm prompt';
 
   @override
-  String get promptContent => 'Prompt content';
+  String get promptContent => 'Nội dung prompt';
 
   @override
   String promptEntryAdded(String name) {
-    return 'Added \"$name\"';
+    return 'Đã thêm «$name»';
   }
 
   @override
   String promptEntryDuplicated(String name) {
-    return 'Duplicated as \"$name\"';
+    return 'Đã nhân bản thành «$name»';
   }
 
   @override
   String promptEntryDeleted(String name) {
-    return 'Deleted \"$name\"';
+    return 'Đã xóa «$name»';
   }
 
   @override
-  String get deletePromptEntry => 'Delete prompt';
+  String get deletePromptEntry => 'Xóa prompt';
 
   @override
   String deletePromptConfirmation(String name) {
-    return 'Delete \"$name\"? This cannot be undone.';
+    return 'Xóa «$name»? Không thể hoàn tác.';
   }
 
   @override
   String importedPromptSections(String name, int count) {
-    return 'Imported \"$name\" ($count prompts)';
+    return 'Đã nhập «$name» ($count prompt)';
   }
 
   @override
   String importedPromptCount(int count) {
-    return 'Imported $count prompts';
+    return 'Đã nhập $count prompt';
   }
 
   @override
-  String get presetPromptManager => 'Preset prompt manager';
+  String get presetPromptManager => 'Quản lý prompt của preset';
 
   @override
-  String get promptPreviewCharacter => 'Preview character card';
+  String get promptPreviewCharacter => 'Xem trước thẻ nhân vật';
 
   @override
   String get promptPreviewHint =>
-      'Pick a character to preview how description, personality, and other card fields map into this preset. This is preview only—the preset and character card stay independent.';
+      'Chọn một nhân vật để xem mô tả, tính cách và các trường thẻ khác ánh xạ vào preset này thế nào. Chỉ xem trước—preset và thẻ nhân vật vẫn độc lập.';
 
   @override
   String get promptPreviewSelectToView =>
-      'Pick a character above to view this field';
+      'Chọn nhân vật phía trên để xem trường này';
 
   @override
-  String get promptPreviewEmptyField => 'This character has no content here';
+  String get promptPreviewEmptyField => 'Nhân vật này không có nội dung ở đây';
 
   @override
-  String get promptOwnedByCharacter => 'From character card · view only';
+  String get promptOwnedByCharacter => 'Từ thẻ nhân vật · chỉ xem';
 }

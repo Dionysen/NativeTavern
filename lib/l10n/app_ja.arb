@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "タップしてフォントを選びます。パソコンではインストール済みフォントが表示され、スマホではフォントファイルを取り込めます。",
   "uiFontFamilySystem": "システム既定",
-  "uiFontFamilyTitle": "フォント"
+  "uiFontFamilyTitle": "フォント",
+  "addPrompt": "プロンプトを追加",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "温度を上げて、より創造的な返答に",
+  "aiPresetCreativeName": "クリエイティブ",
+  "aiPresetDefaultDescription": "日常向けのバランス設定",
+  "aiPresetDefaultName": "デフォルト",
+  "aiPresetDeterministicDescription": "ランダム性を極力抑え、安定した出力に",
+  "aiPresetDeterministicName": "決定的",
+  "aiPresetLongFormDescription": "長めの返答向けに最適化",
+  "aiPresetLongFormName": "長文",
+  "aiPresetMirostatDescription": "Mirostat サンプリングで困惑度を適応調整",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "温度を下げて、より焦点の定まった返答に",
+  "aiPresetPreciseName": "精密",
+  "avatarAboveBubbleSubtitle": "アバターをメッセージの上に置き、吹き出しを全幅にできます。",
+  "avatarAboveBubbleTitle": "吹き出しの上にアバター",
+  "characterDisplayMode": "表示モード",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "{count} 体のキャラクターを削除しました",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "{count} 件のチャットを削除しました",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "{count} 件のチャットを選択中",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "色とグラデーション",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "コンパクトグリッド",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "「{name}」をカスタムプリセットにコピーしました",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "{name} のコピー",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " のコピー",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "カスタムにコピー",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "カスタム塗りつぶし",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "「{name}」を削除しますか？元に戻せません。",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "プロンプトを削除",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "キャラクターを削除",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "選択した {count} 体のキャラクターを削除しますか？関連チャットも削除され、元に戻せません。",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "チャットを削除",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "選択した {count} 件のチャットを削除しますか？元に戻せません。",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "ドラッグして文字を選択",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "吹き出しのぼかし",
+  "enableBubbleBlurHint": "0 でオフ。値を上げると吹き出しと入力欄の背後がぼやけます。",
+  "gradientDirection": "方向",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "終了色",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "グラデーション",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "半径",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "開始色",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "チャットで下にスクロールすると上部バーが隠れ、上にスクロールすると再表示されます。",
+  "hideChatAppBarOnScrollTitle": "スクロール中は上部バーを隠す",
+  "importedPromptCount": "{count} 件のプロンプトをインポートしました",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "「{name}」をインポートしました（{count} 件）",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "線形",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "キャラクターカードの HTML 背景を、チャットの吹き出し色と文字色に置き換えます。吹き出し自体は変わりません。白っぽい場合は外観の「キャラクター吹き出し」を調整してください。",
+  "neutralizeMessageHtmlStyleTitle": "カードの HTML 背景をクリア",
+  "pinReplyChoicesPanel": "パネルを固定",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "プリセットのプロンプト管理",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "プロンプト内容",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "「{name}」を追加しました",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "「{name}」を削除しました",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "「{name}」として複製しました",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "キャラクターカード由来 · 表示のみ",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "キャラクターカードをプレビュー",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "このキャラクターにはここでの内容がありません",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "キャラクターを選ぶと、説明・性格などカード欄がこのプリセットにどう写るか確認できます。プレビューのみで、プリセットとカードは互いに影響しません。",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "この項目を見るには上でキャラクターを選んでください",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "放射状",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "一番下へスクロール",
+  "showCharacterAvatarSubtitle": "キャラクターのメッセージ横にアバターを表示します。",
+  "showCharacterAvatarTitle": "キャラクターアバター",
+  "showReasoningSubtitle": "AI の返答の上にモデルの思考を表示します。",
+  "showReasoningTitle": "思考プロセス",
+  "showUserAvatarSubtitle": "自分のメッセージ横にペルソナのアバターを表示します。",
+  "showUserAvatarTitle": "ユーザーアバター",
+  "simpleListView": "シンプルリスト",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "単色",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "思考中…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "キャラクター吹き出し",
+  "tokenCharacterBubbleDescription": "キャラクターのメッセージ吹き出しの色。",
+  "tokenChatBackground": "チャット背景",
+  "tokenChatBackgroundDescription": "背景画像を設定していないときのチャット画面の色。",
+  "tokenChatText": "メッセージ文字",
+  "tokenChatTextDescription": "メッセージ吹き出し内の通常の文字。",
+  "tokenDialogueText": "セリフ文字",
+  "tokenDialogueTextDescription": "メッセージ内の引用セリフ。この色で太字表示されます。",
+  "tokenUserBubble": "ユーザー吹き出し",
+  "tokenUserBubbleDescription": "自分のメッセージ吹き出しの色。",
+  "unpinReplyChoicesPanel": "パネルの固定を解除",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "انقر لاختيار خط. يظهر الكمبيوتر الخطوط المثبتة؛ على الهاتف يمكنك استيراد ملف خط.",
   "uiFontFamilySystem": "افتراضي النظام",
-  "uiFontFamilyTitle": "الخط"
+  "uiFontFamilyTitle": "الخط",
+  "addPrompt": "إضافة موجّه",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "حرارة أعلى لردود أكثر إبداعًا",
+  "aiPresetCreativeName": "إبداعي",
+  "aiPresetDefaultDescription": "إعدادات متوازنة للاستخدام العام",
+  "aiPresetDefaultName": "افتراضي",
+  "aiPresetDeterministicDescription": "عشوائية منخفضة جدًا لمخرجات أكثر اتساقًا",
+  "aiPresetDeterministicName": "حتمي",
+  "aiPresetLongFormDescription": "محسّن للردود الأطول",
+  "aiPresetLongFormName": "نص طويل",
+  "aiPresetMirostatDescription": "يستخدم أخذ عينات Mirostat لضبط الحيرة تلقائيًا",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "حرارة أقل لردود أكثر تركيزًا",
+  "aiPresetPreciseName": "دقيق",
+  "avatarAboveBubbleSubtitle": "ضع الصور الرمزية فوق الرسائل ليأخذ الفقاعة العرض كاملًا.",
+  "avatarAboveBubbleTitle": "الصورة الرمزية فوق الفقاعة",
+  "characterDisplayMode": "وضع العرض",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "تم حذف {count} من الشخصيات",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "تم حذف {count} من المحادثات",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "تم تحديد {count} من المحادثات",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "ألوان وتدرجات",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "شبكة مدمجة",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "تم نسخ «{name}» إلى الإعدادات المخصصة",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "نسخة من {name}",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " نسخة",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "نسخ إلى المخصص",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "تعبئة مخصصة",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "حذف «{name}»؟ لا يمكن التراجع.",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "حذف الموجّه",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "حذف الشخصيات",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "حذف {count} من الشخصيات المحددة؟ ستُحذف أيضًا كل المحادثات معها. لا يمكن التراجع.",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "حذف المحادثات",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "حذف {count} من المحادثات المحددة؟ لا يمكن التراجع.",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "اسحب لتحديد النص",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "ضبابية الفقاعة",
+  "enableBubbleBlurHint": "0 يعني الإيقاف. القيم الأعلى تضبّب ما خلف الفقاعات وحقل الإدخال.",
+  "gradientDirection": "الاتجاه",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "لون النهاية",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "تدرج",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "نصف القطر",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "لون البداية",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "مرّر للأسفل في الدردشة لإخفاء الشريط العلوي؛ مرّر للأعلى لإظهاره مجددًا.",
+  "hideChatAppBarOnScrollTitle": "إخفاء الشريط العلوي أثناء التمرير",
+  "importedPromptCount": "تم استيراد {count} من الموجّهات",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "تم استيراد «{name}» ({count} موجّهًا)",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "خطي",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "استبدل خلفيات HTML في بطاقة الشخصية بلون فقاعة الدردشة ولون النص. هذا لا يغيّر الفقاعة نفسها — عدّل «فقاعة الشخصية» في المظهر إن بدت خاطئة.",
+  "neutralizeMessageHtmlStyleTitle": "مسح خلفيات HTML للبطاقة",
+  "pinReplyChoicesPanel": "تثبيت اللوحة",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "مدير موجّهات الإعداد المسبق",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "محتوى الموجّه",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "تمت إضافة «{name}»",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "تم حذف «{name}»",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "تم النسخ باسم «{name}»",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "من بطاقة الشخصية · عرض فقط",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "معاينة بطاقة الشخصية",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "هذه الشخصية بلا محتوى هنا",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "اختر شخصية لمعاينة كيف تُعرَض الوصف والشخصية وغيرها من حقول البطاقة في هذا الإعداد. هذه معاينة فقط — الإعداد وبطاقة الشخصية يبقيان منفصلين.",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "اختر شخصية أعلاه لعرض هذا الحقل",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "شعاعي",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "التمرير إلى الأسفل",
+  "showCharacterAvatarSubtitle": "أظهر صور الشخصيات بجانب رسائلها.",
+  "showCharacterAvatarTitle": "صورة الشخصية",
+  "showReasoningSubtitle": "اعرض تفكير النموذج فوق ردود الذكاء الاصطناعي.",
+  "showReasoningTitle": "عملية التفكير",
+  "showUserAvatarSubtitle": "أظهر صورة شخصيتك بجانب رسائلك.",
+  "showUserAvatarTitle": "صورتك",
+  "simpleListView": "قائمة بسيطة",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "لون ثابت",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "جارٍ التفكير…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "فقاعة الشخصية",
+  "tokenCharacterBubbleDescription": "الفقاعة خلف رسائل الشخصية.",
+  "tokenChatBackground": "خلفية الدردشة",
+  "tokenChatBackgroundDescription": "خلفية صفحة الدردشة عندما لا تضبط صورة.",
+  "tokenChatText": "نص الرسالة",
+  "tokenChatTextDescription": "النص العادي داخل فقاعات الرسائل.",
+  "tokenDialogueText": "الحوار المنطوق",
+  "tokenDialogueTextDescription": "الكلام بين علامتي اقتباس في الرسائل. يظهر بهذا اللون وبخط عريض.",
+  "tokenUserBubble": "فقاعة المستخدم",
+  "tokenUserBubbleDescription": "الفقاعة خلف رسائلك.",
+  "unpinReplyChoicesPanel": "إلغاء تثبيت اللوحة",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

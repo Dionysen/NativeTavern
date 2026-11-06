@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "Dotknij, by wybrać czcionkę. Komputer pokazuje zainstalowane czcionki; na telefonie możesz zaimportować plik czcionki.",
   "uiFontFamilySystem": "Domyślna systemowa",
-  "uiFontFamilyTitle": "Czcionka"
+  "uiFontFamilyTitle": "Czcionka",
+  "addPrompt": "Dodaj prompt",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "Wyższa temperatura dla bardziej kreatywnych odpowiedzi",
+  "aiPresetCreativeName": "Kreatywny",
+  "aiPresetDefaultDescription": "Zrównoważone ustawienia do codziennego użytku",
+  "aiPresetDefaultName": "Domyślny",
+  "aiPresetDeterministicDescription": "Bardzo niska losowość dla spójnych wyników",
+  "aiPresetDeterministicName": "Deterministyczny",
+  "aiPresetLongFormDescription": "Zoptymalizowane pod dłuższe odpowiedzi",
+  "aiPresetLongFormName": "Długa forma",
+  "aiPresetMirostatDescription": "Używa próbkowania Mirostat do adaptacyjnej perplexity",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "Niższa temperatura dla bardziej skupionych odpowiedzi",
+  "aiPresetPreciseName": "Precyzyjny",
+  "avatarAboveBubbleSubtitle": "Umieść awatary nad wiadomościami, by dymki zajęły pełną szerokość.",
+  "avatarAboveBubbleTitle": "Awatar nad dymkiem",
+  "characterDisplayMode": "Tryb wyświetlania",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "Usunięto {count} postaci",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "Usunięto {count} czatów",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "Wybrano {count} czat(ów)",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "Kolory i gradienty",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "Zwarta siatka",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "Skopiowano „{name}” do własnych presetów",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "Kopia {name}",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " kopia",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "Kopiuj do własnych",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "Własne wypełnienie",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "Usunąć „{name}”? Tej operacji nie można cofnąć.",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "Usuń prompt",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "Usuń postacie",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "Usunąć {count} zaznaczone postacie? Usunie to też wszystkie czaty z nimi. Nie można cofnąć.",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "Usuń czaty",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "Usunąć {count} zaznaczone czaty? Tej operacji nie można cofnąć.",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "Przeciągnij, aby zaznaczyć tekst",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "Rozmycie dymka",
+  "enableBubbleBlurHint": "0 wyłącza. Wyższe wartości rozmywają tło za dymkami i polem wpisywania.",
+  "gradientDirection": "Kierunek",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "Kolor końcowy",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "Gradient",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "Promień",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "Kolor początkowy",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "Przewiń w dół na czacie, by ukryć górny pasek; w górę, by pokazać go ponownie.",
+  "hideChatAppBarOnScrollTitle": "Ukrywaj górny pasek podczas przewijania",
+  "importedPromptCount": "Zaimportowano {count} promptów",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "Zaimportowano „{name}” ({count} promptów)",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "Liniowy",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "Zastępuje tła HTML karty postaci kolorem dymka i tekstu czatu. Sam dymek się nie zmienia — w Wyglądzie ustaw «Dymek postaci», jeśli wygląda źle.",
+  "neutralizeMessageHtmlStyleTitle": "Wyczyść tła HTML karty",
+  "pinReplyChoicesPanel": "Przypnij panel",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "Menedżer promptów presetu",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "Treść promptu",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "Dodano „{name}”",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "Usunięto „{name}”",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "Zduplikowano jako „{name}”",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "Z karty postaci · tylko podgląd",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "Podgląd karty postaci",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "Ta postać nie ma tu treści",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "Wybierz postać, by zobaczyć, jak opis, osobowość i inne pola karty mapują się na ten preset. To tylko podgląd — preset i karta pozostają niezależne.",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "Wybierz postać powyżej, by zobaczyć to pole",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "Promienisty",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "Przewiń na dół",
+  "showCharacterAvatarSubtitle": "Pokazuj awatary postaci obok ich wiadomości.",
+  "showCharacterAvatarTitle": "Awatar postaci",
+  "showReasoningSubtitle": "Pokazuj myślenie modelu nad odpowiedziami AI.",
+  "showReasoningTitle": "Proces myślenia",
+  "showUserAvatarSubtitle": "Pokazuj awatar persony obok swoich wiadomości.",
+  "showUserAvatarTitle": "Twój awatar",
+  "simpleListView": "Prosta lista",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "Jednolity",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "Myślenie…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "Dymek postaci",
+  "tokenCharacterBubbleDescription": "Dymek za wiadomościami postaci.",
+  "tokenChatBackground": "Tło czatu",
+  "tokenChatBackgroundDescription": "Tło strony czatu, gdy nie ustawiono obrazu.",
+  "tokenChatText": "Tekst wiadomości",
+  "tokenChatTextDescription": "Zwykły tekst w dymkach wiadomości.",
+  "tokenDialogueText": "Wypowiedziany dialog",
+  "tokenDialogueTextDescription": "Mowa w cudzysłowie w wiadomościach. Pokazywana w tym kolorze i pogrubiona.",
+  "tokenUserBubble": "Dymek użytkownika",
+  "tokenUserBubbleDescription": "Dymek za Twoimi wiadomościami.",
+  "unpinReplyChoicesPanel": "Odepnij panel",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

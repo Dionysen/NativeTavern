@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "Нажмите, чтобы выбрать шрифт. На компьютере показаны установленные шрифты; на телефоне можно импортировать файл шрифта.",
   "uiFontFamilySystem": "Системный по умолчанию",
-  "uiFontFamilyTitle": "Шрифт"
+  "uiFontFamilyTitle": "Шрифт",
+  "addPrompt": "Добавить промпт",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "Более высокая температура для более креативных ответов",
+  "aiPresetCreativeName": "Креативный",
+  "aiPresetDefaultDescription": "Сбалансированные настройки для обычного использования",
+  "aiPresetDefaultName": "По умолчанию",
+  "aiPresetDeterministicDescription": "Очень низкая случайность для стабильных результатов",
+  "aiPresetDeterministicName": "Детерминированный",
+  "aiPresetLongFormDescription": "Оптимизировано для более длинных ответов",
+  "aiPresetLongFormName": "Длинный текст",
+  "aiPresetMirostatDescription": "Использует выборку Mirostat для адаптивной perplexity",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "Более низкая температура для более точных ответов",
+  "aiPresetPreciseName": "Точный",
+  "avatarAboveBubbleSubtitle": "Размещайте аватары над сообщениями, чтобы пузыри занимали всю ширину.",
+  "avatarAboveBubbleTitle": "Аватар над пузырём",
+  "characterDisplayMode": "Режим отображения",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "Удалено персонажей: {count}",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "Удалено чатов: {count}",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "Выбрано чатов: {count}",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "Цвета и градиенты",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "Компактная сетка",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "«{name}» скопирован в свои пресеты",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "Копия {name}",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " копия",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "Скопировать в свои",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "Своя заливка",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "Удалить «{name}»? Это нельзя отменить.",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "Удалить промпт",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "Удалить персонажей",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "Удалить выбранных персонажей ({count})? Связанные чаты тоже будут удалены. Это нельзя отменить.",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "Удалить чаты",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "Удалить выбранные чаты ({count})? Это нельзя отменить.",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "Перетащите, чтобы выделить текст",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "Размытие пузыря",
+  "enableBubbleBlurHint": "0 — выкл. Чем выше значение, тем сильнее размытие за пузырями и полем ввода.",
+  "gradientDirection": "Направление",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "Конечный цвет",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "Градиент",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "Радиус",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "Начальный цвет",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "Прокрутите чат вниз, чтобы скрыть верхнюю панель; вверх — чтобы показать снова.",
+  "hideChatAppBarOnScrollTitle": "Скрывать верхнюю панель при прокрутке",
+  "importedPromptCount": "Импортировано промптов: {count}",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "Импортировано «{name}» ({count} промптов)",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "Линейный",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "Заменяет HTML-фоны карточки персонажа цветом пузыря и текста чата. Сам пузырь не меняется — при белёсом виде настройте «Пузырь персонажа» во Внешнем виде.",
+  "neutralizeMessageHtmlStyleTitle": "Убрать HTML-фоны карточки",
+  "pinReplyChoicesPanel": "Закрепить панель",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "Менеджер промптов пресета",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "Содержимое промпта",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "Добавлено «{name}»",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "Удалено «{name}»",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "Дублировано как «{name}»",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "Из карточки персонажа · только просмотр",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "Превью карточки персонажа",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "У этого персонажа здесь нет содержимого",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "Выберите персонажа, чтобы увидеть, как описание, характер и другие поля карты попадают в этот пресет. Это только превью — пресет и карточка остаются независимыми.",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "Выберите персонажа выше, чтобы посмотреть это поле",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "Радиальный",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "Прокрутить вниз",
+  "showCharacterAvatarSubtitle": "Показывать аватары персонажа рядом с его сообщениями.",
+  "showCharacterAvatarTitle": "Аватар персонажа",
+  "showReasoningSubtitle": "Показывать рассуждения модели над ответами ИИ.",
+  "showReasoningTitle": "Процесс мышления",
+  "showUserAvatarSubtitle": "Показывать аватар персоны рядом с вашими сообщениями.",
+  "showUserAvatarTitle": "Ваш аватар",
+  "simpleListView": "Простой список",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "Сплошной",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "Думаю…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "Пузырь персонажа",
+  "tokenCharacterBubbleDescription": "Пузырь за сообщениями персонажа.",
+  "tokenChatBackground": "Фон чата",
+  "tokenChatBackgroundDescription": "Фон страницы чата, если не задана картинка.",
+  "tokenChatText": "Текст сообщения",
+  "tokenChatTextDescription": "Обычный текст внутри пузырей сообщений.",
+  "tokenDialogueText": "Произнесённый диалог",
+  "tokenDialogueTextDescription": "Речь в кавычках в сообщениях. Показывается этим цветом и жирным.",
+  "tokenUserBubble": "Пузырь пользователя",
+  "tokenUserBubbleDescription": "Пузырь за вашими сообщениями.",
+  "unpinReplyChoicesPanel": "Открепить панель",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

@@ -212,7 +212,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get copiedToClipboard => '클립보드에 복사됨';
 
   @override
-  String get dragToSelectText => 'Drag to select text';
+  String get dragToSelectText => '드래그하여 텍스트 선택';
 
   @override
   String get generateNewResponse => '새 응답 생성';
@@ -357,7 +357,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get thinking => '생각 중';
 
   @override
-  String get thinkingInProgress => 'Thinking…';
+  String get thinkingInProgress => '생각 중…';
 
   @override
   String get noSwipesAvailable => '스와이프 없음';
@@ -666,10 +666,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get showReplyChoices => '답변 선택지';
 
   @override
-  String get pinReplyChoicesPanel => 'Pin panel';
+  String get pinReplyChoicesPanel => '패널 고정';
 
   @override
-  String get unpinReplyChoicesPanel => 'Unpin panel';
+  String get unpinReplyChoicesPanel => '패널 고정 해제';
 
   @override
   String get createQuickReply => '빠른 답장 만들기';
@@ -808,16 +808,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get listView => '목록 보기';
 
   @override
-  String get simpleListView => 'Simple list';
+  String get simpleListView => '단순 목록';
 
   @override
   String get gridView => '그리드 보기';
 
   @override
-  String get compactGridView => 'Compact grid';
+  String get compactGridView => '압축 격자';
 
   @override
-  String get characterDisplayMode => 'Display mode';
+  String get characterDisplayMode => '표시 모드';
 
   @override
   String get characterAvatarShapeCircle => '원형 아바타';
@@ -1256,34 +1256,34 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get deleteSelectedCharacters => 'Delete Characters';
+  String get deleteSelectedCharacters => '캐릭터 삭제';
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
-    return 'Delete $count selected characters? This will also delete all chats with these characters. This cannot be undone.';
+    return '선택한 캐릭터 $count개를 삭제할까요? 관련 채팅도 함께 삭제되며 되돌릴 수 없습니다.';
   }
 
   @override
   String charactersDeletedCount(int count) {
-    return 'Deleted $count characters';
+    return '캐릭터 $count개를 삭제했습니다';
   }
 
   @override
   String chatsSelected(int count) {
-    return '$count chat(s) selected';
+    return '채팅 $count개 선택됨';
   }
 
   @override
-  String get deleteSelectedChats => 'Delete Chats';
+  String get deleteSelectedChats => '채팅 삭제';
 
   @override
   String deleteSelectedChatsConfirmation(int count) {
-    return 'Delete $count selected chats? This cannot be undone.';
+    return '선택한 채팅 $count개를 삭제할까요? 되돌릴 수 없습니다.';
   }
 
   @override
   String chatsDeletedCount(int count) {
-    return 'Deleted $count chats';
+    return '채팅 $count개를 삭제했습니다';
   }
 
   @override
@@ -1423,44 +1423,40 @@ class AppLocalizationsKo extends AppLocalizations {
   String get customPresets => 'Custom Presets';
 
   @override
-  String get aiPresetDefaultName => 'Default';
+  String get aiPresetDefaultName => '기본';
 
   @override
-  String get aiPresetDefaultDescription => 'Balanced settings for general use';
+  String get aiPresetDefaultDescription => '일상 사용에 맞는 균형 설정';
 
   @override
-  String get aiPresetCreativeName => 'Creative';
+  String get aiPresetCreativeName => '창의적';
 
   @override
-  String get aiPresetCreativeDescription =>
-      'Higher temperature for more creative responses';
+  String get aiPresetCreativeDescription => '더 창의적인 답변을 위해 온도를 높입니다';
 
   @override
-  String get aiPresetPreciseName => 'Precise';
+  String get aiPresetPreciseName => '정밀';
 
   @override
-  String get aiPresetPreciseDescription =>
-      'Lower temperature for more focused responses';
+  String get aiPresetPreciseDescription => '더 집중된 답변을 위해 온도를 낮춥니다';
 
   @override
-  String get aiPresetDeterministicName => 'Deterministic';
+  String get aiPresetDeterministicName => '결정적';
 
   @override
-  String get aiPresetDeterministicDescription =>
-      'Very low randomness for consistent outputs';
+  String get aiPresetDeterministicDescription => '무작위성을 매우 낮춰 일관된 출력';
 
   @override
-  String get aiPresetLongFormName => 'Long Form';
+  String get aiPresetLongFormName => '장문';
 
   @override
-  String get aiPresetLongFormDescription => 'Optimized for longer responses';
+  String get aiPresetLongFormDescription => '긴 답변에 맞게 최적화';
 
   @override
   String get aiPresetMirostatName => 'Mirostat';
 
   @override
-  String get aiPresetMirostatDescription =>
-      'Uses Mirostat sampling for adaptive perplexity';
+  String get aiPresetMirostatDescription => 'Mirostat 샘플링으로 적응형 perplexity 사용';
 
   @override
   String get aiPresetsDescription =>
@@ -1661,37 +1657,37 @@ class AppLocalizationsKo extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get colorAndGradientPresets => 'Colors & gradients';
+  String get colorAndGradientPresets => '색상 및 그라데이션';
 
   @override
   String get customBackgroundColor => '사용자 지정 색상';
 
   @override
-  String get customBackgroundFill => 'Custom fill';
+  String get customBackgroundFill => '사용자 지정 채우기';
 
   @override
-  String get solidFill => 'Solid';
+  String get solidFill => '단색';
 
   @override
-  String get gradientFill => 'Gradient';
+  String get gradientFill => '그라데이션';
 
   @override
-  String get linearGradient => 'Linear';
+  String get linearGradient => '선형';
 
   @override
-  String get radialGradient => 'Radial';
+  String get radialGradient => '방사형';
 
   @override
-  String get gradientDirection => 'Direction';
+  String get gradientDirection => '방향';
 
   @override
-  String get gradientRadius => 'Radius';
+  String get gradientRadius => '반경';
 
   @override
-  String get gradientStartColor => 'Start color';
+  String get gradientStartColor => '시작 색';
 
   @override
-  String get gradientEndColor => 'End color';
+  String get gradientEndColor => '끝 색';
 
   @override
   String get backgroundColorImageMutexHint =>
@@ -4266,7 +4262,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get switchLayout => 'Switch layout';
 
   @override
-  String get scrollToBottom => 'Scroll to bottom';
+  String get scrollToBottom => '맨 아래로 스크롤';
 
   @override
   String get stopGenerating => 'Stop generating';
@@ -4290,11 +4286,10 @@ class AppLocalizationsKo extends AppLocalizations {
       'Applies to custom and character image backgrounds';
 
   @override
-  String get enableBubbleBlur => 'Bubble blur';
+  String get enableBubbleBlur => '말풍선 블러';
 
   @override
-  String get enableBubbleBlurHint =>
-      '0 is off. Higher values blur what\'s behind bubbles and the input.';
+  String get enableBubbleBlurHint => '0은 끔. 값이 클수록 말풍선과 입력창 뒤가 더 흐려집니다.';
 
   @override
   String get enableBackgroundBlur => 'Enable background blur';
@@ -6916,46 +6911,43 @@ class AppLocalizationsKo extends AppLocalizations {
       'Roundness of chat message bubbles.';
 
   @override
-  String get showCharacterAvatarTitle => 'Character avatar';
+  String get showCharacterAvatarTitle => '캐릭터 아바타';
 
   @override
-  String get showCharacterAvatarSubtitle =>
-      'Show character avatars next to their messages.';
+  String get showCharacterAvatarSubtitle => '캐릭터 메시지 옆에 아바타를 표시합니다.';
 
   @override
-  String get showUserAvatarTitle => 'Your avatar';
+  String get showUserAvatarTitle => '내 아바타';
 
   @override
-  String get showUserAvatarSubtitle =>
-      'Show your persona avatar next to your messages.';
+  String get showUserAvatarSubtitle => '내 메시지 옆에 페르소나 아바타를 표시합니다.';
 
   @override
-  String get avatarAboveBubbleTitle => 'Avatar above bubble';
+  String get avatarAboveBubbleTitle => '말풍선 위에 아바타';
 
   @override
   String get avatarAboveBubbleSubtitle =>
-      'Place avatars above messages so bubbles can use the full width.';
+      '아바타를 메시지 위에 두면 말풍선이 전체 너비를 쓸 수 있습니다.';
 
   @override
-  String get showReasoningTitle => 'Thinking process';
+  String get showReasoningTitle => '사고 과정';
 
   @override
-  String get showReasoningSubtitle =>
-      'Show the model\'s thinking above AI replies.';
+  String get showReasoningSubtitle => 'AI 답변 위에 모델의 사고 과정을 표시합니다.';
 
   @override
-  String get hideChatAppBarOnScrollTitle => 'Hide top bar while scrolling';
+  String get hideChatAppBarOnScrollTitle => '스크롤 중 상단 바 숨기기';
 
   @override
   String get hideChatAppBarOnScrollSubtitle =>
-      'Scroll down in chat to hide the top bar; scroll up to show it again.';
+      '채팅에서 아래로 스크롤하면 상단 바가 숨겨지고, 위로 스크롤하면 다시 나타납니다.';
 
   @override
-  String get neutralizeMessageHtmlStyleTitle => 'Clear card HTML backgrounds';
+  String get neutralizeMessageHtmlStyleTitle => '카드 HTML 배경 지우기';
 
   @override
   String get neutralizeMessageHtmlStyleSubtitle =>
-      'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.';
+      '캐릭터 카드 HTML 배경을 채팅 말풍선 색과 글자 색으로 바꿉니다. 말풍선 자체는 바뀌지 않습니다. 하얗게 보이면 모양새의 «캐릭터 말풍선»을 조정하세요.';
 
   @override
   String get showBordersTitle => 'Show borders';
@@ -7076,19 +7068,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tokenCursor => 'Cursor';
 
   @override
-  String get tokenChatBackground => 'Chat background';
+  String get tokenChatBackground => '채팅 배경';
 
   @override
-  String get tokenCharacterBubble => 'Character bubble';
+  String get tokenCharacterBubble => '캐릭터 말풍선';
 
   @override
-  String get tokenUserBubble => 'User bubble';
+  String get tokenUserBubble => '사용자 말풍선';
 
   @override
-  String get tokenChatText => 'Message text';
+  String get tokenChatText => '메시지 글자';
 
   @override
-  String get tokenDialogueText => 'Spoken dialogue';
+  String get tokenDialogueText => '대사 글자';
 
   @override
   String get tokenEditorSurfaceDescription => 'Main scaffold background.';
@@ -7128,22 +7120,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tokenCursorDescription => 'Caret color in text fields.';
 
   @override
-  String get tokenChatBackgroundDescription =>
-      'The chat page background when you haven’t set a picture.';
+  String get tokenChatBackgroundDescription => '배경 이미지를 설정하지 않았을 때 채팅 페이지 바탕색.';
 
   @override
-  String get tokenCharacterBubbleDescription =>
-      'The bubble behind character messages.';
+  String get tokenCharacterBubbleDescription => '캐릭터 메시지 말풍선 색.';
 
   @override
-  String get tokenUserBubbleDescription => 'The bubble behind your messages.';
+  String get tokenUserBubbleDescription => '내 메시지 말풍선 색.';
 
   @override
-  String get tokenChatTextDescription => 'Normal text inside message bubbles.';
+  String get tokenChatTextDescription => '메시지 말풍선 안의 일반 글자.';
 
   @override
-  String get tokenDialogueTextDescription =>
-      'Quoted speech in messages. Shown in this color and bold.';
+  String get tokenDialogueTextDescription => '메시지 속 따옴표 대사. 이 색으로 굵게 표시됩니다.';
 
   @override
   String get themeColorsSectionTitle => 'Theme colors';
@@ -7193,77 +7182,76 @@ class AppLocalizationsKo extends AppLocalizations {
   String get discardChanges => 'Discard';
 
   @override
-  String get copyToCustom => 'Copy to custom';
+  String get copyToCustom => '사용자 지정으로 복사';
 
   @override
   String copyNameOf(String name) {
-    return '$name copy';
+    return '$name 사본';
   }
 
   @override
   String copiedPresetToCustom(String name) {
-    return 'Copied \"$name\" to custom presets';
+    return '«$name»을(를) 사용자 지정 프리셋으로 복사했습니다';
   }
 
   @override
-  String get copyNameSuffix => ' copy';
+  String get copyNameSuffix => ' 사본';
 
   @override
-  String get addPrompt => 'Add prompt';
+  String get addPrompt => '프롬프트 추가';
 
   @override
-  String get promptContent => 'Prompt content';
+  String get promptContent => '프롬프트 내용';
 
   @override
   String promptEntryAdded(String name) {
-    return 'Added \"$name\"';
+    return '«$name»을(를) 추가했습니다';
   }
 
   @override
   String promptEntryDuplicated(String name) {
-    return 'Duplicated as \"$name\"';
+    return '«$name»(으)로 복제했습니다';
   }
 
   @override
   String promptEntryDeleted(String name) {
-    return 'Deleted \"$name\"';
+    return '«$name»을(를) 삭제했습니다';
   }
 
   @override
-  String get deletePromptEntry => 'Delete prompt';
+  String get deletePromptEntry => '프롬프트 삭제';
 
   @override
   String deletePromptConfirmation(String name) {
-    return 'Delete \"$name\"? This cannot be undone.';
+    return '«$name»을(를) 삭제할까요? 되돌릴 수 없습니다.';
   }
 
   @override
   String importedPromptSections(String name, int count) {
-    return 'Imported \"$name\" ($count prompts)';
+    return '«$name»을(를) 가져왔습니다(프롬프트 $count개)';
   }
 
   @override
   String importedPromptCount(int count) {
-    return 'Imported $count prompts';
+    return '프롬프트 $count개를 가져왔습니다';
   }
 
   @override
-  String get presetPromptManager => 'Preset prompt manager';
+  String get presetPromptManager => '프리셋 프롬프트 관리';
 
   @override
-  String get promptPreviewCharacter => 'Preview character card';
+  String get promptPreviewCharacter => '캐릭터 카드 미리보기';
 
   @override
   String get promptPreviewHint =>
-      'Pick a character to preview how description, personality, and other card fields map into this preset. This is preview only—the preset and character card stay independent.';
+      '캐릭터를 고르면 설명·성격 등 카드 필드가 이 프리셋에 어떻게 매핑되는지 미리 볼 수 있습니다. 미리보기만이며 프리셋과 카드는 서로 영향을 주지 않습니다.';
 
   @override
-  String get promptPreviewSelectToView =>
-      'Pick a character above to view this field';
+  String get promptPreviewSelectToView => '이 항목을 보려면 위에서 캐릭터를 고르세요';
 
   @override
-  String get promptPreviewEmptyField => 'This character has no content here';
+  String get promptPreviewEmptyField => '이 캐릭터에는 여기 내용이 없습니다';
 
   @override
-  String get promptOwnedByCharacter => 'From character card · view only';
+  String get promptOwnedByCharacter => '캐릭터 카드에서 · 보기 전용';
 }

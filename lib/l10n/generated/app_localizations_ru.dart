@@ -218,7 +218,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get copiedToClipboard => 'Скопировано в буфер обмена';
 
   @override
-  String get dragToSelectText => 'Drag to select text';
+  String get dragToSelectText => 'Перетащите, чтобы выделить текст';
 
   @override
   String get generateNewResponse => 'Сгенерировать новый ответ';
@@ -367,7 +367,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get thinking => 'Думает';
 
   @override
-  String get thinkingInProgress => 'Thinking…';
+  String get thinkingInProgress => 'Думаю…';
 
   @override
   String get noSwipesAvailable => 'Нет доступных свайпов';
@@ -681,10 +681,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get showReplyChoices => 'Варианты ответа';
 
   @override
-  String get pinReplyChoicesPanel => 'Pin panel';
+  String get pinReplyChoicesPanel => 'Закрепить панель';
 
   @override
-  String get unpinReplyChoicesPanel => 'Unpin panel';
+  String get unpinReplyChoicesPanel => 'Открепить панель';
 
   @override
   String get createQuickReply => 'Создать быстрый ответ';
@@ -823,16 +823,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get listView => 'Список';
 
   @override
-  String get simpleListView => 'Simple list';
+  String get simpleListView => 'Простой список';
 
   @override
   String get gridView => 'Сетка';
 
   @override
-  String get compactGridView => 'Compact grid';
+  String get compactGridView => 'Компактная сетка';
 
   @override
-  String get characterDisplayMode => 'Display mode';
+  String get characterDisplayMode => 'Режим отображения';
 
   @override
   String get characterAvatarShapeCircle => 'Круглый аватар';
@@ -1272,34 +1272,34 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deleteSelectedCharacters => 'Delete Characters';
+  String get deleteSelectedCharacters => 'Удалить персонажей';
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
-    return 'Delete $count selected characters? This will also delete all chats with these characters. This cannot be undone.';
+    return 'Удалить выбранных персонажей ($count)? Связанные чаты тоже будут удалены. Это нельзя отменить.';
   }
 
   @override
   String charactersDeletedCount(int count) {
-    return 'Deleted $count characters';
+    return 'Удалено персонажей: $count';
   }
 
   @override
   String chatsSelected(int count) {
-    return '$count chat(s) selected';
+    return 'Выбрано чатов: $count';
   }
 
   @override
-  String get deleteSelectedChats => 'Delete Chats';
+  String get deleteSelectedChats => 'Удалить чаты';
 
   @override
   String deleteSelectedChatsConfirmation(int count) {
-    return 'Delete $count selected chats? This cannot be undone.';
+    return 'Удалить выбранные чаты ($count)? Это нельзя отменить.';
   }
 
   @override
   String chatsDeletedCount(int count) {
-    return 'Deleted $count chats';
+    return 'Удалено чатов: $count';
   }
 
   @override
@@ -1439,44 +1439,46 @@ class AppLocalizationsRu extends AppLocalizations {
   String get customPresets => 'Custom Presets';
 
   @override
-  String get aiPresetDefaultName => 'Default';
+  String get aiPresetDefaultName => 'По умолчанию';
 
   @override
-  String get aiPresetDefaultDescription => 'Balanced settings for general use';
+  String get aiPresetDefaultDescription =>
+      'Сбалансированные настройки для обычного использования';
 
   @override
-  String get aiPresetCreativeName => 'Creative';
+  String get aiPresetCreativeName => 'Креативный';
 
   @override
   String get aiPresetCreativeDescription =>
-      'Higher temperature for more creative responses';
+      'Более высокая температура для более креативных ответов';
 
   @override
-  String get aiPresetPreciseName => 'Precise';
+  String get aiPresetPreciseName => 'Точный';
 
   @override
   String get aiPresetPreciseDescription =>
-      'Lower temperature for more focused responses';
+      'Более низкая температура для более точных ответов';
 
   @override
-  String get aiPresetDeterministicName => 'Deterministic';
+  String get aiPresetDeterministicName => 'Детерминированный';
 
   @override
   String get aiPresetDeterministicDescription =>
-      'Very low randomness for consistent outputs';
+      'Очень низкая случайность для стабильных результатов';
 
   @override
-  String get aiPresetLongFormName => 'Long Form';
+  String get aiPresetLongFormName => 'Длинный текст';
 
   @override
-  String get aiPresetLongFormDescription => 'Optimized for longer responses';
+  String get aiPresetLongFormDescription =>
+      'Оптимизировано для более длинных ответов';
 
   @override
   String get aiPresetMirostatName => 'Mirostat';
 
   @override
   String get aiPresetMirostatDescription =>
-      'Uses Mirostat sampling for adaptive perplexity';
+      'Использует выборку Mirostat для адаптивной perplexity';
 
   @override
   String get aiPresetsDescription =>
@@ -1677,37 +1679,37 @@ class AppLocalizationsRu extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get colorAndGradientPresets => 'Colors & gradients';
+  String get colorAndGradientPresets => 'Цвета и градиенты';
 
   @override
   String get customBackgroundColor => 'Свой цвет';
 
   @override
-  String get customBackgroundFill => 'Custom fill';
+  String get customBackgroundFill => 'Своя заливка';
 
   @override
-  String get solidFill => 'Solid';
+  String get solidFill => 'Сплошной';
 
   @override
-  String get gradientFill => 'Gradient';
+  String get gradientFill => 'Градиент';
 
   @override
-  String get linearGradient => 'Linear';
+  String get linearGradient => 'Линейный';
 
   @override
-  String get radialGradient => 'Radial';
+  String get radialGradient => 'Радиальный';
 
   @override
-  String get gradientDirection => 'Direction';
+  String get gradientDirection => 'Направление';
 
   @override
-  String get gradientRadius => 'Radius';
+  String get gradientRadius => 'Радиус';
 
   @override
-  String get gradientStartColor => 'Start color';
+  String get gradientStartColor => 'Начальный цвет';
 
   @override
-  String get gradientEndColor => 'End color';
+  String get gradientEndColor => 'Конечный цвет';
 
   @override
   String get backgroundColorImageMutexHint =>
@@ -4288,7 +4290,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get switchLayout => 'Switch layout';
 
   @override
-  String get scrollToBottom => 'Scroll to bottom';
+  String get scrollToBottom => 'Прокрутить вниз';
 
   @override
   String get stopGenerating => 'Stop generating';
@@ -4312,11 +4314,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Applies to custom and character image backgrounds';
 
   @override
-  String get enableBubbleBlur => 'Bubble blur';
+  String get enableBubbleBlur => 'Размытие пузыря';
 
   @override
   String get enableBubbleBlurHint =>
-      '0 is off. Higher values blur what\'s behind bubbles and the input.';
+      '0 — выкл. Чем выше значение, тем сильнее размытие за пузырями и полем ввода.';
 
   @override
   String get enableBackgroundBlur => 'Enable background blur';
@@ -6941,46 +6943,47 @@ class AppLocalizationsRu extends AppLocalizations {
       'Roundness of chat message bubbles.';
 
   @override
-  String get showCharacterAvatarTitle => 'Character avatar';
+  String get showCharacterAvatarTitle => 'Аватар персонажа';
 
   @override
   String get showCharacterAvatarSubtitle =>
-      'Show character avatars next to their messages.';
+      'Показывать аватары персонажа рядом с его сообщениями.';
 
   @override
-  String get showUserAvatarTitle => 'Your avatar';
+  String get showUserAvatarTitle => 'Ваш аватар';
 
   @override
   String get showUserAvatarSubtitle =>
-      'Show your persona avatar next to your messages.';
+      'Показывать аватар персоны рядом с вашими сообщениями.';
 
   @override
-  String get avatarAboveBubbleTitle => 'Avatar above bubble';
+  String get avatarAboveBubbleTitle => 'Аватар над пузырём';
 
   @override
   String get avatarAboveBubbleSubtitle =>
-      'Place avatars above messages so bubbles can use the full width.';
+      'Размещайте аватары над сообщениями, чтобы пузыри занимали всю ширину.';
 
   @override
-  String get showReasoningTitle => 'Thinking process';
+  String get showReasoningTitle => 'Процесс мышления';
 
   @override
   String get showReasoningSubtitle =>
-      'Show the model\'s thinking above AI replies.';
+      'Показывать рассуждения модели над ответами ИИ.';
 
   @override
-  String get hideChatAppBarOnScrollTitle => 'Hide top bar while scrolling';
+  String get hideChatAppBarOnScrollTitle =>
+      'Скрывать верхнюю панель при прокрутке';
 
   @override
   String get hideChatAppBarOnScrollSubtitle =>
-      'Scroll down in chat to hide the top bar; scroll up to show it again.';
+      'Прокрутите чат вниз, чтобы скрыть верхнюю панель; вверх — чтобы показать снова.';
 
   @override
-  String get neutralizeMessageHtmlStyleTitle => 'Clear card HTML backgrounds';
+  String get neutralizeMessageHtmlStyleTitle => 'Убрать HTML-фоны карточки';
 
   @override
   String get neutralizeMessageHtmlStyleSubtitle =>
-      'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.';
+      'Заменяет HTML-фоны карточки персонажа цветом пузыря и текста чата. Сам пузырь не меняется — при белёсом виде настройте «Пузырь персонажа» во Внешнем виде.';
 
   @override
   String get showBordersTitle => 'Show borders';
@@ -7101,19 +7104,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tokenCursor => 'Cursor';
 
   @override
-  String get tokenChatBackground => 'Chat background';
+  String get tokenChatBackground => 'Фон чата';
 
   @override
-  String get tokenCharacterBubble => 'Character bubble';
+  String get tokenCharacterBubble => 'Пузырь персонажа';
 
   @override
-  String get tokenUserBubble => 'User bubble';
+  String get tokenUserBubble => 'Пузырь пользователя';
 
   @override
-  String get tokenChatText => 'Message text';
+  String get tokenChatText => 'Текст сообщения';
 
   @override
-  String get tokenDialogueText => 'Spoken dialogue';
+  String get tokenDialogueText => 'Произнесённый диалог';
 
   @override
   String get tokenEditorSurfaceDescription => 'Main scaffold background.';
@@ -7156,21 +7159,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tokenChatBackgroundDescription =>
-      'The chat page background when you haven’t set a picture.';
+      'Фон страницы чата, если не задана картинка.';
 
   @override
   String get tokenCharacterBubbleDescription =>
-      'The bubble behind character messages.';
+      'Пузырь за сообщениями персонажа.';
 
   @override
-  String get tokenUserBubbleDescription => 'The bubble behind your messages.';
+  String get tokenUserBubbleDescription => 'Пузырь за вашими сообщениями.';
 
   @override
-  String get tokenChatTextDescription => 'Normal text inside message bubbles.';
+  String get tokenChatTextDescription =>
+      'Обычный текст внутри пузырей сообщений.';
 
   @override
   String get tokenDialogueTextDescription =>
-      'Quoted speech in messages. Shown in this color and bold.';
+      'Речь в кавычках в сообщениях. Показывается этим цветом и жирным.';
 
   @override
   String get themeColorsSectionTitle => 'Theme colors';
@@ -7220,77 +7224,79 @@ class AppLocalizationsRu extends AppLocalizations {
   String get discardChanges => 'Discard';
 
   @override
-  String get copyToCustom => 'Copy to custom';
+  String get copyToCustom => 'Скопировать в свои';
 
   @override
   String copyNameOf(String name) {
-    return '$name copy';
+    return 'Копия $name';
   }
 
   @override
   String copiedPresetToCustom(String name) {
-    return 'Copied \"$name\" to custom presets';
+    return '«$name» скопирован в свои пресеты';
   }
 
   @override
-  String get copyNameSuffix => ' copy';
+  String get copyNameSuffix => ' копия';
 
   @override
-  String get addPrompt => 'Add prompt';
+  String get addPrompt => 'Добавить промпт';
 
   @override
-  String get promptContent => 'Prompt content';
+  String get promptContent => 'Содержимое промпта';
 
   @override
   String promptEntryAdded(String name) {
-    return 'Added \"$name\"';
+    return 'Добавлено «$name»';
   }
 
   @override
   String promptEntryDuplicated(String name) {
-    return 'Duplicated as \"$name\"';
+    return 'Дублировано как «$name»';
   }
 
   @override
   String promptEntryDeleted(String name) {
-    return 'Deleted \"$name\"';
+    return 'Удалено «$name»';
   }
 
   @override
-  String get deletePromptEntry => 'Delete prompt';
+  String get deletePromptEntry => 'Удалить промпт';
 
   @override
   String deletePromptConfirmation(String name) {
-    return 'Delete \"$name\"? This cannot be undone.';
+    return 'Удалить «$name»? Это нельзя отменить.';
   }
 
   @override
   String importedPromptSections(String name, int count) {
-    return 'Imported \"$name\" ($count prompts)';
+    return 'Импортировано «$name» ($count промптов)';
   }
 
   @override
   String importedPromptCount(int count) {
-    return 'Imported $count prompts';
+    return 'Импортировано промптов: $count';
   }
 
   @override
-  String get presetPromptManager => 'Preset prompt manager';
+  String get presetPromptManager => 'Менеджер промптов пресета';
 
   @override
-  String get promptPreviewCharacter => 'Preview character card';
+  String get promptPreviewCharacter => 'Превью карточки персонажа';
 
   @override
   String get promptPreviewHint =>
-      'Pick a character to preview how description, personality, and other card fields map into this preset. This is preview only—the preset and character card stay independent.';
+      'Выберите персонажа, чтобы увидеть, как описание, характер и другие поля карты попадают в этот пресет. Это только превью — пресет и карточка остаются независимыми.';
 
   @override
   String get promptPreviewSelectToView =>
-      'Pick a character above to view this field';
+      'Выберите персонажа выше, чтобы посмотреть это поле';
 
   @override
-  String get promptPreviewEmptyField => 'This character has no content here';
+  String get promptPreviewEmptyField =>
+      'У этого персонажа здесь нет содержимого';
 
   @override
-  String get promptOwnedByCharacter => 'From character card · view only';
+  String get promptOwnedByCharacter =>
+      'Из карточки персонажа · только просмотр';
 }

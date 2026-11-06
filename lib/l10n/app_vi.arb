@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "Chạm để chọn phông chữ. Máy tính hiện phông đã cài; trên điện thoại bạn có thể nhập tệp phông chữ.",
   "uiFontFamilySystem": "Mặc định hệ thống",
-  "uiFontFamilyTitle": "Phông chữ"
+  "uiFontFamilyTitle": "Phông chữ",
+  "addPrompt": "Thêm prompt",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "Nhiệt độ cao hơn để phản hồi sáng tạo hơn",
+  "aiPresetCreativeName": "Sáng tạo",
+  "aiPresetDefaultDescription": "Cài đặt cân bằng cho sử dụng hàng ngày",
+  "aiPresetDefaultName": "Mặc định",
+  "aiPresetDeterministicDescription": "Độ ngẫu nhiên rất thấp để đầu ra ổn định hơn",
+  "aiPresetDeterministicName": "Xác định",
+  "aiPresetLongFormDescription": "Tối ưu cho phản hồi dài hơn",
+  "aiPresetLongFormName": "Văn dài",
+  "aiPresetMirostatDescription": "Dùng lấy mẫu Mirostat để điều chỉnh perplexity thích ứng",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "Nhiệt độ thấp hơn để phản hồi tập trung hơn",
+  "aiPresetPreciseName": "Chính xác",
+  "avatarAboveBubbleSubtitle": "Đặt avatar phía trên tin nhắn để bong bóng dùng hết chiều rộng.",
+  "avatarAboveBubbleTitle": "Avatar phía trên bong bóng",
+  "characterDisplayMode": "Chế độ hiển thị",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "Đã xóa {count} nhân vật",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "Đã xóa {count} cuộc trò chuyện",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "Đã chọn {count} cuộc trò chuyện",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "Màu và gradient",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "Lưới gọn",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "Đã sao chép «{name}» sang preset tùy chỉnh",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "Bản sao {name}",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " bản sao",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "Sao chép sang tùy chỉnh",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "Tô tùy chỉnh",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "Xóa «{name}»? Không thể hoàn tác.",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "Xóa prompt",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "Xóa nhân vật",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "Xóa {count} nhân vật đã chọn? Các cuộc trò chuyện liên quan cũng bị xóa. Không thể hoàn tác.",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "Xóa cuộc trò chuyện",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "Xóa {count} cuộc trò chuyện đã chọn? Không thể hoàn tác.",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "Kéo để chọn chữ",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "Làm mờ bong bóng",
+  "enableBubbleBlurHint": "0 là tắt. Giá trị càng cao, phía sau bong bóng và ô nhập càng mờ.",
+  "gradientDirection": "Hướng",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "Màu kết thúc",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "Gradient",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "Bán kính",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "Màu bắt đầu",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "Cuộn xuống trong chat để ẩn thanh trên; cuộn lên để hiện lại.",
+  "hideChatAppBarOnScrollTitle": "Ẩn thanh trên khi cuộn",
+  "importedPromptCount": "Đã nhập {count} prompt",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "Đã nhập «{name}» ({count} prompt)",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "Tuyến tính",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "Thay nền HTML của thẻ nhân vật bằng màu bong bóng và chữ chat của bạn. Không đổi bản thân bong bóng — nếu trông sai, chỉnh «Bong bóng nhân vật» trong Giao diện.",
+  "neutralizeMessageHtmlStyleTitle": "Xóa nền HTML của thẻ",
+  "pinReplyChoicesPanel": "Ghim bảng",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "Quản lý prompt của preset",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "Nội dung prompt",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "Đã thêm «{name}»",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "Đã xóa «{name}»",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "Đã nhân bản thành «{name}»",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "Từ thẻ nhân vật · chỉ xem",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "Xem trước thẻ nhân vật",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "Nhân vật này không có nội dung ở đây",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "Chọn một nhân vật để xem mô tả, tính cách và các trường thẻ khác ánh xạ vào preset này thế nào. Chỉ xem trước—preset và thẻ nhân vật vẫn độc lập.",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "Chọn nhân vật phía trên để xem trường này",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "Xuyên tâm",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "Cuộn xuống cuối",
+  "showCharacterAvatarSubtitle": "Hiện avatar nhân vật cạnh tin nhắn của họ.",
+  "showCharacterAvatarTitle": "Avatar nhân vật",
+  "showReasoningSubtitle": "Hiện quá trình suy nghĩ của mô hình phía trên câu trả lời AI.",
+  "showReasoningTitle": "Quá trình suy nghĩ",
+  "showUserAvatarSubtitle": "Hiện avatar nhân cách cạnh tin nhắn của bạn.",
+  "showUserAvatarTitle": "Avatar của bạn",
+  "simpleListView": "Danh sách đơn giản",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "Đồng màu",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "Đang suy nghĩ…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "Bong bóng nhân vật",
+  "tokenCharacterBubbleDescription": "Màu bong bóng tin nhắn nhân vật.",
+  "tokenChatBackground": "Nền chat",
+  "tokenChatBackgroundDescription": "Nền trang chat khi bạn chưa đặt ảnh nền.",
+  "tokenChatText": "Chữ tin nhắn",
+  "tokenChatTextDescription": "Chữ thường trong bong bóng tin nhắn.",
+  "tokenDialogueText": "Lời thoại",
+  "tokenDialogueTextDescription": "Lời nói trong dấu ngoặc kép trong tin nhắn. Hiện màu này và in đậm.",
+  "tokenUserBubble": "Bong bóng người dùng",
+  "tokenUserBubbleDescription": "Màu bong bóng tin nhắn của bạn.",
+  "unpinReplyChoicesPanel": "Bỏ ghim bảng",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

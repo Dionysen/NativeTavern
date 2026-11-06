@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "탭하여 글꼴을 선택하세요. 컴퓨터에는 설치된 글꼴이 표시되고, 휴대폰에서는 글꼴 파일을 가져올 수 있습니다.",
   "uiFontFamilySystem": "시스템 기본값",
-  "uiFontFamilyTitle": "글꼴"
+  "uiFontFamilyTitle": "글꼴",
+  "addPrompt": "프롬프트 추가",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "더 창의적인 답변을 위해 온도를 높입니다",
+  "aiPresetCreativeName": "창의적",
+  "aiPresetDefaultDescription": "일상 사용에 맞는 균형 설정",
+  "aiPresetDefaultName": "기본",
+  "aiPresetDeterministicDescription": "무작위성을 매우 낮춰 일관된 출력",
+  "aiPresetDeterministicName": "결정적",
+  "aiPresetLongFormDescription": "긴 답변에 맞게 최적화",
+  "aiPresetLongFormName": "장문",
+  "aiPresetMirostatDescription": "Mirostat 샘플링으로 적응형 perplexity 사용",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "더 집중된 답변을 위해 온도를 낮춥니다",
+  "aiPresetPreciseName": "정밀",
+  "avatarAboveBubbleSubtitle": "아바타를 메시지 위에 두면 말풍선이 전체 너비를 쓸 수 있습니다.",
+  "avatarAboveBubbleTitle": "말풍선 위에 아바타",
+  "characterDisplayMode": "표시 모드",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "캐릭터 {count}개를 삭제했습니다",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "채팅 {count}개를 삭제했습니다",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "채팅 {count}개 선택됨",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "색상 및 그라데이션",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "압축 격자",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "«{name}»을(를) 사용자 지정 프리셋으로 복사했습니다",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "{name} 사본",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " 사본",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "사용자 지정으로 복사",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "사용자 지정 채우기",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "«{name}»을(를) 삭제할까요? 되돌릴 수 없습니다.",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "프롬프트 삭제",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "캐릭터 삭제",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "선택한 캐릭터 {count}개를 삭제할까요? 관련 채팅도 함께 삭제되며 되돌릴 수 없습니다.",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "채팅 삭제",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "선택한 채팅 {count}개를 삭제할까요? 되돌릴 수 없습니다.",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "드래그하여 텍스트 선택",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "말풍선 블러",
+  "enableBubbleBlurHint": "0은 끔. 값이 클수록 말풍선과 입력창 뒤가 더 흐려집니다.",
+  "gradientDirection": "방향",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "끝 색",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "그라데이션",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "반경",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "시작 색",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "채팅에서 아래로 스크롤하면 상단 바가 숨겨지고, 위로 스크롤하면 다시 나타납니다.",
+  "hideChatAppBarOnScrollTitle": "스크롤 중 상단 바 숨기기",
+  "importedPromptCount": "프롬프트 {count}개를 가져왔습니다",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "«{name}»을(를) 가져왔습니다(프롬프트 {count}개)",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "선형",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "캐릭터 카드 HTML 배경을 채팅 말풍선 색과 글자 색으로 바꿉니다. 말풍선 자체는 바뀌지 않습니다. 하얗게 보이면 모양새의 «캐릭터 말풍선»을 조정하세요.",
+  "neutralizeMessageHtmlStyleTitle": "카드 HTML 배경 지우기",
+  "pinReplyChoicesPanel": "패널 고정",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "프리셋 프롬프트 관리",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "프롬프트 내용",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "«{name}»을(를) 추가했습니다",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "«{name}»을(를) 삭제했습니다",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "«{name}»(으)로 복제했습니다",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "캐릭터 카드에서 · 보기 전용",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "캐릭터 카드 미리보기",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "이 캐릭터에는 여기 내용이 없습니다",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "캐릭터를 고르면 설명·성격 등 카드 필드가 이 프리셋에 어떻게 매핑되는지 미리 볼 수 있습니다. 미리보기만이며 프리셋과 카드는 서로 영향을 주지 않습니다.",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "이 항목을 보려면 위에서 캐릭터를 고르세요",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "방사형",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "맨 아래로 스크롤",
+  "showCharacterAvatarSubtitle": "캐릭터 메시지 옆에 아바타를 표시합니다.",
+  "showCharacterAvatarTitle": "캐릭터 아바타",
+  "showReasoningSubtitle": "AI 답변 위에 모델의 사고 과정을 표시합니다.",
+  "showReasoningTitle": "사고 과정",
+  "showUserAvatarSubtitle": "내 메시지 옆에 페르소나 아바타를 표시합니다.",
+  "showUserAvatarTitle": "내 아바타",
+  "simpleListView": "단순 목록",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "단색",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "생각 중…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "캐릭터 말풍선",
+  "tokenCharacterBubbleDescription": "캐릭터 메시지 말풍선 색.",
+  "tokenChatBackground": "채팅 배경",
+  "tokenChatBackgroundDescription": "배경 이미지를 설정하지 않았을 때 채팅 페이지 바탕색.",
+  "tokenChatText": "메시지 글자",
+  "tokenChatTextDescription": "메시지 말풍선 안의 일반 글자.",
+  "tokenDialogueText": "대사 글자",
+  "tokenDialogueTextDescription": "메시지 속 따옴표 대사. 이 색으로 굵게 표시됩니다.",
+  "tokenUserBubble": "사용자 말풍선",
+  "tokenUserBubbleDescription": "내 메시지 말풍선 색.",
+  "unpinReplyChoicesPanel": "패널 고정 해제",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

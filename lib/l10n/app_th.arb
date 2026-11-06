@@ -7266,5 +7266,287 @@
   },
   "uiFontFamilyDescription": "แตะเพื่อเลือกฟอนต์ คอมพิวเตอร์จะแสดงฟอนต์ที่ติดตั้ง; บนโทรศัพท์สามารถนำเข้าไฟล์ฟอนต์ได้",
   "uiFontFamilySystem": "ค่าเริ่มต้นของระบบ",
-  "uiFontFamilyTitle": "ฟอนต์"
+  "uiFontFamilyTitle": "ฟอนต์",
+  "addPrompt": "เพิ่มพรอมต์",
+  "@addPrompt": {
+    "description": "FAB / dialog title to add a custom prompt entry"
+  },
+  "aiPresetCreativeDescription": "อุณหภูมิสูงขึ้นเพื่อคำตอบที่สร้างสรรค์กว่า",
+  "aiPresetCreativeName": "สร้างสรรค์",
+  "aiPresetDefaultDescription": "การตั้งค่าสมดุลสำหรับใช้งานทั่วไป",
+  "aiPresetDefaultName": "ค่าเริ่มต้น",
+  "aiPresetDeterministicDescription": "สุ่มต่ำมากเพื่อผลลัพธ์ที่สม่ำเสมอ",
+  "aiPresetDeterministicName": "แน่นอน",
+  "aiPresetLongFormDescription": "ปรับให้เหมาะกับคำตอบที่ยาวขึ้น",
+  "aiPresetLongFormName": "ข้อความยาว",
+  "aiPresetMirostatDescription": "ใช้การสุ่มตัวอย่าง Mirostat เพื่อปรับ perplexity อัตโนมัติ",
+  "aiPresetMirostatName": "Mirostat",
+  "aiPresetPreciseDescription": "อุณหภูมิต่ำลงเพื่อคำตอบที่โฟกัสกว่า",
+  "aiPresetPreciseName": "แม่นยำ",
+  "avatarAboveBubbleSubtitle": "วางอวาตาร์เหนือข้อความเพื่อให้ฟองข้อความใช้ความกว้างเต็มที่",
+  "avatarAboveBubbleTitle": "อวาตาร์เหนือฟองข้อความ",
+  "characterDisplayMode": "โหมดการแสดงผล",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
+  },
+  "charactersDeletedCount": "ลบตัวละครแล้ว {count} ตัว",
+  "@charactersDeletedCount": {
+    "description": "Snackbar after bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsDeletedCount": "ลบแชทแล้ว {count} รายการ",
+  "@chatsDeletedCount": {
+    "description": "Snackbar after bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatsSelected": "เลือกแล้ว {count} แชท",
+  "@chatsSelected": {
+    "description": "Chats selected count on home list",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "colorAndGradientPresets": "สีและการไล่ระดับ",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
+  "compactGridView": "ตารางแบบกระชับ",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "copiedPresetToCustom": "คัดลอก «{name}» ไปยังพรีเซ็ตที่กำหนดเองแล้ว",
+  "@copiedPresetToCustom": {
+    "description": "SnackBar after copying an AI preset to custom",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameOf": "สำเนาของ {name}",
+  "@copyNameOf": {
+    "description": "Default name when copying a preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copyNameSuffix": " สำเนา",
+  "@copyNameSuffix": {
+    "description": "Suffix appended when duplicating a prompt entry"
+  },
+  "copyToCustom": "คัดลอกไปยังที่กำหนดเอง",
+  "@copyToCustom": {
+    "description": "Copy a built-in or custom AI preset into a new custom preset"
+  },
+  "customBackgroundFill": "การเติมแบบกำหนดเอง",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "deletePromptConfirmation": "ลบ «{name}» หรือไม่? ยกเลิกไม่ได้",
+  "@deletePromptConfirmation": {
+    "description": "Confirm deleting a custom prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePromptEntry": "ลบพรอมต์",
+  "@deletePromptEntry": {
+    "description": "Dialog title for deleting a custom prompt entry"
+  },
+  "deleteSelectedCharacters": "ลบตัวละคร",
+  "@deleteSelectedCharacters": {
+    "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedCharactersConfirmation": "ลบตัวละครที่เลือก {count} ตัวหรือไม่? แชทที่เกี่ยวข้องจะถูกลบด้วย และยกเลิกไม่ได้",
+  "@deleteSelectedCharactersConfirmation": {
+    "description": "Confirmation body for bulk character delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedChats": "ลบแชท",
+  "@deleteSelectedChats": {
+    "description": "Title for deleting multiple selected chats"
+  },
+  "deleteSelectedChatsConfirmation": "ลบแชทที่เลือก {count} รายการหรือไม่? ยกเลิกไม่ได้",
+  "@deleteSelectedChatsConfirmation": {
+    "description": "Confirmation body for bulk chat delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dragToSelectText": "ลากเพื่อเลือกข้อความ",
+  "@dragToSelectText": {
+    "description": "SnackBar after double-tapping a chat bubble to arm text selection on touch"
+  },
+  "enableBubbleBlur": "เบลอฟองข้อความ",
+  "enableBubbleBlurHint": "0 คือปิด ค่าสูงขึ้นจะเบลอสิ่งที่อยู่หลังฟองข้อความและช่องพิมพ์",
+  "gradientDirection": "ทิศทาง",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientEndColor": "สีสิ้นสุด",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
+  },
+  "gradientFill": "ไล่ระดับสี",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "gradientRadius": "รัศมี",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "สีเริ่มต้น",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "hideChatAppBarOnScrollSubtitle": "เลื่อนลงในแชทเพื่อซ่อนแถบด้านบน เลื่อนขึ้นเพื่อแสดงอีกครั้ง",
+  "hideChatAppBarOnScrollTitle": "ซ่อนแถบด้านบนขณะเลื่อน",
+  "importedPromptCount": "นำเข้าพรอมต์แล้ว {count} รายการ",
+  "@importedPromptCount": {
+    "description": "SnackBar after importing prompt order without a name",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importedPromptSections": "นำเข้า «{name}» แล้ว ({count} พรอมต์)",
+  "@importedPromptSections": {
+    "description": "SnackBar after importing a named prompt preset",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linearGradient": "เส้นตรง",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "neutralizeMessageHtmlStyleSubtitle": "แทนที่พื้นหลัง HTML ของการ์ดตัวละครด้วยสีฟองแชทและสีข้อความของคุณ สิ่งนี้ไม่เปลี่ยนฟองข้อความเอง — หากดูผิด ให้ปรับ «ฟองตัวละคร» ในลักษณะที่ปรากฏ",
+  "neutralizeMessageHtmlStyleTitle": "ล้างพื้นหลัง HTML ของการ์ด",
+  "pinReplyChoicesPanel": "ปักหมุดแผง",
+  "@pinReplyChoicesPanel": {
+    "description": "Tooltip to keep reply choices panel open on focus loss"
+  },
+  "presetPromptManager": "ตัวจัดการพรอมต์ของพรีเซ็ต",
+  "@presetPromptManager": {
+    "description": "AI Config section for prompt assembly belonging to the preset"
+  },
+  "promptContent": "เนื้อหาพรอมต์",
+  "@promptContent": {
+    "description": "Label for prompt content field"
+  },
+  "promptEntryAdded": "เพิ่ม «{name}» แล้ว",
+  "@promptEntryAdded": {
+    "description": "SnackBar after adding a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDeleted": "ลบ «{name}» แล้ว",
+  "@promptEntryDeleted": {
+    "description": "SnackBar after deleting a custom prompt",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptEntryDuplicated": "ทำสำเนาเป็น «{name}» แล้ว",
+  "@promptEntryDuplicated": {
+    "description": "SnackBar after duplicating a prompt entry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "promptOwnedByCharacter": "จากการ์ดตัวละคร · ดูอย่างเดียว",
+  "@promptOwnedByCharacter": {
+    "description": "Label on expanded character-owned prompt content"
+  },
+  "promptPreviewCharacter": "ดูตัวอย่างการ์ดตัวละคร",
+  "@promptPreviewCharacter": {
+    "description": "Dropdown label for character used to view card-owned prompt fields"
+  },
+  "promptPreviewEmptyField": "ตัวละครนี้ไม่มีเนื้อหาที่นี่",
+  "@promptPreviewEmptyField": {
+    "description": "Subtitle when selected character field is empty"
+  },
+  "promptPreviewHint": "เลือกตัวละครเพื่อดูตัวอย่างว่าคำอธิบาย บุคลิก และช่องอื่นของการ์ดถูกแมปเข้าพรีเซ็ตนี้อย่างไร เป็นเพียงตัวอย่าง—พรีเซ็ตและการ์ดยังแยกกัน",
+  "@promptPreviewHint": {
+    "description": "Hint under the character picker in Prompt Manager"
+  },
+  "promptPreviewSelectToView": "เลือกตัวละครด้านบนเพื่อดูช่องนี้",
+  "@promptPreviewSelectToView": {
+    "description": "Subtitle on character-owned prompt rows before a card is selected"
+  },
+  "radialGradient": "รัศมี",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "scrollToBottom": "เลื่อนไปท้ายสุด",
+  "showCharacterAvatarSubtitle": "แสดงอวาตาร์ตัวละครข้างข้อความของพวกเขา",
+  "showCharacterAvatarTitle": "อวาตาร์ตัวละคร",
+  "showReasoningSubtitle": "แสดงการคิดของโมเดลเหนือคำตอบ AI",
+  "showReasoningTitle": "กระบวนการคิด",
+  "showUserAvatarSubtitle": "แสดงอวาตาร์เพอร์โซนาข้างข้อความของคุณ",
+  "showUserAvatarTitle": "อวาตาร์ของคุณ",
+  "simpleListView": "รายการแบบง่าย",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
+  "solidFill": "สีทึบ",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "thinkingInProgress": "กำลังคิด…",
+  "@thinkingInProgress": {
+    "description": "Label while model thinking/reasoning is still streaming"
+  },
+  "tokenCharacterBubble": "ฟองตัวละคร",
+  "tokenCharacterBubbleDescription": "สีฟองข้อความของตัวละคร",
+  "tokenChatBackground": "พื้นหลังแชท",
+  "tokenChatBackgroundDescription": "พื้นหลังหน้าแชทเมื่อยังไม่ได้ตั้งรูปภาพ",
+  "tokenChatText": "ข้อความในฟอง",
+  "tokenChatTextDescription": "ข้อความปกติในฟองข้อความ",
+  "tokenDialogueText": "บทพูด",
+  "tokenDialogueTextDescription": "คำพูดในเครื่องหมายคำพูดในข้อความ แสดงด้วยสีนี้และตัวหนา",
+  "tokenUserBubble": "ฟองผู้ใช้",
+  "tokenUserBubbleDescription": "สีฟองข้อความของคุณ",
+  "unpinReplyChoicesPanel": "เลิกปักหมุดแผง",
+  "@unpinReplyChoicesPanel": {
+    "description": "Tooltip to allow reply choices panel to auto-hide"
+  }
 }

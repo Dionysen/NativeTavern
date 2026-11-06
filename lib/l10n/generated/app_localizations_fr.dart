@@ -219,7 +219,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get copiedToClipboard => 'Copié dans le presse-papiers';
 
   @override
-  String get dragToSelectText => 'Drag to select text';
+  String get dragToSelectText => 'Faites glisser pour sélectionner le texte';
 
   @override
   String get generateNewResponse => 'Générer une nouvelle réponse';
@@ -370,7 +370,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get thinking => 'Réflexion';
 
   @override
-  String get thinkingInProgress => 'Thinking…';
+  String get thinkingInProgress => 'Réflexion…';
 
   @override
   String get noSwipesAvailable => 'Aucun balayage disponible';
@@ -686,10 +686,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get showReplyChoices => 'Choix de réponse';
 
   @override
-  String get pinReplyChoicesPanel => 'Pin panel';
+  String get pinReplyChoicesPanel => 'Épingler le panneau';
 
   @override
-  String get unpinReplyChoicesPanel => 'Unpin panel';
+  String get unpinReplyChoicesPanel => 'Désépingler le panneau';
 
   @override
   String get createQuickReply => 'Créer une réponse rapide';
@@ -828,16 +828,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get listView => 'Vue liste';
 
   @override
-  String get simpleListView => 'Simple list';
+  String get simpleListView => 'Liste simple';
 
   @override
   String get gridView => 'Vue grille';
 
   @override
-  String get compactGridView => 'Compact grid';
+  String get compactGridView => 'Grille compacte';
 
   @override
-  String get characterDisplayMode => 'Display mode';
+  String get characterDisplayMode => 'Mode d’affichage';
 
   @override
   String get characterAvatarShapeCircle => 'Avatar circulaire';
@@ -1277,34 +1277,34 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get deleteSelectedCharacters => 'Delete Characters';
+  String get deleteSelectedCharacters => 'Supprimer les personnages';
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
-    return 'Delete $count selected characters? This will also delete all chats with these characters. This cannot be undone.';
+    return 'Supprimer $count personnages sélectionnés ? Leurs discussions seront aussi supprimées. Action irréversible.';
   }
 
   @override
   String charactersDeletedCount(int count) {
-    return 'Deleted $count characters';
+    return '$count personnages supprimés';
   }
 
   @override
   String chatsSelected(int count) {
-    return '$count chat(s) selected';
+    return '$count discussion(s) sélectionnée(s)';
   }
 
   @override
-  String get deleteSelectedChats => 'Delete Chats';
+  String get deleteSelectedChats => 'Supprimer les discussions';
 
   @override
   String deleteSelectedChatsConfirmation(int count) {
-    return 'Delete $count selected chats? This cannot be undone.';
+    return 'Supprimer $count discussions sélectionnées ? Action irréversible.';
   }
 
   @override
   String chatsDeletedCount(int count) {
-    return 'Deleted $count chats';
+    return '$count discussions supprimées';
   }
 
   @override
@@ -1446,44 +1446,46 @@ class AppLocalizationsFr extends AppLocalizations {
   String get customPresets => 'Custom Presets';
 
   @override
-  String get aiPresetDefaultName => 'Default';
+  String get aiPresetDefaultName => 'Par défaut';
 
   @override
-  String get aiPresetDefaultDescription => 'Balanced settings for general use';
+  String get aiPresetDefaultDescription =>
+      'Réglages équilibrés pour un usage courant';
 
   @override
-  String get aiPresetCreativeName => 'Creative';
+  String get aiPresetCreativeName => 'Créatif';
 
   @override
   String get aiPresetCreativeDescription =>
-      'Higher temperature for more creative responses';
+      'Température plus élevée pour des réponses plus créatives';
 
   @override
-  String get aiPresetPreciseName => 'Precise';
+  String get aiPresetPreciseName => 'Précis';
 
   @override
   String get aiPresetPreciseDescription =>
-      'Lower temperature for more focused responses';
+      'Température plus basse pour des réponses plus ciblées';
 
   @override
-  String get aiPresetDeterministicName => 'Deterministic';
+  String get aiPresetDeterministicName => 'Déterministe';
 
   @override
   String get aiPresetDeterministicDescription =>
-      'Very low randomness for consistent outputs';
+      'Aléatoire très faible pour des sorties plus stables';
 
   @override
-  String get aiPresetLongFormName => 'Long Form';
+  String get aiPresetLongFormName => 'Forme longue';
 
   @override
-  String get aiPresetLongFormDescription => 'Optimized for longer responses';
+  String get aiPresetLongFormDescription =>
+      'Optimisé pour des réponses plus longues';
 
   @override
   String get aiPresetMirostatName => 'Mirostat';
 
   @override
   String get aiPresetMirostatDescription =>
-      'Uses Mirostat sampling for adaptive perplexity';
+      'Utilise l’échantillonnage Mirostat pour une perplexité adaptative';
 
   @override
   String get aiPresetsDescription =>
@@ -1684,22 +1686,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
-  String get colorAndGradientPresets => 'Colors & gradients';
+  String get colorAndGradientPresets => 'Couleurs et dégradés';
 
   @override
   String get customBackgroundColor => 'Couleur personnalisée';
 
   @override
-  String get customBackgroundFill => 'Custom fill';
+  String get customBackgroundFill => 'Remplissage personnalisé';
 
   @override
-  String get solidFill => 'Solid';
+  String get solidFill => 'Uni';
 
   @override
-  String get gradientFill => 'Gradient';
+  String get gradientFill => 'Dégradé';
 
   @override
-  String get linearGradient => 'Linear';
+  String get linearGradient => 'Linéaire';
 
   @override
   String get radialGradient => 'Radial';
@@ -1708,13 +1710,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get gradientDirection => 'Direction';
 
   @override
-  String get gradientRadius => 'Radius';
+  String get gradientRadius => 'Rayon';
 
   @override
-  String get gradientStartColor => 'Start color';
+  String get gradientStartColor => 'Couleur de début';
 
   @override
-  String get gradientEndColor => 'End color';
+  String get gradientEndColor => 'Couleur de fin';
 
   @override
   String get backgroundColorImageMutexHint =>
@@ -4296,7 +4298,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get switchLayout => 'Switch layout';
 
   @override
-  String get scrollToBottom => 'Scroll to bottom';
+  String get scrollToBottom => 'Aller en bas';
 
   @override
   String get stopGenerating => 'Stop generating';
@@ -4320,11 +4322,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Applies to custom and character image backgrounds';
 
   @override
-  String get enableBubbleBlur => 'Bubble blur';
+  String get enableBubbleBlur => 'Flou des bulles';
 
   @override
   String get enableBubbleBlurHint =>
-      '0 is off. Higher values blur what\'s behind bubbles and the input.';
+      '0 = désactivé. Plus la valeur est haute, plus l’arrière-plan derrière les bulles et la saisie est flou.';
 
   @override
   String get enableBackgroundBlur => 'Enable background blur';
@@ -6951,46 +6953,48 @@ class AppLocalizationsFr extends AppLocalizations {
       'Roundness of chat message bubbles.';
 
   @override
-  String get showCharacterAvatarTitle => 'Character avatar';
+  String get showCharacterAvatarTitle => 'Avatar du personnage';
 
   @override
   String get showCharacterAvatarSubtitle =>
-      'Show character avatars next to their messages.';
+      'Affiche les avatars du personnage à côté de ses messages.';
 
   @override
-  String get showUserAvatarTitle => 'Your avatar';
+  String get showUserAvatarTitle => 'Votre avatar';
 
   @override
   String get showUserAvatarSubtitle =>
-      'Show your persona avatar next to your messages.';
+      'Affiche l’avatar de votre persona à côté de vos messages.';
 
   @override
-  String get avatarAboveBubbleTitle => 'Avatar above bubble';
+  String get avatarAboveBubbleTitle => 'Avatar au-dessus de la bulle';
 
   @override
   String get avatarAboveBubbleSubtitle =>
-      'Place avatars above messages so bubbles can use the full width.';
+      'Placez les avatars au-dessus des messages pour que les bulles prennent toute la largeur.';
 
   @override
-  String get showReasoningTitle => 'Thinking process';
+  String get showReasoningTitle => 'Processus de réflexion';
 
   @override
   String get showReasoningSubtitle =>
-      'Show the model\'s thinking above AI replies.';
+      'Affiche le raisonnement du modèle au-dessus des réponses de l’IA.';
 
   @override
-  String get hideChatAppBarOnScrollTitle => 'Hide top bar while scrolling';
+  String get hideChatAppBarOnScrollTitle =>
+      'Masquer la barre du haut en défilant';
 
   @override
   String get hideChatAppBarOnScrollSubtitle =>
-      'Scroll down in chat to hide the top bar; scroll up to show it again.';
+      'Faites défiler vers le bas pour masquer la barre du haut ; vers le haut pour la réafficher.';
 
   @override
-  String get neutralizeMessageHtmlStyleTitle => 'Clear card HTML backgrounds';
+  String get neutralizeMessageHtmlStyleTitle =>
+      'Effacer les fonds HTML de la carte';
 
   @override
   String get neutralizeMessageHtmlStyleSubtitle =>
-      'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.';
+      'Remplace les fonds HTML de la carte personnage par la couleur de bulle et de texte du chat. Cela ne modifie pas la bulle elle-même — réglez « Bulle du personnage » dans Apparence si besoin.';
 
   @override
   String get showBordersTitle => 'Show borders';
@@ -7111,19 +7115,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tokenCursor => 'Cursor';
 
   @override
-  String get tokenChatBackground => 'Chat background';
+  String get tokenChatBackground => 'Arrière-plan du chat';
 
   @override
-  String get tokenCharacterBubble => 'Character bubble';
+  String get tokenCharacterBubble => 'Bulle du personnage';
 
   @override
-  String get tokenUserBubble => 'User bubble';
+  String get tokenUserBubble => 'Bulle utilisateur';
 
   @override
-  String get tokenChatText => 'Message text';
+  String get tokenChatText => 'Texte du message';
 
   @override
-  String get tokenDialogueText => 'Spoken dialogue';
+  String get tokenDialogueText => 'Dialogue parlé';
 
   @override
   String get tokenEditorSurfaceDescription => 'Main scaffold background.';
@@ -7166,21 +7170,22 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tokenChatBackgroundDescription =>
-      'The chat page background when you haven’t set a picture.';
+      'L’arrière-plan de la page de chat quand aucune image n’est définie.';
 
   @override
   String get tokenCharacterBubbleDescription =>
-      'The bubble behind character messages.';
+      'La bulle derrière les messages du personnage.';
 
   @override
-  String get tokenUserBubbleDescription => 'The bubble behind your messages.';
+  String get tokenUserBubbleDescription => 'La bulle derrière vos messages.';
 
   @override
-  String get tokenChatTextDescription => 'Normal text inside message bubbles.';
+  String get tokenChatTextDescription =>
+      'Le texte normal dans les bulles de message.';
 
   @override
   String get tokenDialogueTextDescription =>
-      'Quoted speech in messages. Shown in this color and bold.';
+      'Les paroles entre guillemets dans les messages. Affichées dans cette couleur et en gras.';
 
   @override
   String get themeColorsSectionTitle => 'Theme colors';
@@ -7230,77 +7235,78 @@ class AppLocalizationsFr extends AppLocalizations {
   String get discardChanges => 'Discard';
 
   @override
-  String get copyToCustom => 'Copy to custom';
+  String get copyToCustom => 'Copier en perso';
 
   @override
   String copyNameOf(String name) {
-    return '$name copy';
+    return 'Copie de $name';
   }
 
   @override
   String copiedPresetToCustom(String name) {
-    return 'Copied \"$name\" to custom presets';
+    return '« $name » copié dans les préréglages perso';
   }
 
   @override
-  String get copyNameSuffix => ' copy';
+  String get copyNameSuffix => ' copie';
 
   @override
-  String get addPrompt => 'Add prompt';
+  String get addPrompt => 'Ajouter un prompt';
 
   @override
-  String get promptContent => 'Prompt content';
+  String get promptContent => 'Contenu du prompt';
 
   @override
   String promptEntryAdded(String name) {
-    return 'Added \"$name\"';
+    return '« $name » ajouté';
   }
 
   @override
   String promptEntryDuplicated(String name) {
-    return 'Duplicated as \"$name\"';
+    return 'Dupliqué sous « $name »';
   }
 
   @override
   String promptEntryDeleted(String name) {
-    return 'Deleted \"$name\"';
+    return '« $name » supprimé';
   }
 
   @override
-  String get deletePromptEntry => 'Delete prompt';
+  String get deletePromptEntry => 'Supprimer le prompt';
 
   @override
   String deletePromptConfirmation(String name) {
-    return 'Delete \"$name\"? This cannot be undone.';
+    return 'Supprimer « $name » ? Cette action est irréversible.';
   }
 
   @override
   String importedPromptSections(String name, int count) {
-    return 'Imported \"$name\" ($count prompts)';
+    return '« $name » importé ($count prompts)';
   }
 
   @override
   String importedPromptCount(int count) {
-    return 'Imported $count prompts';
+    return '$count prompts importés';
   }
 
   @override
-  String get presetPromptManager => 'Preset prompt manager';
+  String get presetPromptManager => 'Gestionnaire de prompts du préréglage';
 
   @override
-  String get promptPreviewCharacter => 'Preview character card';
+  String get promptPreviewCharacter => 'Aperçu de la carte personnage';
 
   @override
   String get promptPreviewHint =>
-      'Pick a character to preview how description, personality, and other card fields map into this preset. This is preview only—the preset and character card stay independent.';
+      'Choisissez un personnage pour prévisualiser comment description, personnalité et autres champs de la carte s’intègrent à ce préréglage. Aperçu seulement — le préréglage et la carte restent indépendants.';
 
   @override
   String get promptPreviewSelectToView =>
-      'Pick a character above to view this field';
+      'Choisissez un personnage ci-dessus pour voir ce champ';
 
   @override
-  String get promptPreviewEmptyField => 'This character has no content here';
+  String get promptPreviewEmptyField => 'Ce personnage n’a pas de contenu ici';
 
   @override
-  String get promptOwnedByCharacter => 'From character card · view only';
+  String get promptOwnedByCharacter =>
+      'Depuis la carte personnage · lecture seule';
 }
