@@ -823,7 +823,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get listView => 'Vista de lista';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'Vista de cuadrícula';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'Avatar circular';

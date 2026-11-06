@@ -820,7 +820,16 @@ class AppLocalizationsMs extends AppLocalizations {
   String get listView => 'Paparan Senarai';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'Paparan Grid';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'Avatar bulat';

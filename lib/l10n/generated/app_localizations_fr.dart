@@ -825,7 +825,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get listView => 'Vue liste';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'Vue grille';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'Avatar circulaire';

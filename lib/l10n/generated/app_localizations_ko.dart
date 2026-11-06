@@ -805,7 +805,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get listView => '목록 보기';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => '그리드 보기';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => '원형 아바타';

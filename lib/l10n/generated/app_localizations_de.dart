@@ -821,7 +821,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get listView => 'Listenansicht';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'Rasteransicht';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'Runder Avatar';

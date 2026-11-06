@@ -157,6 +157,39 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     );
   }
 
+  Future<void> _showViewModePicker() async {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final current = ref.read(characterBrowseDisplayPrefsProvider).viewMode;
+    final selected = await showAdaptiveActionDrawer<CharacterViewMode>(
+      context: context,
+      title: l10n.characterDisplayMode,
+      actions: [
+        for (final mode in CharacterViewMode.values)
+          AdaptiveActionDrawerItem(
+            value: mode,
+            leading: Icon(
+              mode.icon,
+              color: mode == current ? scheme.primary : null,
+            ),
+            title: Text(
+              mode.getDisplayName(l10n),
+              style: mode == current
+                  ? TextStyle(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w600,
+                    )
+                  : null,
+            ),
+          ),
+      ],
+    );
+    if (selected == null || !mounted) return;
+    await ref
+        .read(characterBrowseDisplayPrefsProvider.notifier)
+        .setViewMode(selected);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -274,11 +307,9 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                 tooltip: avatarShape.getDisplayName(l10n),
               ),
             ChromeIconButton(
-              icon: _getViewModeIcon(viewMode),
-              onPressed: () => ref
-                  .read(characterBrowseDisplayPrefsProvider.notifier)
-                  .cycleViewMode(),
-              tooltip: viewMode.getDisplayName(l10n),
+              icon: Icon(viewMode.icon),
+              onPressed: _showViewModePicker,
+              tooltip: l10n.characterDisplayMode,
             ),
             ChromeIconButton(
               icon: const Icon(Icons.add),
@@ -453,6 +484,14 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           onOpenFolder: _openFolder,
           onFolderActions: openFolderActions,
         );
+      case CharacterViewMode.simpleList:
+        return _CharacterSimpleListView(
+          folders: visibleFolders,
+          characters: characters,
+          interaction: interaction,
+          onOpenFolder: _openFolder,
+          onFolderActions: openFolderActions,
+        );
       case CharacterViewMode.grid:
         return _CharacterGridView(
           folders: visibleFolders,
@@ -469,17 +508,6 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           onOpenFolder: _openFolder,
           onFolderActions: openFolderActions,
         );
-    }
-  }
-
-  Icon _getViewModeIcon(CharacterViewMode viewMode) {
-    switch (viewMode) {
-      case CharacterViewMode.list:
-        return const Icon(Icons.list);
-      case CharacterViewMode.grid:
-        return const Icon(Icons.grid_view);
-      case CharacterViewMode.compactGrid:
-        return const Icon(Icons.view_compact);
     }
   }
 }
@@ -697,6 +725,202 @@ class _CharacterListView extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+/// Compact list rows: avatar + left-aligned name, fixed height, no tags.
+class _CharacterSimpleListView extends StatelessWidget {
+  final List<CharacterFolder> folders;
+  final List<Character> characters;
+  final _CharacterTileInteraction interaction;
+  final ValueChanged<String> onOpenFolder;
+  final ValueChanged<CharacterFolder> onFolderActions;
+
+  const _CharacterSimpleListView({
+    required this.folders,
+    required this.characters,
+    required this.interaction,
+    required this.onOpenFolder,
+    required this.onFolderActions,
+  });
+
+  static const double rowHeight = 60;
+  static const double avatarSize = 40;
+
+  int get _itemCount => folders.length + characters.length;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: _itemCount,
+      itemBuilder: (context, index) {
+        if (index < folders.length) {
+          final folder = folders[index];
+          return Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              height: rowHeight,
+              child: InkWell(
+                onTap: () => onOpenFolder(folder.id),
+                onLongPress: () => onFolderActions(folder),
+                onSecondaryTap: () => onFolderActions(folder),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: avatarSize,
+                        height: avatarSize,
+                        child: ClipOval(
+                          child: CharacterFolderPreviewMosaic(
+                            previews: folder.previewCharacters,
+                            compact: true,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          folder.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+        return _CharacterSimpleListTile(
+          character: characters[index - folders.length],
+          interaction: interaction,
+        );
+      },
+    );
+  }
+}
+
+class _CharacterSimpleListTile extends ConsumerWidget {
+  final Character character;
+  final _CharacterTileInteraction interaction;
+
+  const _CharacterSimpleListTile({
+    required this.character,
+    required this.interaction,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final selected = interaction.selectedIds.contains(character.id);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      clipBehavior: Clip.antiAlias,
+      child: SizedBox(
+        height: _CharacterSimpleListView.rowHeight,
+        child: InkWell(
+          onTap: () {
+            if (interaction.selectionMode) {
+              interaction.onToggleSelect(character.id);
+              return;
+            }
+            context.push('/characters/${character.id}');
+          },
+          onLongPress: () => interaction.handleLongPress(character.id),
+          onSecondaryTap: interaction.selectionMode
+              ? () => interaction.onToggleSelect(character.id)
+              : () => _showCharacterActionMenu(context, ref, character),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 4, 0),
+            child: Row(
+              children: [
+                if (interaction.selectionMode) ...[
+                  Icon(
+                    selected ? Icons.check_circle : Icons.circle_outlined,
+                    color: selected ? scheme.primary : scheme.outline,
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                _buildAvatar(),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    character.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+                if (!interaction.selectionMode)
+                  AdaptiveActionMenuButton<String>(
+                    tooltip: l10n.moreOptions,
+                    title: character.name,
+                    density: ChromeIconButtonDensity.compact,
+                    itemBuilder: _characterActionItems,
+                    onSelected: (value) => _handleCharacterAction(
+                      context,
+                      ref,
+                      character,
+                      value,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatar() {
+    const size = _CharacterSimpleListView.avatarSize;
+    return CharacterAvatarShaped(
+      imagePath: character.assets?.avatarPath,
+      width: size,
+      height: size,
+      shape: BoxShape.circle,
+      borderRadius: size / 2,
+      fallbackColor: _simpleListCharacterColor(character),
+      fallbackIcon: _simpleListCharacterIcon(character),
+    );
+  }
+}
+
+IconData _simpleListCharacterIcon(Character character) {
+  switch (character.id) {
+    case 'builtin_coding_assistant':
+      return Icons.code;
+    case 'builtin_image_gen_assistant':
+      return Icons.image;
+    case 'builtin_xiaohongshu_copywriter':
+      return Icons.edit_note;
+    default:
+      return Icons.person;
+  }
+}
+
+Color _simpleListCharacterColor(Character character) {
+  switch (character.id) {
+    case 'builtin_coding_assistant':
+      return const Color(0xFF2196F3);
+    case 'builtin_image_gen_assistant':
+      return const Color(0xFFE91E63);
+    case 'builtin_xiaohongshu_copywriter':
+      return const Color(0xFFFF5722);
+    default:
+      return AppTheme.primaryColor;
   }
 }
 

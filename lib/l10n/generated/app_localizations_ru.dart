@@ -820,7 +820,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get listView => 'Список';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'Сетка';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'Круглый аватар';

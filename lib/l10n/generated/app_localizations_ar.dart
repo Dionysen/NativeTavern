@@ -814,7 +814,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get listView => 'عرض القائمة';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'عرض الشبكة';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'صورة رمزية دائرية';

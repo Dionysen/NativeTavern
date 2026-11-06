@@ -815,7 +815,16 @@ class AppLocalizationsTh extends AppLocalizations {
   String get listView => 'มุมมองรายการ';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'มุมมองตาราง';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'อวาตาร์วงกลม';

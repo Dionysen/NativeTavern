@@ -1115,9 +1115,21 @@
   "@listView": {
     "description": "List view toggle"
   },
+  "simpleListView": "Simple list",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
   "gridView": "Grid view",
   "@gridView": {
     "description": "Grid view toggle"
+  },
+  "compactGridView": "Compact grid",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "characterDisplayMode": "Display mode",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
   },
   "characterAvatarShapeCircle": "Circular avatar",
   "@characterAvatarShapeCircle": {

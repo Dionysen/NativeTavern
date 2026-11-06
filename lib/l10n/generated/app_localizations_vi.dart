@@ -818,7 +818,16 @@ class AppLocalizationsVi extends AppLocalizations {
   String get listView => 'Xem danh sách';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'Xem lưới';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'Ảnh đại diện tròn';

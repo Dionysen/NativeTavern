@@ -3,8 +3,11 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
 /// View mode for character list display
 enum CharacterViewMode {
-  /// List view
+  /// Full list with avatar, description, and tags.
   list,
+
+  /// Name-only list rows (no avatar / tags), fixed height.
+  simpleList,
 
   /// Grid view with 2 columns (medium size)
   grid,
@@ -45,6 +48,8 @@ extension CharacterViewModeExtension on CharacterViewMode {
   CharacterViewMode get next {
     switch (this) {
       case CharacterViewMode.list:
+        return CharacterViewMode.simpleList;
+      case CharacterViewMode.simpleList:
         return CharacterViewMode.grid;
       case CharacterViewMode.grid:
         return CharacterViewMode.compactGrid;
@@ -53,27 +58,25 @@ extension CharacterViewModeExtension on CharacterViewMode {
     }
   }
 
-  /// Get the icon for this view mode
-  String get iconName {
-    switch (this) {
-      case CharacterViewMode.list:
-        return 'list';
-      case CharacterViewMode.grid:
-        return 'grid_view';
-      case CharacterViewMode.compactGrid:
-        return 'view_compact';
-    }
-  }
+  /// Icon for this view mode (AppBar + picker drawer).
+  IconData get icon => switch (this) {
+        CharacterViewMode.list => Icons.view_agenda_outlined,
+        CharacterViewMode.simpleList => Icons.view_list_outlined,
+        CharacterViewMode.grid => Icons.grid_view,
+        CharacterViewMode.compactGrid => Icons.view_compact,
+      };
 
   /// Get display name for this view mode
   String getDisplayName(AppLocalizations l10n) {
     switch (this) {
       case CharacterViewMode.list:
         return l10n.listView;
+      case CharacterViewMode.simpleList:
+        return l10n.simpleListView;
       case CharacterViewMode.grid:
         return l10n.gridView;
       case CharacterViewMode.compactGrid:
-        return 'Compact Grid'; // 紧凑网格视图
+        return l10n.compactGridView;
     }
   }
 }

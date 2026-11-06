@@ -820,7 +820,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get listView => 'Widok listy';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'Widok siatki';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'Okrągły awatar';

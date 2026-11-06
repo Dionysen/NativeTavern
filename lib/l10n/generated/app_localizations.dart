@@ -1645,11 +1645,29 @@ abstract class AppLocalizations {
   /// **'List view'**
   String get listView;
 
+  /// Character browse mode: name-only list rows
+  ///
+  /// In en, this message translates to:
+  /// **'Simple list'**
+  String get simpleListView;
+
   /// Grid view toggle
   ///
   /// In en, this message translates to:
   /// **'Grid view'**
   String get gridView;
+
+  /// Character browse mode: compact grid
+  ///
+  /// In en, this message translates to:
+  /// **'Compact grid'**
+  String get compactGridView;
+
+  /// Title for character browse display mode picker
+  ///
+  /// In en, this message translates to:
+  /// **'Display mode'**
+  String get characterDisplayMode;
 
   /// Character list avatar shape: circle
   ///

@@ -818,7 +818,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get listView => 'सूची दृश्य';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'ग्रिड दृश्य';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'गोलाकार अवतार';

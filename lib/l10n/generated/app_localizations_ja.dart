@@ -807,7 +807,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get listView => 'リスト表示';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'グリッド表示';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => '円形アバター';

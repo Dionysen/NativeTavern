@@ -802,7 +802,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get listView => '列表视图';
 
   @override
+  String get simpleListView => '简单列表';
+
+  @override
   String get gridView => '网格视图';
+
+  @override
+  String get compactGridView => '紧凑网格';
+
+  @override
+  String get characterDisplayMode => '显示模式';
 
   @override
   String get characterAvatarShapeCircle => '圆形头像';
@@ -7766,7 +7775,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get listView => '清單檢視';
 
   @override
+  String get simpleListView => '簡單清單';
+
+  @override
   String get gridView => '格狀檢視';
+
+  @override
+  String get compactGridView => '緊湊格狀';
+
+  @override
+  String get characterDisplayMode => '顯示模式';
 
   @override
   String get characterAvatarShapeCircle => '圓形頭像';

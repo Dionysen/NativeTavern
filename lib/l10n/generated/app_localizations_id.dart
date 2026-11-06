@@ -821,7 +821,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get listView => 'Tampilan Daftar';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'Tampilan Grid';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'Avatar lingkaran';

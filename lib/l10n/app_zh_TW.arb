@@ -1063,9 +1063,21 @@
   "@listView": {
     "description": "List view toggle"
   },
+  "simpleListView": "簡單清單",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
   "gridView": "格狀檢視",
   "@gridView": {
     "description": "Grid view toggle"
+  },
+  "compactGridView": "緊湊格狀",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "characterDisplayMode": "顯示模式",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
   },
   "search": "搜尋",
   "@search": {

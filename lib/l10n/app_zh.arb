@@ -1063,9 +1063,21 @@
   "@listView": {
     "description": "List view toggle"
   },
+  "simpleListView": "简单列表",
+  "@simpleListView": {
+    "description": "Character browse mode: name-only list rows"
+  },
   "gridView": "网格视图",
   "@gridView": {
     "description": "Grid view toggle"
+  },
+  "compactGridView": "紧凑网格",
+  "@compactGridView": {
+    "description": "Character browse mode: compact grid"
+  },
+  "characterDisplayMode": "显示模式",
+  "@characterDisplayMode": {
+    "description": "Title for character browse display mode picker"
   },
   "characterAvatarShapeCircle": "圆形头像",
   "@characterAvatarShapeCircle": {

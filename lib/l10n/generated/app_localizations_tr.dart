@@ -819,7 +819,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get listView => 'Liste Görünümü';
 
   @override
+  String get simpleListView => 'Simple list';
+
+  @override
   String get gridView => 'Izgara Görünümü';
+
+  @override
+  String get compactGridView => 'Compact grid';
+
+  @override
+  String get characterDisplayMode => 'Display mode';
 
   @override
   String get characterAvatarShapeCircle => 'Dairesel avatar';
