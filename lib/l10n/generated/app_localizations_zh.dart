@@ -6720,6 +6720,12 @@ class AppLocalizationsZh extends AppLocalizations {
       '用你的聊天气泡色和文字色替换角色卡 HTML 自带底色。这不会改气泡本身；若气泡发白，请到外观里调整「角色气泡」颜色。';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'HTML 使用应用字体';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle => '用你选的字体覆盖 HTML 消息正文。代码块仍用等宽字体。';
+
+  @override
   String get showBordersTitle => '显示边框';
 
   @override
@@ -13732,6 +13738,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String get neutralizeMessageHtmlStyleSubtitle =>
       '用你的聊天氣泡色和文字色替換角色卡 HTML 自帶底色。這不會改氣泡本身；若氣泡發白，請到外觀裡調整「角色氣泡」顏色。';
+
+  @override
+  String get overrideMessageHtmlFontTitle => 'HTML 使用應用字體';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      '用你選的字體覆蓋 HTML 訊息正文。程式碼區塊仍用等寬字體。';
 
   @override
   String get showBordersTitle => '顯示邊框';

@@ -7004,6 +7004,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Remplace les fonds HTML de la carte personnage par la couleur de bulle et de texte du chat. Cela ne modifie pas la bulle elle-même — réglez « Bulle du personnage » dans Apparence si besoin.';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

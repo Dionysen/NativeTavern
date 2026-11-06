@@ -1,3 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math' as math;
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -7,6 +12,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 /// Survives ListView recycle so scrolling back does not collapse to a stub height.
 final Map<String, double> _htmlWebViewHeightCache = <String, double>{};
+
+/// Cached font file bytes for post-load FontFace injection.
+final Map<String, Uint8List> _htmlWebViewFontBytesCache = <String, Uint8List>{};
 
 /// Keeps a bounded set of HTML WebViews alive so nearby scroll does not
 /// tear down native platform views (the main scroll-flash source).
@@ -50,6 +58,12 @@ class HtmlWebViewWidget extends StatefulWidget {
   final String? contentKey;
   /// Strip opaque character-card fills/colors so the chat theme shows through.
   final bool neutralizeStyle;
+  /// Force body text to [fontFamily], ignoring card-authored font-family rules.
+  final bool overrideFont;
+  /// App UI font family (FontLoader id or generic like `serif`).
+  final String? fontFamily;
+  /// Font file used to inject `@font-face` so WebView can load custom fonts.
+  final String? fontPath;
 
   const HtmlWebViewWidget({
     super.key,
@@ -61,6 +75,9 @@ class HtmlWebViewWidget extends StatefulWidget {
     this.onLongPress,
     this.contentKey,
     this.neutralizeStyle = true,
+    this.overrideFont = false,
+    this.fontFamily,
+    this.fontPath,
   });
 
   @override
@@ -152,6 +169,9 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
     final keyChanged =
         widget.contentKey != oldWidget.contentKey && widget.contentKey != null;
     final styleChanged = widget.neutralizeStyle != oldWidget.neutralizeStyle ||
+        widget.overrideFont != oldWidget.overrideFont ||
+        widget.fontFamily != oldWidget.fontFamily ||
+        widget.fontPath != oldWidget.fontPath ||
         widget.textColor != oldWidget.textColor ||
         widget.dialogueColor != oldWidget.dialogueColor ||
         widget.fontSize != oldWidget.fontSize;
@@ -233,6 +253,88 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
     }
   }
 
+  /// Load the app UI font into the WebView after the page is up.
+  ///
+  /// Windows WebView2 blocks `file://` fonts for `NavigateToString` pages, and
+  /// inlining multi‑MB base64 in the initial HTML hits `参数错误`. Chunked
+  /// `FontFace` injection avoids both.
+  Future<void> _injectAppFontIfNeeded(InAppWebViewController controller) async {
+    if (!widget.overrideFont || kIsWeb) return;
+    final family = widget.fontFamily;
+    if (family == null || family.isEmpty) return;
+
+    final stack = cssFontFamilyStack(family);
+    final path = widget.fontPath;
+    try {
+      if (path != null && path.isNotEmpty) {
+        var bytes = _htmlWebViewFontBytesCache[path];
+        if (bytes == null) {
+          final loaded = await File(path).readAsBytes();
+          bytes = Uint8List.fromList(loaded);
+          _htmlWebViewFontBytesCache[path] = bytes;
+        }
+        if (bytes.isEmpty) {
+          debugPrint('🌐 App font file empty: $path');
+        } else {
+          await controller.evaluateJavascript(source: 'window.__ntFontChunks=[];');
+          const chunkSize = 240 * 1024;
+          for (var i = 0; i < bytes.length; i += chunkSize) {
+            final end = math.min(i + chunkSize, bytes.length);
+            final chunk = base64Encode(bytes.sublist(i, end));
+            await controller.evaluateJavascript(
+              source: "window.__ntFontChunks.push('$chunk');",
+            );
+          }
+          final mime = _htmlFontMimeType(path);
+          final familyJson = jsonEncode(family);
+          final stackJson = jsonEncode(stack);
+          await controller.evaluateJavascript(source: '''
+(async function() {
+  try {
+    var family = $familyJson;
+    var stack = $stackJson;
+    var b64 = (window.__ntFontChunks || []).join('');
+    window.__ntFontChunks = null;
+    if (b64) {
+      var face = new FontFace(family, 'url(data:$mime;base64,' + b64 + ')');
+      await face.load();
+      document.fonts.add(face);
+    }
+    document.documentElement.style.setProperty('font-family', stack, 'important');
+    if (document.body) {
+      document.body.style.setProperty('font-family', stack, 'important');
+    }
+    var root = document.getElementById('measure-root');
+    if (root) root.style.setProperty('font-family', stack, 'important');
+    if (typeof sendHeight === 'function') sendHeight();
+  } catch (e) {
+    console.error('nt font inject failed', e);
+  }
+})();
+''');
+          debugPrint('🌐 Injected app font "$family" (${bytes.length} bytes)');
+          return;
+        }
+      }
+
+      // Generic family (serif / system) or missing file: CSS stack only.
+      final stackJson = jsonEncode(stack);
+      await controller.evaluateJavascript(source: '''
+(function() {
+  var stack = $stackJson;
+  document.documentElement.style.setProperty('font-family', stack, 'important');
+  if (document.body) {
+    document.body.style.setProperty('font-family', stack, 'important');
+  }
+  var root = document.getElementById('measure-root');
+  if (root) root.style.setProperty('font-family', stack, 'important');
+})();
+''');
+    } catch (e) {
+      debugPrint('🌐 App font inject error: $e');
+    }
+  }
+
   /// Build the complete HTML document
   String _buildHtml() {
     final effectiveFontSize = widget.fontSize ?? 14.0;
@@ -244,6 +346,9 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
     // still paint an opaque white plate even with transparentBackground=true.
     final surfaceHex = _colorToHex(widget.backgroundColor);
     final pageBackground = widget.neutralizeStyle ? surfaceHex : 'transparent';
+    final bodyFontFamily = cssFontFamilyStack(
+      widget.overrideFont ? widget.fontFamily : null,
+    );
     final content = wrapDialogueQuotesInHtml(
       widget.htmlContent.replaceAllMapped(
         RegExp(r'<details\b', caseSensitive: false),
@@ -268,7 +373,7 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
       background: $pageBackground !important;
       background-color: $pageBackground !important;
       color: $textColorHex;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: $bodyFontFamily;
       font-size: ${effectiveFontSize}px;
       line-height: 1.5;
       width: 100%;
@@ -371,6 +476,26 @@ ${widget.neutralizeStyle ? '''
   #measure-root .nt-dialogue {
     color: $dialogueColorHex !important;
     font-weight: 700 !important;
+  }
+</style>
+''' : ''}
+${widget.overrideFont ? '''
+<style id="nt-html-font-override">
+  /* Force app UI font on body text only; keep monospace for code. */
+  html, body, #measure-root {
+    font-family: $bodyFontFamily !important;
+  }
+  #measure-root * {
+    font-family: inherit !important;
+  }
+  #measure-root pre,
+  #measure-root code,
+  #measure-root kbd,
+  #measure-root samp,
+  #measure-root tt,
+  #measure-root pre *,
+  #measure-root code * {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace !important;
   }
 </style>
 ''' : ''}
@@ -668,23 +793,22 @@ ${widget.neutralizeStyle ? '''
     final showLoading = _isLoading && !_restoredFromCache;
 
     if (_hasError) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.error_outline, color: Colors.orange),
-            const SizedBox(height: 8),
-            Text(
-              'Failed to render HTML content',
-              style: TextStyle(color: widget.textColor),
+      // Prefer readable text over an empty black WebView plate.
+      final plain = widget.htmlContent
+          .replaceAll(RegExp(r'<[^>]+>'), ' ')
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim();
+      return GestureDetector(
+        onLongPress: widget.onLongPress,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Text(
+            plain.isEmpty ? 'Failed to render HTML content' : plain,
+            style: TextStyle(
+              color: widget.textColor,
+              fontSize: widget.fontSize ?? 14,
             ),
-            if (_errorMessage != null)
-              Text(
-                _errorMessage!,
-                style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-              ),
-          ],
+          ),
         ),
       );
     }
@@ -795,6 +919,7 @@ ${widget.neutralizeStyle ? '''
                     }
                   ''');
                 }
+                await _injectAppFontIfNeeded(controller);
                 // Trigger height calculation
                 await controller.evaluateJavascript(source: 'sendHeight();');
 
@@ -910,4 +1035,30 @@ double? resolveHtmlWebViewHeight({
   if (newHeight > currentHeight) return newHeight;
   if (updateCount <= 3) return newHeight;
   return null;
+}
+
+/// CSS `font-family` stack for HTML WebViews.
+String cssFontFamilyStack(String? family) {
+  const systemStack =
+      "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+  if (family == null || family.isEmpty) return systemStack;
+  switch (family) {
+    case 'serif':
+    case 'sans-serif':
+    case 'monospace':
+    case 'cursive':
+    case 'fantasy':
+    case 'system-ui':
+      return family;
+  }
+  final escaped = family.replaceAll(r'\', r'\\').replaceAll("'", r"\'");
+  return "'$escaped', $systemStack";
+}
+
+String _htmlFontMimeType(String path) {
+  final lower = path.toLowerCase();
+  if (lower.endsWith('.woff2')) return 'font/woff2';
+  if (lower.endsWith('.woff')) return 'font/woff';
+  if (lower.endsWith('.otf')) return 'font/otf';
+  return 'font/ttf';
 }

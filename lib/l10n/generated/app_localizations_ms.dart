@@ -6992,6 +6992,13 @@ class AppLocalizationsMs extends AppLocalizations {
       'Ganti latar HTML kad watak dengan warna gelembung dan teks sembang anda. Ini tidak ubah gelembung itu sendiri — laraskan «Gelembung watak» dalam Penampilan jika nampak salah.';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

@@ -55,4 +55,11 @@ void main() {
       isNull,
     );
   });
+
+  test('css font stack quotes custom families and keeps generics bare', () {
+    expect(cssFontFamilyStack('serif'), 'serif');
+    expect(cssFontFamilyStack('My Font'), contains("'My Font'"));
+    expect(cssFontFamilyStack(null), contains('sans-serif'));
+  });
+
 }

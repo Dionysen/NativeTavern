@@ -6997,6 +6997,13 @@ class AppLocalizationsNl extends AppLocalizations {
       'Vervangt HTML-achtergronden van de personagekaart door je chatbubbel- en tekstkleur. De bubbel zelf verandert niet — pas «Personagebubbel» onder Weergave aan als die er verkeerd uitziet.';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

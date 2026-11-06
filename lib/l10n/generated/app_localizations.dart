@@ -12411,6 +12411,18 @@ abstract class AppLocalizations {
   /// **'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.'**
   String get neutralizeMessageHtmlStyleSubtitle;
 
+  /// No description provided for @overrideMessageHtmlFontTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use app font in HTML'**
+  String get overrideMessageHtmlFontTitle;
+
+  /// No description provided for @overrideMessageHtmlFontSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.'**
+  String get overrideMessageHtmlFontSubtitle;
+
   /// No description provided for @showBordersTitle.
   ///
   /// In en, this message translates to:

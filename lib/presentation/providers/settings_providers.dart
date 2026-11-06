@@ -811,6 +811,8 @@ class AppSettings {
   final bool renderMessageHtml;
   /// Strip opaque fills/colors from character-card HTML so chat theme shows.
   final bool neutralizeMessageHtmlStyle;
+  /// Force HTML body text to use the app UI font; leaves code blocks alone.
+  final bool overrideMessageHtmlFont;
   final bool memoryAutoExtractionEnabled;
   final bool memoryContextEnabled;
   final bool memorySemanticSearchEnabled;
@@ -841,6 +843,7 @@ class AppSettings {
     this.hideChatAppBarOnScroll = false,
     this.renderMessageHtml = true,
     this.neutralizeMessageHtmlStyle = true,
+    this.overrideMessageHtmlFont = false,
     this.memoryAutoExtractionEnabled = false,
     this.memoryContextEnabled = true,
     this.memorySemanticSearchEnabled = false,
@@ -872,6 +875,7 @@ class AppSettings {
     bool? hideChatAppBarOnScroll,
     bool? renderMessageHtml,
     bool? neutralizeMessageHtmlStyle,
+    bool? overrideMessageHtmlFont,
     bool? memoryAutoExtractionEnabled,
     bool? memoryContextEnabled,
     bool? memorySemanticSearchEnabled,
@@ -907,6 +911,8 @@ class AppSettings {
       renderMessageHtml: renderMessageHtml ?? this.renderMessageHtml,
       neutralizeMessageHtmlStyle:
           neutralizeMessageHtmlStyle ?? this.neutralizeMessageHtmlStyle,
+      overrideMessageHtmlFont:
+          overrideMessageHtmlFont ?? this.overrideMessageHtmlFont,
       memoryAutoExtractionEnabled:
           memoryAutoExtractionEnabled ?? this.memoryAutoExtractionEnabled,
       memoryContextEnabled: memoryContextEnabled ?? this.memoryContextEnabled,
@@ -943,6 +949,7 @@ class AppSettings {
         'hideChatAppBarOnScroll': hideChatAppBarOnScroll,
         'renderMessageHtml': renderMessageHtml,
         'neutralizeMessageHtmlStyle': neutralizeMessageHtmlStyle,
+        'overrideMessageHtmlFont': overrideMessageHtmlFont,
         'memoryAutoExtractionEnabled': memoryAutoExtractionEnabled,
         'memoryContextEnabled': memoryContextEnabled,
         'memorySemanticSearchEnabled': memorySemanticSearchEnabled,
@@ -985,6 +992,8 @@ class AppSettings {
       renderMessageHtml: json['renderMessageHtml'] as bool? ?? true,
       neutralizeMessageHtmlStyle:
           json['neutralizeMessageHtmlStyle'] as bool? ?? true,
+      overrideMessageHtmlFont:
+          json['overrideMessageHtmlFont'] as bool? ?? false,
       memoryAutoExtractionEnabled:
           json['memoryAutoExtractionEnabled'] as bool? ?? false,
       memoryContextEnabled: json['memoryContextEnabled'] as bool? ?? true,
@@ -1204,6 +1213,11 @@ class AppSettingsNotifier extends StateNotifier<AppSettings> {
 
   void updateNeutralizeMessageHtmlStyle(bool enabled) {
     state = state.copyWith(neutralizeMessageHtmlStyle: enabled);
+    _saveSettings();
+  }
+
+  void updateOverrideMessageHtmlFont(bool enabled) {
+    state = state.copyWith(overrideMessageHtmlFont: enabled);
     _saveSettings();
   }
 

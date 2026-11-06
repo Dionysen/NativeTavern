@@ -161,6 +161,15 @@ class _AppearanceScreenState extends ConsumerState<AppearanceScreen> {
                     : null,
               ),
               SettingsSwitchTile(
+                icon: Icons.text_format_outlined,
+                title: l10n.overrideMessageHtmlFontTitle,
+                subtitle: l10n.overrideMessageHtmlFontSubtitle,
+                value: appSettings.overrideMessageHtmlFont,
+                onChanged: appSettings.renderMessageHtml
+                    ? appSettingsNotifier.updateOverrideMessageHtmlFont
+                    : null,
+              ),
+              SettingsSwitchTile(
                 icon: Icons.border_style,
                 title: l10n.showBordersTitle,
                 subtitle: l10n.showBordersSubtitle,

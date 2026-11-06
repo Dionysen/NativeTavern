@@ -6995,6 +6995,13 @@ class AppLocalizationsPt extends AppLocalizations {
       'Substitui fundos HTML do cartão do personagem pela cor da bolha e do texto do chat. Isso não altera a bolha em si — ajuste «Bolha do personagem» em Aparência se estiver estranha.';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

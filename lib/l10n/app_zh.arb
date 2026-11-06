@@ -7139,6 +7139,8 @@
   "renderMessageHtmlSubtitle": "在聊天里显示 HTML 排版。关闭后仍会保留文字，并转成 Markdown 显示。",
   "neutralizeMessageHtmlStyleTitle": "清除角色卡 HTML 背景",
   "neutralizeMessageHtmlStyleSubtitle": "用你的聊天气泡色和文字色替换角色卡 HTML 自带底色。这不会改气泡本身；若气泡发白，请到外观里调整「角色气泡」颜色。",
+  "overrideMessageHtmlFontTitle": "HTML 使用应用字体",
+  "overrideMessageHtmlFontSubtitle": "用你选的字体覆盖 HTML 消息正文。代码块仍用等宽字体。",
   "showBordersTitle": "显示边框",
   "showBordersSubtitle": "关闭后按钮和卡片没有边框",
   "themePresetsSectionTitle": "主题颜色",

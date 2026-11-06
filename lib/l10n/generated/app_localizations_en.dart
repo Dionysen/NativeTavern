@@ -6990,6 +6990,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

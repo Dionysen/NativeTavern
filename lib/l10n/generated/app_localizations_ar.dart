@@ -6982,6 +6982,13 @@ class AppLocalizationsAr extends AppLocalizations {
       'استبدل خلفيات HTML في بطاقة الشخصية بلون فقاعة الدردشة ولون النص. هذا لا يغيّر الفقاعة نفسها — عدّل «فقاعة الشخصية» في المظهر إن بدت خاطئة.';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

@@ -7083,6 +7083,8 @@
   "showReasoningSubtitle": "在 AI 回覆上方顯示思考內容。",
   "hideChatAppBarOnScrollTitle": "捲動時隱藏頂欄",
   "hideChatAppBarOnScrollSubtitle": "在聊天裡向下捲動會隱藏頂欄，向上捲動再顯示。",
+  "overrideMessageHtmlFontTitle": "HTML 使用應用字體",
+  "overrideMessageHtmlFontSubtitle": "用你選的字體覆蓋 HTML 訊息正文。程式碼區塊仍用等寬字體。",
   "showBordersTitle": "顯示邊框",
   "showBordersSubtitle": "關閉後按钮和卡片没有邊框",
   "themePresetsSectionTitle": "主題顏色",

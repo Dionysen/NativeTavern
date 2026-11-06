@@ -6957,6 +6957,13 @@ class AppLocalizationsKo extends AppLocalizations {
       '캐릭터 카드 HTML 배경을 채팅 말풍선 색과 글자 색으로 바꿉니다. 말풍선 자체는 바뀌지 않습니다. 하얗게 보이면 모양새의 «캐릭터 말풍선»을 조정하세요.';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

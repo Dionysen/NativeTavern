@@ -6958,6 +6958,13 @@ class AppLocalizationsJa extends AppLocalizations {
       'キャラクターカードの HTML 背景を、チャットの吹き出し色と文字色に置き換えます。吹き出し自体は変わりません。白っぽい場合は外観の「キャラクター吹き出し」を調整してください。';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

@@ -6994,6 +6994,13 @@ class AppLocalizationsId extends AppLocalizations {
       'Ganti latar HTML kartu karakter dengan warna gelembung dan teks chat Anda. Ini tidak mengubah gelembung itu sendiri — sesuaikan «Gelembung karakter» di Tampilan jika terlihat salah.';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

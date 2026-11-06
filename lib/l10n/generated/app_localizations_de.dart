@@ -6995,6 +6995,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ersetzt HTML-Hintergründe der Charakterkarte durch deine Blasen- und Textfarbe. Die Blase selbst ändert sich nicht — passe „Charakterblase“ unter Darstellung an, falls sie falsch aussieht.';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

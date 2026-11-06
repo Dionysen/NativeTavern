@@ -6987,6 +6987,13 @@ class AppLocalizationsHi extends AppLocalizations {
       'कैरेक्टर कार्ड के HTML बैकग्राउंड को आपके चैट बबल और टेक्स्ट रंग से बदलें। इससे बबल खुद नहीं बदलता — गलत लगे तो दिखावट में «कैरेक्टर बबल» ठीक करें।';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

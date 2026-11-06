@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
+import 'package:native_tavern/presentation/providers/theme_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
@@ -84,6 +85,9 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
   Brightness? _cachedBrightness;
   bool? _cachedRenderHtml;
   bool? _cachedNeutralizeHtml;
+  bool? _cachedOverrideHtmlFont;
+  String? _cachedFontFamily;
+  String? _cachedFontPath;
   bool? _cachedSelectionArmed;
 
   bool get _isTouchPrimary {
@@ -300,6 +304,12 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     final neutralizeHtml = ref.watch(
       appSettingsProvider.select((s) => s.neutralizeMessageHtmlStyle),
     );
+    final overrideHtmlFont = ref.watch(
+      appSettingsProvider.select((s) => s.overrideMessageHtmlFont),
+    );
+    final ui = ref.watch(themeProvider.select((s) => s.ui));
+    final fontFamily = ui.fontFamily;
+    final fontPath = ui.fontPath;
     if (_cachedWidget != null &&
         _cachedContent == widget.content &&
         _cachedStreaming == widget.isStreaming &&
@@ -309,6 +319,9 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         _cachedBrightness == brightness &&
         _cachedRenderHtml == renderHtml &&
         _cachedNeutralizeHtml == neutralizeHtml &&
+        _cachedOverrideHtmlFont == overrideHtmlFont &&
+        _cachedFontFamily == fontFamily &&
+        _cachedFontPath == fontPath &&
         _cachedSelectionArmed == _selectionArmed) {
       return _cachedWidget!;
     }
@@ -317,6 +330,9 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       context,
       renderHtml: renderHtml,
       neutralizeHtml: neutralizeHtml,
+      overrideHtmlFont: overrideHtmlFont,
+      fontFamily: fontFamily,
+      fontPath: fontPath,
     );
     _cachedWidget = result;
     _cachedContent = widget.content;
@@ -327,6 +343,9 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     _cachedBrightness = brightness;
     _cachedRenderHtml = renderHtml;
     _cachedNeutralizeHtml = neutralizeHtml;
+    _cachedOverrideHtmlFont = overrideHtmlFont;
+    _cachedFontFamily = fontFamily;
+    _cachedFontPath = fontPath;
     _cachedSelectionArmed = _selectionArmed;
     return result;
   }
@@ -335,6 +354,9 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     BuildContext context, {
     required bool renderHtml,
     required bool neutralizeHtml,
+    required bool overrideHtmlFont,
+    required String? fontFamily,
+    required String? fontPath,
   }) {
     final containsHtml = _containsHtml(widget.content);
     final dialogueColor = ZephyrChatChrome.dialogueTextColor(
@@ -364,6 +386,9 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         onLongPress: widget.onLongPress,
         contentKey: contentKey,
         neutralizeStyle: neutralizeHtml,
+        overrideFont: overrideHtmlFont,
+        fontFamily: fontFamily,
+        fontPath: fontPath,
       );
     }
 
@@ -375,6 +400,8 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       processedContent,
       dialogueColor: dialogueColor,
       enableSelection: _selectionEnabled,
+      // Markdown / stripped HTML should use the app UI font whenever set.
+      fontFamily: fontFamily,
     );
 
     // Touch + selection armed: do not claim long-press — SelectionArea needs it.
@@ -561,6 +588,7 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     String content, {
     required Color dialogueColor,
     required bool enableSelection,
+    String? fontFamily,
   }) {
     final effectiveFontSize =
         widget.fontSize ?? ZephyrChatChrome.messageFontSize(context);
@@ -568,6 +596,7 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       color: dialogueColor,
       fontSize: effectiveFontSize,
       fontWeight: ZephyrChatChrome.dialogueFontWeight,
+      fontFamily: fontFamily,
     );
     final codeStyle = TextStyle(
       color: widget.textColor,
@@ -633,18 +662,22 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         p: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize,
+          fontFamily: fontFamily,
         ),
         strong: TextStyle(
           color: widget.textColor,
           fontWeight: FontWeight.bold,
+          fontFamily: fontFamily,
         ),
         em: TextStyle(
           color: widget.textColor,
           fontStyle: FontStyle.italic,
+          fontFamily: fontFamily,
         ),
         del: TextStyle(
           color: widget.textColor,
           decoration: TextDecoration.lineThrough,
+          fontFamily: fontFamily,
         ),
         code: codeStyle,
         codeblockDecoration: BoxDecoration(
@@ -655,6 +688,7 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         blockquote: TextStyle(
           color: AppTheme.textSecondary,
           fontStyle: FontStyle.italic,
+          fontFamily: fontFamily,
         ),
         blockquoteDecoration: BoxDecoration(
           border: Border(
@@ -669,38 +703,46 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
           color: widget.textColor,
           fontSize: effectiveFontSize * 1.8,
           fontWeight: FontWeight.bold,
+          fontFamily: fontFamily,
         ),
         h2: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize * 1.5,
           fontWeight: FontWeight.bold,
+          fontFamily: fontFamily,
         ),
         h3: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize * 1.3,
           fontWeight: FontWeight.bold,
+          fontFamily: fontFamily,
         ),
         h4: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize * 1.1,
           fontWeight: FontWeight.bold,
+          fontFamily: fontFamily,
         ),
         h5: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize,
           fontWeight: FontWeight.bold,
+          fontFamily: fontFamily,
         ),
         h6: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize * 0.9,
           fontWeight: FontWeight.bold,
+          fontFamily: fontFamily,
         ),
         a: TextStyle(
           color: AppTheme.primaryColor,
           decoration: TextDecoration.underline,
+          fontFamily: fontFamily,
         ),
         listBullet: TextStyle(
           color: widget.textColor,
+          fontFamily: fontFamily,
         ),
         horizontalRuleDecoration: BoxDecoration(
           border: Border(

@@ -6998,6 +6998,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Sustituye los fondos HTML de la tarjeta del personaje por el color de burbuja y de texto del chat. No cambia la burbuja en sí: ajusta «Burbuja del personaje» en Apariencia si se ve mal.';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

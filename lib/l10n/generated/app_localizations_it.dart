@@ -6995,6 +6995,13 @@ class AppLocalizationsIt extends AppLocalizations {
       'Sostituisce gli sfondi HTML della scheda personaggio con il colore della bolla e del testo della chat. Non cambia la bolla stessa — regola «Bolla personaggio» in Aspetto se sembra sbagliata.';
 
   @override
+  String get overrideMessageHtmlFontTitle => 'Use app font in HTML';
+
+  @override
+  String get overrideMessageHtmlFontSubtitle =>
+      'Apply your chosen font to HTML message body text. Code blocks keep a monospace font.';
+
+  @override
   String get showBordersTitle => 'Show borders';
 
   @override

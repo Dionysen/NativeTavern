@@ -7296,6 +7296,8 @@
   "renderMessageHtmlSubtitle": "Show rich HTML layouts in chat. When off, HTML is turned into Markdown so the text is kept.",
   "neutralizeMessageHtmlStyleTitle": "Clear card HTML backgrounds",
   "neutralizeMessageHtmlStyleSubtitle": "Replace character-card HTML fills with your chat bubble color and text color. This does not change the bubble itself — edit Character bubble under Appearance if that looks wrong.",
+  "overrideMessageHtmlFontTitle": "Use app font in HTML",
+  "overrideMessageHtmlFontSubtitle": "Apply your chosen font to HTML message body text. Code blocks keep a monospace font.",
   "showBordersTitle": "Show borders",
   "showBordersSubtitle": "When off, buttons and cards have no outline.",
   "themePresetsSectionTitle": "Theme colors",
