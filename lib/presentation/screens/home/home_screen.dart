@@ -442,7 +442,9 @@ class _ChatListTile extends ConsumerWidget {
       text,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            fontSize: 11,
+            height: 1.3,
             color: AppTheme.textSecondary,
           ),
     );
