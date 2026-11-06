@@ -3145,11 +3145,71 @@ abstract class AppLocalizations {
   /// **'Solid Colors'**
   String get solidColors;
 
+  /// Combined solid color and gradient presets section header
+  ///
+  /// In en, this message translates to:
+  /// **'Colors & gradients'**
+  String get colorAndGradientPresets;
+
   /// Custom solid background color picker label
   ///
   /// In en, this message translates to:
   /// **'Custom color'**
   String get customBackgroundColor;
+
+  /// Custom solid or gradient background fill picker
+  ///
+  /// In en, this message translates to:
+  /// **'Custom fill'**
+  String get customBackgroundFill;
+
+  /// Solid fill mode in custom background dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Solid'**
+  String get solidFill;
+
+  /// Gradient fill mode in custom background dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Gradient'**
+  String get gradientFill;
+
+  /// Linear gradient style
+  ///
+  /// In en, this message translates to:
+  /// **'Linear'**
+  String get linearGradient;
+
+  /// Radial gradient style
+  ///
+  /// In en, this message translates to:
+  /// **'Radial'**
+  String get radialGradient;
+
+  /// Linear gradient direction angle picker label
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get gradientDirection;
+
+  /// Radial gradient radius control label
+  ///
+  /// In en, this message translates to:
+  /// **'Radius'**
+  String get gradientRadius;
+
+  /// Gradient start color label
+  ///
+  /// In en, this message translates to:
+  /// **'Start color'**
+  String get gradientStartColor;
+
+  /// Gradient end color label
+  ///
+  /// In en, this message translates to:
+  /// **'End color'**
+  String get gradientEndColor;
 
   /// Hint that color/gradient backgrounds cannot be used with an image background
   ///

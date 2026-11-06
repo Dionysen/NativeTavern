@@ -1631,7 +1631,37 @@ class AppLocalizationsZh extends AppLocalizations {
   String get solidColors => '纯色';
 
   @override
+  String get colorAndGradientPresets => '颜色与渐变';
+
+  @override
   String get customBackgroundColor => '自定义颜色';
+
+  @override
+  String get customBackgroundFill => '自定义填充';
+
+  @override
+  String get solidFill => '纯色';
+
+  @override
+  String get gradientFill => '渐变';
+
+  @override
+  String get linearGradient => '线性';
+
+  @override
+  String get radialGradient => '径向';
+
+  @override
+  String get gradientDirection => '方向';
+
+  @override
+  String get gradientRadius => '半径';
+
+  @override
+  String get gradientStartColor => '起始色';
+
+  @override
+  String get gradientEndColor => '结束色';
 
   @override
   String get backgroundColorImageMutexHint => '纯色 / 渐变与背景图片互斥，选择其一会替换另一种。';
@@ -8604,7 +8634,37 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get solidColors => '純色';
 
   @override
+  String get colorAndGradientPresets => '顏色與漸層';
+
+  @override
   String get customBackgroundColor => '自訂顏色';
+
+  @override
+  String get customBackgroundFill => '自訂填色';
+
+  @override
+  String get solidFill => '純色';
+
+  @override
+  String get gradientFill => '漸層';
+
+  @override
+  String get linearGradient => '線性';
+
+  @override
+  String get radialGradient => '徑向';
+
+  @override
+  String get gradientDirection => '方向';
+
+  @override
+  String get gradientRadius => '半徑';
+
+  @override
+  String get gradientStartColor => '起始色';
+
+  @override
+  String get gradientEndColor => '結束色';
 
   @override
   String get backgroundColorImageMutexHint => '純色 / 漸層與背景圖片互斥，選擇其一會取代另一種。';

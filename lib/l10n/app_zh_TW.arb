@@ -2193,6 +2193,16 @@
   "@solidColors": {
     "description": "Solid colors section header"
   },
+  "colorAndGradientPresets": "顏色與漸層",
+  "customBackgroundFill": "自訂填色",
+  "solidFill": "純色",
+  "gradientFill": "漸層",
+  "linearGradient": "線性",
+  "radialGradient": "徑向",
+  "gradientDirection": "方向",
+  "gradientRadius": "半徑",
+  "gradientStartColor": "起始色",
+  "gradientEndColor": "結束色",
   "customImage": "自訂圖片",
   "@customImage": {
     "description": "Custom image section header"

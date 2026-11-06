@@ -2325,9 +2325,49 @@
   "@solidColors": {
     "description": "Solid colors section header"
   },
+  "colorAndGradientPresets": "Colors & gradients",
+  "@colorAndGradientPresets": {
+    "description": "Combined solid color and gradient presets section header"
+  },
   "customBackgroundColor": "Custom color",
   "@customBackgroundColor": {
     "description": "Custom solid background color picker label"
+  },
+  "customBackgroundFill": "Custom fill",
+  "@customBackgroundFill": {
+    "description": "Custom solid or gradient background fill picker"
+  },
+  "solidFill": "Solid",
+  "@solidFill": {
+    "description": "Solid fill mode in custom background dialog"
+  },
+  "gradientFill": "Gradient",
+  "@gradientFill": {
+    "description": "Gradient fill mode in custom background dialog"
+  },
+  "linearGradient": "Linear",
+  "@linearGradient": {
+    "description": "Linear gradient style"
+  },
+  "radialGradient": "Radial",
+  "@radialGradient": {
+    "description": "Radial gradient style"
+  },
+  "gradientDirection": "Direction",
+  "@gradientDirection": {
+    "description": "Linear gradient direction angle picker label"
+  },
+  "gradientRadius": "Radius",
+  "@gradientRadius": {
+    "description": "Radial gradient radius control label"
+  },
+  "gradientStartColor": "Start color",
+  "@gradientStartColor": {
+    "description": "Gradient start color label"
+  },
+  "gradientEndColor": "End color",
+  "@gradientEndColor": {
+    "description": "Gradient end color label"
   },
   "backgroundColorImageMutexHint": "Solid color / gradient and background image are mutually exclusive — choosing one replaces the other.",
   "@backgroundColorImageMutexHint": {

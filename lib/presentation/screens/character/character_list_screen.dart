@@ -853,7 +853,7 @@ class _CharacterSimpleListTile extends ConsumerWidget {
                   ),
                   const SizedBox(width: 8),
                 ],
-                _buildAvatar(),
+                _buildAvatar(context),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -884,43 +884,18 @@ class _CharacterSimpleListTile extends ConsumerWidget {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(BuildContext context) {
     const size = _CharacterSimpleListView.avatarSize;
+    final scheme = Theme.of(context).colorScheme;
     return CharacterAvatarShaped(
       imagePath: character.assets?.avatarPath,
       width: size,
       height: size,
       shape: BoxShape.circle,
       borderRadius: size / 2,
-      fallbackColor: _simpleListCharacterColor(character),
-      fallbackIcon: _simpleListCharacterIcon(character),
+      fallbackColor: characterAvatarFallbackColor(scheme, character.id),
+      fallbackIcon: characterAvatarFallbackIcon(character.id),
     );
-  }
-}
-
-IconData _simpleListCharacterIcon(Character character) {
-  switch (character.id) {
-    case 'builtin_coding_assistant':
-      return Icons.code;
-    case 'builtin_image_gen_assistant':
-      return Icons.image;
-    case 'builtin_xiaohongshu_copywriter':
-      return Icons.edit_note;
-    default:
-      return Icons.person;
-  }
-}
-
-Color _simpleListCharacterColor(Character character) {
-  switch (character.id) {
-    case 'builtin_coding_assistant':
-      return const Color(0xFF2196F3);
-    case 'builtin_image_gen_assistant':
-      return const Color(0xFFE91E63);
-    case 'builtin_xiaohongshu_copywriter':
-      return const Color(0xFFFF5722);
-    default:
-      return AppTheme.primaryColor;
   }
 }
 
@@ -1231,7 +1206,7 @@ class _CharacterGridCard extends ConsumerWidget {
           children: [
             Expanded(
               flex: 3,
-              child: _buildAvatar(),
+              child: _buildAvatar(context),
             ),
             Padding(
               padding: const EdgeInsets.all(8),
@@ -1273,20 +1248,20 @@ class _CharacterGridCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(BuildContext context) {
     if (character.assets?.avatarPath != null) {
       return CharacterAvatarImage(
         imagePath: character.assets!.avatarPath!,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _defaultAvatar(),
+        errorBuilder: (context, _, __) => _defaultAvatar(context),
       );
     }
-    return _defaultAvatar();
+    return _defaultAvatar(context);
   }
 
-  Widget _defaultAvatar() {
-    final icon = _getCharacterIcon(character);
-    final color = _getCharacterColor(character);
+  Widget _defaultAvatar(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final color = characterAvatarFallbackColor(scheme, character.id);
 
     return Container(
       decoration: BoxDecoration(
@@ -1301,40 +1276,12 @@ class _CharacterGridCard extends ConsumerWidget {
       ),
       child: Center(
         child: Icon(
-          icon,
+          characterAvatarFallbackIcon(character.id),
           size: 60,
-          color: Colors.white,
+          color: scheme.onPrimary,
         ),
       ),
     );
-  }
-
-  IconData _getCharacterIcon(Character character) {
-    // Check if it's a built-in character by ID
-    switch (character.id) {
-      case 'builtin_coding_assistant':
-        return Icons.code;
-      case 'builtin_image_gen_assistant':
-        return Icons.image;
-      case 'builtin_xiaohongshu_copywriter':
-        return Icons.edit_note;
-      default:
-        return Icons.person;
-    }
-  }
-
-  Color _getCharacterColor(Character character) {
-    // Check if it's a built-in character by ID
-    switch (character.id) {
-      case 'builtin_coding_assistant':
-        return const Color(0xFF2196F3); // Blue for coding
-      case 'builtin_image_gen_assistant':
-        return const Color(0xFFE91E63); // Pink for image generation
-      case 'builtin_xiaohongshu_copywriter':
-        return const Color(0xFFFF5722); // Orange/Red for social media
-      default:
-        return AppTheme.darkDivider;
-    }
   }
 }
 
@@ -1372,7 +1319,7 @@ class _CharacterCompactGridCard extends ConsumerWidget {
           children: [
             Expanded(
               flex: 4,
-              child: _buildCompactAvatar(),
+              child: _buildCompactAvatar(context),
             ),
             Padding(
               padding: const EdgeInsets.all(4),
@@ -1414,20 +1361,20 @@ class _CharacterCompactGridCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildCompactAvatar() {
+  Widget _buildCompactAvatar(BuildContext context) {
     if (character.assets?.avatarPath != null) {
       return CharacterAvatarImage(
         imagePath: character.assets!.avatarPath!,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _defaultCompactAvatar(),
+        errorBuilder: (context, _, __) => _defaultCompactAvatar(context),
       );
     }
-    return _defaultCompactAvatar();
+    return _defaultCompactAvatar(context);
   }
 
-  Widget _defaultCompactAvatar() {
-    final icon = _getCharacterIcon(character);
-    final color = _getCharacterColor(character);
+  Widget _defaultCompactAvatar(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final color = characterAvatarFallbackColor(scheme, character.id);
 
     return Container(
       decoration: BoxDecoration(
@@ -1442,38 +1389,12 @@ class _CharacterCompactGridCard extends ConsumerWidget {
       ),
       child: Center(
         child: Icon(
-          icon,
+          characterAvatarFallbackIcon(character.id),
           size: 40,
-          color: Colors.white,
+          color: scheme.onPrimary,
         ),
       ),
     );
-  }
-
-  IconData _getCharacterIcon(Character character) {
-    switch (character.id) {
-      case 'builtin_coding_assistant':
-        return Icons.code;
-      case 'builtin_image_gen_assistant':
-        return Icons.image;
-      case 'builtin_xiaohongshu_copywriter':
-        return Icons.edit_note;
-      default:
-        return Icons.person;
-    }
-  }
-
-  Color _getCharacterColor(Character character) {
-    switch (character.id) {
-      case 'builtin_coding_assistant':
-        return const Color(0xFF2196F3);
-      case 'builtin_image_gen_assistant':
-        return const Color(0xFFE91E63);
-      case 'builtin_xiaohongshu_copywriter':
-        return const Color(0xFFFF5722);
-      default:
-        return AppTheme.darkDivider;
-    }
   }
 }
 
@@ -1532,7 +1453,7 @@ class _CharacterListTile extends ConsumerWidget {
                     color: selected ? scheme.primary : scheme.outline,
                   ),
                 ),
-              _buildListAvatar(),
+              _buildListAvatar(context),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -1607,7 +1528,7 @@ class _CharacterListTile extends ConsumerWidget {
     );
   }
 
-  Widget _buildListAvatar() {
+  Widget _buildListAvatar(BuildContext context) {
     // Keep a shared width so list rows align when switching shapes.
     const width = 56.0;
     final (height, shape, radius) = switch (avatarShape) {
@@ -1616,40 +1537,15 @@ class _CharacterListTile extends ConsumerWidget {
       CharacterAvatarShape.rectangle => (width * 4 / 3, BoxShape.rectangle, 8.0),
     };
 
+    final scheme = Theme.of(context).colorScheme;
     return CharacterAvatarShaped(
       imagePath: character.assets?.avatarPath,
       width: width,
       height: height,
       shape: shape,
       borderRadius: radius,
-      fallbackColor: _getCharacterColor(character),
-      fallbackIcon: _getCharacterIcon(character),
+      fallbackColor: characterAvatarFallbackColor(scheme, character.id),
+      fallbackIcon: characterAvatarFallbackIcon(character.id),
     );
-  }
-
-  IconData _getCharacterIcon(Character character) {
-    switch (character.id) {
-      case 'builtin_coding_assistant':
-        return Icons.code;
-      case 'builtin_image_gen_assistant':
-        return Icons.image;
-      case 'builtin_xiaohongshu_copywriter':
-        return Icons.edit_note;
-      default:
-        return Icons.person;
-    }
-  }
-
-  Color _getCharacterColor(Character character) {
-    switch (character.id) {
-      case 'builtin_coding_assistant':
-        return const Color(0xFF2196F3);
-      case 'builtin_image_gen_assistant':
-        return const Color(0xFFE91E63);
-      case 'builtin_xiaohongshu_copywriter':
-        return const Color(0xFFFF5722);
-      default:
-        return AppTheme.primaryColor;
-    }
   }
 }

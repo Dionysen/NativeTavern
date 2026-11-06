@@ -8,12 +8,21 @@ enum BackgroundType {
   image,
 }
 
+/// Gradient geometry for [BackgroundType.gradient].
+enum BackgroundGradientStyle {
+  linear,
+  radial,
+}
+
 /// Chat background configuration
 class ChatBackground {
   final BackgroundType type;
   final String? color; // Hex color for solid color background
   final List<String>? gradientColors; // Hex colors for gradient
   final double? gradientAngle; // Angle for linear gradient (0-360)
+  final BackgroundGradientStyle gradientStyle;
+  /// Radial gradient radius (Flutter [RadialGradient.radius]), typically 0.2–1.5.
+  final double gradientRadius;
   final String? imagePath; // Local path to image
   final String? imageUrl; // URL for remote image
   final double opacity; // Background opacity (0.0 - 1.0)
@@ -26,6 +35,8 @@ class ChatBackground {
     this.color,
     this.gradientColors,
     this.gradientAngle,
+    this.gradientStyle = BackgroundGradientStyle.linear,
+    this.gradientRadius = 1.05,
     this.imagePath,
     this.imageUrl,
     this.opacity = 1.0,
@@ -51,12 +62,16 @@ class ChatBackground {
   factory ChatBackground.gradient(
     List<String> colors, {
     double angle = 180,
+    BackgroundGradientStyle style = BackgroundGradientStyle.linear,
+    double radius = 1.05,
     double opacity = 1.0,
   }) {
     return ChatBackground(
       type: BackgroundType.gradient,
       gradientColors: colors,
       gradientAngle: angle,
+      gradientStyle: style,
+      gradientRadius: radius,
       opacity: opacity,
       bubbleOpacity: 1.0,
     );
@@ -103,6 +118,8 @@ class ChatBackground {
     String? color,
     List<String>? gradientColors,
     double? gradientAngle,
+    BackgroundGradientStyle? gradientStyle,
+    double? gradientRadius,
     String? imagePath,
     String? imageUrl,
     double? opacity,
@@ -115,6 +132,8 @@ class ChatBackground {
       color: color ?? this.color,
       gradientColors: gradientColors ?? this.gradientColors,
       gradientAngle: gradientAngle ?? this.gradientAngle,
+      gradientStyle: gradientStyle ?? this.gradientStyle,
+      gradientRadius: gradientRadius ?? this.gradientRadius,
       imagePath: imagePath ?? this.imagePath,
       imageUrl: imageUrl ?? this.imageUrl,
       opacity: opacity ?? this.opacity,
@@ -130,6 +149,8 @@ class ChatBackground {
       'color': color,
       'gradientColors': gradientColors,
       'gradientAngle': gradientAngle,
+      'gradientStyle': gradientStyle.name,
+      'gradientRadius': gradientRadius,
       'imagePath': imagePath,
       'imageUrl': imageUrl,
       'opacity': opacity,
@@ -148,6 +169,11 @@ class ChatBackground {
       color: json['color'] as String?,
       gradientColors: (json['gradientColors'] as List<dynamic>?)?.cast<String>(),
       gradientAngle: (json['gradientAngle'] as num?)?.toDouble(),
+      gradientStyle: BackgroundGradientStyle.values.firstWhere(
+        (s) => s.name == json['gradientStyle'],
+        orElse: () => BackgroundGradientStyle.linear,
+      ),
+      gradientRadius: (json['gradientRadius'] as num?)?.toDouble() ?? 1.05,
       imagePath: json['imagePath'] as String?,
       imageUrl: json['imageUrl'] as String?,
       opacity: (json['opacity'] as num?)?.toDouble() ?? 1.0,

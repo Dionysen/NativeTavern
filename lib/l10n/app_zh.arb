@@ -2205,10 +2205,20 @@
   "@solidColors": {
     "description": "Solid colors section header"
   },
+  "colorAndGradientPresets": "颜色与渐变",
   "customBackgroundColor": "自定义颜色",
   "@customBackgroundColor": {
     "description": "Custom solid background color picker label"
   },
+  "customBackgroundFill": "自定义填充",
+  "solidFill": "纯色",
+  "gradientFill": "渐变",
+  "linearGradient": "线性",
+  "radialGradient": "径向",
+  "gradientDirection": "方向",
+  "gradientRadius": "半径",
+  "gradientStartColor": "起始色",
+  "gradientEndColor": "结束色",
   "backgroundColorImageMutexHint": "纯色 / 渐变与背景图片互斥，选择其一会替换另一种。",
   "@backgroundColorImageMutexHint": {
     "description": "Hint that color/gradient backgrounds cannot be used with an image background"

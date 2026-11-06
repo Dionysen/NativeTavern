@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
@@ -137,24 +138,19 @@ class _BackgroundSettingsScreenState
     );
   }
 
-  Future<void> _pickCustomColor() async {
+  Future<void> _pickCustomFill() async {
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    final initial = _currentBackground.type == BackgroundType.color &&
-            _currentBackground.color != null
-        ? _parseHexColor(_currentBackground.color!)
-        : scheme.surfaceContainerHigh;
-    final next = await showThemeColorPicker(
-      context,
-      initialColor: initial,
-      title: l10n.customBackgroundColor,
-      cancelLabel: l10n.cancel,
-      doneLabel: l10n.done,
+    final next = await showDialog<ChatBackground>(
+      context: context,
+      builder: (context) => _CustomBackgroundFillDialog(
+        initial: _currentBackground,
+        title: l10n.customBackgroundFill,
+        cancelLabel: l10n.cancel,
+        doneLabel: l10n.done,
+      ),
     );
     if (next == null || !mounted) return;
-    await _saveBackground(
-      _withBubbleOpacity(ChatBackground.color(_hexOf(next))),
-    );
+    await _saveBackground(_withBubbleOpacity(next));
   }
 
   static String _hexOf(Color color) {
@@ -199,16 +195,10 @@ class _BackgroundSettingsScreenState
           _buildPreviewSection(),
           const SizedBox(height: 24),
 
-          // Preset gradients
-          _buildSectionHeader(l10n.gradientPresets),
+          // Color + gradient presets (one group) and custom fill
+          _buildSectionHeader(l10n.colorAndGradientPresets),
           const SizedBox(height: 8),
-          _buildGradientPresets(),
-          const SizedBox(height: 24),
-
-          // Solid colors (+ custom)
-          _buildSectionHeader(l10n.solidColors),
-          const SizedBox(height: 8),
-          _buildColorPresets(),
+          _buildFillPresets(),
           const SizedBox(height: 8),
           Text(
             l10n.backgroundColorImageMutexHint,
@@ -416,7 +406,61 @@ class _BackgroundSettingsScreenState
     );
   }
 
-  Widget _buildGradientPresets() {
+  bool get _isCustomFillSelected {
+    final bg = _currentBackground;
+    if (bg.type == BackgroundType.color) {
+      return !BackgroundPresets.isPresetColor(bg.color);
+    }
+    if (bg.type == BackgroundType.gradient) {
+      // Presets are linear only; any radial or non-preset colors count as custom.
+      if (bg.gradientStyle != BackgroundGradientStyle.linear) return true;
+      return !BackgroundPresets.isPresetGradient(bg.gradientColors);
+    }
+    return false;
+  }
+
+  Widget _buildFillPresets() {
+    final isCustomSelected = _isCustomFillSelected;
+    final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    const size = 60.0;
+    const radius = 8.0;
+    final borderWidth = isCustomSelected ? 3.0 : 1.0;
+
+    Widget customTilePreview() {
+      if (_currentBackground.type == BackgroundType.gradient &&
+          isCustomSelected) {
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: backgroundFillGradient(_currentBackground),
+          ),
+          child: Icon(
+            Icons.gradient,
+            color: scheme.onSurface.withValues(alpha: 0.75),
+          ),
+        );
+      }
+      if (_currentBackground.type == BackgroundType.color &&
+          isCustomSelected &&
+          _currentBackground.color != null) {
+        final color = _parseHexColor(_currentBackground.color!);
+        return ColoredBox(
+          color: color,
+          child: Icon(
+            Icons.colorize_outlined,
+            color: _contrastIconColor(color),
+          ),
+        );
+      }
+      return ColoredBox(
+        color: scheme.surfaceContainerHigh,
+        child: Icon(
+          Icons.colorize_outlined,
+          color: scheme.onSurfaceVariant,
+        ),
+      );
+    }
+
     return Wrap(
       spacing: 12,
       runSpacing: 12,
@@ -429,26 +473,12 @@ class _BackgroundSettingsScreenState
         ...BackgroundPresets.gradients.map((bg) => BackgroundPreview(
               background: bg,
               selected: _currentBackground.type == BackgroundType.gradient &&
+                  _currentBackground.gradientStyle ==
+                      BackgroundGradientStyle.linear &&
                   _currentBackground.gradientColors?.join(',') ==
                       bg.gradientColors?.join(','),
               onTap: () => _saveBackground(_withBubbleOpacity(bg)),
             )),
-      ],
-    );
-  }
-
-  Widget _buildColorPresets() {
-    final isCustomSelected = _currentBackground.type == BackgroundType.color &&
-        !BackgroundPresets.isPresetColor(_currentBackground.color);
-    final scheme = Theme.of(context).colorScheme;
-    const size = 60.0;
-    const radius = 8.0;
-    final borderWidth = isCustomSelected ? 3.0 : 1.0;
-
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: [
         ...BackgroundPresets.solidColors.map((bg) => BackgroundPreview(
               background: bg,
               selected: _currentBackground.type == BackgroundType.color &&
@@ -456,11 +486,10 @@ class _BackgroundSettingsScreenState
                       bg.color?.toUpperCase(),
               onTap: () => _saveBackground(_withBubbleOpacity(bg)),
             )),
-        // Custom color entry — opens HSV picker; exclusive with image bg.
         Tooltip(
-          message: AppLocalizations.of(context).customBackgroundColor,
+          message: l10n.customBackgroundFill,
           child: GestureDetector(
-            onTap: _pickCustomColor,
+            onTap: _pickCustomFill,
             child: SizedBox(
               width: size,
               height: size,
@@ -480,18 +509,7 @@ class _BackgroundSettingsScreenState
                     borderRadius: BorderRadius.circular(
                       (radius - borderWidth).clamp(0, radius),
                     ),
-                    child: ColoredBox(
-                      color: isCustomSelected
-                          ? _parseHexColor(_currentBackground.color!)
-                          : scheme.surfaceContainerHigh,
-                      child: Icon(
-                        Icons.colorize_outlined,
-                        color: isCustomSelected
-                            ? _contrastIconColor(
-                                _parseHexColor(_currentBackground.color!))
-                            : scheme.onSurfaceVariant,
-                      ),
-                    ),
+                    child: customTilePreview(),
                   ),
                 ),
               ),
@@ -940,14 +958,9 @@ class _BackgroundPreviewFull extends StatelessWidget {
         return Container(color: _parseColor(background.color));
 
       case BackgroundType.gradient:
-        final colors = background.gradientColors ?? ['#000000', '#333333'];
-        return Container(
+        return DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: colors.map(_parseColor).toList(),
-            ),
+            gradient: backgroundFillGradient(background),
           ),
         );
 
@@ -986,5 +999,580 @@ class _BackgroundPreviewFull extends StatelessWidget {
       hex = 'FF$hex';
     }
     return Color(int.parse(hex, radix: 16));
+  }
+}
+
+enum _FillMode { solid, gradient }
+
+class _CustomBackgroundFillDialog extends StatefulWidget {
+  const _CustomBackgroundFillDialog({
+    required this.initial,
+    required this.title,
+    required this.cancelLabel,
+    required this.doneLabel,
+  });
+
+  final ChatBackground initial;
+  final String title;
+  final String cancelLabel;
+  final String doneLabel;
+
+  @override
+  State<_CustomBackgroundFillDialog> createState() =>
+      _CustomBackgroundFillDialogState();
+}
+
+class _CustomBackgroundFillDialogState
+    extends State<_CustomBackgroundFillDialog> {
+  late _FillMode _mode;
+  late BackgroundGradientStyle _style;
+  late double _angle;
+  late double _radius;
+  late Color _solid;
+  late Color _start;
+  late Color _end;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initial;
+    if (initial.type == BackgroundType.gradient &&
+        (initial.gradientColors?.length ?? 0) >= 2) {
+      _mode = _FillMode.gradient;
+      _style = initial.gradientStyle;
+      _angle = initial.gradientAngle ?? 180;
+      _radius = initial.gradientRadius;
+      _start = _parse(initial.gradientColors![0]);
+      _end = _parse(initial.gradientColors![1]);
+      _solid = _start;
+    } else if (initial.type == BackgroundType.color && initial.color != null) {
+      _mode = _FillMode.solid;
+      _style = BackgroundGradientStyle.linear;
+      _angle = 180;
+      _radius = 1.05;
+      _solid = _parse(initial.color!);
+      _start = _solid;
+      _end = Color.lerp(_solid, Colors.white, 0.35) ?? _solid;
+    } else {
+      _mode = _FillMode.solid;
+      _style = BackgroundGradientStyle.linear;
+      _angle = 180;
+      _radius = 1.05;
+      _solid = const Color(0xFF2A2A2A);
+      _start = const Color(0xFF1A1A1A);
+      _end = const Color(0xFF3A3A3A);
+    }
+  }
+
+  static Color _parse(String hex) {
+    var h = hex.replaceAll('#', '');
+    if (h.length == 6) h = 'FF$h';
+    return Color(int.parse(h, radix: 16));
+  }
+
+  static String _hexOf(Color color) {
+    final rgb = color.toARGB32() & 0xFFFFFF;
+    return '#${rgb.toRadixString(16).padLeft(6, '0').toUpperCase()}';
+  }
+
+  ChatBackground get _result {
+    if (_mode == _FillMode.solid) {
+      return ChatBackground.color(_hexOf(_solid));
+    }
+    return ChatBackground.gradient(
+      [_hexOf(_start), _hexOf(_end)],
+      angle: _angle,
+      style: _style,
+      radius: _radius,
+    );
+  }
+
+  Future<void> _pickColor({
+    required Color current,
+    required ValueChanged<Color> onPicked,
+  }) async {
+    final l10n = AppLocalizations.of(context);
+    final next = await showThemeColorPicker(
+      context,
+      initialColor: current,
+      title: l10n.customBackgroundColor,
+      cancelLabel: l10n.cancel,
+      doneLabel: l10n.done,
+    );
+    if (next != null && mounted) onPicked(next);
+  }
+
+  Widget _colorChip({
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: scheme.outline.withValues(alpha: 0.35)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: scheme.outline.withValues(alpha: 0.4),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final preview = _result;
+
+    return AlertDialog(
+      title: Text(widget.title),
+      content: SizedBox(
+        width: 360,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SegmentedButton<_FillMode>(
+                showSelectedIcon: false,
+                expandedInsets: EdgeInsets.zero,
+                segments: [
+                  ButtonSegment(
+                    value: _FillMode.solid,
+                    label: Text(l10n.solidFill),
+                    icon: const Icon(Icons.square_rounded, size: 16),
+                  ),
+                  ButtonSegment(
+                    value: _FillMode.gradient,
+                    label: Text(l10n.gradientFill),
+                    icon: const Icon(Icons.gradient, size: 16),
+                  ),
+                ],
+                selected: {_mode},
+                onSelectionChanged: (next) {
+                  if (next.isNotEmpty) setState(() => _mode = next.first);
+                },
+              ),
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  height: 88,
+                  child: preview.type == BackgroundType.gradient
+                      ? DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: backgroundFillGradient(preview),
+                          ),
+                        )
+                      : ColoredBox(color: _solid),
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_mode == _FillMode.solid)
+                _colorChip(
+                  label: l10n.customBackgroundColor,
+                  color: _solid,
+                  onTap: () => _pickColor(
+                    current: _solid,
+                    onPicked: (c) => setState(() => _solid = c),
+                  ),
+                )
+              else ...[
+                SegmentedButton<BackgroundGradientStyle>(
+                  showSelectedIcon: false,
+                  expandedInsets: EdgeInsets.zero,
+                  segments: [
+                    ButtonSegment(
+                      value: BackgroundGradientStyle.linear,
+                      label: Text(l10n.linearGradient),
+                    ),
+                    ButtonSegment(
+                      value: BackgroundGradientStyle.radial,
+                      label: Text(l10n.radialGradient),
+                    ),
+                  ],
+                  selected: {_style},
+                  onSelectionChanged: (next) {
+                    if (next.isNotEmpty) {
+                      setState(() => _style = next.first);
+                    }
+                  },
+                ),
+                const SizedBox(height: 12),
+                if (_style == BackgroundGradientStyle.linear) ...[
+                  Text(
+                    '${l10n.gradientDirection} · ${_angle.round()}°',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: _GradientAngleDial(
+                      angle: _angle,
+                      startColor: _start,
+                      endColor: _end,
+                      onChanged: (angle) => setState(() => _angle = angle),
+                    ),
+                  ),
+                ] else ...[
+                  Text(
+                    '${l10n.gradientRadius} · ${_radius.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: _GradientRadiusDial(
+                      radius: _radius,
+                      startColor: _start,
+                      endColor: _end,
+                      onChanged: (radius) => setState(() => _radius = radius),
+                    ),
+                  ),
+                  Slider(
+                    value: _radius.clamp(0.2, 1.6),
+                    min: 0.2,
+                    max: 1.6,
+                    divisions: 28,
+                    label: _radius.toStringAsFixed(2),
+                    onChanged: (value) => setState(() => _radius = value),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _colorChip(
+                        label: l10n.gradientStartColor,
+                        color: _start,
+                        onTap: () => _pickColor(
+                          current: _start,
+                          onPicked: (c) => setState(() => _start = c),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _colorChip(
+                        label: l10n.gradientEndColor,
+                        color: _end,
+                        onTap: () => _pickColor(
+                          current: _end,
+                          onPicked: (c) => setState(() => _end = c),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(widget.cancelLabel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _result),
+          child: Text(widget.doneLabel),
+        ),
+      ],
+    );
+  }
+}
+
+/// Drag the ring inward/outward (or use the slider) to set radial size.
+class _GradientRadiusDial extends StatelessWidget {
+  const _GradientRadiusDial({
+    required this.radius,
+    required this.startColor,
+    required this.endColor,
+    required this.onChanged,
+  });
+
+  final double radius;
+  final Color startColor;
+  final Color endColor;
+  final ValueChanged<double> onChanged;
+
+  static const double _size = 148;
+  static const double _minRadius = 0.2;
+  static const double _maxRadius = 1.6;
+
+  void _updateFromLocal(Offset local) {
+    final center = const Offset(_size / 2, _size / 2);
+    final dist = (local - center).distance;
+    // Map finger distance from center to gradient radius.
+    final t = ((dist / (_size / 2)) * 1.15).clamp(0.0, 1.0);
+    onChanged(_minRadius + t * (_maxRadius - _minRadius));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onPanDown: (d) => _updateFromLocal(d.localPosition),
+      onPanUpdate: (d) => _updateFromLocal(d.localPosition),
+      child: SizedBox(
+        width: _size,
+        height: _size,
+        child: CustomPaint(
+          painter: _GradientRadiusDialPainter(
+            radius: radius.clamp(_minRadius, _maxRadius),
+            startColor: startColor,
+            endColor: endColor,
+            trackColor: scheme.outlineVariant,
+            ringColor: scheme.primary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GradientRadiusDialPainter extends CustomPainter {
+  _GradientRadiusDialPainter({
+    required this.radius,
+    required this.startColor,
+    required this.endColor,
+    required this.trackColor,
+    required this.ringColor,
+  });
+
+  final double radius;
+  final Color startColor;
+  final Color endColor;
+  final Color trackColor;
+  final Color ringColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final maxR = size.shortestSide / 2 - 4;
+    final discRect = Rect.fromCircle(center: center, radius: maxR);
+
+    canvas.drawCircle(
+      center,
+      maxR,
+      Paint()
+        ..shader = RadialGradient(
+          center: Alignment.center,
+          radius: radius,
+          colors: [startColor, endColor],
+        ).createShader(discRect),
+    );
+    canvas.drawCircle(
+      center,
+      maxR,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = trackColor.withValues(alpha: 0.5),
+    );
+
+    // Guide for current radius (clamped to visible disc).
+    final t = ((radius - 0.2) / (1.6 - 0.2)).clamp(0.0, 1.0);
+    final guideR = (maxR * (0.2 + t * 0.8)).clamp(8.0, maxR - 2);
+    canvas.drawCircle(
+      center,
+      guideR,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5
+        ..color = ringColor,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _GradientRadiusDialPainter oldDelegate) {
+    return oldDelegate.radius != radius ||
+        oldDelegate.startColor != startColor ||
+        oldDelegate.endColor != endColor ||
+        oldDelegate.trackColor != trackColor ||
+        oldDelegate.ringColor != ringColor;
+  }
+}
+
+/// Rotary dial: 0° = top, clockwise. Drag around the ring to set angle.
+class _GradientAngleDial extends StatelessWidget {
+  const _GradientAngleDial({
+    required this.angle,
+    required this.startColor,
+    required this.endColor,
+    required this.onChanged,
+  });
+
+  final double angle;
+  final Color startColor;
+  final Color endColor;
+  final ValueChanged<double> onChanged;
+
+  static const double _size = 148;
+
+  double _angleFromLocal(Offset local) {
+    final center = const Offset(_size / 2, _size / 2);
+    final delta = local - center;
+    // atan2(x, -y): 0 at top, clockwise positive, matching backgroundAngleToAlignment.
+    var deg = math.atan2(delta.dx, -delta.dy) * 180 / math.pi;
+    if (deg < 0) deg += 360;
+    return deg;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onPanDown: (details) => onChanged(_angleFromLocal(details.localPosition)),
+      onPanUpdate: (details) =>
+          onChanged(_angleFromLocal(details.localPosition)),
+      child: SizedBox(
+        width: _size,
+        height: _size,
+        child: CustomPaint(
+          painter: _GradientAngleDialPainter(
+            angle: angle,
+            startColor: startColor,
+            endColor: endColor,
+            trackColor: scheme.outlineVariant,
+            knobColor: scheme.primary,
+            knobBorder: scheme.onPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GradientAngleDialPainter extends CustomPainter {
+  _GradientAngleDialPainter({
+    required this.angle,
+    required this.startColor,
+    required this.endColor,
+    required this.trackColor,
+    required this.knobColor,
+    required this.knobBorder,
+  });
+
+  final double angle;
+  final Color startColor;
+  final Color endColor;
+  final Color trackColor;
+  final Color knobColor;
+  final Color knobBorder;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.shortestSide / 2;
+    final ringRadius = radius - 10;
+    final discRadius = radius - 22;
+
+    // Soft disc showing current linear direction.
+    final discRect = Rect.fromCircle(center: center, radius: discRadius);
+    final rad = angle * math.pi / 180;
+    final begin = Alignment(math.sin(rad), -math.cos(rad));
+    final end = Alignment(math.sin(rad + math.pi), -math.cos(rad + math.pi));
+    canvas.drawCircle(
+      center,
+      discRadius,
+      Paint()
+        ..shader = LinearGradient(
+          begin: begin,
+          end: end,
+          colors: [startColor, endColor],
+        ).createShader(discRect),
+    );
+    canvas.drawCircle(
+      center,
+      discRadius,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = trackColor.withValues(alpha: 0.5),
+    );
+
+    // Outer track.
+    canvas.drawCircle(
+      center,
+      ringRadius,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..color = trackColor,
+    );
+
+    // Direction tick marks (every 45°).
+    for (var i = 0; i < 8; i++) {
+      final tickRad = i * 45 * math.pi / 180;
+      final outer = Offset(
+        center.dx + math.sin(tickRad) * (ringRadius + 4),
+        center.dy - math.cos(tickRad) * (ringRadius + 4),
+      );
+      final inner = Offset(
+        center.dx + math.sin(tickRad) * (ringRadius - 4),
+        center.dy - math.cos(tickRad) * (ringRadius - 4),
+      );
+      canvas.drawLine(
+        inner,
+        outer,
+        Paint()
+          ..strokeWidth = i % 2 == 0 ? 2 : 1.2
+          ..strokeCap = StrokeCap.round
+          ..color = trackColor,
+      );
+    }
+
+    // Knob on the ring at current angle.
+    final knob = Offset(
+      center.dx + math.sin(rad) * ringRadius,
+      center.dy - math.cos(rad) * ringRadius,
+    );
+    canvas.drawCircle(knob, 11, Paint()..color = knobColor);
+    canvas.drawCircle(
+      knob,
+      11,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = knobBorder.withValues(alpha: 0.85),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _GradientAngleDialPainter oldDelegate) {
+    return oldDelegate.angle != angle ||
+        oldDelegate.startColor != startColor ||
+        oldDelegate.endColor != endColor ||
+        oldDelegate.trackColor != trackColor ||
+        oldDelegate.knobColor != knobColor ||
+        oldDelegate.knobBorder != knobBorder;
   }
 }

@@ -2,6 +2,34 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:native_tavern/core/utils/path_utils.dart';
 
+/// Fill color for characters that have no avatar image.
+/// Built-in assistants keep distinct accents; everyone else uses the theme primary.
+Color characterAvatarFallbackColor(ColorScheme scheme, [String? characterId]) {
+  switch (characterId) {
+    case 'builtin_coding_assistant':
+      return const Color(0xFF2196F3);
+    case 'builtin_image_gen_assistant':
+      return const Color(0xFFE91E63);
+    case 'builtin_xiaohongshu_copywriter':
+      return const Color(0xFFFF5722);
+    default:
+      return scheme.primary;
+  }
+}
+
+IconData characterAvatarFallbackIcon([String? characterId]) {
+  switch (characterId) {
+    case 'builtin_coding_assistant':
+      return Icons.code;
+    case 'builtin_image_gen_assistant':
+      return Icons.image;
+    case 'builtin_xiaohongshu_copywriter':
+      return Icons.edit_note;
+    default:
+      return Icons.person;
+  }
+}
+
 /// Widget that displays character avatar image
 /// Handles both absolute and relative paths for mobile compatibility
 class CharacterAvatarImage extends StatelessWidget {
@@ -109,8 +137,9 @@ class CharacterAvatarShaped extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final fill = fallbackColor ?? scheme.primary;
     final fallback = ColoredBox(
-      color: fallbackColor ?? scheme.primary,
+      color: fill,
       child: Center(
         child: Icon(
           fallbackIcon,

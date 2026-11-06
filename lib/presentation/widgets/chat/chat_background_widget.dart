@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,39 @@ import '../../../core/utils/path_utils.dart';
 import '../../providers/background_providers.dart';
 import '../../theme/native_tavern_theme.dart';
 import '../common/character_avatar_image.dart';
+
+Color parseBackgroundHexColor(String? hexColor) {
+  if (hexColor == null || hexColor.isEmpty) return Colors.transparent;
+  var hex = hexColor.replaceAll('#', '');
+  if (hex.length == 6) hex = 'FF$hex';
+  return Color(int.parse(hex, radix: 16));
+}
+
+/// Continuous angle → alignment. 0° = top, clockwise.
+Alignment backgroundAngleToAlignment(double angle) {
+  final rad = angle * math.pi / 180.0;
+  return Alignment(math.sin(rad), -math.cos(rad));
+}
+
+/// Builds a Flutter [Gradient] from [ChatBackground] gradient fields.
+Gradient backgroundFillGradient(ChatBackground background) {
+  final colors = (background.gradientColors ?? ['#000000', '#333333'])
+      .map(parseBackgroundHexColor)
+      .toList();
+  if (background.gradientStyle == BackgroundGradientStyle.radial) {
+    return RadialGradient(
+      center: Alignment.center,
+      radius: background.gradientRadius.clamp(0.15, 2.0),
+      colors: colors,
+    );
+  }
+  final angle = background.gradientAngle ?? 180;
+  return LinearGradient(
+    begin: backgroundAngleToAlignment(angle),
+    end: backgroundAngleToAlignment(angle + 180),
+    colors: colors,
+  );
+}
 
 /// Widget that renders a chat background
 class ChatBackgroundWidget extends ConsumerWidget {
@@ -76,7 +110,7 @@ class _BackgroundRenderer extends StatelessWidget {
       case BackgroundType.gradient:
         backgroundWidget = Container(
           decoration: BoxDecoration(
-            gradient: _buildGradient(),
+            gradient: backgroundFillGradient(background),
           ),
         );
         break;
@@ -124,51 +158,6 @@ class _BackgroundRenderer extends StatelessWidget {
       hex = 'FF$hex';
     }
     return Color(int.parse(hex, radix: 16));
-  }
-
-  LinearGradient _buildGradient() {
-    final colors = background.gradientColors ?? ['#000000', '#333333'];
-    final angle = background.gradientAngle ?? 180;
-
-    // Convert angle to alignment
-    final radians = angle * (3.14159 / 180);
-    final begin = Alignment(
-      -1 * (radians.isNaN ? 0 : (radians / 3.14159).abs() > 1 ? 0 : -1 * (radians / 3.14159).abs()),
-      -1,
-    );
-    final end = Alignment(
-      1 * (radians.isNaN ? 0 : (radians / 3.14159).abs() > 1 ? 0 : 1 * (radians / 3.14159).abs()),
-      1,
-    );
-
-    return LinearGradient(
-      begin: _angleToAlignment(angle),
-      end: _angleToAlignment(angle + 180),
-      colors: colors.map(_parseColor).toList(),
-    );
-  }
-
-  Alignment _angleToAlignment(double angle) {
-    // Normalize angle to 0-360
-    angle = angle % 360;
-    if (angle < 0) angle += 360;
-
-    // Convert to radians
-    final radians = angle * (3.14159 / 180);
-
-    // Calculate x and y components
-    final x = (radians - 1.5708).abs() < 0.01 ? 0.0 : -1 * (radians / 3.14159 - 0.5).clamp(-1.0, 1.0);
-    final y = (radians).abs() < 0.01 || (radians - 3.14159).abs() < 0.01 ? 0.0 : -1 * ((radians - 1.5708) / 1.5708).clamp(-1.0, 1.0);
-
-    // Simplified angle to alignment mapping
-    if (angle >= 0 && angle < 45) return Alignment.topCenter;
-    if (angle >= 45 && angle < 90) return Alignment.topRight;
-    if (angle >= 90 && angle < 135) return Alignment.centerRight;
-    if (angle >= 135 && angle < 180) return Alignment.bottomRight;
-    if (angle >= 180 && angle < 225) return Alignment.bottomCenter;
-    if (angle >= 225 && angle < 270) return Alignment.bottomLeft;
-    if (angle >= 270 && angle < 315) return Alignment.centerLeft;
-    return Alignment.topLeft;
   }
 
   Widget _buildImageBackground() {
@@ -277,14 +266,9 @@ class BackgroundPreview extends StatelessWidget {
         );
 
       case BackgroundType.gradient:
-        final colors = background.gradientColors ?? ['#000000', '#333333'];
-        return Container(
+        return DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: colors.map(_parseColor).toList(),
-            ),
+            gradient: backgroundFillGradient(background),
           ),
         );
 

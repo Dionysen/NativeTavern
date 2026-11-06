@@ -1677,7 +1677,37 @@ class AppLocalizationsEs extends AppLocalizations {
   String get solidColors => 'Solid Colors';
 
   @override
+  String get colorAndGradientPresets => 'Colors & gradients';
+
+  @override
   String get customBackgroundColor => 'Color personalizado';
+
+  @override
+  String get customBackgroundFill => 'Custom fill';
+
+  @override
+  String get solidFill => 'Solid';
+
+  @override
+  String get gradientFill => 'Gradient';
+
+  @override
+  String get linearGradient => 'Linear';
+
+  @override
+  String get radialGradient => 'Radial';
+
+  @override
+  String get gradientDirection => 'Direction';
+
+  @override
+  String get gradientRadius => 'Radius';
+
+  @override
+  String get gradientStartColor => 'Start color';
+
+  @override
+  String get gradientEndColor => 'End color';
 
   @override
   String get backgroundColorImageMutexHint =>

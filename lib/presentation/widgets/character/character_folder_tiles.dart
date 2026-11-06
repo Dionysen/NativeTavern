@@ -85,7 +85,8 @@ class _PreviewCell extends StatelessWidget {
       );
     }
 
-    final color = _previewColor(preview!.id);
+    final scheme = Theme.of(context).colorScheme;
+    final color = characterAvatarFallbackColor(scheme, preview!.id);
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: SizedBox.expand(
@@ -93,37 +94,26 @@ class _PreviewCell extends StatelessWidget {
             ? CharacterAvatarImage(
                 imagePath: preview!.avatarPath!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _fallback(color),
+                errorBuilder: (context, _, __) =>
+                    _fallback(context, color),
               )
-            : _fallback(color),
+            : _fallback(context, color),
       ),
     );
   }
 
-  Widget _fallback(Color color) {
+  Widget _fallback(BuildContext context, Color color) {
+    final onPrimary = Theme.of(context).colorScheme.onPrimary;
     return ColoredBox(
       color: color,
       child: Center(
         child: Icon(
           Icons.person,
           size: compact ? 16 : 22,
-          color: Colors.white.withValues(alpha: 0.92),
+          color: onPrimary.withValues(alpha: 0.92),
         ),
       ),
     );
-  }
-}
-
-Color _previewColor(String id) {
-  switch (id) {
-    case 'builtin_coding_assistant':
-      return const Color(0xFF2196F3);
-    case 'builtin_image_gen_assistant':
-      return const Color(0xFFE91E63);
-    case 'builtin_xiaohongshu_copywriter':
-      return const Color(0xFFFF5722);
-    default:
-      return AppTheme.darkDivider;
   }
 }
 
