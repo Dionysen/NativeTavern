@@ -13244,7 +13244,7 @@ abstract class AppLocalizations {
   /// Label on expanded character-owned prompt content
   ///
   /// In en, this message translates to:
-  /// **'From character card · view only'**
+  /// **'Filled from the character card when you chat'**
   String get promptOwnedByCharacter;
 }
 

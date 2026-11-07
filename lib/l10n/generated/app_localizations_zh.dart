@@ -7195,7 +7195,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get promptPreviewEmptyField => '该角色卡此处没有内容';
 
   @override
-  String get promptOwnedByCharacter => '来自角色卡 · 仅可查看';
+  String get promptOwnedByCharacter => '聊天时会使用角色卡里的内容';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -14259,5 +14259,5 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get promptPreviewEmptyField => '此角色卡此處沒有內容';
 
   @override
-  String get promptOwnedByCharacter => '來自角色卡 · 僅可查看';
+  String get promptOwnedByCharacter => '聊天時會使用角色卡裡的內容';
 }

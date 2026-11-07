@@ -7448,8 +7448,8 @@
   "@promptPreviewEmptyField": {
     "description": "Subtitle when selected character field is empty"
   },
-  "promptOwnedByCharacter": "来自角色卡 · 仅可查看",
+  "promptOwnedByCharacter": "聊天时会使用角色卡里的内容",
   "@promptOwnedByCharacter": {
-    "description": "Label on expanded character-owned prompt content"
+    "description": "Label for character-owned prompt sections in the manager"
   }
 }

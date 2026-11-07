@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:native_tavern/core/utils/share_utils.dart';
-import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/prompt_manager.dart';
 import 'package:native_tavern/presentation/providers/prompt_manager_providers.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
-import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:path_provider/path_provider.dart';
@@ -91,8 +89,6 @@ class PromptManagerScreen extends ConsumerWidget {
     final allPresets = ref.watch(allPresetsProvider);
 
     final l10n = AppLocalizations.of(context);
-    final previewCharacter =
-        ref.watch(promptPreviewCharacterProvider).valueOrNull;
 
     final list = ReorderableListView.builder(
       shrinkWrap: embedded,
@@ -108,21 +104,11 @@ class PromptManagerScreen extends ConsumerWidget {
         final key = section.identifier != null
             ? ValueKey('${section.identifier}_$index')
             : ValueKey('${section.type.name}_$index');
-        final characterContent = section.isCharacterOwned
-            ? PromptSection.contentFromCharacter(
-                section.type,
-                previewCharacter,
-              )
-            : null;
-        final canViewCharacter = previewCharacter != null &&
-            characterContent != null &&
-            characterContent.trim().isNotEmpty;
 
         return _PromptSectionTile(
           key: key,
           section: section,
           index: index,
-          character: previewCharacter,
           showDivider: index < sortedSections.length - 1,
           onToggle: () {
             if (section.isCustom) {
@@ -141,14 +127,6 @@ class PromptManagerScreen extends ConsumerWidget {
                     ref,
                     section,
                     index,
-                  )
-              : null,
-          onView: canViewCharacter
-              ? () => _showViewCharacterContentDialog(
-                    context,
-                    section,
-                    previewCharacter,
-                    characterContent,
                   )
               : null,
           onDuplicate: () =>
@@ -207,9 +185,7 @@ class PromptManagerScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-              const _PromptCharacterPicker(),
               if (!embedded) ...[
-                const SizedBox(height: 12),
                 SettingsCategoryHeader(
                   icon: Icons.reorder,
                   title: l10n.promptManager,
@@ -221,7 +197,6 @@ class PromptManagerScreen extends ConsumerWidget {
                       ),
                 ),
               ] else ...[
-                const SizedBox(height: 8),
                 SettingsCategoryHeader(
                   icon: Icons.reorder,
                   title: l10n.promptManager,
@@ -806,85 +781,6 @@ class PromptManagerScreen extends ConsumerWidget {
     );
   }
 
-  void _showViewCharacterContentDialog(
-    BuildContext context,
-    PromptSection section,
-    Character character,
-    String content,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    final displayName = _promptSectionName(section.type, l10n);
-
-    showDialog<void>(
-      context: context,
-      builder: (context) {
-        final scheme = Theme.of(context).colorScheme;
-        final muted = scheme.onSurfaceVariant;
-        return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.visibility_outlined, color: scheme.primary),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  displayName,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            height: MediaQuery.sizeOf(context).height * 0.5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.promptOwnedByCharacter,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: muted,
-                      ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  character.name,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: muted,
-                      ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: scheme.outline),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(12),
-                      child: SelectableText(
-                        content,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(height: 1.35),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.close),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _showEditContentDialog(
       BuildContext context, WidgetRef ref, PromptSection section, int index) {
     final l10n = AppLocalizations.of(context);
@@ -1050,268 +946,11 @@ class PromptManagerScreen extends ConsumerWidget {
   }
 }
 
-class _PromptCharacterPicker extends ConsumerWidget {
-  const _PromptCharacterPicker();
-
-  Future<void> _openPicker(BuildContext context, WidgetRef ref) async {
-    final selectedId = ref.read(promptPreviewCharacterIdProvider);
-    final characters =
-        await ref.read(promptPreviewCharactersProvider.future);
-
-    if (!context.mounted) return;
-
-    // Empty string = clear selection; null = dismissed without change.
-    final picked = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) => _PromptCharacterPickerSheet(
-        characters: characters,
-        selectedId: selectedId,
-      ),
-    );
-
-    if (!context.mounted || picked == null) return;
-
-    ref.read(promptPreviewCharacterIdProvider.notifier).state =
-        picked.isEmpty ? null : picked;
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    final selectedId = ref.watch(promptPreviewCharacterIdProvider);
-    final charactersAsync = ref.watch(promptPreviewCharactersProvider);
-    final selectedCharacter =
-        ref.watch(promptPreviewCharacterProvider).valueOrNull;
-
-    // Keep selection valid if a character was deleted.
-    charactersAsync.whenData((characters) {
-      if (selectedId != null &&
-          characters.every((c) => c.id != selectedId)) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ref.read(promptPreviewCharacterIdProvider.notifier).state = null;
-        });
-      }
-    });
-
-    final Widget leading;
-    if (selectedCharacter != null) {
-      leading = _CharacterPickerAvatar(character: selectedCharacter, size: 22);
-    } else {
-      leading = Icon(
-        Icons.person_outline,
-        size: SettingsTileMetrics.iconSize,
-        color: scheme.onSurfaceVariant,
-      );
-    }
-
-    return SettingsSection(
-      icon: Icons.badge_outlined,
-      title: l10n.promptPreviewCharacter,
-      footer: l10n.promptPreviewHint,
-      margin: EdgeInsets.zero,
-      children: [
-        SettingsControlTile(
-          leading: leading,
-          title: selectedCharacter?.name ?? l10n.none,
-          subtitle: selectedCharacter == null
-              ? l10n.promptPreviewSelectToView
-              : null,
-          showDivider: false,
-          onTap: charactersAsync.hasValue
-              ? () => _openPicker(context, ref)
-              : null,
-          trailing: Icon(
-            Icons.chevron_right,
-            color: scheme.onSurfaceVariant,
-            size: 20,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CharacterPickerAvatar extends StatelessWidget {
-  final Character character;
-  final double size;
-
-  const _CharacterPickerAvatar({
-    required this.character,
-    this.size = 28,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final path = character.assets?.avatarPath;
-    if (path != null && path.isNotEmpty) {
-      return ClipOval(
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: CharacterAvatarImage(imagePath: path),
-        ),
-      );
-    }
-    final initial =
-        character.name.isNotEmpty ? character.name.substring(0, 1) : '?';
-    return CircleAvatar(
-      radius: size / 2,
-      child: Text(
-        initial,
-        style: TextStyle(fontSize: size * 0.45),
-      ),
-    );
-  }
-}
-
-class _PromptCharacterPickerSheet extends StatefulWidget {
-  final List<Character> characters;
-  final String? selectedId;
-
-  const _PromptCharacterPickerSheet({
-    required this.characters,
-    required this.selectedId,
-  });
-
-  @override
-  State<_PromptCharacterPickerSheet> createState() =>
-      _PromptCharacterPickerSheetState();
-}
-
-class _PromptCharacterPickerSheetState
-    extends State<_PromptCharacterPickerSheet> {
-  final _searchController = TextEditingController();
-  String _query = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  List<Character> get _filtered {
-    final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return widget.characters;
-    return widget.characters
-        .where((c) => c.name.toLowerCase().contains(q))
-        .toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    final filtered = _filtered;
-
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.75,
-      minChildSize: 0.45,
-      maxChildSize: 0.92,
-      builder: (context, scrollController) {
-        return SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        l10n.promptPreviewCharacter,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    ChromeIconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: TextField(
-                  controller: _searchController,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    hintText: l10n.searchCharacters,
-                    prefixIcon: const Icon(Icons.search),
-                    isDense: true,
-                    border: const OutlineInputBorder(),
-                    suffixIcon: _query.isEmpty
-                        ? null
-                        : IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => _query = '');
-                            },
-                          ),
-                  ),
-                  onChanged: (value) => setState(() => _query = value),
-                ),
-              ),
-              const Divider(height: 1),
-              Expanded(
-                child: ListView.builder(
-                  controller: scrollController,
-                  itemCount: filtered.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      final isNone = widget.selectedId == null;
-                      return ListTile(
-                        leading: Icon(
-                          Icons.person_off_outlined,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                        title: Text(l10n.none),
-                        trailing: isNone
-                            ? Icon(Icons.check, color: scheme.primary)
-                            : null,
-                        onTap: () => Navigator.pop(context, ''),
-                      );
-                    }
-
-                    final character = filtered[index - 1];
-                    final selected = character.id == widget.selectedId;
-                    return ListTile(
-                      leading: _CharacterPickerAvatar(
-                        character: character,
-                        size: 40,
-                      ),
-                      title: Text(
-                        character.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: selected
-                          ? Icon(Icons.check, color: scheme.primary)
-                          : null,
-                      selected: selected,
-                      onTap: () => Navigator.pop(context, character.id),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
 class _PromptSectionTile extends StatelessWidget {
   final PromptSection section;
   final int index;
-  final Character? character;
   final VoidCallback onToggle;
   final VoidCallback? onEdit;
-  final VoidCallback? onView;
   final VoidCallback? onDuplicate;
   final VoidCallback? onDelete;
   final bool showDivider;
@@ -1321,9 +960,7 @@ class _PromptSectionTile extends StatelessWidget {
     required this.section,
     required this.index,
     required this.onToggle,
-    this.character,
     this.onEdit,
-    this.onView,
     this.onDuplicate,
     this.onDelete,
     this.showDivider = true,
@@ -1338,25 +975,14 @@ class _PromptSectionTile extends StatelessWidget {
         ? section.name
         : _promptSectionName(section.type, l10n);
 
-    final characterContent = section.isCharacterOwned
-        ? PromptSection.contentFromCharacter(section.type, character)
-        : null;
     final String description;
     if (section.isCustom) {
       description = section.content?.isNotEmpty == true
           ? '${section.content!.substring(0, section.content!.length.clamp(0, 50))}...'
           : l10n.customPrompt;
     } else if (section.isCharacterOwned) {
-      if (character == null) {
-        description = l10n.promptPreviewSelectToView;
-      } else if (characterContent == null || characterContent.trim().isEmpty) {
-        description = l10n.promptPreviewEmptyField;
-      } else {
-        final preview = characterContent.trim();
-        description = preview.length <= 50
-            ? preview
-            : '${preview.substring(0, 50)}...';
-      }
+      // Character-card fields are injected at chat time; no in-manager preview.
+      description = l10n.promptOwnedByCharacter;
     } else {
       description = _promptSectionDescription(section.type, l10n);
     }
@@ -1442,21 +1068,12 @@ class _PromptSectionTile extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 4),
           child: Icon(
-            Icons.visibility_outlined,
+            Icons.badge_outlined,
             size: 16,
-            color: onView != null && enabled
-                ? muted
-                : muted.withValues(alpha: 0.4),
+            color: enabled ? muted : muted.withValues(alpha: 0.4),
           ),
         ),
     ];
-
-    VoidCallback? onTap;
-    if (onEdit != null && enabled) {
-      onTap = onEdit;
-    } else if (onView != null && enabled) {
-      onTap = onView;
-    }
 
     return SettingsControlTile(
       dragIndex: index,
@@ -1468,14 +1085,11 @@ class _PromptSectionTile extends StatelessWidget {
       titleExtras: titleExtras.isEmpty ? null : titleExtras,
       enabled: enabled,
       showDivider: showDivider,
-      onTap: onTap,
+      onTap: onEdit != null && enabled ? onEdit : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (onEdit != null ||
-              onView != null ||
-              onDuplicate != null ||
-              onDelete != null)
+          if (onEdit != null || onDuplicate != null || onDelete != null)
             AdaptiveActionMenuButton<String>(
               density: ChromeIconButtonDensity.compact,
               icon: Icon(
@@ -1485,7 +1099,6 @@ class _PromptSectionTile extends StatelessWidget {
               ),
               onSelected: (value) {
                 if (value == 'edit') onEdit?.call();
-                if (value == 'view') onView?.call();
                 if (value == 'duplicate') onDuplicate?.call();
                 if (value == 'delete') onDelete?.call();
               },
@@ -1497,12 +1110,6 @@ class _PromptSectionTile extends StatelessWidget {
                       value: 'edit',
                       leading: const Icon(Icons.edit),
                       title: Text(menuL10n.edit),
-                    ),
-                  if (onView != null)
-                    AdaptiveActionDrawerItem(
-                      value: 'view',
-                      leading: const Icon(Icons.visibility_outlined),
-                      title: Text(menuL10n.view),
                     ),
                   if (onDuplicate != null)
                     AdaptiveActionDrawerItem(

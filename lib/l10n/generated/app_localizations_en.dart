@@ -7480,5 +7480,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get promptPreviewEmptyField => 'This character has no content here';
 
   @override
-  String get promptOwnedByCharacter => 'From character card · view only';
+  String get promptOwnedByCharacter =>
+      'Filled from the character card when you chat';
 }

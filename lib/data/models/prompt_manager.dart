@@ -1,5 +1,3 @@
-import 'package:native_tavern/data/models/character.dart';
-
 /// Prompt section types that can be ordered and toggled
 enum PromptSectionType {
   systemPrompt,
@@ -74,7 +72,7 @@ class PromptSection {
   /// Check if this is a custom prompt (not a built-in type)
   bool get isCustom => type == PromptSectionType.custom;
 
-  /// Content comes from the selected character card (view-only in Prompt Manager).
+  /// Content is supplied by the active character card at chat time.
   bool get isCharacterOwned => isTypeCharacterOwned(type);
 
   /// Check if this section type supports custom content editing
@@ -86,26 +84,6 @@ class PromptSection {
         type == PromptSectionType.characterPersonality ||
         type == PromptSectionType.characterScenario ||
         type == PromptSectionType.exampleMessages;
-  }
-
-  /// Resolve character-card text for a character-owned section.
-  static String? contentFromCharacter(
-    PromptSectionType type,
-    Character? character,
-  ) {
-    if (character == null || !isTypeCharacterOwned(type)) return null;
-    switch (type) {
-      case PromptSectionType.characterDescription:
-        return character.description;
-      case PromptSectionType.characterPersonality:
-        return character.personality;
-      case PromptSectionType.characterScenario:
-        return character.scenario;
-      case PromptSectionType.exampleMessages:
-        return character.exampleMessages;
-      default:
-        return null;
-    }
   }
 
   /// Check if a section type supports custom content editing

@@ -7404,9 +7404,9 @@
   "@promptPreviewEmptyField": {
     "description": "Subtitle when selected character field is empty"
   },
-  "promptOwnedByCharacter": "來自角色卡 · 僅可查看",
+  "promptOwnedByCharacter": "聊天時會使用角色卡裡的內容",
   "@promptOwnedByCharacter": {
-    "description": "Label on expanded character-owned prompt content"
+    "description": "Label for character-owned prompt sections in the manager"
   },
   "renderMessageHtmlTitle": "渲染 HTML",
   "renderMessageHtmlSubtitle": "在聊天裡顯示 HTML 排版。關閉後仍會保留文字，並轉成 Markdown 顯示。",

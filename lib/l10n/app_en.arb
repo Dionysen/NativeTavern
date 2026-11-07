@@ -7805,7 +7805,7 @@
   "@promptPreviewEmptyField": {
     "description": "Subtitle when selected character field is empty"
   },
-  "promptOwnedByCharacter": "From character card · view only",
+  "promptOwnedByCharacter": "Filled from the character card when you chat",
   "@promptOwnedByCharacter": {
     "description": "Label on expanded character-owned prompt content"
   }
