@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/character_folder.dart';
 import 'package:native_tavern/data/repositories/character_folder_repository.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
+import 'package:native_tavern/presentation/providers/chat_providers.dart';
 
 /// null = library root; otherwise the open folder id.
 final characterBrowseFolderIdProvider = StateProvider<String?>((ref) => null);
@@ -129,6 +130,14 @@ class CharacterFoldersNotifier extends AsyncNotifier<List<CharacterFolder>> {
       if (stillThere == null) {
         ref.read(characterBrowseFolderIdProvider.notifier).state = parentId;
       }
+    }
+    // Solo chats for deleted characters are removed in deleteCharacter;
+    // refresh chat lists so the home screen drops them immediately.
+    ref.invalidate(pagedChatsProvider);
+    ref.invalidate(allChatsProvider);
+    ref.invalidate(recentChatsProvider);
+    for (final characterId in characterIds) {
+      ref.invalidate(characterChatsProvider(characterId));
     }
     await refresh();
   }

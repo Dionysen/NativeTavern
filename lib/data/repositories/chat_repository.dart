@@ -130,6 +130,14 @@ class ChatRepository {
     });
   }
 
+  /// Delete all 1:1 chats for [characterId] (skips group chats).
+  Future<void> deleteChatsForCharacter(String characterId) async {
+    final chats = await getChatsForCharacter(characterId);
+    for (final chat in chats) {
+      await deleteChat(chat.id);
+    }
+  }
+
   /// Get messages for a chat
   Future<List<models.ChatMessage>> getMessages(String chatId) async {
     final rows = await (_db.select(_db.messages)

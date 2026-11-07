@@ -576,16 +576,35 @@ class CharacterRepository {
     return updated;
   }
 
-  /// Delete a character
+  /// Soft-delete a character and remove its 1:1 chats.
+  ///
+  /// The character row is kept (with [Characters.isDeleted]) so moment links
+  /// and group-chat history that still reference the id remain usable.
+  /// Solo chats for this character are hard-deleted with their messages.
   Future<void> deleteCharacter(String id) async {
-    // Keep the row and its history so old moment links and the editor remain
-    // usable. Normal character queries hide this marker.
-    await (_db.update(_db.characters)..where((t) => t.id.equals(id))).write(
-      CharactersCompanion(
-        isDeleted: const Value(true),
-        modifiedAt: Value(DateTime.now()),
-      ),
-    );
+    await _db.transaction(() async {
+      final chatRows = await (_db.select(_db.chats)
+            ..where(
+              (t) => t.characterId.equals(id) & t.groupId.isNull(),
+            ))
+          .get();
+      for (final chat in chatRows) {
+        await (_db.delete(_db.bookmarks)
+              ..where((t) => t.chatId.equals(chat.id)))
+            .go();
+        await (_db.delete(_db.messages)
+              ..where((t) => t.chatId.equals(chat.id)))
+            .go();
+        await (_db.delete(_db.chats)..where((t) => t.id.equals(chat.id))).go();
+      }
+
+      await (_db.update(_db.characters)..where((t) => t.id.equals(id))).write(
+        CharactersCompanion(
+          isDeleted: const Value(true),
+          modifiedAt: Value(DateTime.now()),
+        ),
+      );
+    });
   }
 
   /// Save character avatar

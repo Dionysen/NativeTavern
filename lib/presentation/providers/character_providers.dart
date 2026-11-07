@@ -214,6 +214,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     await repo.deleteCharacter(id);
     await _refreshFolderChrome();
     ref.invalidate(characterLibraryTagLabelsProvider);
+    _invalidateChatsAfterCharacterDelete({id});
     await refresh();
   }
 
@@ -226,7 +227,21 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     }
     await _refreshFolderChrome();
     ref.invalidate(characterLibraryTagLabelsProvider);
+    _invalidateChatsAfterCharacterDelete(uniqueIds);
     await refresh();
+  }
+
+  void _invalidateChatsAfterCharacterDelete(Set<String> characterIds) {
+    ref.invalidate(pagedChatsProvider);
+    ref.invalidate(allChatsProvider);
+    ref.invalidate(recentChatsProvider);
+    for (final id in characterIds) {
+      ref.invalidate(characterChatsProvider(id));
+    }
+    final selectedId = ref.read(selectedCharacterIdProvider);
+    if (selectedId != null && characterIds.contains(selectedId)) {
+      ref.read(selectedCharacterIdProvider.notifier).state = null;
+    }
   }
 
   /// Ids for the current browse filter (folder / search / tags), all pages.
