@@ -1,6 +1,8 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:native_tavern/core/utils/path_utils.dart';
+import 'package:path/path.dart' as p;
 
 /// Fill color for characters that have no avatar image.
 /// Built-in assistants keep distinct accents; everyone else uses the theme primary.
@@ -30,9 +32,30 @@ IconData characterAvatarFallbackIcon([String? characterId]) {
   }
 }
 
+/// Resolves a stored avatar path (relative or absolute) to a readable file path.
+///
+/// Returns null when the file cannot be found so callers never pass a bare
+/// relative path like `avatars/…` into [Image.file] / [FileImage].
+Future<String?> resolveAvatarFilePath(String imagePath) async {
+  final trimmed = imagePath.trim();
+  if (trimmed.isEmpty) return null;
+  try {
+    final absolute = await PathUtils.toAbsolutePath(trimmed);
+    if (await File(absolute).exists()) return absolute;
+  } catch (_) {
+    // Fall through to direct absolute check.
+  }
+  if (p.isAbsolute(trimmed)) {
+    try {
+      if (await File(trimmed).exists()) return trimmed;
+    } catch (_) {}
+  }
+  return null;
+}
+
 /// Widget that displays character avatar image
 /// Handles both absolute and relative paths for mobile compatibility
-class CharacterAvatarImage extends StatelessWidget {
+class CharacterAvatarImage extends StatefulWidget {
   final String imagePath;
   final BoxFit fit;
   final AlignmentGeometry alignment;
@@ -47,40 +70,62 @@ class CharacterAvatarImage extends StatelessWidget {
   });
 
   @override
+  State<CharacterAvatarImage> createState() => _CharacterAvatarImageState();
+}
+
+class _CharacterAvatarImageState extends State<CharacterAvatarImage> {
+  late Future<String?> _resolvedPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolvedPath = resolveAvatarFilePath(widget.imagePath);
+  }
+
+  @override
+  void didUpdateWidget(covariant CharacterAvatarImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imagePath != widget.imagePath) {
+      _resolvedPath = resolveAvatarFilePath(widget.imagePath);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: PathUtils.toAbsolutePath(imagePath),
+    final scheme = Theme.of(context).colorScheme;
+    final loading = ColoredBox(
+      color: scheme.surfaceContainerHigh,
+      child: const Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+    );
+    final missing = widget.errorBuilder?.call(
+          context,
+          StateError('Avatar file missing'),
+          StackTrace.empty,
+        ) ??
+        ColoredBox(color: scheme.surfaceContainerHigh);
+
+    return FutureBuilder<String?>(
+      future: _resolvedPath,
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final file = File(snapshot.data!);
-          return Image.file(
-            file,
-            fit: fit,
-            alignment: alignment,
-            errorBuilder: errorBuilder,
-          );
-        } else if (snapshot.hasError) {
-          // Path resolution failed, try original path as fallback
-          final file = File(imagePath);
-          return Image.file(
-            file,
-            fit: fit,
-            alignment: alignment,
-            errorBuilder: errorBuilder,
-          );
-        } else {
-          // Loading
-          return Container(
-            color: Theme.of(context).colorScheme.surfaceContainerHigh,
-            child: const Center(
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            ),
-          );
+        if (snapshot.connectionState != ConnectionState.done) {
+          return loading;
         }
+        final path = snapshot.data;
+        if (path == null) {
+          return missing;
+        }
+        return Image.file(
+          File(path),
+          fit: widget.fit,
+          alignment: widget.alignment,
+          errorBuilder: widget.errorBuilder ?? (_, __, ___) => missing,
+        );
       },
     );
   }
@@ -172,7 +217,7 @@ class CharacterAvatarShaped extends StatelessWidget {
 }
 
 /// Background image variant
-class CharacterBackgroundImage extends StatelessWidget {
+class CharacterBackgroundImage extends StatefulWidget {
   final String imagePath;
   final Widget Function(BuildContext, Object?, StackTrace?)? errorBuilder;
 
@@ -183,27 +228,51 @@ class CharacterBackgroundImage extends StatelessWidget {
   });
 
   @override
+  State<CharacterBackgroundImage> createState() =>
+      _CharacterBackgroundImageState();
+}
+
+class _CharacterBackgroundImageState extends State<CharacterBackgroundImage> {
+  late Future<String?> _resolvedPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolvedPath = resolveAvatarFilePath(widget.imagePath);
+  }
+
+  @override
+  void didUpdateWidget(covariant CharacterBackgroundImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imagePath != widget.imagePath) {
+      _resolvedPath = resolveAvatarFilePath(widget.imagePath);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: PathUtils.toAbsolutePath(imagePath),
+    final fallback = widget.errorBuilder?.call(
+          context,
+          StateError('Background missing'),
+          StackTrace.empty,
+        ) ??
+        const ColoredBox(color: Colors.black);
+
+    return FutureBuilder<String?>(
+      future: _resolvedPath,
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final file = File(snapshot.data!);
-          return Image.file(
-            file,
-            fit: BoxFit.cover,
-            errorBuilder: errorBuilder ?? (_, __, ___) => Container(color: Colors.black),
-          );
-        } else if (snapshot.hasError) {
-          final file = File(imagePath);
-          return Image.file(
-            file,
-            fit: BoxFit.cover,
-            errorBuilder: errorBuilder ?? (_, __, ___) => Container(color: Colors.black),
-          );
-        } else {
-          return Container(color: Colors.black);
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const ColoredBox(color: Colors.black);
         }
+        final path = snapshot.data;
+        if (path == null) {
+          return fallback;
+        }
+        return Image.file(
+          File(path),
+          fit: BoxFit.cover,
+          errorBuilder: widget.errorBuilder ?? (_, __, ___) => fallback,
+        );
       },
     );
   }

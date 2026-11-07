@@ -12,6 +12,7 @@ import 'package:native_tavern/presentation/providers/background_providers.dart';
 import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
+import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
 /// Character editor screen for creating/editing characters
@@ -382,20 +383,7 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
               onTap: _pickAvatar,
               child: Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                    backgroundImage: _getAvatarImage(),
-                    child: _avatarData == null && _avatarPath == null
-                        ? Icon(
-                            Icons.person,
-                            size: 60,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          )
-                        : null,
-                  ),
+                  _buildAvatarPreview(context),
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -476,14 +464,33 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
     );
   }
 
-  ImageProvider? _getAvatarImage() {
+  Widget _buildAvatarPreview(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final placeholder = CircleAvatar(
+      radius: 60,
+      backgroundColor: scheme.surfaceContainerHighest,
+      child: Icon(
+        Icons.person,
+        size: 60,
+        color: scheme.onSurfaceVariant,
+      ),
+    );
+
     if (_avatarData != null) {
-      return MemoryImage(_avatarData!);
+      return CircleAvatar(
+        radius: 60,
+        backgroundColor: scheme.surfaceContainerHighest,
+        backgroundImage: MemoryImage(_avatarData!),
+      );
     }
     if (_avatarPath != null) {
-      return FileImage(File(_avatarPath!));
+      return CharacterAvatarCircle(
+        imagePath: _avatarPath!,
+        radius: 60,
+        errorBuilder: (_, __, ___) => placeholder,
+      );
     }
-    return null;
+    return placeholder;
   }
 
   Widget _buildPromptsTab() {
