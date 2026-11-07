@@ -1,6 +1,4 @@
-import 'dart:async';
 import 'dart:io';
-import 'dart:math' as math;
 
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/regex_script.dart';
@@ -44,27 +42,8 @@ class CharacterLibraryImportResult {
   final List<String> errors;
 }
 
-class _DecodedImport {
-  const _DecodedImport({
-    required this.relative,
-    required this.folderKey,
-    this.character,
-    this.error,
-    this.skipped = false,
-  });
-
-  final String relative;
-  final String folderKey;
-  final Character? character;
-  final Object? error;
-  final bool skipped;
-}
-
 /// One-shot recursive folder import into DB, preserving relative paths as
 /// nested [character_folders].
-///
-/// File decode / avatar write runs with bounded concurrency; folder ensure and
-/// DB writes stay serialized to avoid SQLite and path races.
 class CharacterLibraryImportService {
   CharacterLibraryImportService({
     required ImportService importService,
@@ -75,13 +54,11 @@ class CharacterLibraryImportService {
       String characterId,
       List<RegexScript> scripts,
     ) importEmbeddedRegex,
-    int? concurrency,
   })  : _importService = importService,
         _characterRepository = characterRepository,
         _folderRepository = folderRepository,
         _worldInfoRepository = worldInfoRepository,
-        _importEmbeddedRegex = importEmbeddedRegex,
-        _concurrency = concurrency ?? _defaultConcurrency();
+        _importEmbeddedRegex = importEmbeddedRegex;
 
   final ImportService _importService;
   final CharacterRepository _characterRepository;
@@ -89,14 +66,8 @@ class CharacterLibraryImportService {
   final WorldInfoRepository _worldInfoRepository;
   final Future<void> Function(String characterId, List<RegexScript> scripts)
       _importEmbeddedRegex;
-  final int _concurrency;
 
   static const _supportedExtensions = {'.png', '.json', '.charx'};
-
-  static int _defaultConcurrency() {
-    final cpus = Platform.numberOfProcessors;
-    return math.max(2, math.min(8, cpus));
-  }
 
   Future<CharacterLibraryImportResult> importFromDirectory(
     String rootPath, {
@@ -118,140 +89,78 @@ class CharacterLibraryImportService {
     }
     files.sort((a, b) => a.path.compareTo(b.path));
 
-    if (files.isEmpty) {
-      onProgress?.call(
-        const CharacterLibraryImportProgress(
-          total: 0,
-          processed: 0,
-          succeeded: 0,
-          failed: 0,
-          skipped: 0,
-        ),
-      );
-      return const CharacterLibraryImportResult(
-        succeeded: 0,
-        failed: 0,
-        skipped: 0,
-      );
-    }
-
-    // Pre-create unique folder paths once (avoids races under parallel workers).
-    final folderIdsByKey = <String, String?>{};
-    for (final file in files) {
-      final relative = p.normalize(p.relative(file.path, from: root.path));
-      final key = _folderKeyForRelative(relative);
-      if (folderIdsByKey.containsKey(key)) continue;
-      folderIdsByKey[key] = await _folderRepository.ensureFolderPath(
-        _segmentsForFolderKey(key),
-      );
-    }
-
     var succeeded = 0;
     var failed = 0;
     var skipped = 0;
-    var processed = 0;
     final errors = <String>[];
-    Future<void> persistChain = Future<void>.value();
 
-    void report(String? currentFile) {
+    for (var i = 0; i < files.length; i++) {
+      final file = files[i];
+      final relative = p.normalize(p.relative(file.path, from: root.path));
       onProgress?.call(
         CharacterLibraryImportProgress(
           total: files.length,
-          processed: processed,
+          processed: i,
           succeeded: succeeded,
           failed: failed,
           skipped: skipped,
-          currentFile: currentFile,
+          currentFile: relative,
         ),
       );
-    }
 
-    report(null);
+      try {
+        final character = await _decodeFile(file);
+        if (character == null) {
+          skipped++;
+          continue;
+        }
 
-    Future<void> enqueuePersist(Future<void> Function() work) {
-      final previous = persistChain;
-      final done = Completer<void>();
-      persistChain = done.future;
-      return previous.then((_) => work()).whenComplete(done.complete);
-    }
+        final dirRelative = p.dirname(relative);
+        final segments = (dirRelative == '.' || dirRelative.isEmpty)
+            ? const <String>[]
+            : p
+                .split(dirRelative)
+                .where((s) => s.isNotEmpty && s != '.')
+                .toList(growable: false);
+        final folderId = await _folderRepository.ensureFolderPath(segments);
 
-    await _forEachPool(
-      files,
-      concurrency: _concurrency,
-      action: (file) async {
-        final relative = p.normalize(p.relative(file.path, from: root.path));
-        final folderKey = _folderKeyForRelative(relative);
-
-        _DecodedImport decoded;
-        try {
-          final character = await _decodeFile(file);
-          if (character == null) {
-            decoded = _DecodedImport(
-              relative: relative,
-              folderKey: folderKey,
-              skipped: true,
-            );
-          } else {
-            decoded = _DecodedImport(
-              relative: relative,
-              folderKey: folderKey,
-              character: character,
-            );
-          }
-        } catch (e) {
-          decoded = _DecodedImport(
-            relative: relative,
-            folderKey: folderKey,
-            error: e,
+        final created = await _characterRepository.createCharacter(character);
+        if (folderId != null) {
+          await _folderRepository.moveCharactersToFolder(
+            [created.id],
+            folderId: folderId,
           );
         }
 
-        await enqueuePersist(() async {
-          try {
-            if (decoded.error != null) {
-              failed++;
-              errors.add('${decoded.relative}: ${decoded.error}');
-            } else if (decoded.skipped || decoded.character == null) {
-              skipped++;
-            } else {
-              final created = await _characterRepository
-                  .createCharacter(decoded.character!);
-              final folderId = folderIdsByKey[decoded.folderKey];
-              if (folderId != null) {
-                await _folderRepository.moveCharactersToFolder(
-                  [created.id],
-                  folderId: folderId,
-                );
-              }
+        final embeddedRegex = parseEmbeddedRegexScripts(
+          created.extensions,
+          characterId: created.id,
+        );
+        if (embeddedRegex.isNotEmpty) {
+          await _importEmbeddedRegex(created.id, embeddedRegex);
+        }
 
-              final embeddedRegex = parseEmbeddedRegexScripts(
-                created.extensions,
-                characterId: created.id,
-              );
-              if (embeddedRegex.isNotEmpty) {
-                await _importEmbeddedRegex(created.id, embeddedRegex);
-              }
+        final book = created.characterBook;
+        if (book != null && book.entries.isNotEmpty) {
+          await _importEmbeddedLorebook(created.id, book, created.name);
+        }
 
-              final book = created.characterBook;
-              if (book != null && book.entries.isNotEmpty) {
-                await _importEmbeddedLorebook(created.id, book, created.name);
-              }
-              succeeded++;
-            }
-          } catch (e) {
-            failed++;
-            errors.add('${decoded.relative}: $e');
-          } finally {
-            processed++;
-            report(decoded.relative);
-          }
-        });
-      },
+        succeeded++;
+      } catch (e) {
+        failed++;
+        errors.add('$relative: $e');
+      }
+    }
+
+    onProgress?.call(
+      CharacterLibraryImportProgress(
+        total: files.length,
+        processed: files.length,
+        succeeded: succeeded,
+        failed: failed,
+        skipped: skipped,
+      ),
     );
-
-    await persistChain;
-
-    report(null);
 
     return CharacterLibraryImportResult(
       succeeded: succeeded,
@@ -259,20 +168,6 @@ class CharacterLibraryImportService {
       skipped: skipped,
       errors: errors,
     );
-  }
-
-  static String _folderKeyForRelative(String relative) {
-    final dirRelative = p.dirname(relative);
-    if (dirRelative == '.' || dirRelative.isEmpty) return '';
-    return p.normalize(dirRelative);
-  }
-
-  static List<String> _segmentsForFolderKey(String key) {
-    if (key.isEmpty) return const [];
-    return p
-        .split(key)
-        .where((s) => s.isNotEmpty && s != '.')
-        .toList(growable: false);
   }
 
   Future<Character?> _decodeFile(File file) async {
@@ -332,29 +227,4 @@ class CharacterLibraryImportService {
       await _worldInfoRepository.updateEntry(entry.copyWith(id: created.id));
     }
   }
-}
-
-Future<void> _forEachPool<T>(
-  List<T> items, {
-  required int concurrency,
-  required Future<void> Function(T item) action,
-}) async {
-  if (items.isEmpty) return;
-  var next = 0;
-
-  Future<void> worker() async {
-    while (true) {
-      final index = next;
-      next++;
-      if (index >= items.length) return;
-      await action(items[index]);
-    }
-  }
-
-  await Future.wait(
-    List.generate(
-      math.min(concurrency, items.length),
-      (_) => worker(),
-    ),
-  );
 }
