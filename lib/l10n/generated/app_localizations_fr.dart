@@ -1280,7 +1280,21 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String libraryItemsSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
   String get deleteSelectedCharacters => 'Supprimer les personnages';
+
+  @override
+  String get deleteSelectedLibraryItems => 'Delete selected';
+
+  @override
+  String deleteSelectedLibraryItemsConfirmation(
+      int characterCount, int folderCount) {
+    return 'Delete $characterCount character(s) and $folderCount folder(s)? Folder contents will also be deleted. This cannot be undone.';
+  }
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
@@ -1390,6 +1404,32 @@ class AppLocalizationsFr extends AppLocalizations {
   String dissolveCharacterFolderBody(String name) {
     return 'Dissoudre « $name » ? Les personnages restent dans votre bibliothèque et ne sont pas supprimés.';
   }
+
+  @override
+  String get deleteCharacterFolder => 'Delete folder';
+
+  @override
+  String deleteCharacterFolderBody(String name) {
+    return 'Delete \"$name\" and its subfolders? Characters inside will also be deleted.';
+  }
+
+  @override
+  String get selectAllCharacters => 'Select all';
+
+  @override
+  String get deselectAllCharacters => 'Deselect all';
+
+  @override
+  String get characterFolderDeleted => 'Folder deleted';
+
+  @override
+  String get characterFolderDissolved => 'Folder dissolved';
+
+  @override
+  String get characterLibraryManage => 'Library';
+
+  @override
+  String get manageCurrentCharacterFolder => 'This folder';
 
   @override
   String get renameCharacterFolder => 'Renommer le dossier';

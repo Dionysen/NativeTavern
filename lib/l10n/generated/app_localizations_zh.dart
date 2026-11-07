@@ -1251,7 +1251,21 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String libraryItemsSelected(int count) {
+    return '已选择 $count 项';
+  }
+
+  @override
   String get deleteSelectedCharacters => '删除角色';
+
+  @override
+  String get deleteSelectedLibraryItems => '删除所选';
+
+  @override
+  String deleteSelectedLibraryItemsConfirmation(
+      int characterCount, int folderCount) {
+    return '确定删除选中的 $characterCount 个角色和 $folderCount 个文件夹吗？文件夹里的内容也会被删除，此操作无法撤销。';
+  }
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
@@ -1360,6 +1374,32 @@ class AppLocalizationsZh extends AppLocalizations {
   String dissolveCharacterFolderBody(String name) {
     return '解散「$name」？角色会保留在库中，不会被删除。';
   }
+
+  @override
+  String get deleteCharacterFolder => '删除文件夹';
+
+  @override
+  String deleteCharacterFolderBody(String name) {
+    return '删除「$name」及其子文件夹？里面的角色也会被删除。';
+  }
+
+  @override
+  String get selectAllCharacters => '全选';
+
+  @override
+  String get deselectAllCharacters => '取消全选';
+
+  @override
+  String get characterFolderDeleted => '已删除文件夹';
+
+  @override
+  String get characterFolderDissolved => '已解散文件夹';
+
+  @override
+  String get characterLibraryManage => '角色库';
+
+  @override
+  String get manageCurrentCharacterFolder => '当前文件夹';
 
   @override
   String get renameCharacterFolder => '重命名文件夹';

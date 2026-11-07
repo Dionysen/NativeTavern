@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/character_folder.dart';
 import 'package:native_tavern/data/repositories/character_folder_repository.dart';
+import 'package:native_tavern/data/repositories/character_repository.dart';
 
 /// null = library root; otherwise the open folder id.
 final characterBrowseFolderIdProvider = StateProvider<String?>((ref) => null);
@@ -63,11 +64,30 @@ class CharacterFoldersNotifier extends AsyncNotifier<List<CharacterFolder>> {
   Future<void> dissolveFolder(String id) async {
     final repo = ref.read(characterFolderRepositoryProvider);
     final folder = await repo.getFolder(id);
+    final parentId = folder?.parentId;
     await repo.dissolveFolder(id);
+    if (ref.read(characterBrowseFolderIdProvider) == id) {
+      ref.read(characterBrowseFolderIdProvider.notifier).state = parentId;
+    }
+    await refresh();
+  }
+
+  /// Deletes the folder tree and soft-deletes every character inside it.
+  Future<void> deleteFolder(String id) async {
+    final repo = ref.read(characterFolderRepositoryProvider);
+    final characterRepo = ref.read(characterRepositoryProvider);
+    final folder = await repo.getFolder(id);
+    final parentId = folder?.parentId;
+    final characterIds = await repo.deleteFolderTree(id);
+    for (final characterId in characterIds) {
+      await characterRepo.deleteCharacter(characterId);
+    }
     final browseId = ref.read(characterBrowseFolderIdProvider);
-    if (browseId == id) {
-      ref.read(characterBrowseFolderIdProvider.notifier).state =
-          folder?.parentId;
+    if (browseId != null) {
+      final stillThere = await repo.getFolder(browseId);
+      if (stillThere == null) {
+        ref.read(characterBrowseFolderIdProvider.notifier).state = parentId;
+      }
     }
     await refresh();
   }
@@ -80,6 +100,18 @@ class CharacterFoldersNotifier extends AsyncNotifier<List<CharacterFolder>> {
           characterIds,
           folderId: folderId,
         );
+    await refresh();
+  }
+
+  Future<void> reparentFolders(
+    Iterable<String> folderIds, {
+    String? parentId,
+  }) async {
+    final repo = ref.read(characterFolderRepositoryProvider);
+    for (final id in folderIds) {
+      if (id == parentId) continue;
+      await repo.reparentFolder(id, parentId: parentId);
+    }
     await refresh();
   }
 }

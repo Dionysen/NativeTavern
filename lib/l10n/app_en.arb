@@ -1781,9 +1781,37 @@
       }
     }
   },
+  "libraryItemsSelected": "{count} selected",
+  "@libraryItemsSelected": {
+    "description": "Selected characters and/or folders count",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
   "deleteSelectedCharacters": "Delete Characters",
   "@deleteSelectedCharacters": {
     "description": "Title for deleting multiple selected characters"
+  },
+  "deleteSelectedLibraryItems": "Delete selected",
+  "@deleteSelectedLibraryItems": {
+    "description": "Title for deleting selected characters and folders"
+  },
+  "deleteSelectedLibraryItemsConfirmation": "Delete {characterCount} character(s) and {folderCount} folder(s)? Folder contents will also be deleted. This cannot be undone.",
+  "@deleteSelectedLibraryItemsConfirmation": {
+    "description": "Confirmation body for bulk delete of characters and folders",
+    "placeholders": {
+      "characterCount": {
+        "type": "int",
+        "example": "3"
+      },
+      "folderCount": {
+        "type": "int",
+        "example": "2"
+      }
+    }
   },
   "deleteSelectedCharactersConfirmation": "Delete {count} selected characters? This will also delete all chats with these characters. This cannot be undone.",
   "@deleteSelectedCharactersConfirmation": {
@@ -1961,6 +1989,44 @@
         "example": "Favorites"
       }
     }
+  },
+  "deleteCharacterFolder": "Delete folder",
+  "@deleteCharacterFolder": {
+    "description": "Delete a character folder, its subfolders, and characters inside"
+  },
+  "deleteCharacterFolderBody": "Delete \"{name}\" and its subfolders? Characters inside will also be deleted.",
+  "@deleteCharacterFolderBody": {
+    "description": "Confirm deleting a character folder tree and its characters",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "selectAllCharacters": "Select all",
+  "@selectAllCharacters": {
+    "description": "Select all characters in the current character list filter"
+  },
+  "deselectAllCharacters": "Deselect all",
+  "@deselectAllCharacters": {
+    "description": "Clear the character multi-selection"
+  },
+  "characterFolderDeleted": "Folder deleted",
+  "@characterFolderDeleted": {
+    "description": "Snack bar after deleting a character folder"
+  },
+  "characterFolderDissolved": "Folder dissolved",
+  "@characterFolderDissolved": {
+    "description": "Snack bar after dissolving a character folder"
+  },
+  "characterLibraryManage": "Library",
+  "@characterLibraryManage": {
+    "description": "Title for character library overflow menu"
+  },
+  "manageCurrentCharacterFolder": "This folder",
+  "@manageCurrentCharacterFolder": {
+    "description": "Section label for actions on the open character folder"
   },
   "renameCharacterFolder": "Rename folder",
   "@renameCharacterFolder": {

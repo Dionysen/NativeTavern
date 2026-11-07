@@ -1274,7 +1274,21 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String libraryItemsSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
   String get deleteSelectedCharacters => 'Karakterleri sil';
+
+  @override
+  String get deleteSelectedLibraryItems => 'Delete selected';
+
+  @override
+  String deleteSelectedLibraryItemsConfirmation(
+      int characterCount, int folderCount) {
+    return 'Delete $characterCount character(s) and $folderCount folder(s)? Folder contents will also be deleted. This cannot be undone.';
+  }
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
@@ -1384,6 +1398,32 @@ class AppLocalizationsTr extends AppLocalizations {
   String dissolveCharacterFolderBody(String name) {
     return '\"$name\" dağıtılsın mı? Karakterler kitaplığınızda kalır ve silinmez.';
   }
+
+  @override
+  String get deleteCharacterFolder => 'Delete folder';
+
+  @override
+  String deleteCharacterFolderBody(String name) {
+    return 'Delete \"$name\" and its subfolders? Characters inside will also be deleted.';
+  }
+
+  @override
+  String get selectAllCharacters => 'Select all';
+
+  @override
+  String get deselectAllCharacters => 'Deselect all';
+
+  @override
+  String get characterFolderDeleted => 'Folder deleted';
+
+  @override
+  String get characterFolderDissolved => 'Folder dissolved';
+
+  @override
+  String get characterLibraryManage => 'Library';
+
+  @override
+  String get manageCurrentCharacterFolder => 'This folder';
 
   @override
   String get renameCharacterFolder => 'Klasörü yeniden adlandır';

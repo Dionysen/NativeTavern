@@ -125,6 +125,8 @@ class CharacterFolderGridCard extends StatelessWidget {
     required this.onLongPress,
     this.onSecondaryTap,
     this.compact = false,
+    this.selectionMode = false,
+    this.selected = false,
   });
 
   final CharacterFolder folder;
@@ -132,56 +134,73 @@ class CharacterFolderGridCard extends StatelessWidget {
   final VoidCallback onLongPress;
   final VoidCallback? onSecondaryTap;
   final bool compact;
+  final bool selectionMode;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final coverFlex = compact ? 4 : 3;
 
     return Card(
       clipBehavior: Clip.antiAlias,
+      color: selected ? scheme.primaryContainer.withValues(alpha: 0.45) : null,
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
         onSecondaryTap: onSecondaryTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
           children: [
-            Expanded(
-              flex: coverFlex,
-              child: CharacterFolderPreviewMosaic(
-                previews: folder.previewCharacters,
-                compact: compact,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(compact ? 4 : 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    folder.name,
-                    style: compact
-                        ? Theme.of(context).textTheme.bodySmall
-                        : Theme.of(context).textTheme.titleSmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: compact ? TextAlign.center : TextAlign.start,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: coverFlex,
+                  child: CharacterFolderPreviewMosaic(
+                    previews: folder.previewCharacters,
+                    compact: compact,
                   ),
-                  if (!compact) ...[
-                    Text(
-                      l10n.characterFolderCount(folder.characterCount),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textMuted,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(compact ? 4 : 8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        folder.name,
+                        style: compact
+                            ? Theme.of(context).textTheme.bodySmall
+                            : Theme.of(context).textTheme.titleSmall,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: compact ? TextAlign.center : TextAlign.start,
+                      ),
+                      if (!compact) ...[
+                        Text(
+                          l10n.characterFolderCount(folder.characterCount),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppTheme.textMuted,
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
+            if (selectionMode)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Icon(
+                  selected ? Icons.check_circle : Icons.circle_outlined,
+                  color: selected ? scheme.primary : scheme.outline,
+                ),
+              ),
           ],
         ),
       ),
@@ -197,6 +216,8 @@ class CharacterFolderListTile extends StatelessWidget {
     required this.onTap,
     required this.onLongPress,
     this.onSecondaryTap,
+    this.selectionMode = false,
+    this.selected = false,
   });
 
   final CharacterFolder folder;
@@ -204,6 +225,8 @@ class CharacterFolderListTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   final VoidCallback? onSecondaryTap;
+  final bool selectionMode;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
@@ -218,6 +241,7 @@ class CharacterFolderListTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       clipBehavior: Clip.antiAlias,
+      color: selected ? scheme.primaryContainer.withValues(alpha: 0.45) : null,
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
@@ -227,6 +251,13 @@ class CharacterFolderListTile extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (selectionMode) ...[
+                Icon(
+                  selected ? Icons.check_circle : Icons.circle_outlined,
+                  color: selected ? scheme.primary : scheme.outline,
+                ),
+                const SizedBox(width: 8),
+              ],
               _folderListAvatar(context),
               const SizedBox(width: 12),
               Expanded(
@@ -252,10 +283,11 @@ class CharacterFolderListTile extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
-                color: scheme.onSurfaceVariant,
-              ),
+              if (!selectionMode)
+                Icon(
+                  Icons.chevron_right,
+                  color: scheme.onSurfaceVariant,
+                ),
             ],
           ),
         ),

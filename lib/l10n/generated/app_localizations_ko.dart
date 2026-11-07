@@ -1259,7 +1259,21 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String libraryItemsSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
   String get deleteSelectedCharacters => '캐릭터 삭제';
+
+  @override
+  String get deleteSelectedLibraryItems => 'Delete selected';
+
+  @override
+  String deleteSelectedLibraryItemsConfirmation(
+      int characterCount, int folderCount) {
+    return 'Delete $characterCount character(s) and $folderCount folder(s)? Folder contents will also be deleted. This cannot be undone.';
+  }
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
@@ -1369,6 +1383,32 @@ class AppLocalizationsKo extends AppLocalizations {
   String dissolveCharacterFolderBody(String name) {
     return '\"$name\"을(를) 해체할까요? 캐릭터는 라이브러리에 남으며 삭제되지 않습니다.';
   }
+
+  @override
+  String get deleteCharacterFolder => 'Delete folder';
+
+  @override
+  String deleteCharacterFolderBody(String name) {
+    return 'Delete \"$name\" and its subfolders? Characters inside will also be deleted.';
+  }
+
+  @override
+  String get selectAllCharacters => 'Select all';
+
+  @override
+  String get deselectAllCharacters => 'Deselect all';
+
+  @override
+  String get characterFolderDeleted => 'Folder deleted';
+
+  @override
+  String get characterFolderDissolved => 'Folder dissolved';
+
+  @override
+  String get characterLibraryManage => 'Library';
+
+  @override
+  String get manageCurrentCharacterFolder => 'This folder';
 
   @override
   String get renameCharacterFolder => '폴더 이름 바꾸기';

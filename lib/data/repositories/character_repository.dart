@@ -31,6 +31,54 @@ class CharacterRepository {
     return rows.where((row) => !row.isDeleted).map(_characterFromRow).toList();
   }
 
+  /// All character ids matching the current browser filter (no pagination).
+  Future<List<String>> listBrowseCharacterIds({
+    String query = '',
+    String? browseFolderId,
+    bool searchGlobally = true,
+    List<String> requiredTags = const [],
+  }) async {
+    final normalized = query.trim();
+    final tags = _normalizedTagFilter(requiredTags);
+    if (normalized.isEmpty && browseFolderId != null) {
+      return _characterIdsInFolder(
+        folderId: browseFolderId,
+        requiredTags: tags,
+      );
+    }
+    if (normalized.isEmpty && browseFolderId == null) {
+      return _characterIdsAtRoot(requiredTags: tags);
+    }
+    if (normalized.isNotEmpty &&
+        browseFolderId != null &&
+        !searchGlobally) {
+      return _searchIdsInFolder(
+        folderId: browseFolderId,
+        query: normalized,
+        requiredTags: tags,
+      );
+    }
+    final pattern = '%$normalized%';
+    final (tagSql, tagVars) = _sqlTagFilters('characters', tags);
+    final idRows = await _db.customSelect(
+      '''
+      SELECT id AS id
+      FROM characters
+      WHERE is_deleted = 0
+        AND (name LIKE ? OR description LIKE ?)
+        $tagSql
+      ORDER BY modified_at DESC
+      ''',
+      variables: [
+        Variable<String>(pattern),
+        Variable<String>(pattern),
+        ...tagVars,
+      ],
+      readsFrom: {_db.characters},
+    ).get();
+    return idRows.map((row) => row.read<String>('id')).toList(growable: false);
+  }
+
   /// Loads a bounded page for the character browser. Full character reads are
   /// still available for chat/runtime callers that need complete data.
   Future<List<models.Character>> getCharactersPage({
@@ -147,6 +195,26 @@ class CharacterRepository {
     return (buffer.toString(), variables);
   }
 
+  Future<List<String>> _characterIdsAtRoot({
+    List<String> requiredTags = const [],
+  }) async {
+    final tags = _normalizedTagFilter(requiredTags);
+    final (tagSql, tagVars) = _sqlTagFilters('c', tags);
+    final idRows = await _db.customSelect(
+      '''
+      SELECT c.id AS id
+      FROM characters c
+      LEFT JOIN character_folder_members m ON m.character_id = c.id
+      WHERE c.is_deleted = 0 AND m.character_id IS NULL
+      $tagSql
+      ORDER BY c.modified_at DESC
+      ''',
+      variables: [...tagVars],
+      readsFrom: {_db.characters},
+    ).get();
+    return idRows.map((row) => row.read<String>('id')).toList(growable: false);
+  }
+
   Future<List<models.Character>> _charactersAtRootPage({
     required int limit,
     required int offset,
@@ -174,6 +242,35 @@ class CharacterRepository {
     return _charactersByIdsInOrder(
       idRows.map((row) => row.read<String>('id')).toList(growable: false),
     );
+  }
+
+  Future<List<String>> _searchIdsInFolder({
+    required String folderId,
+    required String query,
+    List<String> requiredTags = const [],
+  }) async {
+    final pattern = '%$query%';
+    final tags = _normalizedTagFilter(requiredTags);
+    final (tagSql, tagVars) = _sqlTagFilters('c', tags);
+    final idRows = await _db.customSelect(
+      '''
+      SELECT c.id AS id
+      FROM characters c
+      INNER JOIN character_folder_members m ON m.character_id = c.id
+      WHERE c.is_deleted = 0 AND m.folder_id = ?
+        AND (c.name LIKE ? OR c.description LIKE ?)
+        $tagSql
+      ORDER BY c.modified_at DESC
+      ''',
+      variables: [
+        Variable<String>(folderId),
+        Variable<String>(pattern),
+        Variable<String>(pattern),
+        ...tagVars,
+      ],
+      readsFrom: {_db.characters},
+    ).get();
+    return idRows.map((row) => row.read<String>('id')).toList(growable: false);
   }
 
   Future<List<models.Character>> _searchInFolderPage({
@@ -210,6 +307,30 @@ class CharacterRepository {
     return _charactersByIdsInOrder(
       idRows.map((row) => row.read<String>('id')).toList(growable: false),
     );
+  }
+
+  Future<List<String>> _characterIdsInFolder({
+    required String folderId,
+    List<String> requiredTags = const [],
+  }) async {
+    final tags = _normalizedTagFilter(requiredTags);
+    final (tagSql, tagVars) = _sqlTagFilters('c', tags);
+    final idRows = await _db.customSelect(
+      '''
+      SELECT c.id AS id
+      FROM characters c
+      INNER JOIN character_folder_members m ON m.character_id = c.id
+      WHERE c.is_deleted = 0 AND m.folder_id = ?
+      $tagSql
+      ORDER BY c.modified_at DESC
+      ''',
+      variables: [
+        Variable<String>(folderId),
+        ...tagVars,
+      ],
+      readsFrom: {_db.characters},
+    ).get();
+    return idRows.map((row) => row.read<String>('id')).toList(growable: false);
   }
 
   Future<List<models.Character>> _charactersInFolderPage({

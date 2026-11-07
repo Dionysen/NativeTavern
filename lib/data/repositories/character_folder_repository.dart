@@ -168,8 +168,8 @@ class CharacterFolderRepository {
     return updated;
   }
 
-  /// Removes the folder. Characters in it return to root. Child folders are
-  /// reparented to this folder's parent.
+  /// Removes the folder only. Characters inside return to the library root.
+  /// Child folders are reparented to this folder's parent.
   Future<void> dissolveFolder(String id) async {
     final folder = await getFolder(id);
     if (folder == null) return;
@@ -187,6 +187,91 @@ class CharacterFolderRepository {
         [id],
       );
     });
+  }
+
+  /// Deletes [id] and every descendant folder. Returns character ids that were
+  /// members of the removed tree (caller should delete those characters).
+  Future<List<String>> deleteFolderTree(String id) async {
+    final folder = await getFolder(id);
+    if (folder == null) return const [];
+    final subtreeIds = await collectDescendantFolderIds(id);
+    final characterIds = await characterIdsInFolders(subtreeIds);
+    await _db.transaction(() async {
+      for (final folderId in subtreeIds) {
+        await _db.customStatement(
+          'DELETE FROM character_folder_members WHERE folder_id = ?',
+          [folderId],
+        );
+      }
+      for (final folderId in subtreeIds.reversed) {
+        await _db.customStatement(
+          'DELETE FROM character_folders WHERE id = ?',
+          [folderId],
+        );
+      }
+    });
+    return characterIds;
+  }
+
+  /// Depth-first list starting with [rootId], then descendants.
+  Future<List<String>> collectDescendantFolderIds(String rootId) async {
+    final ordered = <String>[];
+    final queue = <String>[rootId];
+    final seen = <String>{};
+    while (queue.isNotEmpty) {
+      final id = queue.removeAt(0);
+      if (!seen.add(id)) continue;
+      ordered.add(id);
+      final children = await listFolders(parentId: id);
+      for (final child in children) {
+        queue.add(child.id);
+      }
+    }
+    return ordered;
+  }
+
+  Future<List<String>> characterIdsInFolders(Iterable<String> folderIds) async {
+    final ids = folderIds.toList(growable: false);
+    if (ids.isEmpty) return const [];
+    final placeholders = List.filled(ids.length, '?').join(', ');
+    final rows = await _db.customSelect(
+      '''
+      SELECT m.character_id AS character_id
+      FROM character_folder_members m
+      INNER JOIN characters c ON c.id = m.character_id
+      WHERE m.folder_id IN ($placeholders) AND c.is_deleted = 0
+      ''',
+      variables: [for (final id in ids) Variable<String>(id)],
+      readsFrom: const {},
+    ).get();
+    return rows
+        .map((row) => row.read<String>('character_id'))
+        .toList(growable: false);
+  }
+
+  /// Moves a folder under [parentId] (`null` = library root). Rejects cycles.
+  Future<void> reparentFolder(String id, {String? parentId}) async {
+    if (id == parentId) {
+      throw StateError('Folder cannot be its own parent');
+    }
+    final folder = await getFolder(id);
+    if (folder == null) {
+      throw StateError('Folder not found');
+    }
+    if (parentId != null) {
+      final parent = await getFolder(parentId);
+      if (parent == null) {
+        throw StateError('Parent folder not found');
+      }
+      final descendants = await collectDescendantFolderIds(id);
+      if (descendants.contains(parentId)) {
+        throw StateError('Cannot move a folder into its descendant');
+      }
+    }
+    await _db.customStatement(
+      'UPDATE character_folders SET parent_id = ? WHERE id = ?',
+      [parentId, id],
+    );
   }
 
   Future<void> moveCharactersToFolder(

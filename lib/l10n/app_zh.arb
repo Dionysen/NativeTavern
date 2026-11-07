@@ -1729,7 +1729,10 @@
       }
     }
   },
+  "libraryItemsSelected": "已选择 {count} 项",
   "deleteSelectedCharacters": "删除角色",
+  "deleteSelectedLibraryItems": "删除所选",
+  "deleteSelectedLibraryItemsConfirmation": "确定删除选中的 {characterCount} 个角色和 {folderCount} 个文件夹吗？文件夹里的内容也会被删除，此操作无法撤销。",
   "deleteSelectedCharactersConfirmation": "确定删除选中的 {count} 个角色吗？与这些角色相关的聊天也会被删除，此操作无法撤销。",
   "@deleteSelectedCharactersConfirmation": {
     "placeholders": {
@@ -1798,6 +1801,14 @@
   "characterLibraryFolderPickerUnavailable": "当前设备无法选择文件夹，请改用文件导入。",
   "dissolveCharacterFolder": "解散文件夹",
   "dissolveCharacterFolderBody": "解散「{name}」？角色会保留在库中，不会被删除。",
+  "deleteCharacterFolder": "删除文件夹",
+  "deleteCharacterFolderBody": "删除「{name}」及其子文件夹？里面的角色也会被删除。",
+  "selectAllCharacters": "全选",
+  "deselectAllCharacters": "取消全选",
+  "characterFolderDeleted": "已删除文件夹",
+  "characterFolderDissolved": "已解散文件夹",
+  "characterLibraryManage": "角色库",
+  "manageCurrentCharacterFolder": "当前文件夹",
   "renameCharacterFolder": "重命名文件夹",
   "characterFoldersSection": "文件夹",
   "characterListSelectMode": "选择",

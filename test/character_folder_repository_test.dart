@@ -80,13 +80,29 @@ void main() {
     expect(await folders.relativePathForFolder(leafId), 'Fantasy/Elves');
   });
 
-  test('dissolve reparents child folders', () async {
+  test('dissolve reparents child folders and keeps characters', () async {
     final parent = await folders.createFolder('Parent');
     final child = await folders.createFolder('Child', parentId: parent.id);
+    await folders.moveCharactersToFolder(['char-a'], folderId: parent.id);
+
     await folders.dissolveFolder(parent.id);
 
     final remaining = await folders.listFolders();
     expect(remaining.single.id, child.id);
     expect(remaining.single.parentId, isNull);
+    expect(await folders.folderIdForCharacter('char-a'), isNull);
+  });
+
+  test('deleteFolderTree removes subtree and returns character ids', () async {
+    final parent = await folders.createFolder('Parent');
+    final child = await folders.createFolder('Child', parentId: parent.id);
+    await folders.moveCharactersToFolder(['char-a'], folderId: child.id);
+    await folders.moveCharactersToFolder(['char-b'], folderId: parent.id);
+
+    final removed = await folders.deleteFolderTree(parent.id);
+    expect(removed.toSet(), {'char-a', 'char-b'});
+    expect(await folders.listAllFolders(), isEmpty);
+    expect(await folders.folderIdForCharacter('char-a'), isNull);
+    expect(await folders.folderIdForCharacter('char-b'), isNull);
   });
 }

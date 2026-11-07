@@ -347,6 +347,11 @@ Future<void> showCharacterFolderActions(
         value: 'dissolve',
         leading: const Icon(Icons.folder_off_outlined),
         title: Text(l10n.dissolveCharacterFolder),
+      ),
+      AdaptiveActionDrawerItem(
+        value: 'delete',
+        leading: const Icon(Icons.delete_outline),
+        title: Text(l10n.deleteCharacterFolder),
         destructive: true,
       ),
     ],
@@ -354,36 +359,95 @@ Future<void> showCharacterFolderActions(
   if (action == null || !context.mounted) return;
   switch (action) {
     case 'rename':
-      final name = await promptCharacterFolderName(
-        context,
-        title: l10n.renameCharacterFolder,
-        initialName: folder.name,
-      );
-      if (name == null || !context.mounted) return;
-      await ref.read(characterFoldersProvider.notifier).renameFolder(
-            folder.id,
-            name,
-          );
+      await renameCharacterFolder(context, ref, folder);
     case 'dissolve':
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(l10n.dissolveCharacterFolder),
-          content: Text(l10n.dissolveCharacterFolderBody(folder.name)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l10n.cancel),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l10n.dissolveCharacterFolder),
-            ),
-          ],
-        ),
+      await dissolveCharacterFolder(context, ref, folder);
+    case 'delete':
+      await deleteCharacterFolder(context, ref, folder);
+  }
+}
+
+Future<void> renameCharacterFolder(
+  BuildContext context,
+  WidgetRef ref,
+  CharacterFolder folder,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final name = await promptCharacterFolderName(
+    context,
+    title: l10n.renameCharacterFolder,
+    initialName: folder.name,
+  );
+  if (name == null || !context.mounted) return;
+  await ref.read(characterFoldersProvider.notifier).renameFolder(
+        folder.id,
+        name,
       );
-      if (confirmed != true || !context.mounted) return;
-      await ref.read(characterFoldersProvider.notifier).dissolveFolder(folder.id);
-      await ref.read(characterListProvider.notifier).refresh();
+}
+
+Future<void> dissolveCharacterFolder(
+  BuildContext context,
+  WidgetRef ref,
+  CharacterFolder folder,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l10n.dissolveCharacterFolder),
+      content: Text(l10n.dissolveCharacterFolderBody(folder.name)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: Text(l10n.dissolveCharacterFolder),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true || !context.mounted) return;
+  await ref.read(characterFoldersProvider.notifier).dissolveFolder(folder.id);
+  await ref.read(characterListProvider.notifier).refresh();
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.characterFolderDissolved)),
+    );
+  }
+}
+
+Future<void> deleteCharacterFolder(
+  BuildContext context,
+  WidgetRef ref,
+  CharacterFolder folder,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l10n.deleteCharacterFolder),
+      content: Text(l10n.deleteCharacterFolderBody(folder.name)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: Text(l10n.deleteCharacterFolder),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true || !context.mounted) return;
+  await ref.read(characterFoldersProvider.notifier).deleteFolder(folder.id);
+  ref.invalidate(characterLibraryTagLabelsProvider);
+  await ref.read(characterListProvider.notifier).refresh();
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.characterFolderDeleted)),
+    );
   }
 }

@@ -2473,11 +2473,30 @@ abstract class AppLocalizations {
   /// **'{count} character(s) selected'**
   String charactersSelected(int count);
 
+  /// Selected characters and/or folders count
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String libraryItemsSelected(int count);
+
   /// Title for deleting multiple selected characters
   ///
   /// In en, this message translates to:
   /// **'Delete Characters'**
   String get deleteSelectedCharacters;
+
+  /// Title for deleting selected characters and folders
+  ///
+  /// In en, this message translates to:
+  /// **'Delete selected'**
+  String get deleteSelectedLibraryItems;
+
+  /// Confirmation body for bulk delete of characters and folders
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {characterCount} character(s) and {folderCount} folder(s)? Folder contents will also be deleted. This cannot be undone.'**
+  String deleteSelectedLibraryItemsConfirmation(
+      int characterCount, int folderCount);
 
   /// Confirmation body for bulk character delete
   ///
@@ -2646,6 +2665,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dissolve \"{name}\"? Characters stay in your library and are not deleted.'**
   String dissolveCharacterFolderBody(String name);
+
+  /// Delete a character folder, its subfolders, and characters inside
+  ///
+  /// In en, this message translates to:
+  /// **'Delete folder'**
+  String get deleteCharacterFolder;
+
+  /// Confirm deleting a character folder tree and its characters
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\" and its subfolders? Characters inside will also be deleted.'**
+  String deleteCharacterFolderBody(String name);
+
+  /// Select all characters in the current character list filter
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get selectAllCharacters;
+
+  /// Clear the character multi-selection
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all'**
+  String get deselectAllCharacters;
+
+  /// Snack bar after deleting a character folder
+  ///
+  /// In en, this message translates to:
+  /// **'Folder deleted'**
+  String get characterFolderDeleted;
+
+  /// Snack bar after dissolving a character folder
+  ///
+  /// In en, this message translates to:
+  /// **'Folder dissolved'**
+  String get characterFolderDissolved;
+
+  /// Title for character library overflow menu
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get characterLibraryManage;
+
+  /// Section label for actions on the open character folder
+  ///
+  /// In en, this message translates to:
+  /// **'This folder'**
+  String get manageCurrentCharacterFolder;
 
   /// Rename character folder dialog title
   ///

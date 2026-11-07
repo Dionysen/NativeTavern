@@ -38,7 +38,13 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   Timer? _searchDebounce;
   bool _selectionMode = false;
   final Set<String> _selectedCharacterIds = {};
+  final Set<String> _selectedFolderIds = {};
   bool _folderEnterForward = true;
+
+  int get _selectedItemCount =>
+      _selectedCharacterIds.length + _selectedFolderIds.length;
+
+  bool get _hasSelection => _selectedItemCount > 0;
 
   @override
   void dispose() {
@@ -50,15 +56,20 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     setState(() {
       _selectionMode = false;
       _selectedCharacterIds.clear();
+      _selectedFolderIds.clear();
     });
   }
 
-  void _enterSelectionMode([String? characterId]) {
+  void _enterSelectionMode({String? characterId, String? folderId}) {
     setState(() {
       _selectionMode = true;
       _selectedCharacterIds.clear();
+      _selectedFolderIds.clear();
       if (characterId != null) {
         _selectedCharacterIds.add(characterId);
+      }
+      if (folderId != null) {
+        _selectedFolderIds.add(folderId);
       }
     });
   }
@@ -67,11 +78,54 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     setState(() {
       if (_selectedCharacterIds.contains(characterId)) {
         _selectedCharacterIds.remove(characterId);
-        if (_selectedCharacterIds.isEmpty) {
-          _selectionMode = false;
-        }
       } else {
         _selectedCharacterIds.add(characterId);
+      }
+      if (!_hasSelection) {
+        _selectionMode = false;
+      }
+    });
+  }
+
+  void _toggleFolderSelection(String folderId) {
+    setState(() {
+      if (_selectedFolderIds.contains(folderId)) {
+        _selectedFolderIds.remove(folderId);
+      } else {
+        _selectedFolderIds.add(folderId);
+      }
+      if (!_hasSelection) {
+        _selectionMode = false;
+      }
+    });
+  }
+
+  Future<void> _toggleSelectAllLibraryItems() async {
+    final characterIds =
+        await ref.read(characterListProvider.notifier).listBrowseCharacterIds();
+    final folderIds = (ref.read(characterFoldersProvider).valueOrNull ??
+            const <CharacterFolder>[])
+        .map((folder) => folder.id)
+        .toList(growable: false);
+    if (!mounted) return;
+    final allSelected = characterIds.every(_selectedCharacterIds.contains) &&
+        folderIds.every(_selectedFolderIds.contains) &&
+        _selectedCharacterIds.length == characterIds.length &&
+        _selectedFolderIds.length == folderIds.length &&
+        (characterIds.isNotEmpty || folderIds.isNotEmpty);
+    setState(() {
+      _selectionMode = true;
+      if (allSelected) {
+        _selectedCharacterIds.clear();
+        _selectedFolderIds.clear();
+        _selectionMode = false;
+      } else {
+        _selectedCharacterIds
+          ..clear()
+          ..addAll(characterIds);
+        _selectedFolderIds
+          ..clear()
+          ..addAll(folderIds);
       }
     });
   }
@@ -112,6 +166,39 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     );
   }
 
+  Future<void> _onLibraryMoreSelected(String action) async {
+    final browseFolderId = ref.read(characterBrowseFolderIdProvider);
+    final currentFolder = browseFolderId == null
+        ? null
+        : await ref
+            .read(characterFolderRepositoryProvider)
+            .getFolder(browseFolderId);
+    if (!mounted) return;
+
+    switch (action) {
+      case 'create_folder':
+        await _createEmptyFolder();
+      case 'import_folder':
+        await importCharacterLibraryFromFolder(context, ref);
+      case 'export_library':
+        await exportCharacterLibraryToFolder(context, ref);
+      case 'import':
+        context.push(AppRoutes.import_);
+      case 'rename_folder':
+        if (currentFolder != null) {
+          await renameCharacterFolder(context, ref, currentFolder);
+        }
+      case 'dissolve_folder':
+        if (currentFolder != null) {
+          await dissolveCharacterFolder(context, ref, currentFolder);
+        }
+      case 'delete_folder':
+        if (currentFolder != null) {
+          await deleteCharacterFolder(context, ref, currentFolder);
+        }
+    }
+  }
+
   Future<void> _createFolderFromSelection() async {
     if (_selectedCharacterIds.isEmpty) return;
     final l10n = AppLocalizations.of(context);
@@ -135,14 +222,39 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     }
   }
 
-  Future<void> _moveSelectedCharacters() async {
-    if (_selectedCharacterIds.isEmpty) return;
-    await showMoveCharactersToFolderSheet(
+  Future<void> _moveSelectedItems() async {
+    if (!_hasSelection) return;
+    final l10n = AppLocalizations.of(context);
+    final selection = await showCharacterFolderPathPicker(
       context,
-      ref,
-      _selectedCharacterIds,
+      title: l10n.moveToFolder,
+      confirmLabel: l10n.moveToFolder,
     );
+    if (selection == null || !mounted) return;
+
+    // Don't move a folder into itself / its descendant (repo also guards).
+    final folderIds = _selectedFolderIds
+        .where((id) => id != selection.folderId)
+        .toList(growable: false);
+    if (folderIds.isNotEmpty) {
+      await ref.read(characterFoldersProvider.notifier).reparentFolders(
+            folderIds,
+            parentId: selection.folderId,
+          );
+    }
+    if (_selectedCharacterIds.isNotEmpty) {
+      await ref.read(characterFoldersProvider.notifier).moveCharacters(
+            _selectedCharacterIds,
+            folderId: selection.folderId,
+          );
+    }
+    await ref.read(characterListProvider.notifier).refresh();
     _exitSelectionMode();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.charactersMovedToFolder)),
+      );
+    }
   }
 
   Future<void> _copySelectedCharacters() async {
@@ -155,24 +267,48 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     _exitSelectionMode();
   }
 
-  Future<void> _deleteSelectedCharacters() async {
-    if (_selectedCharacterIds.isEmpty) return;
+  Future<void> _deleteSelectedItems() async {
+    if (!_hasSelection) return;
     final l10n = AppLocalizations.of(context);
-    final count = _selectedCharacterIds.length;
+    final characterCount = _selectedCharacterIds.length;
+    final folderCount = _selectedFolderIds.length;
     final confirmed = await confirmDestructiveAction(
       context,
       ref,
-      title: l10n.deleteSelectedCharacters,
-      body: l10n.deleteSelectedCharactersConfirmation(count),
+      title: folderCount > 0
+          ? l10n.deleteSelectedLibraryItems
+          : l10n.deleteSelectedCharacters,
+      body: folderCount > 0
+          ? l10n.deleteSelectedLibraryItemsConfirmation(
+              characterCount,
+              folderCount,
+            )
+          : l10n.deleteSelectedCharactersConfirmation(characterCount),
     );
     if (!confirmed || !mounted) return;
 
-    final ids = List<String>.from(_selectedCharacterIds);
-    await ref.read(characterListProvider.notifier).deleteCharacters(ids);
+    final characterIds = List<String>.from(_selectedCharacterIds);
+    final folderIds = List<String>.from(_selectedFolderIds);
+    for (final folderId in folderIds) {
+      await ref.read(characterFoldersProvider.notifier).deleteFolder(folderId);
+    }
+    if (characterIds.isNotEmpty) {
+      await ref
+          .read(characterListProvider.notifier)
+          .deleteCharacters(characterIds);
+    } else {
+      await ref.read(characterListProvider.notifier).refresh();
+    }
     _exitSelectionMode();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.charactersDeletedCount(count))),
+      SnackBar(
+        content: Text(
+          folderCount > 0
+              ? l10n.deleteSelectedLibraryItems
+              : l10n.charactersDeletedCount(characterCount),
+        ),
+      ),
     );
   }
 
@@ -279,27 +415,36 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           child: Text(
             key: ValueKey(
               _selectionMode
-                  ? 'select-${_selectedCharacterIds.length}'
+                  ? 'select-$_selectedItemCount'
                   : (browseFolderId ?? 'root-title'),
             ),
             _selectionMode
-                ? l10n.charactersSelected(_selectedCharacterIds.length)
+                ? l10n.libraryItemsSelected(_selectedItemCount)
                 : (folderTitle ?? l10n.characters),
           ),
         ),
         actions: spacedAppBarActions([
           if (_selectionMode) ...[
-            if (_selectedCharacterIds.isNotEmpty)
+            ChromeIconButton(
+              icon: Icon(
+                _hasSelection ? Icons.deselect : Icons.select_all,
+              ),
+              tooltip: _hasSelection
+                  ? l10n.deselectAllCharacters
+                  : l10n.selectAllCharacters,
+              onPressed: _toggleSelectAllLibraryItems,
+            ),
+            if (_selectedCharacterIds.isNotEmpty && _selectedFolderIds.isEmpty)
               ChromeIconButton(
                 icon: const Icon(Icons.copy_all_outlined),
                 tooltip: l10n.copyToFolder,
                 onPressed: _copySelectedCharacters,
               ),
-            if (_selectedCharacterIds.isNotEmpty)
+            if (_hasSelection)
               ChromeIconButton(
                 icon: const Icon(Icons.drive_file_move_outline),
                 tooltip: l10n.moveToFolder,
-                onPressed: _moveSelectedCharacters,
+                onPressed: _moveSelectedItems,
               ),
             if (_selectedCharacterIds.isNotEmpty)
               ChromeIconButton(
@@ -307,11 +452,11 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                 tooltip: l10n.createFolderFromSelection,
                 onPressed: _createFolderFromSelection,
               ),
-            if (_selectedCharacterIds.isNotEmpty)
+            if (_hasSelection)
               ChromeIconButton(
                 icon: const Icon(Icons.delete_outline),
                 tooltip: l10n.delete,
-                onPressed: _deleteSelectedCharacters,
+                onPressed: _deleteSelectedItems,
               ),
             ChromeIconButton(
               icon: const Icon(Icons.check),
@@ -319,12 +464,6 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
               onPressed: _exitSelectionMode,
             ),
           ] else ...[
-            if (_searchQuery.isEmpty)
-              ChromeIconButton(
-                icon: const Icon(Icons.create_new_folder_outlined),
-                tooltip: l10n.createCharacterFolder,
-                onPressed: _createEmptyFolder,
-              ),
             if (viewMode == CharacterViewMode.list)
               ChromeIconButton(
                 icon: Icon(avatarShape.icon),
@@ -343,20 +482,51 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
               tooltip: l10n.createCharacter,
               onPressed: () => context.push(AppRoutes.characterCreate),
             ),
-            ChromeIconButton(
-              icon: const Icon(Icons.folder_open_outlined),
-              tooltip: l10n.importCharactersFromFolder,
-              onPressed: () => importCharacterLibraryFromFolder(context, ref),
-            ),
-            ChromeIconButton(
-              icon: const Icon(Icons.drive_folder_upload_outlined),
-              tooltip: l10n.exportCharacterLibrary,
-              onPressed: () => exportCharacterLibraryToFolder(context, ref),
-            ),
-            ChromeIconButton(
-              icon: const Icon(Icons.file_download_outlined),
-              tooltip: l10n.import,
-              onPressed: () => context.push(AppRoutes.import_),
+            AdaptiveActionMenuButton<String>(
+              tooltip: l10n.moreOptions,
+              title: l10n.characterLibraryManage,
+              itemBuilder: (context) => [
+                AdaptiveActionDrawerItem(
+                  value: 'create_folder',
+                  leading: const Icon(Icons.create_new_folder_outlined),
+                  title: Text(l10n.createCharacterFolder),
+                ),
+                AdaptiveActionDrawerItem(
+                  value: 'import_folder',
+                  leading: const Icon(Icons.folder_open_outlined),
+                  title: Text(l10n.importCharactersFromFolder),
+                ),
+                AdaptiveActionDrawerItem(
+                  value: 'export_library',
+                  leading: const Icon(Icons.drive_folder_upload_outlined),
+                  title: Text(l10n.exportCharacterLibrary),
+                ),
+                AdaptiveActionDrawerItem(
+                  value: 'import',
+                  leading: const Icon(Icons.file_download_outlined),
+                  title: Text(l10n.import),
+                ),
+                if (browseFolderId != null) ...[
+                  AdaptiveActionDrawerItem(
+                    value: 'rename_folder',
+                    leading: const Icon(Icons.drive_file_rename_outline),
+                    title: Text(l10n.renameCharacterFolder),
+                    showDividerAbove: true,
+                  ),
+                  AdaptiveActionDrawerItem(
+                    value: 'dissolve_folder',
+                    leading: const Icon(Icons.folder_off_outlined),
+                    title: Text(l10n.dissolveCharacterFolder),
+                  ),
+                  AdaptiveActionDrawerItem(
+                    value: 'delete_folder',
+                    leading: const Icon(Icons.delete_outline),
+                    title: Text(l10n.deleteCharacterFolder),
+                    destructive: true,
+                  ),
+                ],
+              ],
+              onSelected: _onLibraryMoreSelected,
             ),
           ],
         ]),
@@ -489,8 +659,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     final displayPrefs = ref.watch(characterBrowseDisplayPrefsProvider);
     final viewMode = displayPrefs.viewMode;
     final avatarShape = displayPrefs.avatarShape;
-    final showFolders =
-        _searchQuery.isEmpty && tagFilter.isEmpty && !_selectionMode;
+    final showFolders = _searchQuery.isEmpty && tagFilter.isEmpty;
     final folders = foldersAsync.valueOrNull ?? const <CharacterFolder>[];
 
     if (characters.isEmpty && (!showFolders || folders.isEmpty)) {
@@ -501,12 +670,28 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
       selectionMode: _selectionMode,
       selectedIds: _selectedCharacterIds,
       onToggleSelect: _toggleCharacterSelection,
-      onEnterSelection: _enterSelectionMode,
+      onEnterSelection: (id) => _enterSelectionMode(characterId: id),
     );
 
     final visibleFolders = showFolders ? folders : const <CharacterFolder>[];
     void openFolderActions(CharacterFolder folder) {
       showCharacterFolderActions(context, ref, folder);
+    }
+
+    void onFolderTap(CharacterFolder folder) {
+      if (_selectionMode) {
+        _toggleFolderSelection(folder.id);
+        return;
+      }
+      _openFolder(folder.id);
+    }
+
+    void longPressFolder(CharacterFolder folder) {
+      if (_selectionMode) {
+        _toggleFolderSelection(folder.id);
+      } else {
+        _enterSelectionMode(folderId: folder.id);
+      }
     }
 
     switch (viewMode) {
@@ -516,7 +701,10 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           characters: characters,
           avatarShape: avatarShape,
           interaction: interaction,
-          onOpenFolder: _openFolder,
+          selectedFolderIds: _selectedFolderIds,
+          selectionMode: _selectionMode,
+          onFolderTap: onFolderTap,
+          onFolderLongPress: longPressFolder,
           onFolderActions: openFolderActions,
         );
       case CharacterViewMode.simpleList:
@@ -524,7 +712,10 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           folders: visibleFolders,
           characters: characters,
           interaction: interaction,
-          onOpenFolder: _openFolder,
+          selectedFolderIds: _selectedFolderIds,
+          selectionMode: _selectionMode,
+          onFolderTap: onFolderTap,
+          onFolderLongPress: longPressFolder,
           onFolderActions: openFolderActions,
         );
       case CharacterViewMode.grid:
@@ -532,7 +723,10 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           folders: visibleFolders,
           characters: characters,
           interaction: interaction,
-          onOpenFolder: _openFolder,
+          selectedFolderIds: _selectedFolderIds,
+          selectionMode: _selectionMode,
+          onFolderTap: onFolderTap,
+          onFolderLongPress: longPressFolder,
           onFolderActions: openFolderActions,
         );
       case CharacterViewMode.compactGrid:
@@ -540,7 +734,10 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           folders: visibleFolders,
           characters: characters,
           interaction: interaction,
-          onOpenFolder: _openFolder,
+          selectedFolderIds: _selectedFolderIds,
+          selectionMode: _selectionMode,
+          onFolderTap: onFolderTap,
+          onFolderLongPress: longPressFolder,
           onFolderActions: openFolderActions,
         );
     }
@@ -674,14 +871,20 @@ class _CharacterGridView extends StatelessWidget {
   final List<CharacterFolder> folders;
   final List<Character> characters;
   final _CharacterTileInteraction interaction;
-  final ValueChanged<String> onOpenFolder;
+  final Set<String> selectedFolderIds;
+  final bool selectionMode;
+  final ValueChanged<CharacterFolder> onFolderTap;
+  final ValueChanged<CharacterFolder> onFolderLongPress;
   final ValueChanged<CharacterFolder> onFolderActions;
 
   const _CharacterGridView({
     required this.folders,
     required this.characters,
     required this.interaction,
-    required this.onOpenFolder,
+    required this.selectedFolderIds,
+    required this.selectionMode,
+    required this.onFolderTap,
+    required this.onFolderLongPress,
     required this.onFolderActions,
   });
 
@@ -704,9 +907,13 @@ class _CharacterGridView extends StatelessWidget {
                   final folder = folders[index];
                   return CharacterFolderGridCard(
                     folder: folder,
-                    onTap: () => onOpenFolder(folder.id),
-                    onLongPress: () => onFolderActions(folder),
-                    onSecondaryTap: () => onFolderActions(folder),
+                    selectionMode: selectionMode,
+                    selected: selectedFolderIds.contains(folder.id),
+                    onTap: () => onFolderTap(folder),
+                    onLongPress: () => onFolderLongPress(folder),
+                    onSecondaryTap: selectionMode
+                        ? () => onFolderTap(folder)
+                        : () => onFolderActions(folder),
                   );
                 }
                 return _CharacterGridCard(
@@ -723,7 +930,10 @@ class _CharacterListView extends StatelessWidget {
   final List<Character> characters;
   final CharacterAvatarShape avatarShape;
   final _CharacterTileInteraction interaction;
-  final ValueChanged<String> onOpenFolder;
+  final Set<String> selectedFolderIds;
+  final bool selectionMode;
+  final ValueChanged<CharacterFolder> onFolderTap;
+  final ValueChanged<CharacterFolder> onFolderLongPress;
   final ValueChanged<CharacterFolder> onFolderActions;
 
   const _CharacterListView({
@@ -731,7 +941,10 @@ class _CharacterListView extends StatelessWidget {
     required this.characters,
     required this.avatarShape,
     required this.interaction,
-    required this.onOpenFolder,
+    required this.selectedFolderIds,
+    required this.selectionMode,
+    required this.onFolderTap,
+    required this.onFolderLongPress,
     required this.onFolderActions,
   });
 
@@ -748,9 +961,13 @@ class _CharacterListView extends StatelessWidget {
           return CharacterFolderListTile(
             folder: folder,
             avatarShape: avatarShape,
-            onTap: () => onOpenFolder(folder.id),
-            onLongPress: () => onFolderActions(folder),
-            onSecondaryTap: () => onFolderActions(folder),
+            selectionMode: selectionMode,
+            selected: selectedFolderIds.contains(folder.id),
+            onTap: () => onFolderTap(folder),
+            onLongPress: () => onFolderLongPress(folder),
+            onSecondaryTap: selectionMode
+                ? () => onFolderTap(folder)
+                : () => onFolderActions(folder),
           );
         }
         return _CharacterListTile(
@@ -768,14 +985,20 @@ class _CharacterSimpleListView extends StatelessWidget {
   final List<CharacterFolder> folders;
   final List<Character> characters;
   final _CharacterTileInteraction interaction;
-  final ValueChanged<String> onOpenFolder;
+  final Set<String> selectedFolderIds;
+  final bool selectionMode;
+  final ValueChanged<CharacterFolder> onFolderTap;
+  final ValueChanged<CharacterFolder> onFolderLongPress;
   final ValueChanged<CharacterFolder> onFolderActions;
 
   const _CharacterSimpleListView({
     required this.folders,
     required this.characters,
     required this.interaction,
-    required this.onOpenFolder,
+    required this.selectedFolderIds,
+    required this.selectionMode,
+    required this.onFolderTap,
+    required this.onFolderLongPress,
     required this.onFolderActions,
   });
 
@@ -793,19 +1016,34 @@ class _CharacterSimpleListView extends StatelessWidget {
       itemBuilder: (context, index) {
         if (index < folders.length) {
           final folder = folders[index];
+          final selected = selectedFolderIds.contains(folder.id);
           return Card(
             margin: const EdgeInsets.only(bottom: 8),
             clipBehavior: Clip.antiAlias,
+            color: selected
+                ? scheme.primaryContainer.withValues(alpha: 0.45)
+                : null,
             child: SizedBox(
               height: rowHeight,
               child: InkWell(
-                onTap: () => onOpenFolder(folder.id),
-                onLongPress: () => onFolderActions(folder),
-                onSecondaryTap: () => onFolderActions(folder),
+                onTap: () => onFolderTap(folder),
+                onLongPress: () => onFolderLongPress(folder),
+                onSecondaryTap: selectionMode
+                    ? () => onFolderTap(folder)
+                    : () => onFolderActions(folder),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Row(
                     children: [
+                      if (selectionMode) ...[
+                        Icon(
+                          selected
+                              ? Icons.check_circle
+                              : Icons.circle_outlined,
+                          color: selected ? scheme.primary : scheme.outline,
+                        ),
+                        const SizedBox(width: 8),
+                      ],
                       SizedBox(
                         width: avatarSize,
                         height: avatarSize,
@@ -825,10 +1063,11 @@ class _CharacterSimpleListView extends StatelessWidget {
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
                       ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: scheme.onSurfaceVariant,
-                      ),
+                      if (!selectionMode)
+                        Icon(
+                          Icons.chevron_right,
+                          color: scheme.onSurfaceVariant,
+                        ),
                     ],
                   ),
                 ),
@@ -938,14 +1177,20 @@ class _CharacterCompactGridView extends StatelessWidget {
   final List<CharacterFolder> folders;
   final List<Character> characters;
   final _CharacterTileInteraction interaction;
-  final ValueChanged<String> onOpenFolder;
+  final Set<String> selectedFolderIds;
+  final bool selectionMode;
+  final ValueChanged<CharacterFolder> onFolderTap;
+  final ValueChanged<CharacterFolder> onFolderLongPress;
   final ValueChanged<CharacterFolder> onFolderActions;
 
   const _CharacterCompactGridView({
     required this.folders,
     required this.characters,
     required this.interaction,
-    required this.onOpenFolder,
+    required this.selectedFolderIds,
+    required this.selectionMode,
+    required this.onFolderTap,
+    required this.onFolderLongPress,
     required this.onFolderActions,
   });
 
@@ -969,9 +1214,13 @@ class _CharacterCompactGridView extends StatelessWidget {
                   return CharacterFolderGridCard(
                     folder: folder,
                     compact: true,
-                    onTap: () => onOpenFolder(folder.id),
-                    onLongPress: () => onFolderActions(folder),
-                    onSecondaryTap: () => onFolderActions(folder),
+                    selectionMode: selectionMode,
+                    selected: selectedFolderIds.contains(folder.id),
+                    onTap: () => onFolderTap(folder),
+                    onLongPress: () => onFolderLongPress(folder),
+                    onSecondaryTap: selectionMode
+                        ? () => onFolderTap(folder)
+                        : () => onFolderActions(folder),
                   );
                 }
                 return _CharacterCompactGridCard(

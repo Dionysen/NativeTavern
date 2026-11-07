@@ -223,6 +223,16 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     await refresh();
   }
 
+  /// Ids for the current browse filter (folder / search / tags), all pages.
+  Future<List<String>> listBrowseCharacterIds() {
+    return ref.read(characterRepositoryProvider).listBrowseCharacterIds(
+          query: _query,
+          browseFolderId: ref.read(characterBrowseFolderIdProvider),
+          searchGlobally: _searchGlobally(),
+          requiredTags: _requiredTags(),
+        );
+  }
+
   Future<void> _refreshFolderChrome() async {
     await ref.read(characterFoldersProvider.notifier).refresh();
   }
