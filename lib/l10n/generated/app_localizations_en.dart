@@ -1070,7 +1070,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showLess => 'Show less';
 
   @override
-  String get showMore => 'Show more';
+  String get showMore => 'Show all';
 
   @override
   String greetingNumber(int number) {

@@ -1469,7 +1469,7 @@
   "@showLess": {
     "description": "Show less button"
   },
-  "showMore": "Show more",
+  "showMore": "Show all",
   "@showMore": {
     "description": "Show more button"
   },

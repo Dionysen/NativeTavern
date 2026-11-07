@@ -2116,7 +2116,7 @@ abstract class AppLocalizations {
   /// Show more button
   ///
   /// In en, this message translates to:
-  /// **'Show more'**
+  /// **'Show all'**
   String get showMore;
 
   /// Greeting number label

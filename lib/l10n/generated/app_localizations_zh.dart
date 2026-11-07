@@ -1050,7 +1050,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get showLess => '收起';
 
   @override
-  String get showMore => '显示更多';
+  String get showMore => '展开全部';
 
   @override
   String greetingNumber(int number) {
@@ -8220,7 +8220,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get showLess => '收合';
 
   @override
-  String get showMore => '顯示更多';
+  String get showMore => '展開全部';
 
   @override
   String greetingNumber(int number) {

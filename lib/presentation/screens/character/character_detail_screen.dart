@@ -823,17 +823,104 @@ class _CharacterDetailAppBarTitle extends StatelessWidget {
   }
 }
 
+/// Collapsed preview for long character fields / lorebook bodies.
+///
+/// Expand/collapse is owned by the parent so the toggle can sit beside copy
+/// in the section header.
+class _ExpandablePreviewText extends StatefulWidget {
+  const _ExpandablePreviewText({
+    required this.text,
+    required this.expanded,
+    this.style,
+    this.onOverflowChanged,
+  });
+
+  static const int previewLines = 3;
+
+  final String text;
+  final bool expanded;
+  final TextStyle? style;
+  final ValueChanged<bool>? onOverflowChanged;
+
+  @override
+  State<_ExpandablePreviewText> createState() => _ExpandablePreviewTextState();
+}
+
+class _ExpandablePreviewTextState extends State<_ExpandablePreviewText> {
+  bool? _exceedsPreview;
+
+  @override
+  void didUpdateWidget(covariant _ExpandablePreviewText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.text != widget.text || oldWidget.style != widget.style) {
+      _exceedsPreview = null;
+    }
+  }
+
+  void _measureIfNeeded(double maxWidth, TextStyle style) {
+    if (_exceedsPreview != null || maxWidth <= 0) return;
+    final painter = TextPainter(
+      text: TextSpan(text: widget.text, style: style),
+      maxLines: _ExpandablePreviewText.previewLines,
+      textDirection: Directionality.of(context),
+    )..layout(maxWidth: maxWidth);
+    final exceeds = painter.didExceedMaxLines;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _exceedsPreview == exceeds) return;
+      setState(() => _exceedsPreview = exceeds);
+      widget.onOverflowChanged?.call(exceeds);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final style = widget.style ??
+        Theme.of(context).textTheme.bodyMedium ??
+        const TextStyle();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        _measureIfNeeded(constraints.maxWidth, style);
+        return Text(
+          widget.text,
+          style: style,
+          maxLines: widget.expanded ? null : _ExpandablePreviewText.previewLines,
+          overflow:
+              widget.expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+        );
+      },
+    );
+  }
+}
+
+Widget _expandToggleButton({
+  required BuildContext context,
+  required bool expanded,
+  required bool visible,
+  required VoidCallback onPressed,
+  double iconSize = 18,
+}) {
+  if (!visible) return const SizedBox.shrink();
+  final l10n = AppLocalizations.of(context);
+  return ChromeIconButton(
+    density: ChromeIconButtonDensity.compact,
+    icon: Icon(
+      expanded ? Icons.expand_less : Icons.expand_more,
+      size: iconSize,
+    ),
+    onPressed: onPressed,
+    tooltip: expanded ? l10n.showLess : l10n.showMore,
+  );
+}
+
 class _SectionCard extends StatefulWidget {
   final String title;
   final String content;
   final IconData icon;
-  final int maxLines;
 
   const _SectionCard({
     required this.title,
     required this.content,
     required this.icon,
-    this.maxLines = 10,
   });
 
   @override
@@ -842,6 +929,7 @@ class _SectionCard extends StatefulWidget {
 
 class _SectionCardState extends State<_SectionCard> {
   bool _expanded = false;
+  bool _canExpand = false;
 
   void _copyToClipboard() {
     Clipboard.setData(ClipboardData(text: widget.content));
@@ -858,12 +946,6 @@ class _SectionCardState extends State<_SectionCard> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final lines = widget.content.split('\n');
-    final shouldShowExpand =
-        lines.length > widget.maxLines || widget.content.length > 500;
-    final displayContent = _expanded || !shouldShowExpand
-        ? widget.content
-        : '${widget.content.substring(0, widget.content.length.clamp(0, 500))}...';
 
     return GestureDetector(
       onLongPress: _copyToClipboard,
@@ -885,24 +967,28 @@ class _SectionCardState extends State<_SectionCard> {
                           ),
                     ),
                   ),
-                  ChromeIconButton(density: ChromeIconButtonDensity.compact, 
+                  ChromeIconButton(
+                    density: ChromeIconButtonDensity.compact,
                     icon: const Icon(Icons.copy, size: 18),
                     onPressed: _copyToClipboard,
                     tooltip: l10n.copiedToClipboard,
                   ),
-                  if (shouldShowExpand)
-                    ChromeIconButton(
-                      icon: Icon(
-                          _expanded ? Icons.expand_less : Icons.expand_more),
-                      onPressed: () => setState(() => _expanded = !_expanded),
-                      tooltip: _expanded ? l10n.showLess : l10n.showMore,
-                    ),
+                  _expandToggleButton(
+                    context: context,
+                    expanded: _expanded,
+                    visible: _canExpand,
+                    onPressed: () => setState(() => _expanded = !_expanded),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
-              Text(
-                displayContent,
-                style: Theme.of(context).textTheme.bodyMedium,
+              _ExpandablePreviewText(
+                text: widget.content,
+                expanded: _expanded,
+                onOverflowChanged: (exceeds) {
+                  if (_canExpand == exceeds) return;
+                  setState(() => _canExpand = exceeds);
+                },
               ),
             ],
           ),
@@ -976,54 +1062,94 @@ class _AlternateGreetingsCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            ...greetings.asMap().entries.map((entry) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: GestureDetector(
-                    onLongPress: () =>
-                        _copyGreeting(context, entry.value, entry.key),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: scheme.surfaceContainerHigh,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: scheme.outlineVariant),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  l10n.greetingNumber(entry.key + 1),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelSmall
-                                      ?.copyWith(
-                                        color: scheme.onSurfaceVariant,
-                                      ),
-                                ),
-                              ),
-                              ChromeIconButton(
-                                icon: const Icon(Icons.copy, size: 14),
-                                onPressed: () => _copyGreeting(
-                                    context, entry.value, entry.key),
-                                tooltip: l10n.copiedToClipboard,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            entry.value.length > 200
-                                ? '${entry.value.substring(0, 200)}...'
-                                : entry.value,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
+            ...greetings.asMap().entries.map(
+                  (entry) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _ExpandableGreetingTile(
+                      index: entry.key,
+                      greeting: entry.value,
+                      onCopy: () =>
+                          _copyGreeting(context, entry.value, entry.key),
                     ),
                   ),
-                )),
+                ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ExpandableGreetingTile extends StatefulWidget {
+  const _ExpandableGreetingTile({
+    required this.index,
+    required this.greeting,
+    required this.onCopy,
+  });
+
+  final int index;
+  final String greeting;
+  final VoidCallback onCopy;
+
+  @override
+  State<_ExpandableGreetingTile> createState() =>
+      _ExpandableGreetingTileState();
+}
+
+class _ExpandableGreetingTileState extends State<_ExpandableGreetingTile> {
+  bool _expanded = false;
+  bool _canExpand = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onLongPress: widget.onCopy,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: scheme.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.greetingNumber(widget.index + 1),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
+                ChromeIconButton(
+                  density: ChromeIconButtonDensity.compact,
+                  icon: const Icon(Icons.copy, size: 14),
+                  onPressed: widget.onCopy,
+                  tooltip: l10n.copiedToClipboard,
+                ),
+                _expandToggleButton(
+                  context: context,
+                  expanded: _expanded,
+                  visible: _canExpand,
+                  onPressed: () => setState(() => _expanded = !_expanded),
+                  iconSize: 14,
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            _ExpandablePreviewText(
+              text: widget.greeting,
+              expanded: _expanded,
+              onOverflowChanged: (exceeds) {
+                if (_canExpand == exceeds) return;
+                setState(() => _canExpand = exceeds);
+              },
+            ),
           ],
         ),
       ),
@@ -1055,6 +1181,9 @@ class _CharacterBookCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final enabledEntries = characterBook.entries.where((e) => e.enabled).length;
+    final bodyStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: scheme.onSurfaceVariant,
+        );
 
     return Card(
       child: Padding(
@@ -1092,130 +1221,204 @@ class _CharacterBookCard extends StatelessWidget {
             if (characterBook.description != null &&
                 characterBook.description!.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Text(
-                characterBook.description!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
+              _ExpandableBookDescription(
+                text: characterBook.description!,
+                style: bodyStyle,
               ),
             ],
             const SizedBox(height: 12),
             const Divider(),
             const SizedBox(height: 8),
-            ...characterBook.entries.take(5).map((entry) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: GestureDetector(
-                    onLongPress: () => _copyEntry(context, entry),
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: entry.enabled
-                            ? scheme.surfaceContainerHigh
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: entry.enabled
-                              ? scheme.tertiary.withValues(alpha: 0.35)
-                              : scheme.outlineVariant,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                entry.enabled
-                                    ? Icons.check_circle
-                                    : Icons.cancel,
-                                size: 14,
-                                color: entry.enabled
-                                    ? scheme.secondary
-                                    : scheme.onSurfaceVariant,
-                              ),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
-                                  entry.name.isNotEmpty
-                                      ? entry.name
-                                      : entry.keys.join(', '),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: entry.enabled
-                                            ? null
-                                            : scheme.onSurfaceVariant,
-                                      ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              ChromeIconButton(density: ChromeIconButtonDensity.compact, 
-                                icon: const Icon(Icons.copy, size: 14),
-                                onPressed: () => _copyEntry(context, entry),
-                                tooltip: l10n.copiedToClipboard,
-                              ),
-                            ],
-                          ),
-                          if (entry.keys.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Wrap(
-                              spacing: 4,
-                              runSpacing: 2,
-                              children: entry.keys
-                                  .take(5)
-                                  .map((key) => Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: scheme.tertiaryContainer,
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                        ),
-                                        child: Text(
-                                          key,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelSmall
-                                              ?.copyWith(
-                                                color:
-                                                    scheme.onTertiaryContainer,
-                                              ),
-                                        ),
-                                      ))
-                                  .toList(),
-                            ),
-                          ],
-                          const SizedBox(height: 4),
-                          Text(
-                            entry.content.length > 100
-                                ? '${entry.content.substring(0, 100)}...'
-                                : entry.content,
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: scheme.onSurfaceVariant,
-                                    ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )),
-            if (characterBook.entries.length > 5)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  l10n.andMoreEntries(characterBook.entries.length - 5),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                        fontStyle: FontStyle.italic,
-                      ),
+            ...characterBook.entries.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: _ExpandableBookEntryTile(
+                  entry: entry,
+                  bodyStyle: bodyStyle,
+                  onCopy: () => _copyEntry(context, entry),
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ExpandableBookDescription extends StatefulWidget {
+  const _ExpandableBookDescription({
+    required this.text,
+    this.style,
+  });
+
+  final String text;
+  final TextStyle? style;
+
+  @override
+  State<_ExpandableBookDescription> createState() =>
+      _ExpandableBookDescriptionState();
+}
+
+class _ExpandableBookDescriptionState
+    extends State<_ExpandableBookDescription> {
+  bool _expanded = false;
+  bool _canExpand = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_canExpand)
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: _expandToggleButton(
+              context: context,
+              expanded: _expanded,
+              visible: true,
+              onPressed: () => setState(() => _expanded = !_expanded),
+              iconSize: 14,
+            ),
+          ),
+        _ExpandablePreviewText(
+          text: widget.text,
+          style: widget.style,
+          expanded: _expanded,
+          onOverflowChanged: (exceeds) {
+            if (_canExpand == exceeds) return;
+            setState(() => _canExpand = exceeds);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _ExpandableBookEntryTile extends StatefulWidget {
+  const _ExpandableBookEntryTile({
+    required this.entry,
+    required this.onCopy,
+    this.bodyStyle,
+  });
+
+  final CharacterBookEntry entry;
+  final VoidCallback onCopy;
+  final TextStyle? bodyStyle;
+
+  @override
+  State<_ExpandableBookEntryTile> createState() =>
+      _ExpandableBookEntryTileState();
+}
+
+class _ExpandableBookEntryTileState extends State<_ExpandableBookEntryTile> {
+  bool _expanded = false;
+  bool _canExpand = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final entry = widget.entry;
+    return GestureDetector(
+      onLongPress: widget.onCopy,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: entry.enabled
+              ? scheme.surfaceContainerHigh
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: entry.enabled
+                ? scheme.tertiary.withValues(alpha: 0.35)
+                : scheme.outlineVariant,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  entry.enabled ? Icons.check_circle : Icons.cancel,
+                  size: 14,
+                  color: entry.enabled
+                      ? scheme.secondary
+                      : scheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    entry.name.isNotEmpty
+                        ? entry.name
+                        : entry.keys.join(', '),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: entry.enabled
+                              ? null
+                              : scheme.onSurfaceVariant,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                ChromeIconButton(
+                  density: ChromeIconButtonDensity.compact,
+                  icon: const Icon(Icons.copy, size: 14),
+                  onPressed: widget.onCopy,
+                  tooltip: l10n.copiedToClipboard,
+                ),
+                if (entry.content.isNotEmpty)
+                  _expandToggleButton(
+                    context: context,
+                    expanded: _expanded,
+                    visible: _canExpand,
+                    onPressed: () => setState(() => _expanded = !_expanded),
+                    iconSize: 14,
+                  ),
+              ],
+            ),
+            if (entry.keys.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 4,
+                runSpacing: 2,
+                children: entry.keys
+                    .map(
+                      (key) => Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: scheme.tertiaryContainer,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          key,
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: scheme.onTertiaryContainer,
+                                  ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
+            if (entry.content.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              _ExpandablePreviewText(
+                text: entry.content,
+                style: widget.bodyStyle,
+                expanded: _expanded,
+                onOverflowChanged: (exceeds) {
+                  if (_canExpand == exceeds) return;
+                  setState(() => _canExpand = exceeds);
+                },
+              ),
+            ],
           ],
         ),
       ),

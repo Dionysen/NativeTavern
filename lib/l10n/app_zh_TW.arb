@@ -1405,7 +1405,7 @@
   "@showLess": {
     "description": "Show less button"
   },
-  "showMore": "顯示更多",
+  "showMore": "展開全部",
   "@showMore": {
     "description": "Show more button"
   },

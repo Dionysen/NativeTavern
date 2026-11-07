@@ -1417,7 +1417,7 @@
   "@showLess": {
     "description": "Show less button"
   },
-  "showMore": "显示更多",
+  "showMore": "展开全部",
   "@showMore": {
     "description": "Show more button"
   },
