@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/database/database.dart' hide Character;
 import 'package:native_tavern/data/database/database.dart' as db;
 import 'package:native_tavern/data/models/character.dart' as models;
+import 'package:native_tavern/data/models/character_card_codec.dart';
 import 'package:native_tavern/core/utils/png_text_chunks.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
@@ -453,109 +454,9 @@ class CharacterRepository {
   /// Parse character card from V1/V2/V3 format JSON
   models.Character _parseCharacterCard(
       Map<String, dynamic> json, String characterId) {
-    String name = '';
-    String description = '';
-    String personality = '';
-    String scenario = '';
-    String firstMessage = '';
-    String exampleMessages = '';
-    String systemPrompt = '';
-    String postHistoryInstructions = '';
-    String creatorNotes = '';
-    List<String> tags = [];
-    String creator = '';
-    String version = '';
-    List<String> alternateGreetings = [];
-    Map<String, dynamic> extensions = {};
-    models.CharacterBook? characterBook;
-
-    // Check for V3 format
-    if (json.containsKey('spec') && json.containsKey('data')) {
-      final data = json['data'] as Map<String, dynamic>? ?? {};
-      name = data['name'] as String? ?? '';
-      description = data['description'] as String? ?? '';
-      personality = data['personality'] as String? ?? '';
-      scenario = data['scenario'] as String? ?? '';
-      firstMessage = data['first_mes'] as String? ?? '';
-      exampleMessages = data['mes_example'] as String? ?? '';
-      systemPrompt = data['system_prompt'] as String? ?? '';
-      postHistoryInstructions =
-          data['post_history_instructions'] as String? ?? '';
-      creatorNotes = data['creator_notes'] as String? ?? '';
-      tags = (data['tags'] as List<dynamic>?)?.cast<String>() ?? [];
-      creator = data['creator'] as String? ?? '';
-      version = data['character_version'] as String? ?? '';
-      alternateGreetings =
-          (data['alternate_greetings'] as List<dynamic>?)?.cast<String>() ?? [];
-      extensions = data['extensions'] as Map<String, dynamic>? ?? {};
-      if (data['character_book'] != null) {
-        characterBook = models.CharacterBook.fromJson(
-            data['character_book'] as Map<String, dynamic>);
-      }
-    }
-    // Check for V2 format (has data field but no spec)
-    else if (json.containsKey('data')) {
-      final data = json['data'] as Map<String, dynamic>? ?? {};
-      name = data['name'] as String? ?? json['name'] as String? ?? '';
-      description = data['description'] as String? ?? '';
-      personality = data['personality'] as String? ?? '';
-      scenario = data['scenario'] as String? ?? '';
-      firstMessage = data['first_mes'] as String? ?? '';
-      exampleMessages = data['mes_example'] as String? ?? '';
-      systemPrompt = data['system_prompt'] as String? ?? '';
-      postHistoryInstructions =
-          data['post_history_instructions'] as String? ?? '';
-      creatorNotes = data['creator_notes'] as String? ?? '';
-      tags = (data['tags'] as List<dynamic>?)?.cast<String>() ?? [];
-      creator = data['creator'] as String? ?? '';
-      version = data['character_version'] as String? ?? '';
-      alternateGreetings =
-          (data['alternate_greetings'] as List<dynamic>?)?.cast<String>() ?? [];
-      extensions = data['extensions'] as Map<String, dynamic>? ?? {};
-      if (data['character_book'] != null) {
-        characterBook = models.CharacterBook.fromJson(
-            data['character_book'] as Map<String, dynamic>);
-      }
-    }
-    // V1 format (flat structure)
-    else {
-      name = json['name'] as String? ?? json['char_name'] as String? ?? '';
-      description = json['description'] as String? ??
-          json['char_persona'] as String? ??
-          '';
-      personality = json['personality'] as String? ?? '';
-      scenario = json['scenario'] as String? ??
-          json['world_scenario'] as String? ??
-          '';
-      firstMessage = json['first_mes'] as String? ??
-          json['char_greeting'] as String? ??
-          '';
-      exampleMessages = json['mes_example'] as String? ??
-          json['example_dialogue'] as String? ??
-          '';
-    }
-
-    return models.Character(
-      id: characterId,
-      name: name,
-      description: description,
-      personality: personality,
-      scenario: scenario,
-      firstMessage: firstMessage,
-      alternateGreetings: alternateGreetings,
-      exampleMessages: exampleMessages,
-      systemPrompt: systemPrompt,
-      postHistoryInstructions: postHistoryInstructions,
-      creatorNotes: creatorNotes,
-      tags: tags,
-      creator: creator,
-      version: version,
-      characterBook: characterBook,
-      extensions: extensions,
-      depthPrompt: models.Character.depthPromptFromExtensions(extensions),
-      talkativeness: models.Character.talkativenessFromExtensions(extensions),
-      createdAt: DateTime.now(),
-      modifiedAt: DateTime.now(),
+    return CharacterCardCodec.parse(
+      json,
+      generateId: () => characterId,
     );
   }
 
@@ -581,26 +482,7 @@ class CharacterRepository {
 
   /// Export character to JSON (V3 format)
   Map<String, dynamic> exportToJson(models.Character character) {
-    return {
-      'spec': 'chara_card_v3',
-      'spec_version': '3.0',
-      'data': {
-        'name': character.name,
-        'description': character.description,
-        'personality': character.personality,
-        'scenario': character.scenario,
-        'first_mes': character.firstMessage,
-        'alternate_greetings': character.alternateGreetings,
-        'mes_example': character.exampleMessages,
-        'system_prompt': character.systemPrompt,
-        'post_history_instructions': character.postHistoryInstructions,
-        'creator_notes': character.creatorNotes,
-        'tags': character.tags,
-        'creator': character.creator,
-        'character_version': character.version,
-        'extensions': character.extensionsForExport(),
-      },
-    };
+    return CharacterCardCodec.toV3Json(character);
   }
 
   // Private helpers
@@ -614,6 +496,9 @@ class CharacterRepository {
       expressionPack: storedAssets.expressionPack,
       live2d: storedAssets.live2d,
     );
+    final storedExtensions = _parseJsonMap(row.extensionsJson);
+    final split =
+        CharacterCardCodec.splitStoredExtensions(storedExtensions);
     return models.Character(
       id: row.id,
       name: row.name,
@@ -631,13 +516,14 @@ class CharacterRepository {
       version: row.characterVersion,
       assets: assets.hasAssets ? assets : null,
       characterBook: _parseCharacterBook(row.characterBookJson),
-      extensions: _parseJsonMap(row.extensionsJson),
+      cardExtras: split.$2,
+      extensions: split.$1,
       isFavorite: row.isFavorite,
       isDeleted: row.isDeleted,
-      depthPrompt: models.Character.depthPromptFromExtensions(
-          _parseJsonMap(row.extensionsJson)),
-      talkativeness: models.Character.talkativenessFromExtensions(
-          _parseJsonMap(row.extensionsJson)),
+      depthPrompt:
+          models.Character.depthPromptFromExtensions(split.$1),
+      talkativeness:
+          models.Character.talkativenessFromExtensions(split.$1),
       createdAt: row.createdAt,
       modifiedAt: row.modifiedAt,
     );
@@ -663,7 +549,8 @@ class CharacterRepository {
       assetsJson: Value(jsonEncode(character.assets?.toJson() ?? const {})),
       characterBookJson:
           Value(_serializeCharacterBook(character.characterBook)),
-      extensionsJson: Value(jsonEncode(character.extensionsForExport())),
+      extensionsJson:
+          Value(jsonEncode(CharacterCardCodec.extensionsForStorage(character))),
       isFavorite: Value(character.isFavorite),
       isDeleted: Value(character.isDeleted),
       createdAt: Value(character.createdAt),

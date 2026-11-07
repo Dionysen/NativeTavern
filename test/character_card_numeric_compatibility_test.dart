@@ -62,7 +62,7 @@ void main() {
     expect(character.talkativeness, 0.25);
     final book = character.characterBook!;
     expect(book.tokenBudget, 4096);
-    expect(book.scanDepth, isFalse);
+    expect(book.scanDepth, 0);
     expect(book.recursiveScanning, isTrue);
     expect(book.entries.single.id, 7);
     expect(book.entries.single.insertionOrder, 12);

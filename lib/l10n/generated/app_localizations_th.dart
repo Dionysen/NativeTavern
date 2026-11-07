@@ -1042,6 +1042,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get charxExportComingSoon => 'CharX export coming soon';
 
   @override
+  String get characterCardExported => 'Character card exported';
+
+  @override
   String get failedToCreateChat => 'Failed to create chat';
 
   @override

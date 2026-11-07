@@ -1028,6 +1028,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get charxExportComingSoon => '即将支持 CharX 导出';
 
   @override
+  String get characterCardExported => '角色卡已导出';
+
+  @override
   String get failedToCreateChat => '创建聊天失败';
 
   @override
@@ -8045,6 +8048,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get charxExportComingSoon => '即將支援 CharX 匯出';
+
+  @override
+  String get characterCardExported => '角色卡已匯出';
 
   @override
   String get failedToCreateChat => '建立聊天失敗';

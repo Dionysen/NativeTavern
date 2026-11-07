@@ -2077,6 +2077,12 @@ abstract class AppLocalizations {
   /// **'CharX export coming soon'**
   String get charxExportComingSoon;
 
+  /// SnackBar after exporting a character card
+  ///
+  /// In en, this message translates to:
+  /// **'Character card exported'**
+  String get characterCardExported;
+
   /// Failed to create chat message
   ///
   /// In en, this message translates to:

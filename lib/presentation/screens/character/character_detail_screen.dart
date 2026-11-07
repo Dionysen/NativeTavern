@@ -8,11 +8,13 @@ import 'package:go_router/go_router.dart';
 import 'package:native_tavern/core/utils/path_utils.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
+import 'package:native_tavern/domain/services/character_card_export_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
+import 'package:native_tavern/presentation/screens/import/import_screen.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
@@ -247,7 +249,6 @@ class _CharacterDetailContentState
   }
 
   Future<void> _handleMenuAction(String action, Character character) async {
-    final l10n = AppLocalizations.of(context);
     switch (action) {
       case 'delete':
         await _confirmDelete(character);
@@ -256,17 +257,48 @@ class _CharacterDetailContentState
         await _duplicateCharacter(character);
         break;
       case 'export':
-        // TODO: Implement PNG export
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.pngExportComingSoon)),
+        await _exportCharacterCard(
+          character,
+          CharacterCardExportFormat.png,
         );
         break;
       case 'export_charx':
-        // TODO: Implement CharX export
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.charxExportComingSoon)),
+        await _exportCharacterCard(
+          character,
+          CharacterCardExportFormat.charx,
         );
         break;
+    }
+  }
+
+  Future<void> _exportCharacterCard(
+    Character character,
+    CharacterCardExportFormat format,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box == null
+        ? null
+        : box.localToGlobal(Offset.zero) & box.size;
+
+    try {
+      final importService = ref.read(importServiceProvider);
+      final exporter = CharacterCardExportService(importService);
+      final path = await exporter.export(
+        character,
+        format,
+        sharePositionOrigin: origin,
+      );
+      if (!mounted) return;
+      if (path == null) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.characterCardExported)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.exportFailed('$e'))),
+      );
     }
   }
 

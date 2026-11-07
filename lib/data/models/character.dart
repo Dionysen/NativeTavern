@@ -44,6 +44,10 @@ class Character {
   final String version;
   final CharacterAssets? assets;
   final CharacterBook? characterBook;
+
+  /// Unmapped SillyTavern `data` fields preserved for lossless card export.
+  final Map<String, dynamic> cardExtras;
+
   final Map<String, dynamic> extensions;
   final bool isFavorite;
 
@@ -79,6 +83,7 @@ class Character {
     this.version = '',
     this.assets,
     this.characterBook,
+    this.cardExtras = const {},
     this.extensions = const {},
     this.isFavorite = false,
     this.isDeleted = false,
@@ -107,6 +112,7 @@ class Character {
     CharacterAssets? assets,
     bool clearAssets = false,
     CharacterBook? characterBook,
+    Map<String, dynamic>? cardExtras,
     Map<String, dynamic>? extensions,
     bool? isFavorite,
     bool? isDeleted,
@@ -135,6 +141,7 @@ class Character {
       version: version ?? this.version,
       assets: clearAssets ? null : (assets ?? this.assets),
       characterBook: characterBook ?? this.characterBook,
+      cardExtras: cardExtras ?? this.cardExtras,
       extensions: extensions ?? this.extensions,
       isFavorite: isFavorite ?? this.isFavorite,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -163,6 +170,7 @@ class Character {
         'version': version,
         'assets': assets?.toJson(),
         'characterBook': characterBook?.toJson(),
+        'cardExtras': cardExtras,
         'extensions': extensions,
         'isFavorite': isFavorite,
         'isDeleted': isDeleted,
@@ -197,6 +205,9 @@ class Character {
             ? CharacterBook.fromJson(
                 json['characterBook'] as Map<String, dynamic>)
             : null,
+        cardExtras: json['cardExtras'] is Map
+            ? Map<String, dynamic>.from(json['cardExtras'] as Map)
+            : const {},
         extensions: json['extensions'] as Map<String, dynamic>? ?? {},
         isFavorite: json['isFavorite'] as bool? ?? false,
         isDeleted: json['isDeleted'] as bool? ?? false,
@@ -241,7 +252,7 @@ class Character {
   /// back in for SillyTavern-compatible export
   Map<String, dynamic> extensionsForExport() {
     final merged = Map<String, dynamic>.from(extensions);
-    if (depthPrompt != null && depthPrompt!.prompt.isNotEmpty) {
+    if (depthPrompt != null) {
       merged['depth_prompt'] = depthPrompt!.toJson();
     }
     merged['talkativeness'] = talkativeness;
@@ -307,7 +318,9 @@ class CharacterAssets {
 class CharacterBook {
   final String? name;
   final String? description;
-  final bool scanDepth;
+
+  /// SillyTavern scan depth (message count). Null means unset / default.
+  final int? scanDepth;
   final int tokenBudget;
   final bool recursiveScanning;
   final List<CharacterBookEntry> entries;
@@ -316,7 +329,7 @@ class CharacterBook {
   const CharacterBook({
     this.name,
     this.description,
-    this.scanDepth = true,
+    this.scanDepth,
     this.tokenBudget = 2048,
     this.recursiveScanning = false,
     this.entries = const [],
@@ -326,7 +339,8 @@ class CharacterBook {
   CharacterBook copyWith({
     String? name,
     String? description,
-    bool? scanDepth,
+    int? scanDepth,
+    bool clearScanDepth = false,
     int? tokenBudget,
     bool? recursiveScanning,
     List<CharacterBookEntry>? entries,
@@ -335,7 +349,7 @@ class CharacterBook {
     return CharacterBook(
       name: name ?? this.name,
       description: description ?? this.description,
-      scanDepth: scanDepth ?? this.scanDepth,
+      scanDepth: clearScanDepth ? null : (scanDepth ?? this.scanDepth),
       tokenBudget: tokenBudget ?? this.tokenBudget,
       recursiveScanning: recursiveScanning ?? this.recursiveScanning,
       entries: entries ?? this.entries,
@@ -343,20 +357,25 @@ class CharacterBook {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'scan_depth': scanDepth,
-        'token_budget': tokenBudget,
-        'recursive_scanning': recursiveScanning,
-        'entries': entries.map((e) => e.toJson()).toList(),
-        'extensions': extensions,
-      };
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{
+      'name': name,
+      'description': description,
+      'token_budget': tokenBudget,
+      'recursive_scanning': recursiveScanning,
+      'entries': entries.map((e) => e.toJson()).toList(),
+      'extensions': extensions,
+    };
+    if (scanDepth != null) {
+      json['scan_depth'] = scanDepth;
+    }
+    return json;
+  }
 
   factory CharacterBook.fromJson(Map<String, dynamic> json) => CharacterBook(
         name: json['name'] as String?,
         description: json['description'] as String?,
-        scanDepth: _boolValue(json['scan_depth']) ?? true,
+        scanDepth: parseCharacterBookScanDepth(json['scan_depth']),
         tokenBudget: _intValue(json['token_budget']) ?? 2048,
         recursiveScanning: _boolValue(json['recursive_scanning']) ?? false,
         entries: (json['entries'] as List<dynamic>?)
@@ -366,6 +385,21 @@ class CharacterBook {
             [],
         extensions: json['extensions'] as Map<String, dynamic>? ?? {},
       );
+}
+
+/// Parses ST `scan_depth` (int) and legacy bool/string forms.
+int? parseCharacterBookScanDepth(dynamic value) {
+  if (value == null) return null;
+  if (value is bool) return value ? null : 0;
+  if (value is num) return value.toInt();
+  if (value is String) {
+    final trimmed = value.trim();
+    final lower = trimmed.toLowerCase();
+    if (lower == 'true') return null;
+    if (lower == 'false') return 0;
+    return int.tryParse(trimmed);
+  }
+  return null;
 }
 
 /// Entry in a character book (embedded lorebook)

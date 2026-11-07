@@ -1365,6 +1365,10 @@
   "@pngExportComingSoon": {
     "description": "PNG export coming soon message"
   },
+  "characterCardExported": "角色卡已匯出",
+  "@characterCardExported": {
+    "description": "SnackBar after exporting a character card"
+  },
   "charxExportComingSoon": "即將支援 CharX 匯出",
   "@charxExportComingSoon": {
     "description": "CharX export coming soon message"

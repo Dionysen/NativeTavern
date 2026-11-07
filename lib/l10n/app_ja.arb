@@ -1324,6 +1324,10 @@
   "@charxExportComingSoon": {
     "description": "CharX export coming soon message"
   },
+  "characterCardExported": "Character card exported",
+  "@characterCardExported": {
+    "description": "SnackBar after exporting a character card"
+  },
   "failedToCreateChat": "Failed to create chat",
   "@failedToCreateChat": {
     "description": "Failed to create chat message"
