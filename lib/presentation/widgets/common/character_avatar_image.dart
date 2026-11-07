@@ -32,25 +32,35 @@ IconData characterAvatarFallbackIcon([String? characterId]) {
   }
 }
 
+final Map<String, Future<String?>> _avatarPathResolveCache = {};
+
 /// Resolves a stored avatar path (relative or absolute) to a readable file path.
 ///
 /// Returns null when the file cannot be found so callers never pass a bare
 /// relative path like `avatars/…` into [Image.file] / [FileImage].
-Future<String?> resolveAvatarFilePath(String imagePath) async {
+Future<String?> resolveAvatarFilePath(String imagePath) {
   final trimmed = imagePath.trim();
-  if (trimmed.isEmpty) return null;
-  try {
-    final absolute = await PathUtils.toAbsolutePath(trimmed);
-    if (await File(absolute).exists()) return absolute;
-  } catch (_) {
-    // Fall through to direct absolute check.
-  }
-  if (p.isAbsolute(trimmed)) {
+  if (trimmed.isEmpty) return Future<String?>.value(null);
+  return _avatarPathResolveCache.putIfAbsent(trimmed, () async {
     try {
-      if (await File(trimmed).exists()) return trimmed;
-    } catch (_) {}
-  }
-  return null;
+      final absolute = await PathUtils.toAbsolutePath(trimmed);
+      if (await File(absolute).exists()) return absolute;
+    } catch (_) {
+      // Fall through to direct absolute check.
+    }
+    if (p.isAbsolute(trimmed)) {
+      try {
+        if (await File(trimmed).exists()) return trimmed;
+      } catch (_) {}
+    }
+    return null;
+  });
+}
+
+int? _decodePixels(BuildContext context, double? logicalSize) {
+  if (logicalSize == null || logicalSize <= 0) return null;
+  final dpr = MediaQuery.devicePixelRatioOf(context);
+  return (logicalSize * dpr).round().clamp(1, 4096);
 }
 
 /// Widget that displays character avatar image
@@ -61,12 +71,20 @@ class CharacterAvatarImage extends StatefulWidget {
   final AlignmentGeometry alignment;
   final Widget Function(BuildContext, Object?, StackTrace?)? errorBuilder;
 
+  /// Logical width used for [Image.file] decode downsampling.
+  final double? cacheWidth;
+
+  /// Logical height used for [Image.file] decode downsampling.
+  final double? cacheHeight;
+
   const CharacterAvatarImage({
     super.key,
     required this.imagePath,
     this.fit = BoxFit.cover,
     this.alignment = Alignment.center,
     this.errorBuilder,
+    this.cacheWidth,
+    this.cacheHeight,
   });
 
   @override
@@ -124,6 +142,9 @@ class _CharacterAvatarImageState extends State<CharacterAvatarImage> {
           File(path),
           fit: widget.fit,
           alignment: widget.alignment,
+          cacheWidth: _decodePixels(context, widget.cacheWidth),
+          cacheHeight: _decodePixels(context, widget.cacheHeight),
+          filterQuality: FilterQuality.low,
           errorBuilder: widget.errorBuilder ?? (_, __, ___) => missing,
         );
       },
@@ -200,6 +221,8 @@ class CharacterAvatarShaped extends StatelessWidget {
             imagePath: imagePath!,
             fit: BoxFit.cover,
             alignment: Alignment.topCenter,
+            cacheWidth: width,
+            cacheHeight: height,
             errorBuilder: errorBuilder ?? (_, __, ___) => fallback,
           );
 
@@ -258,20 +281,34 @@ class _CharacterBackgroundImageState extends State<CharacterBackgroundImage> {
         ) ??
         const ColoredBox(color: Colors.black);
 
-    return FutureBuilder<String?>(
-      future: _resolvedPath,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const ColoredBox(color: Colors.black);
-        }
-        final path = snapshot.data;
-        if (path == null) {
-          return fallback;
-        }
-        return Image.file(
-          File(path),
-          fit: BoxFit.cover,
-          errorBuilder: widget.errorBuilder ?? (_, __, ___) => fallback,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cacheW = constraints.hasBoundedWidth && constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : null;
+        final cacheH =
+            constraints.hasBoundedHeight && constraints.maxHeight.isFinite
+                ? constraints.maxHeight
+                : null;
+        return FutureBuilder<String?>(
+          future: _resolvedPath,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const ColoredBox(color: Colors.black);
+            }
+            final path = snapshot.data;
+            if (path == null) {
+              return fallback;
+            }
+            return Image.file(
+              File(path),
+              fit: BoxFit.cover,
+              cacheWidth: _decodePixels(context, cacheW),
+              cacheHeight: _decodePixels(context, cacheH),
+              filterQuality: FilterQuality.medium,
+              errorBuilder: widget.errorBuilder ?? (_, __, ___) => fallback,
+            );
+          },
         );
       },
     );

@@ -153,7 +153,13 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
   Future<void> refresh() async {
     _offset = 0;
     _hasMore = true;
-    state = const AsyncLoading();
+    final previous = state.valueOrNull;
+    // Keep the previous page visible while reloading to avoid a full-screen flash.
+    if (previous != null) {
+      state = const AsyncLoading<List<Character>>().copyWithPrevious(state);
+    } else {
+      state = const AsyncLoading();
+    }
     state = await AsyncValue.guard(() async {
       final page = await _fetchPage(offset: 0);
       _offset = page.length;

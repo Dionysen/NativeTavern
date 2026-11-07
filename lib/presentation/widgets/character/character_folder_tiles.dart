@@ -91,11 +91,18 @@ class _PreviewCell extends StatelessWidget {
       borderRadius: BorderRadius.circular(radius),
       child: SizedBox.expand(
         child: preview!.avatarPath != null
-            ? CharacterAvatarImage(
-                imagePath: preview!.avatarPath!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, _, __) =>
-                    _fallback(context, color),
+            ? LayoutBuilder(
+                builder: (context, constraints) {
+                  final side = constraints.biggest.shortestSide;
+                  return CharacterAvatarImage(
+                    imagePath: preview!.avatarPath!,
+                    fit: BoxFit.cover,
+                    cacheWidth: side,
+                    cacheHeight: side,
+                    errorBuilder: (context, _, __) =>
+                        _fallback(context, color),
+                  );
+                },
               )
             : _fallback(context, color),
       ),

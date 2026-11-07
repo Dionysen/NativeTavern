@@ -138,7 +138,7 @@ class CharacterRepository {
       ],
       readsFrom: {_db.characters},
     ).get();
-    return _charactersByIdsInOrder(
+    return _characterBrowseSummariesByIds(
       idRows.map((row) => row.read<String>('id')).toList(growable: false),
     );
   }
@@ -239,7 +239,7 @@ class CharacterRepository {
       ],
       readsFrom: {_db.characters},
     ).get();
-    return _charactersByIdsInOrder(
+    return _characterBrowseSummariesByIds(
       idRows.map((row) => row.read<String>('id')).toList(growable: false),
     );
   }
@@ -304,7 +304,7 @@ class CharacterRepository {
       ],
       readsFrom: {_db.characters},
     ).get();
-    return _charactersByIdsInOrder(
+    return _characterBrowseSummariesByIds(
       idRows.map((row) => row.read<String>('id')).toList(growable: false),
     );
   }
@@ -359,23 +359,65 @@ class CharacterRepository {
       ],
       readsFrom: {_db.characters},
     ).get();
-    return _charactersByIdsInOrder(
+    return _characterBrowseSummariesByIds(
       idRows.map((row) => row.read<String>('id')).toList(growable: false),
     );
   }
 
-  Future<List<models.Character>> _charactersByIdsInOrder(
+  /// Browser list rows: id/name/description/tags/creator/avatar only.
+  /// Skips character book, extensions, and other chat-runtime fields.
+  Future<List<models.Character>> _characterBrowseSummariesByIds(
     List<String> ids,
   ) async {
     if (ids.isEmpty) return const [];
-    final rows = await (_db.select(_db.characters)
-          ..where((t) => t.id.isIn(ids)))
-        .get();
-    final byId = {for (final row in rows) row.id: _characterFromRow(row)};
+    final placeholders = List.filled(ids.length, '?').join(', ');
+    final rows = await _db.customSelect(
+      '''
+      SELECT id, name, description, tags, creator, avatar_path, assets_json,
+             created_at, modified_at
+      FROM characters
+      WHERE id IN ($placeholders)
+      ''',
+      variables: [for (final id in ids) Variable<String>(id)],
+      readsFrom: {_db.characters},
+    ).get();
+    final byId = <String, models.Character>{};
+    for (final row in rows) {
+      final id = row.read<String>('id');
+      final avatarPath = row.read<String?>('avatar_path') ??
+          _avatarPathFromAssetsJson(row.read<String?>('assets_json'));
+      byId[id] = models.Character(
+        id: id,
+        name: row.read<String>('name'),
+        description: row.read<String>('description'),
+        tags: _parseJsonList(row.read<String>('tags')),
+        creator: row.read<String>('creator'),
+        assets: avatarPath == null
+            ? null
+            : models.CharacterAssets(avatarPath: avatarPath),
+        createdAt: DateTime.fromMillisecondsSinceEpoch(
+          row.read<int>('created_at'),
+        ),
+        modifiedAt: DateTime.fromMillisecondsSinceEpoch(
+          row.read<int>('modified_at'),
+        ),
+      );
+    }
     return [
       for (final id in ids)
         if (byId.containsKey(id)) byId[id]!,
     ];
+  }
+
+  String? _avatarPathFromAssetsJson(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final json = jsonDecode(raw);
+      if (json is! Map<String, dynamic>) return null;
+      return json['avatarPath'] as String?;
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Get character by ID

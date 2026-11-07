@@ -390,13 +390,25 @@ class CharacterFolderRepository {
       _loadPreviewCharactersByFolder({
     Set<String>? folderIds,
   }) async {
+    if (folderIds != null && folderIds.isEmpty) {
+      return const {};
+    }
+
+    final folderFilter = folderIds == null
+        ? ''
+        : 'AND m.folder_id IN (${List.filled(folderIds.length, '?').join(', ')})';
+    final variables = folderIds == null
+        ? const <Variable<Object>>[]
+        : [for (final id in folderIds) Variable<String>(id)];
+
     final rows = await _db.customSelect(
       '''
-      SELECT folder_id, id, name, assets_json
+      SELECT folder_id, id, name, avatar_path, assets_json
       FROM (
         SELECT m.folder_id AS folder_id,
                c.id AS id,
                c.name AS name,
+               c.avatar_path AS avatar_path,
                c.assets_json AS assets_json,
                ROW_NUMBER() OVER (
                  PARTITION BY m.folder_id
@@ -405,23 +417,25 @@ class CharacterFolderRepository {
         FROM character_folder_members m
         INNER JOIN characters c ON c.id = m.character_id
         WHERE c.is_deleted = 0
+          $folderFilter
       )
       WHERE rn <= 4
       ''',
+      variables: variables,
       readsFrom: const {},
     ).get();
 
     final grouped = <String, List<CharacterFolderPreview>>{};
     for (final row in rows) {
       final folderId = row.read<String>('folder_id');
-      if (folderIds != null && !folderIds.contains(folderId)) continue;
       grouped.putIfAbsent(folderId, () => []).add(
             CharacterFolderPreview(
               id: row.read<String>('id'),
               name: row.read<String>('name'),
-              avatarPath: _avatarPathFromAssetsJson(
-                row.read<String?>('assets_json'),
-              ),
+              avatarPath: row.read<String?>('avatar_path') ??
+                  _avatarPathFromAssetsJson(
+                    row.read<String?>('assets_json'),
+                  ),
             ),
           );
     }

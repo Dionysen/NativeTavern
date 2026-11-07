@@ -36,68 +36,28 @@ class CharacterListScreen extends ConsumerStatefulWidget {
 class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   String _searchQuery = '';
   Timer? _searchDebounce;
-  bool _selectionMode = false;
-  final Set<String> _selectedCharacterIds = {};
-  final Set<String> _selectedFolderIds = {};
+  final _LibrarySelectionController _selection = _LibrarySelectionController();
   bool _folderEnterForward = true;
-
-  int get _selectedItemCount =>
-      _selectedCharacterIds.length + _selectedFolderIds.length;
-
-  bool get _hasSelection => _selectedItemCount > 0;
 
   @override
   void dispose() {
     _searchDebounce?.cancel();
+    _selection.dispose();
     super.dispose();
   }
 
-  void _exitSelectionMode() {
-    setState(() {
-      _selectionMode = false;
-      _selectedCharacterIds.clear();
-      _selectedFolderIds.clear();
-    });
-  }
+  void _exitSelectionMode() => _selection.exit();
 
   void _enterSelectionMode({String? characterId, String? folderId}) {
-    setState(() {
-      _selectionMode = true;
-      _selectedCharacterIds.clear();
-      _selectedFolderIds.clear();
-      if (characterId != null) {
-        _selectedCharacterIds.add(characterId);
-      }
-      if (folderId != null) {
-        _selectedFolderIds.add(folderId);
-      }
-    });
+    _selection.enter(characterId: characterId, folderId: folderId);
   }
 
   void _toggleCharacterSelection(String characterId) {
-    setState(() {
-      if (_selectedCharacterIds.contains(characterId)) {
-        _selectedCharacterIds.remove(characterId);
-      } else {
-        _selectedCharacterIds.add(characterId);
-      }
-      if (!_hasSelection) {
-        _selectionMode = false;
-      }
-    });
+    _selection.toggleCharacter(characterId);
   }
 
   void _toggleFolderSelection(String folderId) {
-    setState(() {
-      if (_selectedFolderIds.contains(folderId)) {
-        _selectedFolderIds.remove(folderId);
-      } else {
-        _selectedFolderIds.add(folderId);
-      }
-      if (!_hasSelection) {
-        _selectionMode = false;
-      }
-    });
+    _selection.toggleFolder(folderId);
   }
 
   Future<void> _toggleSelectAllLibraryItems() async {
@@ -108,26 +68,10 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
         .map((folder) => folder.id)
         .toList(growable: false);
     if (!mounted) return;
-    final allSelected = characterIds.every(_selectedCharacterIds.contains) &&
-        folderIds.every(_selectedFolderIds.contains) &&
-        _selectedCharacterIds.length == characterIds.length &&
-        _selectedFolderIds.length == folderIds.length &&
-        (characterIds.isNotEmpty || folderIds.isNotEmpty);
-    setState(() {
-      _selectionMode = true;
-      if (allSelected) {
-        _selectedCharacterIds.clear();
-        _selectedFolderIds.clear();
-        _selectionMode = false;
-      } else {
-        _selectedCharacterIds
-          ..clear()
-          ..addAll(characterIds);
-        _selectedFolderIds
-          ..clear()
-          ..addAll(folderIds);
-      }
-    });
+    _selection.toggleSelectAll(
+      characterIds: characterIds,
+      folderIds: folderIds,
+    );
   }
 
   void _openFolder(String folderId) {
@@ -200,7 +144,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   }
 
   Future<void> _createFolderFromSelection() async {
-    if (_selectedCharacterIds.isEmpty) return;
+    if (_selection.characterIds.isEmpty) return;
     final l10n = AppLocalizations.of(context);
     final name = await promptCharacterFolderName(
       context,
@@ -210,7 +154,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     final folder =
         await ref.read(characterFoldersProvider.notifier).createFolder(name);
     await ref.read(characterFoldersProvider.notifier).moveCharacters(
-          _selectedCharacterIds,
+          _selection.characterIds,
           folderId: folder.id,
         );
     await ref.read(characterListProvider.notifier).refresh();
@@ -223,7 +167,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   }
 
   Future<void> _moveSelectedItems() async {
-    if (!_hasSelection) return;
+    if (!_selection.hasSelection) return;
     final l10n = AppLocalizations.of(context);
     final selection = await showCharacterFolderPathPicker(
       context,
@@ -233,7 +177,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     if (selection == null || !mounted) return;
 
     // Don't move a folder into itself / its descendant (repo also guards).
-    final folderIds = _selectedFolderIds
+    final folderIds = _selection.folderIds
         .where((id) => id != selection.folderId)
         .toList(growable: false);
     if (folderIds.isNotEmpty) {
@@ -242,9 +186,9 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
             parentId: selection.folderId,
           );
     }
-    if (_selectedCharacterIds.isNotEmpty) {
+    if (_selection.characterIds.isNotEmpty) {
       await ref.read(characterFoldersProvider.notifier).moveCharacters(
-            _selectedCharacterIds,
+            _selection.characterIds,
             folderId: selection.folderId,
           );
     }
@@ -258,20 +202,20 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   }
 
   Future<void> _copySelectedCharacters() async {
-    if (_selectedCharacterIds.isEmpty) return;
+    if (_selection.characterIds.isEmpty) return;
     await showCopyCharactersToFolderSheet(
       context,
       ref,
-      _selectedCharacterIds,
+      _selection.characterIds,
     );
     _exitSelectionMode();
   }
 
   Future<void> _deleteSelectedItems() async {
-    if (!_hasSelection) return;
+    if (!_selection.hasSelection) return;
     final l10n = AppLocalizations.of(context);
-    final characterCount = _selectedCharacterIds.length;
-    final folderCount = _selectedFolderIds.length;
+    final characterCount = _selection.characterIds.length;
+    final folderCount = _selection.folderIds.length;
     final confirmed = await confirmDestructiveAction(
       context,
       ref,
@@ -287,8 +231,8 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     );
     if (!confirmed || !mounted) return;
 
-    final characterIds = List<String>.from(_selectedCharacterIds);
-    final folderIds = List<String>.from(_selectedFolderIds);
+    final characterIds = List<String>.from(_selection.characterIds);
+    final folderIds = List<String>.from(_selection.folderIds);
     for (final folderId in folderIds) {
       await ref.read(characterFoldersProvider.notifier).deleteFolder(folderId);
     }
@@ -370,234 +314,244 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
       }
     });
 
-    return PopScope(
-      // System/back: leave multi-select, then nested folder, before shell pop.
-      canPop: !_selectionMode && browseFolderId == null,
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) return;
-        if (_selectionMode) {
-          _exitSelectionMode();
-          return;
-        }
-        if (browseFolderId != null) {
-          _leaveFolder();
-        }
-      },
-      child: Scaffold(
-      appBar: AppBar(
-        leading: browseFolderId != null && !_selectionMode
-            ? ChromeIconButton(
-                icon: const Icon(Icons.arrow_back),
-                tooltip: l10n.characterFolderRoot,
-                onPressed: _leaveFolder,
-              )
-            : _selectionMode
-                ? ChromeIconButton(
-                    icon: const Icon(Icons.close),
-                    tooltip: l10n.cancel,
+    return ListenableBuilder(
+      listenable: _selection,
+      builder: (context, _) {
+        final selectionMode = _selection.selectionMode;
+        final hasSelection = _selection.hasSelection;
+        final selectedItemCount = _selection.selectedItemCount;
+        return PopScope(
+          // System/back: leave multi-select, then nested folder, before shell pop.
+          canPop: !selectionMode && browseFolderId == null,
+          onPopInvokedWithResult: (didPop, _) {
+            if (didPop) return;
+            if (selectionMode) {
+              _exitSelectionMode();
+              return;
+            }
+            if (browseFolderId != null) {
+              _leaveFolder();
+            }
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              leading: browseFolderId != null && !selectionMode
+                  ? ChromeIconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      tooltip: l10n.characterFolderRoot,
+                      onPressed: _leaveFolder,
+                    )
+                  : selectionMode
+                      ? ChromeIconButton(
+                          icon: const Icon(Icons.close),
+                          tooltip: l10n.cancel,
+                          onPressed: _exitSelectionMode,
+                        )
+                      : null,
+              title: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: Offset(_folderEnterForward ? 0.08 : -0.08, 0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                ),
+                child: Text(
+                  key: ValueKey(
+                    selectionMode
+                        ? 'select-$selectedItemCount'
+                        : (browseFolderId ?? 'root-title'),
+                  ),
+                  selectionMode
+                      ? l10n.libraryItemsSelected(selectedItemCount)
+                      : (folderTitle ?? l10n.characters),
+                ),
+              ),
+              actions: spacedAppBarActions([
+                if (selectionMode) ...[
+                  ChromeIconButton(
+                    icon: Icon(
+                      hasSelection ? Icons.deselect : Icons.select_all,
+                    ),
+                    tooltip: hasSelection
+                        ? l10n.deselectAllCharacters
+                        : l10n.selectAllCharacters,
+                    onPressed: _toggleSelectAllLibraryItems,
+                  ),
+                  if (_selection.characterIds.isNotEmpty &&
+                      _selection.folderIds.isEmpty)
+                    ChromeIconButton(
+                      icon: const Icon(Icons.copy_all_outlined),
+                      tooltip: l10n.copyToFolder,
+                      onPressed: _copySelectedCharacters,
+                    ),
+                  if (hasSelection)
+                    ChromeIconButton(
+                      icon: const Icon(Icons.drive_file_move_outline),
+                      tooltip: l10n.moveToFolder,
+                      onPressed: _moveSelectedItems,
+                    ),
+                  if (_selection.characterIds.isNotEmpty)
+                    ChromeIconButton(
+                      icon: const Icon(Icons.create_new_folder_outlined),
+                      tooltip: l10n.createFolderFromSelection,
+                      onPressed: _createFolderFromSelection,
+                    ),
+                  if (hasSelection)
+                    ChromeIconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      tooltip: l10n.delete,
+                      onPressed: _deleteSelectedItems,
+                    ),
+                  ChromeIconButton(
+                    icon: const Icon(Icons.check),
+                    tooltip: l10n.done,
                     onPressed: _exitSelectionMode,
-                  )
-                : null,
-        title: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 260),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeInCubic,
-          transitionBuilder: (child, animation) => FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: Offset(_folderEnterForward ? 0.08 : -0.08, 0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
-            ),
-          ),
-          child: Text(
-            key: ValueKey(
-              _selectionMode
-                  ? 'select-$_selectedItemCount'
-                  : (browseFolderId ?? 'root-title'),
-            ),
-            _selectionMode
-                ? l10n.libraryItemsSelected(_selectedItemCount)
-                : (folderTitle ?? l10n.characters),
-          ),
-        ),
-        actions: spacedAppBarActions([
-          if (_selectionMode) ...[
-            ChromeIconButton(
-              icon: Icon(
-                _hasSelection ? Icons.deselect : Icons.select_all,
-              ),
-              tooltip: _hasSelection
-                  ? l10n.deselectAllCharacters
-                  : l10n.selectAllCharacters,
-              onPressed: _toggleSelectAllLibraryItems,
-            ),
-            if (_selectedCharacterIds.isNotEmpty && _selectedFolderIds.isEmpty)
-              ChromeIconButton(
-                icon: const Icon(Icons.copy_all_outlined),
-                tooltip: l10n.copyToFolder,
-                onPressed: _copySelectedCharacters,
-              ),
-            if (_hasSelection)
-              ChromeIconButton(
-                icon: const Icon(Icons.drive_file_move_outline),
-                tooltip: l10n.moveToFolder,
-                onPressed: _moveSelectedItems,
-              ),
-            if (_selectedCharacterIds.isNotEmpty)
-              ChromeIconButton(
-                icon: const Icon(Icons.create_new_folder_outlined),
-                tooltip: l10n.createFolderFromSelection,
-                onPressed: _createFolderFromSelection,
-              ),
-            if (_hasSelection)
-              ChromeIconButton(
-                icon: const Icon(Icons.delete_outline),
-                tooltip: l10n.delete,
-                onPressed: _deleteSelectedItems,
-              ),
-            ChromeIconButton(
-              icon: const Icon(Icons.check),
-              tooltip: l10n.done,
-              onPressed: _exitSelectionMode,
-            ),
-          ] else ...[
-            if (viewMode == CharacterViewMode.list)
-              ChromeIconButton(
-                icon: Icon(avatarShape.icon),
-                onPressed: () => ref
-                    .read(characterBrowseDisplayPrefsProvider.notifier)
-                    .cycleAvatarShape(),
-                tooltip: avatarShape.getDisplayName(l10n),
-              ),
-            ChromeIconButton(
-              icon: Icon(viewMode.icon),
-              onPressed: _showViewModePicker,
-              tooltip: l10n.characterDisplayMode,
-            ),
-            ChromeIconButton(
-              icon: const Icon(Icons.add),
-              tooltip: l10n.createCharacter,
-              onPressed: () => context.push(AppRoutes.characterCreate),
-            ),
-            AdaptiveActionMenuButton<String>(
-              tooltip: l10n.moreOptions,
-              title: l10n.characterLibraryManage,
-              itemBuilder: (context) => [
-                AdaptiveActionDrawerItem(
-                  value: 'create_folder',
-                  leading: const Icon(Icons.create_new_folder_outlined),
-                  title: Text(l10n.createCharacterFolder),
-                ),
-                AdaptiveActionDrawerItem(
-                  value: 'import_folder',
-                  leading: const Icon(Icons.folder_open_outlined),
-                  title: Text(l10n.importCharactersFromFolder),
-                ),
-                AdaptiveActionDrawerItem(
-                  value: 'export_library',
-                  leading: const Icon(Icons.drive_folder_upload_outlined),
-                  title: Text(l10n.exportCharacterLibrary),
-                ),
-                AdaptiveActionDrawerItem(
-                  value: 'import',
-                  leading: const Icon(Icons.file_download_outlined),
-                  title: Text(l10n.import),
-                ),
-                if (browseFolderId != null) ...[
-                  AdaptiveActionDrawerItem(
-                    value: 'rename_folder',
-                    leading: const Icon(Icons.drive_file_rename_outline),
-                    title: Text(l10n.renameCharacterFolder),
-                    showDividerAbove: true,
                   ),
-                  AdaptiveActionDrawerItem(
-                    value: 'dissolve_folder',
-                    leading: const Icon(Icons.folder_off_outlined),
-                    title: Text(l10n.dissolveCharacterFolder),
+                ] else ...[
+                  if (viewMode == CharacterViewMode.list)
+                    ChromeIconButton(
+                      icon: Icon(avatarShape.icon),
+                      onPressed: () => ref
+                          .read(characterBrowseDisplayPrefsProvider.notifier)
+                          .cycleAvatarShape(),
+                      tooltip: avatarShape.getDisplayName(l10n),
+                    ),
+                  ChromeIconButton(
+                    icon: Icon(viewMode.icon),
+                    onPressed: _showViewModePicker,
+                    tooltip: l10n.characterDisplayMode,
                   ),
-                  AdaptiveActionDrawerItem(
-                    value: 'delete_folder',
-                    leading: const Icon(Icons.delete_outline),
-                    title: Text(l10n.deleteCharacterFolder),
-                    destructive: true,
+                  ChromeIconButton(
+                    icon: const Icon(Icons.add),
+                    tooltip: l10n.createCharacter,
+                    onPressed: () => context.push(AppRoutes.characterCreate),
+                  ),
+                  AdaptiveActionMenuButton<String>(
+                    tooltip: l10n.moreOptions,
+                    title: l10n.characterLibraryManage,
+                    itemBuilder: (context) => [
+                      AdaptiveActionDrawerItem(
+                        value: 'create_folder',
+                        leading: const Icon(Icons.create_new_folder_outlined),
+                        title: Text(l10n.createCharacterFolder),
+                      ),
+                      AdaptiveActionDrawerItem(
+                        value: 'import_folder',
+                        leading: const Icon(Icons.folder_open_outlined),
+                        title: Text(l10n.importCharactersFromFolder),
+                      ),
+                      AdaptiveActionDrawerItem(
+                        value: 'export_library',
+                        leading: const Icon(Icons.drive_folder_upload_outlined),
+                        title: Text(l10n.exportCharacterLibrary),
+                      ),
+                      AdaptiveActionDrawerItem(
+                        value: 'import',
+                        leading: const Icon(Icons.file_download_outlined),
+                        title: Text(l10n.import),
+                      ),
+                      if (browseFolderId != null) ...[
+                        AdaptiveActionDrawerItem(
+                          value: 'rename_folder',
+                          leading: const Icon(Icons.drive_file_rename_outline),
+                          title: Text(l10n.renameCharacterFolder),
+                          showDividerAbove: true,
+                        ),
+                        AdaptiveActionDrawerItem(
+                          value: 'dissolve_folder',
+                          leading: const Icon(Icons.folder_off_outlined),
+                          title: Text(l10n.dissolveCharacterFolder),
+                        ),
+                        AdaptiveActionDrawerItem(
+                          value: 'delete_folder',
+                          leading: const Icon(Icons.delete_outline),
+                          title: Text(l10n.deleteCharacterFolder),
+                          destructive: true,
+                        ),
+                      ],
+                    ],
+                    onSelected: _onLibraryMoreSelected,
                   ),
                 ],
-              ],
-              onSelected: _onLibraryMoreSelected,
+              ]),
             ),
-          ],
-        ]),
-      ),
-      body: Column(
-        children: [
-          _SearchBar(
-            showFolderScopeToggle: browseFolderId != null,
-            searchEntireLibrary: ref.watch(characterSearchGlobalProvider),
-            tagFilterActive: tagFilter.isNotEmpty,
-            onOpenTagFilter: () => showCharacterTagFilterSheet(context, ref),
-            onToggleSearchScope: () {
-              final enableGlobal =
-                  !ref.read(characterSearchGlobalProvider);
-              ref.read(characterSearchGlobalProvider.notifier).state =
-                  enableGlobal;
-            },
-            onChanged: (value) {
-              setState(() => _searchQuery = value);
-              _searchDebounce?.cancel();
-              _searchDebounce = Timer(const Duration(milliseconds: 250), () {
-                if (mounted) {
-                  ref.read(characterListProvider.notifier).setQuery(value);
-                }
-              });
-            },
-          ),
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 320),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              layoutBuilder: (currentChild, previousChildren) {
-                return Stack(
-                  alignment: Alignment.topCenter,
-                  clipBehavior: Clip.hardEdge,
-                  children: [
-                    ...previousChildren,
-                    if (currentChild != null) currentChild,
-                  ],
-                );
-              },
-              transitionBuilder: (child, animation) =>
-                  _characterFolderBrowseTransition(
-                child: child,
-                animation: animation,
-                enterForward: _folderEnterForward,
-              ),
-              child: KeyedSubtree(
-                key: ValueKey(browseFolderId ?? '__character_root__'),
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (notification) {
-                    if (notification.metrics.extentAfter < 600) {
-                      ref.read(characterListProvider.notifier).loadMore();
-                    }
-                    return false;
+            body: Column(
+              children: [
+                _SearchBar(
+                  showFolderScopeToggle: browseFolderId != null,
+                  searchEntireLibrary:
+                      ref.watch(characterSearchGlobalProvider),
+                  tagFilterActive: tagFilter.isNotEmpty,
+                  onOpenTagFilter: () =>
+                      showCharacterTagFilterSheet(context, ref),
+                  onToggleSearchScope: () {
+                    final enableGlobal =
+                        !ref.read(characterSearchGlobalProvider);
+                    ref.read(characterSearchGlobalProvider.notifier).state =
+                        enableGlobal;
                   },
-                  child: _buildBrowseContent(
-                    charactersAsync: charactersAsync,
-                    l10n: l10n,
-                    browseFolderId: browseFolderId,
-                    tagFilter: tagFilter,
-                    foldersAsync: foldersAsync,
+                  onChanged: (value) {
+                    setState(() => _searchQuery = value);
+                    _searchDebounce?.cancel();
+                    _searchDebounce =
+                        Timer(const Duration(milliseconds: 250), () {
+                      if (mounted) {
+                        ref
+                            .read(characterListProvider.notifier)
+                            .setQuery(value);
+                      }
+                    });
+                  },
+                ),
+                Expanded(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 220),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    // Avoid stacking previous + next grids during folder switches.
+                    layoutBuilder: (currentChild, previousChildren) {
+                      return currentChild ?? const SizedBox.shrink();
+                    },
+                    transitionBuilder: (child, animation) =>
+                        _characterFolderBrowseTransition(
+                      child: child,
+                      animation: animation,
+                      enterForward: _folderEnterForward,
+                    ),
+                    child: KeyedSubtree(
+                      key: ValueKey(browseFolderId ?? '__character_root__'),
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (notification) {
+                          if (notification.metrics.extentAfter < 600) {
+                            ref
+                                .read(characterListProvider.notifier)
+                                .loadMore();
+                          }
+                          return false;
+                        },
+                        child: _buildBrowseContent(
+                          charactersAsync: charactersAsync,
+                          l10n: l10n,
+                          browseFolderId: browseFolderId,
+                          tagFilter: tagFilter,
+                          foldersAsync: foldersAsync,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
-      ),
-      ),
+        );
+      },
     );
   }
 
@@ -667,8 +621,8 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     }
 
     final interaction = _CharacterTileInteraction(
-      selectionMode: _selectionMode,
-      selectedIds: _selectedCharacterIds,
+      selectionMode: _selection.selectionMode,
+      selectedIds: _selection.characterIds,
       onToggleSelect: _toggleCharacterSelection,
       onEnterSelection: (id) => _enterSelectionMode(characterId: id),
     );
@@ -679,7 +633,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     }
 
     void onFolderTap(CharacterFolder folder) {
-      if (_selectionMode) {
+      if (_selection.selectionMode) {
         _toggleFolderSelection(folder.id);
         return;
       }
@@ -687,7 +641,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     }
 
     void longPressFolder(CharacterFolder folder) {
-      if (_selectionMode) {
+      if (_selection.selectionMode) {
         _toggleFolderSelection(folder.id);
       } else {
         _enterSelectionMode(folderId: folder.id);
@@ -701,8 +655,8 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           characters: characters,
           avatarShape: avatarShape,
           interaction: interaction,
-          selectedFolderIds: _selectedFolderIds,
-          selectionMode: _selectionMode,
+          selectedFolderIds: _selection.folderIds,
+          selectionMode: _selection.selectionMode,
           onFolderTap: onFolderTap,
           onFolderLongPress: longPressFolder,
           onFolderActions: openFolderActions,
@@ -712,8 +666,8 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           folders: visibleFolders,
           characters: characters,
           interaction: interaction,
-          selectedFolderIds: _selectedFolderIds,
-          selectionMode: _selectionMode,
+          selectedFolderIds: _selection.folderIds,
+          selectionMode: _selection.selectionMode,
           onFolderTap: onFolderTap,
           onFolderLongPress: longPressFolder,
           onFolderActions: openFolderActions,
@@ -723,8 +677,8 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           folders: visibleFolders,
           characters: characters,
           interaction: interaction,
-          selectedFolderIds: _selectedFolderIds,
-          selectionMode: _selectionMode,
+          selectedFolderIds: _selection.folderIds,
+          selectionMode: _selection.selectionMode,
           onFolderTap: onFolderTap,
           onFolderLongPress: longPressFolder,
           onFolderActions: openFolderActions,
@@ -734,13 +688,89 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           folders: visibleFolders,
           characters: characters,
           interaction: interaction,
-          selectedFolderIds: _selectedFolderIds,
-          selectionMode: _selectionMode,
+          selectedFolderIds: _selection.folderIds,
+          selectionMode: _selection.selectionMode,
           onFolderTap: onFolderTap,
           onFolderLongPress: longPressFolder,
           onFolderActions: openFolderActions,
         );
     }
+  }
+}
+
+class _LibrarySelectionController extends ChangeNotifier {
+  bool selectionMode = false;
+  final Set<String> characterIds = <String>{};
+  final Set<String> folderIds = <String>{};
+
+  int get selectedItemCount => characterIds.length + folderIds.length;
+
+  bool get hasSelection => selectedItemCount > 0;
+
+  void exit() {
+    if (!selectionMode && characterIds.isEmpty && folderIds.isEmpty) return;
+    selectionMode = false;
+    characterIds.clear();
+    folderIds.clear();
+    notifyListeners();
+  }
+
+  void enter({String? characterId, String? folderId}) {
+    selectionMode = true;
+    characterIds
+      ..clear()
+      ..addAll(characterId == null ? const <String>[] : [characterId]);
+    folderIds
+      ..clear()
+      ..addAll(folderId == null ? const <String>[] : [folderId]);
+    notifyListeners();
+  }
+
+  void toggleCharacter(String characterId) {
+    if (characterIds.contains(characterId)) {
+      characterIds.remove(characterId);
+    } else {
+      characterIds.add(characterId);
+    }
+    if (!hasSelection) {
+      selectionMode = false;
+    }
+    notifyListeners();
+  }
+
+  void toggleFolder(String folderId) {
+    if (folderIds.contains(folderId)) {
+      folderIds.remove(folderId);
+    } else {
+      folderIds.add(folderId);
+    }
+    if (!hasSelection) {
+      selectionMode = false;
+    }
+    notifyListeners();
+  }
+
+  void toggleSelectAll({
+    required List<String> characterIds,
+    required List<String> folderIds,
+  }) {
+    final allSelected = characterIds.every(this.characterIds.contains) &&
+        folderIds.every(this.folderIds.contains) &&
+        this.characterIds.length == characterIds.length &&
+        this.folderIds.length == folderIds.length &&
+        (characterIds.isNotEmpty || folderIds.isNotEmpty);
+    if (allSelected) {
+      exit();
+      return;
+    }
+    selectionMode = true;
+    this.characterIds
+      ..clear()
+      ..addAll(characterIds);
+    this.folderIds
+      ..clear()
+      ..addAll(folderIds);
+    notifyListeners();
   }
 }
 
@@ -754,9 +784,9 @@ Widget _characterFolderBrowseTransition({
     curve: Curves.easeOutCubic,
     reverseCurve: Curves.easeInCubic,
   );
-  final horizontal = enterForward ? 0.22 : -0.22;
+  final horizontal = enterForward ? 0.12 : -0.12;
   return FadeTransition(
-    opacity: Tween<double>(begin: 0, end: 1).animate(curved),
+    opacity: Tween<double>(begin: 0.85, end: 1).animate(curved),
     child: SlideTransition(
       position: Tween<Offset>(
         begin: Offset(horizontal, 0),
@@ -905,20 +935,27 @@ class _CharacterGridView extends StatelessWidget {
               itemBuilder: (context, index) {
                 if (index < folders.length) {
                   final folder = folders[index];
-                  return CharacterFolderGridCard(
-                    folder: folder,
-                    selectionMode: selectionMode,
-                    selected: selectedFolderIds.contains(folder.id),
-                    onTap: () => onFolderTap(folder),
-                    onLongPress: () => onFolderLongPress(folder),
-                    onSecondaryTap: selectionMode
-                        ? () => onFolderTap(folder)
-                        : () => onFolderActions(folder),
+                  return RepaintBoundary(
+                    key: ValueKey('folder-${folder.id}'),
+                    child: CharacterFolderGridCard(
+                      folder: folder,
+                      selectionMode: selectionMode,
+                      selected: selectedFolderIds.contains(folder.id),
+                      onTap: () => onFolderTap(folder),
+                      onLongPress: () => onFolderLongPress(folder),
+                      onSecondaryTap: selectionMode
+                          ? () => onFolderTap(folder)
+                          : () => onFolderActions(folder),
+                    ),
                   );
                 }
-                return _CharacterGridCard(
-                  character: characters[index - folders.length],
-                  interaction: interaction,
+                final character = characters[index - folders.length];
+                return RepaintBoundary(
+                  key: ValueKey('character-${character.id}'),
+                  child: _CharacterGridCard(
+                    character: character,
+                    interaction: interaction,
+                  ),
                 );
               },
             ));
@@ -958,22 +995,29 @@ class _CharacterListView extends StatelessWidget {
       itemBuilder: (context, index) {
         if (index < folders.length) {
           final folder = folders[index];
-          return CharacterFolderListTile(
-            folder: folder,
-            avatarShape: avatarShape,
-            selectionMode: selectionMode,
-            selected: selectedFolderIds.contains(folder.id),
-            onTap: () => onFolderTap(folder),
-            onLongPress: () => onFolderLongPress(folder),
-            onSecondaryTap: selectionMode
-                ? () => onFolderTap(folder)
-                : () => onFolderActions(folder),
+          return RepaintBoundary(
+            key: ValueKey('folder-${folder.id}'),
+            child: CharacterFolderListTile(
+              folder: folder,
+              avatarShape: avatarShape,
+              selectionMode: selectionMode,
+              selected: selectedFolderIds.contains(folder.id),
+              onTap: () => onFolderTap(folder),
+              onLongPress: () => onFolderLongPress(folder),
+              onSecondaryTap: selectionMode
+                  ? () => onFolderTap(folder)
+                  : () => onFolderActions(folder),
+            ),
           );
         }
-        return _CharacterListTile(
-          character: characters[index - folders.length],
-          avatarShape: avatarShape,
-          interaction: interaction,
+        final character = characters[index - folders.length];
+        return RepaintBoundary(
+          key: ValueKey('character-${character.id}'),
+          child: _CharacterListTile(
+            character: character,
+            avatarShape: avatarShape,
+            interaction: interaction,
+          ),
         );
       },
     );
@@ -1003,7 +1047,9 @@ class _CharacterSimpleListView extends StatelessWidget {
   });
 
   static const double rowHeight = 60;
+  static const double rowGap = 8;
   static const double avatarSize = 40;
+  static const double itemExtent = rowHeight + rowGap;
 
   int get _itemCount => folders.length + characters.length;
 
@@ -1013,71 +1059,79 @@ class _CharacterSimpleListView extends StatelessWidget {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: _itemCount,
+      itemExtent: itemExtent,
       itemBuilder: (context, index) {
         if (index < folders.length) {
           final folder = folders[index];
           final selected = selectedFolderIds.contains(folder.id);
-          return Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            clipBehavior: Clip.antiAlias,
-            color: selected
-                ? scheme.primaryContainer.withValues(alpha: 0.45)
-                : null,
-            child: SizedBox(
-              height: rowHeight,
-              child: InkWell(
-                onTap: () => onFolderTap(folder),
-                onLongPress: () => onFolderLongPress(folder),
-                onSecondaryTap: selectionMode
-                    ? () => onFolderTap(folder)
-                    : () => onFolderActions(folder),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    children: [
-                      if (selectionMode) ...[
-                        Icon(
-                          selected
-                              ? Icons.check_circle
-                              : Icons.circle_outlined,
-                          color: selected ? scheme.primary : scheme.outline,
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                      SizedBox(
-                        width: avatarSize,
-                        height: avatarSize,
-                        child: ClipOval(
-                          child: CharacterFolderPreviewMosaic(
-                            previews: folder.previewCharacters,
-                            compact: true,
+          return RepaintBoundary(
+            key: ValueKey('folder-${folder.id}'),
+            child: Card(
+              margin: const EdgeInsets.only(bottom: rowGap),
+              clipBehavior: Clip.antiAlias,
+              color: selected
+                  ? scheme.primaryContainer.withValues(alpha: 0.45)
+                  : null,
+              child: SizedBox(
+                height: rowHeight,
+                child: InkWell(
+                  onTap: () => onFolderTap(folder),
+                  onLongPress: () => onFolderLongPress(folder),
+                  onSecondaryTap: selectionMode
+                      ? () => onFolderTap(folder)
+                      : () => onFolderActions(folder),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      children: [
+                        if (selectionMode) ...[
+                          Icon(
+                            selected
+                                ? Icons.check_circle
+                                : Icons.circle_outlined,
+                            color: selected ? scheme.primary : scheme.outline,
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        SizedBox(
+                          width: avatarSize,
+                          height: avatarSize,
+                          child: ClipOval(
+                            child: CharacterFolderPreviewMosaic(
+                              previews: folder.previewCharacters,
+                              compact: true,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          folder.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleSmall,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            folder.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
                         ),
-                      ),
-                      if (!selectionMode)
-                        Icon(
-                          Icons.chevron_right,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                    ],
+                        if (!selectionMode)
+                          Icon(
+                            Icons.chevron_right,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           );
         }
-        return _CharacterSimpleListTile(
-          character: characters[index - folders.length],
-          interaction: interaction,
+        final character = characters[index - folders.length];
+        return RepaintBoundary(
+          key: ValueKey('character-${character.id}'),
+          child: _CharacterSimpleListTile(
+            character: character,
+            interaction: interaction,
+          ),
         );
       },
     );
@@ -1211,21 +1265,28 @@ class _CharacterCompactGridView extends StatelessWidget {
               itemBuilder: (context, index) {
                 if (index < folders.length) {
                   final folder = folders[index];
-                  return CharacterFolderGridCard(
-                    folder: folder,
-                    compact: true,
-                    selectionMode: selectionMode,
-                    selected: selectedFolderIds.contains(folder.id),
-                    onTap: () => onFolderTap(folder),
-                    onLongPress: () => onFolderLongPress(folder),
-                    onSecondaryTap: selectionMode
-                        ? () => onFolderTap(folder)
-                        : () => onFolderActions(folder),
+                  return RepaintBoundary(
+                    key: ValueKey('folder-${folder.id}'),
+                    child: CharacterFolderGridCard(
+                      folder: folder,
+                      compact: true,
+                      selectionMode: selectionMode,
+                      selected: selectedFolderIds.contains(folder.id),
+                      onTap: () => onFolderTap(folder),
+                      onLongPress: () => onFolderLongPress(folder),
+                      onSecondaryTap: selectionMode
+                          ? () => onFolderTap(folder)
+                          : () => onFolderActions(folder),
+                    ),
                   );
                 }
-                return _CharacterCompactGridCard(
-                  character: characters[index - folders.length],
-                  interaction: interaction,
+                final character = characters[index - folders.length];
+                return RepaintBoundary(
+                  key: ValueKey('character-${character.id}'),
+                  child: _CharacterCompactGridCard(
+                    character: character,
+                    interaction: interaction,
+                  ),
                 );
               },
             ));
