@@ -7020,11 +7020,10 @@ class AppLocalizationsMs extends AppLocalizations {
   String get themeModeTitle => 'Theme mode';
 
   @override
-  String get themeModeSubtitle =>
-      'Choose light, dark, or follow the system appearance.';
+  String get themeModeSubtitle => 'Choose light, dark, or automatic.';
 
   @override
-  String get themeModeSystem => 'System';
+  String get themeModeSystem => 'Auto';
 
   @override
   String get themeModeLight => 'Light';

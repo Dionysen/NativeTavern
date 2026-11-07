@@ -6756,10 +6756,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get themeModeTitle => '主题模式';
 
   @override
-  String get themeModeSubtitle => '选择浅色、深色，或跟随系统外观';
+  String get themeModeSubtitle => '选择浅色、深色，或自动';
 
   @override
-  String get themeModeSystem => '跟随系统';
+  String get themeModeSystem => '自动';
 
   @override
   String get themeModeLight => '浅色';
@@ -13795,10 +13795,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get themeModeTitle => '主題模式';
 
   @override
-  String get themeModeSubtitle => '選择淺色、深色，或跟隨系統外观';
+  String get themeModeSubtitle => '選擇淺色、深色，或自動';
 
   @override
-  String get themeModeSystem => '跟隨系統';
+  String get themeModeSystem => '自動';
 
   @override
   String get themeModeLight => '淺色';

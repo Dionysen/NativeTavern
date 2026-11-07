@@ -12428,13 +12428,13 @@ abstract class AppLocalizations {
   /// No description provided for @themeModeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Choose light, dark, or follow the system appearance.'**
+  /// **'Choose light, dark, or automatic.'**
   String get themeModeSubtitle;
 
   /// No description provided for @themeModeSystem.
   ///
   /// In en, this message translates to:
-  /// **'System'**
+  /// **'Auto'**
   String get themeModeSystem;
 
   /// No description provided for @themeModeLight.
