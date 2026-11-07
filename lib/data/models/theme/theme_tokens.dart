@@ -32,7 +32,17 @@ enum ThemePreset {
   purple,
   hermes,
   ocean,
-  darkModern;
+  darkModern,
+  /// Warm charcoal — soft copper accent.
+  graphite,
+  /// Deep evergreen — muted sage accent.
+  forest,
+  /// Coffee brown — soft terracotta accent.
+  espresso,
+  /// Soft indigo night — periwinkle accent.
+  midnight,
+  /// Mauve dusk — dusty rose accent.
+  dusk;
 }
 
 class ThemeTokens {
@@ -180,6 +190,76 @@ class ThemeTokens {
       cursor: 0xFFFFFFFF,
     ),
     ThemePreset.darkModern: defaults,
+    // Warm charcoal — easy on the eyes for long sessions.
+    ThemePreset.graphite: ThemeTokens(
+      editorSurface: 0xFF1B1A19,
+      sidebarSurface: 0xFF131211,
+      controlSurface: 0xFF2A2927,
+      border: 0xFF353330,
+      divider: 0xFF262422,
+      primaryText: 0xFFE4E0DA,
+      mutedText: 0xFF9A958C,
+      accent: 0xFFC9A06B,
+      secondaryAccent: 0xFF7FAE98,
+      tertiaryAccent: 0xFFD4A57A,
+      cursor: 0xFFE4E0DA,
+    ),
+    // Deep forest — cool green tint without neon punch.
+    ThemePreset.forest: ThemeTokens(
+      editorSurface: 0xFF151A17,
+      sidebarSurface: 0xFF0F1311,
+      controlSurface: 0xFF222A26,
+      border: 0xFF2E3833,
+      divider: 0xFF1A211D,
+      primaryText: 0xFFDFE7E2,
+      mutedText: 0xFF8A9A92,
+      accent: 0xFF6BAE8F,
+      secondaryAccent: 0xFF5FA8B8,
+      tertiaryAccent: 0xFFD2A06E,
+      cursor: 0xFFDFE7E2,
+    ),
+    // Espresso — warm brown chrome, soft terracotta accent.
+    ThemePreset.espresso: ThemeTokens(
+      editorSurface: 0xFF1A1613,
+      sidebarSurface: 0xFF120F0D,
+      controlSurface: 0xFF2A241F,
+      border: 0xFF3A322B,
+      divider: 0xFF221C18,
+      primaryText: 0xFFEDE6DF,
+      mutedText: 0xFFA09488,
+      accent: 0xFFD08B6A,
+      secondaryAccent: 0xFF7EAE9A,
+      tertiaryAccent: 0xFFE0A070,
+      cursor: 0xFFEDE6DF,
+    ),
+    // Midnight — soft indigo, calmer than Ocean's cool blue.
+    ThemePreset.midnight: ThemeTokens(
+      editorSurface: 0xFF16151E,
+      sidebarSurface: 0xFF100F16,
+      controlSurface: 0xFF23222E,
+      border: 0xFF323040,
+      divider: 0xFF1B1A24,
+      primaryText: 0xFFE4E2EF,
+      mutedText: 0xFF9490A8,
+      accent: 0xFF8B9FE0,
+      secondaryAccent: 0xFF6FB5A8,
+      tertiaryAccent: 0xFFD4A07A,
+      cursor: 0xFFE4E2EF,
+    ),
+    // Dusk — mauve night with a dusty rose accent.
+    ThemePreset.dusk: ThemeTokens(
+      editorSurface: 0xFF1B1619,
+      sidebarSurface: 0xFF131014,
+      controlSurface: 0xFF2A2327,
+      border: 0xFF3A3236,
+      divider: 0xFF221C20,
+      primaryText: 0xFFEDE6EA,
+      mutedText: 0xFFA09098,
+      accent: 0xFFD49AAA,
+      secondaryAccent: 0xFF7EAEA0,
+      tertiaryAccent: 0xFFD4A07A,
+      cursor: 0xFFEDE6EA,
+    ),
   };
 
   final int editorSurface;

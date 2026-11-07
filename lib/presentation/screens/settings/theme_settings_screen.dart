@@ -555,6 +555,11 @@ String _packTitle(AppLocalizations l10n, ThemeColorPack pack) {
     ThemePreset.hermes => l10n.themePresetHermes,
     ThemePreset.ocean => l10n.themePresetOcean,
     ThemePreset.darkModern => l10n.themePresetDarkModern,
+    ThemePreset.graphite => l10n.themePresetGraphite,
+    ThemePreset.forest => l10n.themePresetForest,
+    ThemePreset.espresso => l10n.themePresetEspresso,
+    ThemePreset.midnight => l10n.themePresetMidnight,
+    ThemePreset.dusk => l10n.themePresetDusk,
   };
 }
 

@@ -7232,6 +7232,21 @@ class AppLocalizationsHi extends AppLocalizations {
   String get themePresetDarkModern => 'Dark Modern';
 
   @override
+  String get themePresetGraphite => 'Graphite';
+
+  @override
+  String get themePresetForest => 'Forest';
+
+  @override
+  String get themePresetEspresso => 'Espresso';
+
+  @override
+  String get themePresetMidnight => 'Midnight';
+
+  @override
+  String get themePresetDusk => 'Dusk';
+
+  @override
   String get tokenEditorSurface => 'App background';
 
   @override

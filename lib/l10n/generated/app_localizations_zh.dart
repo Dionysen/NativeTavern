@@ -6960,6 +6960,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get themePresetDarkModern => '深色现代';
 
   @override
+  String get themePresetGraphite => '石墨';
+
+  @override
+  String get themePresetForest => '深林';
+
+  @override
+  String get themePresetEspresso => '咖啡';
+
+  @override
+  String get themePresetMidnight => '午夜';
+
+  @override
+  String get themePresetDusk => '暮色';
+
+  @override
   String get tokenEditorSurface => '应用背景';
 
   @override
@@ -13997,7 +14012,22 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get themePresetOcean => '海洋';
 
   @override
-  String get themePresetDarkModern => '深色现代';
+  String get themePresetDarkModern => '深色現代';
+
+  @override
+  String get themePresetGraphite => '石墨';
+
+  @override
+  String get themePresetForest => '深林';
+
+  @override
+  String get themePresetEspresso => '咖啡';
+
+  @override
+  String get themePresetMidnight => '午夜';
+
+  @override
+  String get themePresetDusk => '暮色';
 
   @override
   String get tokenEditorSurface => '應用背景';

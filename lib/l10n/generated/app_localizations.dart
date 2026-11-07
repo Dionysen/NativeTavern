@@ -12809,6 +12809,36 @@ abstract class AppLocalizations {
   /// **'Dark Modern'**
   String get themePresetDarkModern;
 
+  /// No description provided for @themePresetGraphite.
+  ///
+  /// In en, this message translates to:
+  /// **'Graphite'**
+  String get themePresetGraphite;
+
+  /// No description provided for @themePresetForest.
+  ///
+  /// In en, this message translates to:
+  /// **'Forest'**
+  String get themePresetForest;
+
+  /// No description provided for @themePresetEspresso.
+  ///
+  /// In en, this message translates to:
+  /// **'Espresso'**
+  String get themePresetEspresso;
+
+  /// No description provided for @themePresetMidnight.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight'**
+  String get themePresetMidnight;
+
+  /// No description provided for @themePresetDusk.
+  ///
+  /// In en, this message translates to:
+  /// **'Dusk'**
+  String get themePresetDusk;
+
   /// No description provided for @tokenEditorSurface.
   ///
   /// In en, this message translates to:
