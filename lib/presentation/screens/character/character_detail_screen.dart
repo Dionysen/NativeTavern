@@ -14,6 +14,7 @@ import 'package:native_tavern/presentation/providers/character_folder_providers.
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
+import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/screens/import/import_screen.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
@@ -525,6 +526,9 @@ class _CharacterDetailContentState
                     ],
                   ),
                   const SizedBox(height: 24),
+
+                  _CharacterWorldRuntimeTile(characterId: character.id),
+                  const SizedBox(height: 16),
 
                   _CharacterChatList(
                     characterId: character.id,
@@ -1282,6 +1286,40 @@ class _CharacterFriendsList extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _CharacterWorldRuntimeTile extends ConsumerWidget {
+  const _CharacterWorldRuntimeTile({required this.characterId});
+
+  final String characterId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final momentsOn = ref.watch(appSettingsProvider).momentsEnabled;
+    final enabledAsync =
+        ref.watch(characterWorldRuntimeEnabledProvider(characterId));
+    final enabled = enabledAsync.valueOrNull ?? false;
+
+    return Card(
+      child: SwitchListTile(
+        secondary: const Icon(Icons.public_outlined),
+        title: Text(l10n.characterWorldRuntimeEnabled),
+        subtitle: Text(l10n.characterWorldRuntimeEnabledHint),
+        value: enabled,
+        onChanged: !momentsOn
+            ? null
+            : (value) async {
+                await ref
+                    .read(worldRuntimeProvider)
+                    .setCharacterEnabled(characterId, value);
+                ref
+                    .read(worldRuntimeMembershipRevisionProvider.notifier)
+                    .state++;
+              },
+      ),
     );
   }
 }

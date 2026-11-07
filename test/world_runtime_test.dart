@@ -56,6 +56,13 @@ void main() {
     dataDirectory.deleteSync(recursive: true);
   });
 
+  MemoryWorldWakeStore wakeStore({
+    Set<String> enabled = const {'character-1'},
+  }) {
+    return MemoryWorldWakeStore()
+      ..state = WorldWakeState(enabledCharacterIds: {...enabled});
+  }
+
   MomentService service({
     required Future<String> Function(
       List<Map<String, dynamic>>,
@@ -73,7 +80,7 @@ void main() {
 
   test('a due character can post when the world clock wakes them', () async {
     var asks = 0;
-    final store = MemoryWorldWakeStore();
+    final store = wakeStore();
     final runtime = WorldRuntime(
       momentService: service(
         transport: (messages, config) async {
@@ -123,7 +130,7 @@ void main() {
         },
       ),
       characterRepository: characters,
-      store: MemoryWorldWakeStore(),
+      store: wakeStore(enabled: {'character-1', 'character-2'}),
       enabled: () => true,
       config: () => _configuredLlm,
       now: () => now,
@@ -177,7 +184,7 @@ void main() {
             '{"action":"like","post_id":"${playerPost.id}"}',
       ),
       characterRepository: characters,
-      store: MemoryWorldWakeStore(),
+      store: wakeStore(),
       enabled: () => true,
       config: () => _configuredLlm,
       now: () => now,
@@ -192,7 +199,7 @@ void main() {
 
   test('a due character does not call AI when moments are off', () async {
     var asks = 0;
-    final store = MemoryWorldWakeStore();
+    final store = wakeStore();
     final runtime = WorldRuntime(
       momentService: service(
         transport: (messages, config) async {
@@ -225,7 +232,7 @@ void main() {
         },
       ),
       characterRepository: characters,
-      store: MemoryWorldWakeStore(),
+      store: wakeStore(),
       enabled: () => true,
       config: () => _configuredLlm,
       now: () => now,
@@ -238,7 +245,7 @@ void main() {
 
   test('a failed wake stays due and is retried', () async {
     var asks = 0;
-    final store = MemoryWorldWakeStore();
+    final store = wakeStore();
     final operations = OperationLogRepository(database);
     final runtime = WorldRuntime(
       momentService: service(
@@ -304,7 +311,7 @@ void main() {
       momentService: service,
       characterRepository: characters,
       operations: operations,
-      store: MemoryWorldWakeStore(),
+      store: wakeStore(),
       enabled: () => true,
       config: () => _configuredLlm,
       now: () => now,
@@ -362,7 +369,7 @@ void main() {
       ),
       characterRepository: characters,
       operations: operations,
-      store: MemoryWorldWakeStore(),
+      store: wakeStore(),
       enabled: () => true,
       config: () => _configuredLlm,
       now: () => now,

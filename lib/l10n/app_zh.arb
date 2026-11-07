@@ -5792,9 +5792,17 @@
   "@momentsDisabledEmpty": {
     "description": "Empty state when the user has turned moments off"
   },
-  "momentsEnabledSubtitle": "关闭后动态不再更新，角色也不会再发。",
+  "momentsEnabledSubtitle": "关闭后动态不再更新。角色需在详情页单独打开才会发动态。",
   "@momentsEnabledSubtitle": {
     "description": "Settings switch subtitle for the moments world loop"
+  },
+  "characterWorldRuntimeEnabled": "参与动态世界",
+  "@characterWorldRuntimeEnabled": {
+    "description": "Per-character switch to join the Moments world loop"
+  },
+  "characterWorldRuntimeEnabledHint": "默认关闭。打开后，这个角色才会自己醒来发动态。",
+  "@characterWorldRuntimeEnabledHint": {
+    "description": "Helper under the per-character Moments world switch"
   },
   "momentsInChat": "本聊天带入动态",
   "@momentsInChat": {

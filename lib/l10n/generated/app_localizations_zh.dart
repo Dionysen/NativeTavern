@@ -4478,7 +4478,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get momentsDisabledEmpty => '动态已关闭。去设置里打开。';
 
   @override
-  String get momentsEnabledSubtitle => '关闭后动态不再更新，角色也不会再发。';
+  String get momentsEnabledSubtitle => '关闭后动态不再更新。角色需在详情页单独打开才会发动态。';
+
+  @override
+  String get characterWorldRuntimeEnabled => '参与动态世界';
+
+  @override
+  String get characterWorldRuntimeEnabledHint => '默认关闭。打开后，这个角色才会自己醒来发动态。';
 
   @override
   String get momentsInChat => '本聊天带入动态';
@@ -11510,7 +11516,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get momentsDisabledEmpty => '動態已關閉。去設定裡打開。';
 
   @override
-  String get momentsEnabledSubtitle => '關閉後動態不再更新，角色也不會再發。';
+  String get momentsEnabledSubtitle => '關閉後動態不再更新。角色需在詳情頁單獨打開才會發動態。';
+
+  @override
+  String get characterWorldRuntimeEnabled => '參與動態世界';
+
+  @override
+  String get characterWorldRuntimeEnabledHint => '預設關閉。打開後，這個角色才會自己醒來發動態。';
 
   @override
   String get momentsInChat => '本聊天帶入動態';

@@ -8370,8 +8370,20 @@ abstract class AppLocalizations {
   /// Settings switch subtitle for the moments world loop
   ///
   /// In en, this message translates to:
-  /// **'When this is off, the feed stays still and characters do not post.'**
+  /// **'When this is off, the feed stays still. Characters only post if you turn them on in their profile.'**
   String get momentsEnabledSubtitle;
+
+  /// Per-character switch to join the Moments world loop
+  ///
+  /// In en, this message translates to:
+  /// **'Post in Moments'**
+  String get characterWorldRuntimeEnabled;
+
+  /// Helper under the per-character Moments world switch
+  ///
+  /// In en, this message translates to:
+  /// **'Off by default. When on, this character can wake and post in Moments on their own.'**
+  String get characterWorldRuntimeEnabledHint;
 
   /// Chat-page toggle to inject visible moments into this conversation
   ///

@@ -6127,9 +6127,17 @@
   "@momentsDisabledEmpty": {
     "description": "Empty state when the user has turned moments off"
   },
-  "momentsEnabledSubtitle": "When this is off, the feed stays still and characters do not post.",
+  "momentsEnabledSubtitle": "When this is off, the feed stays still. Characters only post if you turn them on in their profile.",
   "@momentsEnabledSubtitle": {
     "description": "Settings switch subtitle for the moments world loop"
+  },
+  "characterWorldRuntimeEnabled": "Post in Moments",
+  "@characterWorldRuntimeEnabled": {
+    "description": "Per-character switch to join the Moments world loop"
+  },
+  "characterWorldRuntimeEnabledHint": "Off by default. When on, this character can wake and post in Moments on their own.",
+  "@characterWorldRuntimeEnabledHint": {
+    "description": "Helper under the per-character Moments world switch"
   },
   "momentsInChat": "Use Moments in this chat",
   "@momentsInChat": {

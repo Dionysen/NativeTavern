@@ -20,10 +20,18 @@ final class WorldWakeState {
   WorldWakeState({
     this.lastTickAt,
     Map<String, DateTime>? nextWakeAt,
-  }) : nextWakeAt = nextWakeAt ?? <String, DateTime>{};
+    Set<String>? enabledCharacterIds,
+  })  : nextWakeAt = nextWakeAt ?? <String, DateTime>{},
+        enabledCharacterIds = enabledCharacterIds ?? <String>{};
 
   DateTime? lastTickAt;
   final Map<String, DateTime> nextWakeAt;
+
+  /// Characters opted into the world loop. Empty = nobody wakes automatically.
+  final Set<String> enabledCharacterIds;
+
+  bool isCharacterEnabled(String characterId) =>
+      enabledCharacterIds.contains(characterId);
 
   Map<String, dynamic> toJson() => {
         if (lastTickAt != null) 'lastTickAt': lastTickAt!.toIso8601String(),
@@ -31,6 +39,7 @@ final class WorldWakeState {
           for (final entry in nextWakeAt.entries)
             entry.key: entry.value.toIso8601String(),
         },
+        'enabledCharacterIds': enabledCharacterIds.toList(growable: false),
       };
 
   factory WorldWakeState.fromJson(Map<String, dynamic> json) {
@@ -42,9 +51,18 @@ final class WorldWakeState {
         if (parsed != null) wakes['${entry.key}'] = parsed.toUtc();
       }
     }
+    final rawEnabled = json['enabledCharacterIds'];
+    final enabled = <String>{};
+    if (rawEnabled is List) {
+      for (final id in rawEnabled) {
+        final value = '$id'.trim();
+        if (value.isNotEmpty) enabled.add(value);
+      }
+    }
     return WorldWakeState(
       lastTickAt: DateTime.tryParse('${json['lastTickAt'] ?? ''}')?.toUtc(),
       nextWakeAt: wakes,
+      enabledCharacterIds: enabled,
     );
   }
 }
@@ -179,6 +197,22 @@ final class WorldRuntime {
     _configRetry = null;
   }
 
+  Future<bool> isCharacterEnabled(String characterId) async {
+    final state = await _store.load();
+    return state.isCharacterEnabled(characterId);
+  }
+
+  Future<void> setCharacterEnabled(String characterId, bool enabled) async {
+    final state = await _store.load();
+    if (enabled) {
+      state.enabledCharacterIds.add(characterId);
+    } else {
+      state.enabledCharacterIds.remove(characterId);
+      state.nextWakeAt.remove(characterId);
+    }
+    await _store.save(state);
+  }
+
   final Duration tickInterval;
   final int maxPostsPerTick;
   final int maxChaptersPerTick;
@@ -229,11 +263,20 @@ final class WorldRuntime {
       return published;
     }
 
-    final characters = await _characters.getAllCharacters();
+    // Only opted-in characters participate — scanning the whole library
+    // (thousands of cards) was freezing the UI on every tick.
+    final enabledIds = state.enabledCharacterIds;
+    if (enabledIds.isEmpty) {
+      state.lastTickAt = now;
+      await _store.save(state);
+      debugPrint('WorldRuntime tick: no characters opted in');
+      return published;
+    }
+    final characters = await _characters.getCharactersByIds(enabledIds);
     if (characters.isEmpty) {
       state.lastTickAt = now;
       await _store.save(state);
-      debugPrint('WorldRuntime tick: no characters yet');
+      debugPrint('WorldRuntime tick: opted-in characters missing');
       return published;
     }
 

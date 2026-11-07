@@ -4618,7 +4618,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get momentsEnabledSubtitle =>
-      'When this is off, the feed stays still and characters do not post.';
+      'When this is off, the feed stays still. Characters only post if you turn them on in their profile.';
+
+  @override
+  String get characterWorldRuntimeEnabled => 'Post in Moments';
+
+  @override
+  String get characterWorldRuntimeEnabledHint =>
+      'Off by default. When on, this character can wake and post in Moments on their own.';
 
   @override
   String get momentsInChat => 'Use Moments in this chat';

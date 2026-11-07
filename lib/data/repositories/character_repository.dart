@@ -31,6 +31,24 @@ class CharacterRepository {
     return rows.where((row) => !row.isDeleted).map(_characterFromRow).toList();
   }
 
+  /// Load characters by id (skips missing / soft-deleted).
+  Future<List<models.Character>> getCharactersByIds(
+    Iterable<String> ids,
+  ) async {
+    final unique = ids.toSet().toList(growable: false);
+    if (unique.isEmpty) return const [];
+    final driftRows = await (_db.select(_db.characters)
+          ..where((t) => t.id.isIn(unique) & t.isDeleted.equals(false)))
+        .get();
+    final byId = <String, models.Character>{
+      for (final row in driftRows) row.id: _characterFromRow(row),
+    };
+    return [
+      for (final id in unique)
+        if (byId.containsKey(id)) byId[id]!,
+    ];
+  }
+
   /// All character ids matching the current browser filter (no pagination).
   Future<List<String>> listBrowseCharacterIds({
     String query = '',

@@ -103,6 +103,9 @@ final momentContextRegistrationProvider =
 
 final worldMomentRevisionProvider = StateProvider<int>((ref) => 0);
 
+/// Bumps when a character is opted into / out of the world loop.
+final worldRuntimeMembershipRevisionProvider = StateProvider<int>((ref) => 0);
+
 final worldRuntimeProvider = Provider<WorldRuntime>((ref) {
   final settings = ref.watch(appSettingsProvider);
   final runtime = WorldRuntime(
@@ -127,6 +130,12 @@ final worldRuntimeProvider = Provider<WorldRuntime>((ref) {
   }
   ref.onDispose(runtime.dispose);
   return runtime;
+});
+
+final characterWorldRuntimeEnabledProvider =
+    FutureProvider.family<bool, String>((ref, characterId) async {
+  ref.watch(worldRuntimeMembershipRevisionProvider);
+  return ref.watch(worldRuntimeProvider).isCharacterEnabled(characterId);
 });
 
 final momentFeedProvider =

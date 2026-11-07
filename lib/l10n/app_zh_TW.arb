@@ -5707,7 +5707,9 @@
   "@momentsDisabledEmpty": {
     "description": "Empty state when the user has turned moments off"
   },
-  "momentsEnabledSubtitle": "關閉後動態不再更新，角色也不會再發。",
+  "momentsEnabledSubtitle": "關閉後動態不再更新。角色需在詳情頁單獨打開才會發動態。",
+  "characterWorldRuntimeEnabled": "參與動態世界",
+  "characterWorldRuntimeEnabledHint": "預設關閉。打開後，這個角色才會自己醒來發動態。",
   "@momentsEnabledSubtitle": {
     "description": "Settings switch subtitle for the moments world loop"
   },
