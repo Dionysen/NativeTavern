@@ -8,6 +8,15 @@ final characterBrowseFolderIdProvider = StateProvider<String?>((ref) => null);
 /// When true inside a folder, character search spans the whole library.
 final characterSearchGlobalProvider = StateProvider<bool>((ref) => false);
 
+/// Metadata for the currently open browse folder (null at library root).
+final characterBrowseFolderProvider =
+    FutureProvider<CharacterFolder?>((ref) async {
+  final id = ref.watch(characterBrowseFolderIdProvider);
+  if (id == null) return null;
+  return ref.read(characterFolderRepositoryProvider).getFolder(id);
+});
+
+/// Child folders of the current browse location.
 final characterFoldersProvider =
     AsyncNotifierProvider<CharacterFoldersNotifier, List<CharacterFolder>>(
   CharacterFoldersNotifier.new,
@@ -16,22 +25,29 @@ final characterFoldersProvider =
 class CharacterFoldersNotifier extends AsyncNotifier<List<CharacterFolder>> {
   @override
   Future<List<CharacterFolder>> build() async {
-    return ref.read(characterFolderRepositoryProvider).listFolders();
+    final parentId = ref.watch(characterBrowseFolderIdProvider);
+    return ref
+        .read(characterFolderRepositoryProvider)
+        .listFolders(parentId: parentId);
   }
 
   Future<void> refresh() async {
+    final parentId = ref.read(characterBrowseFolderIdProvider);
     state = await AsyncValue.guard(
-      () => ref.read(characterFolderRepositoryProvider).listFolders(),
+      () => ref
+          .read(characterFolderRepositoryProvider)
+          .listFolders(parentId: parentId),
     );
   }
 
-  Future<CharacterFolder> createFolder(String name) async {
-    final folder =
-        await ref.read(characterFolderRepositoryProvider).createFolder(name);
-    final current = state.valueOrNull;
-    if (current != null) {
-      state = AsyncData([...current, folder]);
-    }
+  Future<CharacterFolder> createFolder(
+    String name, {
+    String? parentId,
+  }) async {
+    final folder = await ref.read(characterFolderRepositoryProvider).createFolder(
+          name,
+          parentId: parentId ?? ref.read(characterBrowseFolderIdProvider),
+        );
     await refresh();
     return folder;
   }
@@ -45,9 +61,13 @@ class CharacterFoldersNotifier extends AsyncNotifier<List<CharacterFolder>> {
   }
 
   Future<void> dissolveFolder(String id) async {
-    await ref.read(characterFolderRepositoryProvider).dissolveFolder(id);
-    if (ref.read(characterBrowseFolderIdProvider) == id) {
-      ref.read(characterBrowseFolderIdProvider.notifier).state = null;
+    final repo = ref.read(characterFolderRepositoryProvider);
+    final folder = await repo.getFolder(id);
+    await repo.dissolveFolder(id);
+    final browseId = ref.read(characterBrowseFolderIdProvider);
+    if (browseId == id) {
+      ref.read(characterBrowseFolderIdProvider.notifier).state =
+          folder?.parentId;
     }
     await refresh();
   }

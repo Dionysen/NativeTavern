@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' hide isNull;
+import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:native_tavern/data/database/database.dart';
@@ -8,24 +8,20 @@ void main() {
   late AppDatabase database;
   late CharacterFolderRepository folders;
 
+  Future<void> insertCharacter(String id, String name) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await database.customStatement(
+      'INSERT INTO characters (id, name, created_at, modified_at) '
+      'VALUES (?, ?, ?, ?)',
+      [id, name, now, now],
+    );
+  }
+
   setUp(() async {
     database = AppDatabase.forTesting(NativeDatabase.memory());
     folders = CharacterFolderRepository(database);
-    final now = DateTime.now().millisecondsSinceEpoch;
-    await database.customStatement(
-      'INSERT INTO characters (id, name, description, personality, scenario, '
-      'first_mes, mes_example, creator, character_version, tags, extensions_json, '
-      'is_favorite, is_deleted, created_at, modified_at) '
-      "VALUES ('char-a', 'A', '', '', '', '', '', '', '', '[]', '{}', 0, 0, ?, ?)",
-      [now, now],
-    );
-    await database.customStatement(
-      'INSERT INTO characters (id, name, description, personality, scenario, '
-      'first_mes, mes_example, creator, character_version, tags, extensions_json, '
-      'is_favorite, is_deleted, created_at, modified_at) '
-      "VALUES ('char-b', 'B', '', '', '', '', '', '', '', '[]', '{}', 0, 0, ?, ?)",
-      [now, now],
-    );
+    await insertCharacter('char-a', 'A');
+    await insertCharacter('char-b', 'B');
   });
 
   tearDown(() async {
@@ -35,6 +31,7 @@ void main() {
   test('creates folder, moves characters, and dissolves', () async {
     final folder = await folders.createFolder('Favorites');
     expect(folder.name, 'Favorites');
+    expect(folder.parentId, isNull);
 
     await folders.moveCharactersToFolder(['char-a'], folderId: folder.id);
     expect(await folders.folderIdForCharacter('char-a'), folder.id);
@@ -58,5 +55,38 @@ void main() {
     expect(await folders.folderIdForCharacter('char-b'), folder.id);
     final updated = await folders.getFolder(folder.id);
     expect(updated?.characterCount, 1);
+  });
+
+  test('ensureFolderPath creates nested folders idempotently', () async {
+    final leafId = await folders.ensureFolderPath(['Fantasy', 'Elves']);
+    expect(leafId, isNotNull);
+
+    final rootFolders = await folders.listFolders();
+    expect(rootFolders.single.name, 'Fantasy');
+
+    final childFolders =
+        await folders.listFolders(parentId: rootFolders.single.id);
+    expect(childFolders.single.name, 'Elves');
+    expect(childFolders.single.id, leafId);
+
+    final again = await folders.ensureFolderPath(['Fantasy', 'Elves']);
+    expect(again, leafId);
+    expect(await folders.listAllFolders(), hasLength(2));
+
+    expect(
+      await folders.pathSegmentsForFolder(leafId!),
+      ['Fantasy', 'Elves'],
+    );
+    expect(await folders.relativePathForFolder(leafId), 'Fantasy/Elves');
+  });
+
+  test('dissolve reparents child folders', () async {
+    final parent = await folders.createFolder('Parent');
+    final child = await folders.createFolder('Child', parentId: parent.id);
+    await folders.dissolveFolder(parent.id);
+
+    final remaining = await folders.listFolders();
+    expect(remaining.single.id, child.id);
+    expect(remaining.single.parentId, isNull);
   });
 }

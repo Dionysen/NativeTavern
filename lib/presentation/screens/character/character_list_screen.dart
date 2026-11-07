@@ -8,8 +8,10 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/data/models/character_folder.dart';
 import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
+import 'package:native_tavern/data/repositories/character_folder_repository.dart';
 import 'package:native_tavern/presentation/widgets/character/character_folder_tiles.dart';
 import 'package:native_tavern/presentation/widgets/character/character_folder_ui.dart';
+import 'package:native_tavern/presentation/widgets/character/character_library_ops.dart';
 import 'package:native_tavern/presentation/widgets/character/character_tag_filter_sheet.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
@@ -80,11 +82,18 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     ref.read(characterBrowseFolderIdProvider.notifier).state = folderId;
   }
 
-  void _leaveFolder() {
+  Future<void> _leaveFolder() async {
     setState(() => _folderEnterForward = false);
     _exitSelectionMode();
     ref.read(characterSearchGlobalProvider.notifier).state = false;
-    ref.read(characterBrowseFolderIdProvider.notifier).state = null;
+    final currentId = ref.read(characterBrowseFolderIdProvider);
+    if (currentId == null) return;
+    final folder = await ref
+        .read(characterFolderRepositoryProvider)
+        .getFolder(currentId);
+    if (!mounted) return;
+    ref.read(characterBrowseFolderIdProvider.notifier).state =
+        folder?.parentId;
   }
 
   Future<void> _createEmptyFolder() async {
@@ -129,6 +138,16 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   Future<void> _moveSelectedCharacters() async {
     if (_selectedCharacterIds.isEmpty) return;
     await showMoveCharactersToFolderSheet(
+      context,
+      ref,
+      _selectedCharacterIds,
+    );
+    _exitSelectionMode();
+  }
+
+  Future<void> _copySelectedCharacters() async {
+    if (_selectedCharacterIds.isEmpty) return;
+    await showCopyCharactersToFolderSheet(
       context,
       ref,
       _selectedCharacterIds,
@@ -200,12 +219,8 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     final displayPrefs = ref.watch(characterBrowseDisplayPrefsProvider);
     final viewMode = displayPrefs.viewMode;
     final avatarShape = displayPrefs.avatarShape;
-    final folderTitle = browseFolderId == null
-        ? null
-        : foldersAsync.valueOrNull
-            ?.where((folder) => folder.id == browseFolderId)
-            .map((folder) => folder.name)
-            .firstOrNull;
+    final browseFolderAsync = ref.watch(characterBrowseFolderProvider);
+    final folderTitle = browseFolderAsync.valueOrNull?.name;
 
     ref.listen<String?>(characterBrowseFolderIdProvider, (previous, next) {
       if (previous == next) return;
@@ -214,16 +229,22 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
         setState(() => _folderEnterForward = true);
       } else if (previous != null && next == null) {
         setState(() => _folderEnterForward = false);
+      } else if (previous != null && next != null) {
+        setState(() => _folderEnterForward = true);
       }
     });
 
     return PopScope(
-      // System/back: leave multi-select first; do not pop the shell/tab route.
-      canPop: !_selectionMode,
+      // System/back: leave multi-select, then nested folder, before shell pop.
+      canPop: !_selectionMode && browseFolderId == null,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
         if (_selectionMode) {
           _exitSelectionMode();
+          return;
+        }
+        if (browseFolderId != null) {
+          _leaveFolder();
         }
       },
       child: Scaffold(
@@ -270,6 +291,12 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           if (_selectionMode) ...[
             if (_selectedCharacterIds.isNotEmpty)
               ChromeIconButton(
+                icon: const Icon(Icons.copy_all_outlined),
+                tooltip: l10n.copyToFolder,
+                onPressed: _copySelectedCharacters,
+              ),
+            if (_selectedCharacterIds.isNotEmpty)
+              ChromeIconButton(
                 icon: const Icon(Icons.drive_file_move_outline),
                 tooltip: l10n.moveToFolder,
                 onPressed: _moveSelectedCharacters,
@@ -292,7 +319,7 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
               onPressed: _exitSelectionMode,
             ),
           ] else ...[
-            if (browseFolderId == null && _searchQuery.isEmpty)
+            if (_searchQuery.isEmpty)
               ChromeIconButton(
                 icon: const Icon(Icons.create_new_folder_outlined),
                 tooltip: l10n.createCharacterFolder,
@@ -315,6 +342,16 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
               icon: const Icon(Icons.add),
               tooltip: l10n.createCharacter,
               onPressed: () => context.push(AppRoutes.characterCreate),
+            ),
+            ChromeIconButton(
+              icon: const Icon(Icons.folder_open_outlined),
+              tooltip: l10n.importCharactersFromFolder,
+              onPressed: () => importCharacterLibraryFromFolder(context, ref),
+            ),
+            ChromeIconButton(
+              icon: const Icon(Icons.drive_folder_upload_outlined),
+              tooltip: l10n.exportCharacterLibrary,
+              onPressed: () => exportCharacterLibraryToFolder(context, ref),
             ),
             ChromeIconButton(
               icon: const Icon(Icons.file_download_outlined),
@@ -452,10 +489,8 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     final displayPrefs = ref.watch(characterBrowseDisplayPrefsProvider);
     final viewMode = displayPrefs.viewMode;
     final avatarShape = displayPrefs.avatarShape;
-    final showFolders = browseFolderId == null &&
-        _searchQuery.isEmpty &&
-        tagFilter.isEmpty &&
-        !_selectionMode;
+    final showFolders =
+        _searchQuery.isEmpty && tagFilter.isEmpty && !_selectionMode;
     final folders = foldersAsync.valueOrNull ?? const <CharacterFolder>[];
 
     if (characters.isEmpty && (!showFolders || folders.isEmpty)) {

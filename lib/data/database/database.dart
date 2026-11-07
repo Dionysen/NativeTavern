@@ -1283,10 +1283,17 @@ class AppDatabase extends _$AppDatabase {
       CREATE TABLE IF NOT EXISTS character_folders (
         id TEXT NOT NULL PRIMARY KEY,
         name TEXT NOT NULL,
+        parent_id TEXT NULL,
         sort_order INTEGER NOT NULL DEFAULT 0,
-        created_at INTEGER NOT NULL
+        created_at INTEGER NOT NULL,
+        FOREIGN KEY (parent_id) REFERENCES character_folders(id) ON DELETE SET NULL
       )
     ''');
+    if (!await _hasColumn('character_folders', 'parent_id')) {
+      await customStatement(
+        'ALTER TABLE character_folders ADD COLUMN parent_id TEXT NULL',
+      );
+    }
     await customStatement('''
       CREATE TABLE IF NOT EXISTS character_folder_members (
         character_id TEXT NOT NULL PRIMARY KEY,
@@ -1298,6 +1305,10 @@ class AppDatabase extends _$AppDatabase {
     await customStatement(
       'CREATE INDEX IF NOT EXISTS character_folder_members_folder_idx '
       'ON character_folder_members (folder_id)',
+    );
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS character_folders_parent_idx '
+      'ON character_folders (parent_id)',
     );
   }
 

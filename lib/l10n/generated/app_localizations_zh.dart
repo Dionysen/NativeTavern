@@ -1308,6 +1308,52 @@ class AppLocalizationsZh extends AppLocalizations {
   String get charactersMovedToFolder => '已移动角色';
 
   @override
+  String get copyToFolder => '复制到文件夹';
+
+  @override
+  String get copyCharactersToFolder => '复制到文件夹';
+
+  @override
+  String charactersCopiedToFolder(int count) {
+    return '已复制 $count 个角色';
+  }
+
+  @override
+  String get characterFolderUseThisPath => '使用此文件夹';
+
+  @override
+  String get characterFolderPathEmpty => '这里还没有子文件夹';
+
+  @override
+  String get importCharactersFromFolder => '从文件夹导入';
+
+  @override
+  String get exportCharacterLibrary => '导出角色库';
+
+  @override
+  String characterLibraryImportProgress(int processed, int total) {
+    return '正在导入 $processed/$total';
+  }
+
+  @override
+  String characterLibraryImportSummary(int succeeded, int failed, int skipped) {
+    return '已导入 $succeeded，失败 $failed，跳过 $skipped';
+  }
+
+  @override
+  String characterLibraryExportProgress(int processed, int total) {
+    return '正在导出 $processed/$total';
+  }
+
+  @override
+  String characterLibraryExportSummary(int succeeded, int failed) {
+    return '已导出 $succeeded，失败 $failed';
+  }
+
+  @override
+  String get characterLibraryFolderPickerUnavailable => '当前设备无法选择文件夹，请改用文件导入。';
+
+  @override
   String get dissolveCharacterFolder => '解散文件夹';
 
   @override

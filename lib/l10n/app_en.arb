@@ -1877,6 +1877,77 @@
   "@charactersMovedToFolder": {
     "description": "Snack bar after moving characters into a folder"
   },
+  "copyToFolder": "Copy to folder",
+  "@copyToFolder": {
+    "description": "Copy selected characters into a folder path"
+  },
+  "copyCharactersToFolder": "Copy to folder",
+  "@copyCharactersToFolder": {
+    "description": "Title for copy characters path picker"
+  },
+  "charactersCopiedToFolder": "Copied {count} character(s)",
+  "@charactersCopiedToFolder": {
+    "description": "Snack bar after copying characters into a folder",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "characterFolderUseThisPath": "Use this folder",
+  "@characterFolderUseThisPath": {
+    "description": "Confirm current folder path in the picker"
+  },
+  "characterFolderPathEmpty": "No subfolders here yet",
+  "@characterFolderPathEmpty": {
+    "description": "Empty state inside folder path picker"
+  },
+  "importCharactersFromFolder": "Import from folder",
+  "@importCharactersFromFolder": {
+    "description": "Recursively import character cards from a folder"
+  },
+  "exportCharacterLibrary": "Export character library",
+  "@exportCharacterLibrary": {
+    "description": "Export all character cards preserving folder structure"
+  },
+  "characterLibraryImportProgress": "Importing {processed} of {total}",
+  "@characterLibraryImportProgress": {
+    "description": "Progress while importing a character folder",
+    "placeholders": {
+      "processed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "characterLibraryImportSummary": "Imported {succeeded}. Failed {failed}. Skipped {skipped}.",
+  "@characterLibraryImportSummary": {
+    "description": "Summary after folder import",
+    "placeholders": {
+      "succeeded": { "type": "int" },
+      "failed": { "type": "int" },
+      "skipped": { "type": "int" }
+    }
+  },
+  "characterLibraryExportProgress": "Exporting {processed} of {total}",
+  "@characterLibraryExportProgress": {
+    "description": "Progress while exporting the character library",
+    "placeholders": {
+      "processed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "characterLibraryExportSummary": "Exported {succeeded}. Failed {failed}.",
+  "@characterLibraryExportSummary": {
+    "description": "Summary after library export",
+    "placeholders": {
+      "succeeded": { "type": "int" },
+      "failed": { "type": "int" }
+    }
+  },
+  "characterLibraryFolderPickerUnavailable": "This device can’t pick a folder. Import cards as files instead.",
+  "@characterLibraryFolderPickerUnavailable": {
+    "description": "Shown when directory picking is unavailable"
+  },
   "dissolveCharacterFolder": "Dissolve folder",
   "@dissolveCharacterFolder": {
     "description": "Remove folder and keep characters in the library"

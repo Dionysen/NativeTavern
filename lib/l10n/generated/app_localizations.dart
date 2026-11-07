@@ -2563,6 +2563,78 @@ abstract class AppLocalizations {
   /// **'Characters moved'**
   String get charactersMovedToFolder;
 
+  /// Copy selected characters into a folder path
+  ///
+  /// In en, this message translates to:
+  /// **'Copy to folder'**
+  String get copyToFolder;
+
+  /// Title for copy characters path picker
+  ///
+  /// In en, this message translates to:
+  /// **'Copy to folder'**
+  String get copyCharactersToFolder;
+
+  /// Snack bar after copying characters into a folder
+  ///
+  /// In en, this message translates to:
+  /// **'Copied {count} character(s)'**
+  String charactersCopiedToFolder(int count);
+
+  /// Confirm current folder path in the picker
+  ///
+  /// In en, this message translates to:
+  /// **'Use this folder'**
+  String get characterFolderUseThisPath;
+
+  /// Empty state inside folder path picker
+  ///
+  /// In en, this message translates to:
+  /// **'No subfolders here yet'**
+  String get characterFolderPathEmpty;
+
+  /// Recursively import character cards from a folder
+  ///
+  /// In en, this message translates to:
+  /// **'Import from folder'**
+  String get importCharactersFromFolder;
+
+  /// Export all character cards preserving folder structure
+  ///
+  /// In en, this message translates to:
+  /// **'Export character library'**
+  String get exportCharacterLibrary;
+
+  /// Progress while importing a character folder
+  ///
+  /// In en, this message translates to:
+  /// **'Importing {processed} of {total}'**
+  String characterLibraryImportProgress(int processed, int total);
+
+  /// Summary after folder import
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {succeeded}. Failed {failed}. Skipped {skipped}.'**
+  String characterLibraryImportSummary(int succeeded, int failed, int skipped);
+
+  /// Progress while exporting the character library
+  ///
+  /// In en, this message translates to:
+  /// **'Exporting {processed} of {total}'**
+  String characterLibraryExportProgress(int processed, int total);
+
+  /// Summary after library export
+  ///
+  /// In en, this message translates to:
+  /// **'Exported {succeeded}. Failed {failed}.'**
+  String characterLibraryExportSummary(int succeeded, int failed);
+
+  /// Shown when directory picking is unavailable
+  ///
+  /// In en, this message translates to:
+  /// **'This device can’t pick a folder. Import cards as files instead.'**
+  String get characterLibraryFolderPickerUnavailable;
+
   /// Remove folder and keep characters in the library
   ///
   /// In en, this message translates to:

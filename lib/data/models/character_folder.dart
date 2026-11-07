@@ -16,6 +16,7 @@ class CharacterFolder {
   const CharacterFolder({
     required this.id,
     required this.name,
+    this.parentId,
     this.sortOrder = 0,
     required this.createdAt,
     this.characterCount = 0,
@@ -24,10 +25,14 @@ class CharacterFolder {
 
   final String id;
   final String name;
+
+  /// null = top-level folder under the library root.
+  final String? parentId;
+
   final int sortOrder;
   final DateTime createdAt;
 
-  /// Populated by list queries for display.
+  /// Populated by list queries for display (direct members only).
   final int characterCount;
 
   /// Up to four characters for folder cover mosaic, newest first.
@@ -36,6 +41,8 @@ class CharacterFolder {
   CharacterFolder copyWith({
     String? id,
     String? name,
+    String? parentId,
+    bool clearParentId = false,
     int? sortOrder,
     DateTime? createdAt,
     int? characterCount,
@@ -44,6 +51,7 @@ class CharacterFolder {
       CharacterFolder(
         id: id ?? this.id,
         name: name ?? this.name,
+        parentId: clearParentId ? null : (parentId ?? this.parentId),
         sortOrder: sortOrder ?? this.sortOrder,
         createdAt: createdAt ?? this.createdAt,
         characterCount: characterCount ?? this.characterCount,

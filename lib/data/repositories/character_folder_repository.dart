@@ -17,11 +17,9 @@ class CharacterFolderRepository {
   final AppDatabase _db;
   static const _uuid = Uuid();
 
-  Future<List<CharacterFolder>> listFolders() async {
-    final rows = await _db.customSelect(
-      '''
-      SELECT f.id AS id, f.name AS name, f.sort_order AS sort_order,
-             f.created_at AS created_at,
+  static const _folderSelect = '''
+      SELECT f.id AS id, f.name AS name, f.parent_id AS parent_id,
+             f.sort_order AS sort_order, f.created_at AS created_at,
              (
                SELECT COUNT(*)
                FROM character_folder_members m
@@ -29,33 +27,38 @@ class CharacterFolderRepository {
                WHERE m.folder_id = f.id AND c.is_deleted = 0
              ) AS character_count
       FROM character_folders f
+  ''';
+
+  /// Lists folders under [parentId] (`null` = library root).
+  Future<List<CharacterFolder>> listFolders({String? parentId}) async {
+    final rows = await _db.customSelect(
+      '''
+      $_folderSelect
+      WHERE ${parentId == null ? 'f.parent_id IS NULL' : 'f.parent_id = ?'}
+      ORDER BY f.sort_order ASC, f.name ASC
+      ''',
+      variables: parentId == null ? const [] : [Variable<String>(parentId)],
+      readsFrom: const {},
+    ).get();
+    return _hydrateFolders(rows);
+  }
+
+  /// Flat list of every folder (any depth).
+  Future<List<CharacterFolder>> listAllFolders() async {
+    final rows = await _db.customSelect(
+      '''
+      $_folderSelect
       ORDER BY f.sort_order ASC, f.name ASC
       ''',
       readsFrom: const {},
     ).get();
-    final previews = await _loadPreviewCharactersByFolder();
-    return rows
-        .map(_folderFromRow)
-        .map(
-          (folder) => folder.copyWith(
-            previewCharacters: previews[folder.id] ?? const [],
-          ),
-        )
-        .toList(growable: false);
+    return _hydrateFolders(rows);
   }
 
   Future<CharacterFolder?> getFolder(String id) async {
     final row = await _db.customSelect(
       '''
-      SELECT f.id AS id, f.name AS name, f.sort_order AS sort_order,
-             f.created_at AS created_at,
-             (
-               SELECT COUNT(*)
-               FROM character_folder_members m
-               INNER JOIN characters c ON c.id = m.character_id
-               WHERE m.folder_id = f.id AND c.is_deleted = 0
-             ) AS character_count
-      FROM character_folders f
+      $_folderSelect
       WHERE f.id = ?
       LIMIT 1
       ''',
@@ -70,31 +73,89 @@ class CharacterFolderRepository {
     );
   }
 
-  Future<CharacterFolder> createFolder(String name) async {
+  /// Name segments from library root to [folderId] (inclusive).
+  Future<List<String>> pathSegmentsForFolder(String folderId) async {
+    final segments = <String>[];
+    String? currentId = folderId;
+    final seen = <String>{};
+    while (currentId != null) {
+      if (!seen.add(currentId)) {
+        throw StateError('Folder parent cycle detected');
+      }
+      final folder = await getFolder(currentId);
+      if (folder == null) break;
+      segments.insert(0, folder.name);
+      currentId = folder.parentId;
+    }
+    return segments;
+  }
+
+  /// Relative path string using `/` separators, or empty for root.
+  Future<String> relativePathForFolder(String? folderId) async {
+    if (folderId == null) return '';
+    return (await pathSegmentsForFolder(folderId)).join('/');
+  }
+
+  Future<CharacterFolder> createFolder(
+    String name, {
+    String? parentId,
+  }) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) {
       throw ArgumentError('Folder name cannot be empty');
     }
-    final maxOrder = await _maxSortOrder();
+    if (parentId != null) {
+      final parent = await getFolder(parentId);
+      if (parent == null) {
+        throw StateError('Parent folder not found');
+      }
+    }
+    final existing = await _findChildByName(parentId, trimmed);
+    if (existing != null) {
+      return existing;
+    }
+    final maxOrder = await _maxSortOrder(parentId: parentId);
     final now = DateTime.now();
     final id = _uuid.v4();
     await _db.customStatement(
-      'INSERT INTO character_folders (id, name, sort_order, created_at) '
-      'VALUES (?, ?, ?, ?)',
-      [id, trimmed, maxOrder + 1, now.millisecondsSinceEpoch],
+      'INSERT INTO character_folders '
+      '(id, name, parent_id, sort_order, created_at) '
+      'VALUES (?, ?, ?, ?, ?)',
+      [id, trimmed, parentId, maxOrder + 1, now.millisecondsSinceEpoch],
     );
     return CharacterFolder(
       id: id,
       name: trimmed,
+      parentId: parentId,
       sortOrder: maxOrder + 1,
       createdAt: now,
     );
+  }
+
+  /// Ensures nested folders exist for [segments]; returns leaf id or null if empty.
+  Future<String?> ensureFolderPath(List<String> segments) async {
+    String? parentId;
+    for (final raw in segments) {
+      final name = raw.trim();
+      if (name.isEmpty || name == '.' || name == '..') continue;
+      final folder = await createFolder(name, parentId: parentId);
+      parentId = folder.id;
+    }
+    return parentId;
   }
 
   Future<CharacterFolder> renameFolder(String id, String name) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) {
       throw ArgumentError('Folder name cannot be empty');
+    }
+    final current = await getFolder(id);
+    if (current == null) {
+      throw StateError('Folder not found');
+    }
+    final sibling = await _findChildByName(current.parentId, trimmed);
+    if (sibling != null && sibling.id != id) {
+      throw StateError('A folder with this name already exists here');
     }
     await _db.customStatement(
       'UPDATE character_folders SET name = ? WHERE id = ?',
@@ -107,15 +168,25 @@ class CharacterFolderRepository {
     return updated;
   }
 
+  /// Removes the folder. Characters in it return to root. Child folders are
+  /// reparented to this folder's parent.
   Future<void> dissolveFolder(String id) async {
-    await _db.customStatement(
-      'DELETE FROM character_folder_members WHERE folder_id = ?',
-      [id],
-    );
-    await _db.customStatement(
-      'DELETE FROM character_folders WHERE id = ?',
-      [id],
-    );
+    final folder = await getFolder(id);
+    if (folder == null) return;
+    await _db.transaction(() async {
+      await _db.customStatement(
+        'DELETE FROM character_folder_members WHERE folder_id = ?',
+        [id],
+      );
+      await _db.customStatement(
+        'UPDATE character_folders SET parent_id = ? WHERE parent_id = ?',
+        [folder.parentId, id],
+      );
+      await _db.customStatement(
+        'DELETE FROM character_folders WHERE id = ?',
+        [id],
+      );
+    });
   }
 
   Future<void> moveCharactersToFolder(
@@ -160,9 +231,59 @@ class CharacterFolderRepository {
     return row?.read<String>('folder_id');
   }
 
-  Future<int> _maxSortOrder() async {
+  /// Map of character id → folder id for all memberships.
+  Future<Map<String, String>> folderIdsByCharacter() async {
+    final rows = await _db.customSelect(
+      'SELECT character_id, folder_id FROM character_folder_members',
+      readsFrom: const {},
+    ).get();
+    return {
+      for (final row in rows)
+        row.read<String>('character_id'): row.read<String>('folder_id'),
+    };
+  }
+
+  Future<List<CharacterFolder>> _hydrateFolders(List<QueryRow> rows) async {
+    final folders = rows.map(_folderFromRow).toList(growable: false);
+    if (folders.isEmpty) return folders;
+    final previews = await _loadPreviewCharactersByFolder(
+      folderIds: folders.map((f) => f.id).toSet(),
+    );
+    return folders
+        .map(
+          (folder) => folder.copyWith(
+            previewCharacters: previews[folder.id] ?? const [],
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  Future<CharacterFolder?> _findChildByName(
+    String? parentId,
+    String name,
+  ) async {
     final row = await _db.customSelect(
-      'SELECT MAX(sort_order) AS max_order FROM character_folders',
+      '''
+      $_folderSelect
+      WHERE ${parentId == null ? 'f.parent_id IS NULL' : 'f.parent_id = ?'}
+        AND f.name = ?
+      LIMIT 1
+      ''',
+      variables: parentId == null
+          ? [Variable<String>(name)]
+          : [Variable<String>(parentId), Variable<String>(name)],
+      readsFrom: const {},
+    ).getSingleOrNull();
+    return row == null ? null : _folderFromRow(row);
+  }
+
+  Future<int> _maxSortOrder({String? parentId}) async {
+    final row = await _db.customSelect(
+      '''
+      SELECT MAX(sort_order) AS max_order FROM character_folders
+      WHERE ${parentId == null ? 'parent_id IS NULL' : 'parent_id = ?'}
+      ''',
+      variables: parentId == null ? const [] : [Variable<String>(parentId)],
       readsFrom: const {},
     ).getSingleOrNull();
     return row?.read<int?>('max_order') ?? 0;
@@ -173,13 +294,15 @@ class CharacterFolderRepository {
     return CharacterFolder(
       id: row.read<String>('id'),
       name: row.read<String>('name'),
+      parentId: row.read<String?>('parent_id'),
       sortOrder: row.read<int>('sort_order'),
       createdAt: DateTime.fromMillisecondsSinceEpoch(createdMs),
       characterCount: row.read<int>('character_count'),
     );
   }
 
-  Future<Map<String, List<CharacterFolderPreview>>> _loadPreviewCharactersByFolder({
+  Future<Map<String, List<CharacterFolderPreview>>>
+      _loadPreviewCharactersByFolder({
     Set<String>? folderIds,
   }) async {
     final rows = await _db.customSelect(

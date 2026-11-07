@@ -1333,6 +1333,53 @@ class AppLocalizationsNl extends AppLocalizations {
   String get charactersMovedToFolder => 'Personages verplaatst';
 
   @override
+  String get copyToFolder => 'Copy to folder';
+
+  @override
+  String get copyCharactersToFolder => 'Copy to folder';
+
+  @override
+  String charactersCopiedToFolder(int count) {
+    return 'Copied $count character(s)';
+  }
+
+  @override
+  String get characterFolderUseThisPath => 'Use this folder';
+
+  @override
+  String get characterFolderPathEmpty => 'No subfolders here yet';
+
+  @override
+  String get importCharactersFromFolder => 'Import from folder';
+
+  @override
+  String get exportCharacterLibrary => 'Export character library';
+
+  @override
+  String characterLibraryImportProgress(int processed, int total) {
+    return 'Importing $processed of $total';
+  }
+
+  @override
+  String characterLibraryImportSummary(int succeeded, int failed, int skipped) {
+    return 'Imported $succeeded. Failed $failed. Skipped $skipped.';
+  }
+
+  @override
+  String characterLibraryExportProgress(int processed, int total) {
+    return 'Exporting $processed of $total';
+  }
+
+  @override
+  String characterLibraryExportSummary(int succeeded, int failed) {
+    return 'Exported $succeeded. Failed $failed.';
+  }
+
+  @override
+  String get characterLibraryFolderPickerUnavailable =>
+      'This device can’t pick a folder. Import cards as files instead.';
+
+  @override
   String get dissolveCharacterFolder => 'Map ontbinden';
 
   @override

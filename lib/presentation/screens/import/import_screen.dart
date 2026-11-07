@@ -21,6 +21,7 @@ import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/external_call_audit_providers.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
+import 'package:native_tavern/presentation/widgets/character/character_library_ops.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
 /// Floating card chrome: theme surface fill with composer-style edge + shadow.
@@ -451,6 +452,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                   ref.read(importStateProvider.notifier).pickFile(),
               onPickFromGallery: () =>
                   ref.read(importStateProvider.notifier).pickFromGallery(),
+              onImportFolder: () =>
+                  importCharacterLibraryFromFolder(context, ref),
               onImportUrl: (url) =>
                   ref.read(importStateProvider.notifier).importFromUrl(url),
             ),
@@ -584,6 +587,7 @@ class _FilePickerView extends StatefulWidget {
   final String? error;
   final VoidCallback onPickFile;
   final VoidCallback onPickFromGallery;
+  final VoidCallback onImportFolder;
   final ValueChanged<String> onImportUrl;
 
   const _FilePickerView({
@@ -591,6 +595,7 @@ class _FilePickerView extends StatefulWidget {
     required this.error,
     required this.onPickFile,
     required this.onPickFromGallery,
+    required this.onImportFolder,
     required this.onImportUrl,
   });
 
@@ -686,7 +691,17 @@ class _FilePickerViewState extends State<_FilePickerView> {
                             minimumSize: const Size(200, 48),
                           ),
                         ),
-                      ] else
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: widget.onImportFolder,
+                          icon: const Icon(Icons.drive_folder_upload_outlined),
+                          label: Text(AppLocalizations.of(context)!
+                              .importCharactersFromFolder),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(200, 48),
+                          ),
+                        ),
+                      ] else ...[
                         ZephyrChatChrome.withComposerShadow(
                           context: context,
                           child: ElevatedButton.icon(
@@ -696,6 +711,14 @@ class _FilePickerViewState extends State<_FilePickerView> {
                                 AppLocalizations.of(context)!.browseFiles),
                           ),
                         ),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: widget.onImportFolder,
+                          icon: const Icon(Icons.drive_folder_upload_outlined),
+                          label: Text(AppLocalizations.of(context)!
+                              .importCharactersFromFolder),
+                        ),
+                      ],
                     ],
                   ],
                 ),
