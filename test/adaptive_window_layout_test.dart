@@ -318,7 +318,7 @@ void main() {
         tester
             .widget<NavigationRail>(find.byType(NavigationRail))
             .selectedIndex,
-        4);
+        5);
 
     nativeLayout.value = (true, null);
     tester.view.physicalSize = const Size(1000, 800);

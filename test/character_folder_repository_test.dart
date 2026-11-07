@@ -71,6 +71,21 @@ void main() {
     expect(emptyListed.previewCharacters, isEmpty);
   });
 
+  test('folder cover only needs top characters from a large folder', () async {
+    final folder = await folders.createFolder('Large');
+    for (var i = 0; i < 40; i++) {
+      final id = 'bulk-$i';
+      await insertCharacter(id, 'Char $i');
+      await folders.moveCharactersToFolder([id], folderId: folder.id);
+    }
+
+    final listed = await folders.listFolders();
+    final cover = listed.single;
+    expect(cover.characterCount, 40);
+    expect(cover.previewCharacters, hasLength(4));
+    expect(await folders.parentIdOfFolder(folder.id), isNull);
+  });
+
   test('move to root clears membership', () async {
     final folder = await folders.createFolder('Temp');
     await folders.moveCharactersToFolder(['char-a', 'char-b'], folderId: folder.id);

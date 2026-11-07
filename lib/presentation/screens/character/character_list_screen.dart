@@ -87,12 +87,11 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     ref.read(characterSearchGlobalProvider.notifier).state = false;
     final currentId = ref.read(characterBrowseFolderIdProvider);
     if (currentId == null) return;
-    final folder = await ref
+    final parentId = await ref
         .read(characterFolderRepositoryProvider)
-        .getFolder(currentId);
+        .parentIdOfFolder(currentId);
     if (!mounted) return;
-    ref.read(characterBrowseFolderIdProvider.notifier).state =
-        folder?.parentId;
+    ref.read(characterBrowseFolderIdProvider.notifier).state = parentId;
   }
 
   Future<void> _createEmptyFolder() async {
@@ -524,39 +523,21 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                   },
                 ),
                 Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 220),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    // Avoid stacking previous + next grids during folder switches.
-                    layoutBuilder: (currentChild, previousChildren) {
-                      return currentChild ?? const SizedBox.shrink();
+                  // Avoid AnimatedSwitcher remounts: destroying the whole grid
+                  // forces every visible avatar to re-decode on folder changes.
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (notification) {
+                      if (notification.metrics.extentAfter < 600) {
+                        ref.read(characterListProvider.notifier).loadMore();
+                      }
+                      return false;
                     },
-                    transitionBuilder: (child, animation) =>
-                        _characterFolderBrowseTransition(
-                      child: child,
-                      animation: animation,
-                      enterForward: _folderEnterForward,
-                    ),
-                    child: KeyedSubtree(
-                      key: ValueKey(browseFolderId ?? '__character_root__'),
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: (notification) {
-                          if (notification.metrics.extentAfter < 600) {
-                            ref
-                                .read(characterListProvider.notifier)
-                                .loadMore();
-                          }
-                          return false;
-                        },
-                        child: _buildBrowseContent(
-                          charactersAsync: charactersAsync,
-                          l10n: l10n,
-                          browseFolderId: browseFolderId,
-                          tagFilter: tagFilter,
-                          foldersAsync: foldersAsync,
-                        ),
-                      ),
+                    child: _buildBrowseContent(
+                      charactersAsync: charactersAsync,
+                      l10n: l10n,
+                      browseFolderId: browseFolderId,
+                      tagFilter: tagFilter,
+                      foldersAsync: foldersAsync,
                     ),
                   ),
                 ),
@@ -575,15 +556,10 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     required Set<String> tagFilter,
     required AsyncValue<List<CharacterFolder>> foldersAsync,
   }) {
-    final cachedCharacters = charactersAsync.valueOrNull;
-    if (charactersAsync.isLoading && cachedCharacters != null) {
-      return _buildCharacterBrowseList(
-        characters: cachedCharacters,
-        l10n: l10n,
-        browseFolderId: browseFolderId,
-        tagFilter: tagFilter,
-        foldersAsync: foldersAsync,
-      );
+    // While folder contents reload, show a spinner instead of the previous
+    // folder's cards (those would remount and re-decode every avatar).
+    if (charactersAsync.isLoading || foldersAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
     }
 
     return charactersAsync.when(
@@ -785,29 +761,6 @@ class _LibrarySelectionController extends ChangeNotifier {
       ..addAll(folderIds);
     notifyListeners();
   }
-}
-
-Widget _characterFolderBrowseTransition({
-  required Widget child,
-  required Animation<double> animation,
-  required bool enterForward,
-}) {
-  final curved = CurvedAnimation(
-    parent: animation,
-    curve: Curves.easeOutCubic,
-    reverseCurve: Curves.easeInCubic,
-  );
-  final horizontal = enterForward ? 0.12 : -0.12;
-  return FadeTransition(
-    opacity: Tween<double>(begin: 0.85, end: 1).animate(curved),
-    child: SlideTransition(
-      position: Tween<Offset>(
-        begin: Offset(horizontal, 0),
-        end: Offset.zero,
-      ).animate(curved),
-      child: child,
-    ),
-  );
 }
 
 class _CharacterTileInteraction {
@@ -1608,10 +1561,17 @@ class _CharacterGridCard extends ConsumerWidget {
 
   Widget _buildAvatar(BuildContext context) {
     if (character.assets?.avatarPath != null) {
-      return CharacterAvatarImage(
-        imagePath: character.assets!.avatarPath!,
-        fit: BoxFit.cover,
-        errorBuilder: (context, _, __) => _defaultAvatar(context),
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final cacheSide = constraints.biggest.longestSide;
+          return CharacterAvatarImage(
+            imagePath: character.assets!.avatarPath!,
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter,
+            cacheWidth: cacheSide,
+            errorBuilder: (context, _, __) => _defaultAvatar(context),
+          );
+        },
       );
     }
     return _defaultAvatar(context);
@@ -1721,10 +1681,17 @@ class _CharacterCompactGridCard extends ConsumerWidget {
 
   Widget _buildCompactAvatar(BuildContext context) {
     if (character.assets?.avatarPath != null) {
-      return CharacterAvatarImage(
-        imagePath: character.assets!.avatarPath!,
-        fit: BoxFit.cover,
-        errorBuilder: (context, _, __) => _defaultCompactAvatar(context),
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final cacheSide = constraints.biggest.longestSide;
+          return CharacterAvatarImage(
+            imagePath: character.assets!.avatarPath!,
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter,
+            cacheWidth: cacheSide,
+            errorBuilder: (context, _, __) => _defaultCompactAvatar(context),
+          );
+        },
       );
     }
     return _defaultCompactAvatar(context);

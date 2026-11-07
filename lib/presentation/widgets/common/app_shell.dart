@@ -8,12 +8,21 @@ import 'package:native_tavern/presentation/widgets/common/app_viewport.dart';
 
 /// Main navigation follows the system's bar edge or the available width.
 class AppShell extends StatelessWidget {
-  final Widget child;
+  /// Preferred: keeps tab pages alive via [StatefulShellRoute.indexedStack].
+  final StatefulNavigationShell? navigationShell;
 
-  const AppShell({super.key, required this.child});
+  /// Test / legacy shell body when [navigationShell] is null.
+  final Widget? child;
+
+  const AppShell({
+    super.key,
+    this.navigationShell,
+    this.child,
+  }) : assert(navigationShell != null || child != null);
 
   @override
   Widget build(BuildContext context) {
+    final body = navigationShell ?? child!;
     return LayoutBuilder(
       builder: (context, constraints) {
         final windowLayout = WindowLayoutScope.maybeOf(context);
@@ -34,20 +43,30 @@ class AppShell extends StatelessWidget {
               SizedBox(
                 width: edge == VerticalBarEdge.left ? railWidth : 0,
                 child: edge == VerticalBarEdge.left
-                    ? const _AppNavigation(vertical: true)
+                    ? _AppNavigation(
+                        vertical: true,
+                        navigationShell: navigationShell,
+                      )
                     : null,
               ),
-              Expanded(child: child),
+              Expanded(child: body),
               SizedBox(
                 width: edge == VerticalBarEdge.right ? railWidth : 0,
                 child: edge == VerticalBarEdge.right
-                    ? const _AppNavigation(vertical: true)
+                    ? _AppNavigation(
+                        vertical: true,
+                        navigationShell: navigationShell,
+                      )
                     : null,
               ),
             ],
           ),
-          bottomNavigationBar:
-              edge == null ? const _AppNavigation(vertical: false) : null,
+          bottomNavigationBar: edge == null
+              ? _AppNavigation(
+                  vertical: false,
+                  navigationShell: navigationShell,
+                )
+              : null,
         );
       },
     );
@@ -55,11 +74,18 @@ class AppShell extends StatelessWidget {
 }
 
 class _AppNavigation extends StatelessWidget {
-  const _AppNavigation({required this.vertical});
+  const _AppNavigation({
+    required this.vertical,
+    required this.navigationShell,
+  });
 
   final bool vertical;
+  final StatefulNavigationShell? navigationShell;
 
   int _calculateSelectedIndex(BuildContext context) {
+    if (navigationShell != null) {
+      return navigationShell!.currentIndex;
+    }
     final String location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/characters')) {
       return 1;
@@ -80,6 +106,14 @@ class _AppNavigation extends StatelessWidget {
   }
 
   void _onItemTapped(BuildContext context, int index) {
+    final shell = navigationShell;
+    if (shell != null) {
+      shell.goBranch(
+        index,
+        initialLocation: index == shell.currentIndex,
+      );
+      return;
+    }
     switch (index) {
       case 0:
         context.go(AppRoutes.home);

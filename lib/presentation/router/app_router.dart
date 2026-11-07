@@ -115,7 +115,6 @@ abstract class AppRoutes {
 
 /// Navigation keys for nested navigation
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
-final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 /// App router provider
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -124,59 +123,84 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
     routes: [
-      // Main shell with bottom navigation
-      ShellRoute(
-        navigatorKey: _shellNavigatorKey,
-        builder: (context, state, child) => AppShell(child: child),
-        routes: [
-          GoRoute(
-            path: AppRoutes.home,
-            name: 'home',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: HomeScreen(),
-            ),
+      // Keep shell tabs alive so switching chats ↔ characters does not
+      // remount and re-decode thousands of avatar tiles.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            AppShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                name: 'home',
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: HomeScreen(),
+                ),
+              ),
+            ],
           ),
-          GoRoute(
-            path: AppRoutes.characters,
-            name: 'characters',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: CharacterListScreen(),
-            ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.characters,
+                name: 'characters',
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: CharacterListScreen(),
+                ),
+              ),
+            ],
           ),
-          GoRoute(
-            path: AppRoutes.play,
-            name: 'play',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: PlayHubScreen(),
-            ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.play,
+                name: 'play',
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: PlayHubScreen(),
+                ),
+              ),
+              GoRoute(
+                path: AppRoutes.worldInfo,
+                name: 'worldInfo',
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: WorldInfoScreen(),
+                ),
+              ),
+            ],
           ),
-          GoRoute(
-            path: AppRoutes.worldInfo,
-            name: 'worldInfo',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: WorldInfoScreen(),
-            ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.aiConfig,
+                name: 'aiConfig',
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: AIConfigScreen(),
+                ),
+              ),
+            ],
           ),
-          GoRoute(
-            path: AppRoutes.aiConfig,
-            name: 'aiConfig',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: AIConfigScreen(),
-            ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.appearance,
+                name: 'appearance',
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: AppearanceScreen(),
+                ),
+              ),
+            ],
           ),
-          GoRoute(
-            path: AppRoutes.appearance,
-            name: 'appearance',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: AppearanceScreen(),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.settings,
-            name: 'settings',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: SettingsScreen(),
-            ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.settings,
+                name: 'settings',
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: SettingsScreen(),
+                ),
+              ),
+            ],
           ),
         ],
       ),

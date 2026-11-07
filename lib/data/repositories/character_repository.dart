@@ -364,7 +364,7 @@ class CharacterRepository {
     );
   }
 
-  /// Browser list rows: id/name/description/tags/creator/avatar only.
+  /// Browser list rows: id/name/short description/tags/creator/avatar only.
   /// Skips character book, extensions, and other chat-runtime fields.
   Future<List<models.Character>> _characterBrowseSummariesByIds(
     List<String> ids,
@@ -373,7 +373,14 @@ class CharacterRepository {
     final placeholders = List.filled(ids.length, '?').join(', ');
     final rows = await _db.customSelect(
       '''
-      SELECT id, name, description, tags, creator, avatar_path, assets_json,
+      SELECT id, name,
+             substr(description, 1, 280) AS description,
+             tags, creator, avatar_path,
+             CASE
+               WHEN avatar_path IS NULL OR avatar_path = ''
+               THEN assets_json
+               ELSE NULL
+             END AS assets_json,
              created_at, modified_at
       FROM characters
       WHERE id IN ($placeholders)

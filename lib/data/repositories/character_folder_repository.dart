@@ -48,7 +48,7 @@ class CharacterFolderRepository {
     return _hydrateFolders(rows);
   }
 
-  /// Flat list of every folder (any depth).
+  /// Flat list of every folder (any depth). Skips cover previews.
   Future<List<CharacterFolder>> listAllFolders() async {
     final rows = await _db.customSelect(
       '''
@@ -57,10 +57,14 @@ class CharacterFolderRepository {
       ''',
       readsFrom: const {},
     ).get();
-    return _hydrateFolders(rows);
+    return rows.map(_folderFromRow).toList(growable: false);
   }
 
-  Future<CharacterFolder?> getFolder(String id) async {
+  /// Folder row by id. Cover previews are opt-in (expensive on large libraries).
+  Future<CharacterFolder?> getFolder(
+    String id, {
+    bool includePreviews = false,
+  }) async {
     final row = await _db.customSelect(
       '''
       $_folderSelect
@@ -72,10 +76,21 @@ class CharacterFolderRepository {
     ).getSingleOrNull();
     if (row == null) return null;
     final folder = _folderFromRow(row);
+    if (!includePreviews) return folder;
     final previews = await _loadPreviewItemsByFolder(folderIds: {id});
     return folder.copyWith(
       previewCharacters: previews[id] ?? const [],
     );
+  }
+
+  /// Parent id only — used when leaving a browse folder.
+  Future<String?> parentIdOfFolder(String id) async {
+    final row = await _db.customSelect(
+      'SELECT parent_id AS parent_id FROM character_folders WHERE id = ? LIMIT 1',
+      variables: [Variable<String>(id)],
+      readsFrom: const {},
+    ).getSingleOrNull();
+    return row?.read<String?>('parent_id');
   }
 
   /// Name segments from library root to [folderId] (inclusive).
@@ -452,74 +467,111 @@ class CharacterFolderRepository {
     );
   }
 
-  /// Cover mosaic: direct characters first, then recurse into child folders.
+  static const _previewSlots = 4;
+  static const _previewMaxFoldersPerRoot = 48;
+
+  /// Cover mosaic: BFS for character avatars only.
+  ///
+  /// Loads at most [_previewSlots] characters per visited folder and stops a
+  /// root once it has four slots — never scans an entire descendant member set.
   Future<Map<String, List<CharacterFolderPreview>>> _loadPreviewItemsByFolder({
-    Set<String>? folderIds,
+    required Set<String> folderIds,
   }) async {
-    if (folderIds != null && folderIds.isEmpty) {
+    if (folderIds.isEmpty) {
       return const {};
     }
 
-    final folderRows = await _db.customSelect(
-      '''
-      SELECT id, parent_id, sort_order, name
-      FROM character_folders
-      ORDER BY sort_order ASC, name ASC
-      ''',
-      readsFrom: const {},
-    ).get();
+    final result = <String, List<CharacterFolderPreview>>{
+      for (final id in folderIds) id: <CharacterFolderPreview>[],
+    };
+    final seen = <String, Set<String>>{
+      for (final id in folderIds) id: <String>{},
+    };
+    final visited = <String, int>{
+      for (final id in folderIds) id: 0,
+    };
 
-    final childrenByParent = <String, List<String>>{};
-    final allFolderIds = <String>{};
-    for (final row in folderRows) {
-      final id = row.read<String>('id');
-      allFolderIds.add(id);
-      final parentId = row.read<String?>('parent_id');
-      if (parentId == null) continue;
-      childrenByParent.putIfAbsent(parentId, () => []).add(id);
-    }
+    // (rootId, folderId) pairs to search this round.
+    var queue = <(String, String)>[
+      for (final id in folderIds) (id, id),
+    ];
 
-    final roots = folderIds ?? allFolderIds;
-    final descendantIds = <String>{};
-    void collectDescendants(String id) {
-      if (!descendantIds.add(id)) return;
-      for (final childId in childrenByParent[id] ?? const <String>[]) {
-        collectDescendants(childId);
+    while (queue.isNotEmpty) {
+      final active = <(String, String)>[
+        for (final pair in queue)
+          if (result[pair.$1]!.length < _previewSlots &&
+              visited[pair.$1]! < _previewMaxFoldersPerRoot)
+            pair,
+      ];
+      if (active.isEmpty) break;
+
+      for (final pair in active) {
+        visited[pair.$1] = visited[pair.$1]! + 1;
       }
-    }
 
-    for (final id in roots) {
-      collectDescendants(id);
-    }
+      final batchFolderIds = {for (final pair in active) pair.$2};
+      final charactersByFolder = await _loadPreviewCharactersByFolder(
+        folderIds: batchFolderIds,
+        limitPerFolder: _previewSlots,
+      );
 
-    final charactersByFolder = await _loadPreviewCharactersByFolder(
-      folderIds: descendantIds,
-    );
-
-    final grouped = <String, List<CharacterFolderPreview>>{};
-    for (final rootId in roots) {
-      final out = <CharacterFolderPreview>[];
-      final seen = <String>{};
-
-      void collect(String folderId) {
-        if (out.length >= 4) return;
-        for (final preview in charactersByFolder[folderId] ??
-            const <CharacterFolderPreview>[]) {
-          if (!seen.add(preview.id)) continue;
+      for (final (rootId, folderId) in active) {
+        final out = result[rootId]!;
+        final rootSeen = seen[rootId]!;
+        for (final preview
+            in charactersByFolder[folderId] ?? const <CharacterFolderPreview>[]) {
+          if (out.length >= _previewSlots) break;
+          if (!rootSeen.add(preview.id)) continue;
           out.add(preview);
-          if (out.length >= 4) return;
         }
+      }
+
+      final parentsNeedingChildren = <String>{
+        for (final (rootId, folderId) in active)
+          if (result[rootId]!.length < _previewSlots) folderId,
+      };
+      if (parentsNeedingChildren.isEmpty) break;
+
+      final childrenByParent =
+          await _childFolderIdsByParent(parentsNeedingChildren);
+      final nextQueue = <(String, String)>[];
+      for (final (rootId, folderId) in active) {
+        if (result[rootId]!.length >= _previewSlots) continue;
+        if (visited[rootId]! >= _previewMaxFoldersPerRoot) continue;
         for (final childId
             in childrenByParent[folderId] ?? const <String>[]) {
-          collect(childId);
-          if (out.length >= 4) return;
+          nextQueue.add((rootId, childId));
         }
       }
+      queue = nextQueue;
+    }
 
-      collect(rootId);
-      if (out.isNotEmpty) {
-        grouped[rootId] = out;
-      }
+    return {
+      for (final entry in result.entries)
+        if (entry.value.isNotEmpty) entry.key: entry.value,
+    };
+  }
+
+  Future<Map<String, List<String>>> _childFolderIdsByParent(
+    Set<String> parentIds,
+  ) async {
+    if (parentIds.isEmpty) return const {};
+    final placeholders = List.filled(parentIds.length, '?').join(', ');
+    final rows = await _db.customSelect(
+      '''
+      SELECT parent_id AS parent_id, id AS id
+      FROM character_folders
+      WHERE parent_id IN ($placeholders)
+      ORDER BY sort_order ASC, name ASC
+      ''',
+      variables: [for (final id in parentIds) Variable<String>(id)],
+      readsFrom: const {},
+    ).get();
+    final grouped = <String, List<String>>{};
+    for (final row in rows) {
+      grouped
+          .putIfAbsent(row.read<String>('parent_id'), () => [])
+          .add(row.read<String>('id'));
     }
     return grouped;
   }
@@ -527,28 +579,43 @@ class CharacterFolderRepository {
   Future<Map<String, List<CharacterFolderPreview>>>
       _loadPreviewCharactersByFolder({
     required Set<String> folderIds,
+    int limitPerFolder = _previewSlots,
   }) async {
     if (folderIds.isEmpty) {
       return const {};
     }
 
-    final folderFilter =
-        'AND m.folder_id IN (${List.filled(folderIds.length, '?').join(', ')})';
-    final variables = [for (final id in folderIds) Variable<String>(id)];
+    // Per-folder LIMIT (via UNION ALL) so SQLite can stop after N hits instead
+    // of window-ranking every member in a 5k-card folder.
+    final parts = <String>[];
+    final variables = <Variable<Object>>[];
+    for (final id in folderIds) {
+      parts.add('''
+        SELECT folder_id, id, name, avatar_path, assets_json FROM (
+          SELECT m.folder_id AS folder_id,
+                 c.id AS id,
+                 c.name AS name,
+                 c.avatar_path AS avatar_path,
+                 CASE
+                   WHEN c.avatar_path IS NULL OR c.avatar_path = ''
+                   THEN c.assets_json
+                   ELSE NULL
+                 END AS assets_json
+          FROM character_folder_members m
+          INNER JOIN characters c ON c.id = m.character_id
+          WHERE c.is_deleted = 0
+            AND m.folder_id = ?
+          ORDER BY c.modified_at DESC
+          LIMIT ?
+        )
+      ''');
+      variables
+        ..add(Variable<String>(id))
+        ..add(Variable<int>(limitPerFolder));
+    }
 
     final rows = await _db.customSelect(
-      '''
-      SELECT m.folder_id AS folder_id,
-             c.id AS id,
-             c.name AS name,
-             c.avatar_path AS avatar_path,
-             c.assets_json AS assets_json
-      FROM character_folder_members m
-      INNER JOIN characters c ON c.id = m.character_id
-      WHERE c.is_deleted = 0
-        $folderFilter
-      ORDER BY c.modified_at DESC
-      ''',
+      parts.join(' UNION ALL '),
       variables: variables,
       readsFrom: const {},
     ).get();

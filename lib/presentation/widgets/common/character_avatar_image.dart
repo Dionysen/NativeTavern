@@ -145,6 +145,7 @@ class _CharacterAvatarImageState extends State<CharacterAvatarImage> {
           cacheWidth: _decodePixels(context, widget.cacheWidth),
           cacheHeight: _decodePixels(context, widget.cacheHeight),
           filterQuality: FilterQuality.low,
+          gaplessPlayback: true,
           errorBuilder: widget.errorBuilder ?? (_, __, ___) => missing,
         );
       },
