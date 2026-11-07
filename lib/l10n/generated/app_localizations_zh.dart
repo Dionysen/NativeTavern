@@ -1361,6 +1361,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get importCharacterLibraryFastPack => '快速导入角色库包';
 
   @override
+  String get importCharacterLibraryStorageFull =>
+      '手机空间不够，打不开这个角色库包。请先腾出一些空间再试。';
+
+  @override
   String get characterLibraryFastPackOverwriteTitle => '覆盖相同角色？';
 
   @override

@@ -2648,6 +2648,12 @@ abstract class AppLocalizations {
   /// **'Quick import library pack'**
   String get importCharacterLibraryFastPack;
 
+  /// Shown when picking a library pack fails because the device is out of space
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough free storage to open this pack. Free some space and try again.'**
+  String get importCharacterLibraryStorageFull;
+
   /// Confirm before fast pack import overwrites by id
   ///
   /// In en, this message translates to:

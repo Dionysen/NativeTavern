@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/character_card_export_service.dart';
 import 'package:native_tavern/domain/services/character_library_export_service.dart';
@@ -330,16 +331,35 @@ Future<void> _showPackProgressDialog(
   await WidgetsBinding.instance.endOfFrame;
 }
 
+bool _isStorageFullPickerError(Object error) {
+  if (error is! PlatformException) return false;
+  final haystack = '${error.code} ${error.message} ${error.details}'.toLowerCase();
+  return haystack.contains('enospc') ||
+      haystack.contains('no space') ||
+      haystack.contains('unknown_path') ||
+      haystack.contains('failed to retrieve path');
+}
+
 Future<void> importCharacterLibraryFastPack(
   BuildContext context,
   WidgetRef ref,
 ) async {
   final l10n = AppLocalizations.of(context);
-  final picked = await FilePicker.platform.pickFiles(
-    dialogTitle: l10n.importCharacterLibraryFastPack,
-    type: FileType.custom,
-    allowedExtensions: [CharacterLibraryPackService.fileExtension],
-  );
+  final FilePickerResult? picked;
+  try {
+    picked = await FilePicker.platform.pickFiles(
+      dialogTitle: l10n.importCharacterLibraryFastPack,
+      type: FileType.custom,
+      allowedExtensions: [CharacterLibraryPackService.fileExtension],
+    );
+  } on PlatformException catch (e) {
+    if (!context.mounted) return;
+    final message = _isStorageFullPickerError(e)
+        ? l10n.importCharacterLibraryStorageFull
+        : '${l10n.error}: ${e.message ?? e.code}';
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    return;
+  }
   final path = picked?.files.single.path;
   if (path == null) return;
   if (!context.mounted) return;

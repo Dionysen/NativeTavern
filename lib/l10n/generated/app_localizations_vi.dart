@@ -1383,6 +1383,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get importCharacterLibraryFastPack => 'Quick import library pack';
 
   @override
+  String get importCharacterLibraryStorageFull =>
+      'Not enough free storage to open this pack. Free some space and try again.';
+
+  @override
   String get characterLibraryFastPackOverwriteTitle =>
       'Overwrite matching characters?';
 

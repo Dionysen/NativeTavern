@@ -1972,6 +1972,10 @@
   "@importCharacterLibraryFastPack": {
     "description": "Import a .ntchars character library pack"
   },
+  "importCharacterLibraryStorageFull": "Not enough free storage to open this pack. Free some space and try again.",
+  "@importCharacterLibraryStorageFull": {
+    "description": "Shown when picking a library pack fails because the device is out of space"
+  },
   "characterLibraryFastPackOverwriteTitle": "Overwrite matching characters?",
   "@characterLibraryFastPackOverwriteTitle": {
     "description": "Confirm before fast pack import overwrites by id"
