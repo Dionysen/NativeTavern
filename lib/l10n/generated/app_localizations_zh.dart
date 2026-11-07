@@ -6783,6 +6783,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get uiFontSizeDescription => '设置与界面文字大小';
 
   @override
+  String get chatLineHeightTitle => '聊天行距';
+
+  @override
+  String get chatLineHeightDescription => '气泡里正文段落的行距。';
+
+  @override
+  String get chatParagraphSpacingTitle => '聊天段间距';
+
+  @override
+  String get chatParagraphSpacingDescription => '气泡里正文段落之间的空隙。';
+
+  @override
+  String get markdownLineHeightTitle => 'Markdown/HTML 行距';
+
+  @override
+  String get markdownLineHeightDescription => '代码块和 HTML 内容的行距。';
+
+  @override
+  String get markdownParagraphSpacingTitle => 'Markdown/HTML 段间距';
+
+  @override
+  String get markdownParagraphSpacingDescription => '代码块空行和 HTML 段落之间的空隙。';
+
+  @override
   String get uiFontFamilyTitle => '字体';
 
   @override
@@ -13844,6 +13868,30 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get uiFontSizeDescription => '設定與界面文字大小';
+
+  @override
+  String get chatLineHeightTitle => '聊天行距';
+
+  @override
+  String get chatLineHeightDescription => '氣泡裡正文段落的行距。';
+
+  @override
+  String get chatParagraphSpacingTitle => '聊天段間距';
+
+  @override
+  String get chatParagraphSpacingDescription => '氣泡裡正文段落之間的空隙。';
+
+  @override
+  String get markdownLineHeightTitle => 'Markdown/HTML 行距';
+
+  @override
+  String get markdownLineHeightDescription => '程式碼區塊和 HTML 內容的行距。';
+
+  @override
+  String get markdownParagraphSpacingTitle => 'Markdown/HTML 段間距';
+
+  @override
+  String get markdownParagraphSpacingDescription => '程式碼區塊空行和 HTML 段落之間的空隙。';
 
   @override
   String get uiFontFamilyTitle => '字體';

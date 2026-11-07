@@ -737,6 +737,7 @@ class SettingsNumberTile extends StatelessWidget {
     this.subtitle,
     this.suffix = '',
     this.divisions,
+    this.decimalPlaces,
     this.showDivider = true,
     this.defaultLabelBuilder,
   });
@@ -750,12 +751,14 @@ class SettingsNumberTile extends StatelessWidget {
   final double defaultValue;
   final String suffix;
   final int? divisions;
+  /// When null, uses 1 decimal if [divisions] is null, otherwise 0.
+  final int? decimalPlaces;
   final ValueChanged<double> onChanged;
   final bool showDivider;
   final String Function(String formattedDefault)? defaultLabelBuilder;
 
   String _format(double v) {
-    final decimals = divisions == null ? 1 : 0;
+    final decimals = decimalPlaces ?? (divisions == null ? 1 : 0);
     return '${v.toStringAsFixed(decimals)}$suffix';
   }
 

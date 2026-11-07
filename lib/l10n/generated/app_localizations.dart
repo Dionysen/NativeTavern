@@ -12479,6 +12479,54 @@ abstract class AppLocalizations {
   /// **'Size of text in settings and the rest of the interface.'**
   String get uiFontSizeDescription;
 
+  /// No description provided for @chatLineHeightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat line spacing'**
+  String get chatLineHeightTitle;
+
+  /// No description provided for @chatLineHeightDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Space between lines in normal chat paragraphs.'**
+  String get chatLineHeightDescription;
+
+  /// No description provided for @chatParagraphSpacingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat paragraph spacing'**
+  String get chatParagraphSpacingTitle;
+
+  /// No description provided for @chatParagraphSpacingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Space between normal chat paragraphs.'**
+  String get chatParagraphSpacingDescription;
+
+  /// No description provided for @markdownLineHeightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Markdown/HTML line spacing'**
+  String get markdownLineHeightTitle;
+
+  /// No description provided for @markdownLineHeightDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Space between lines in code blocks and HTML messages.'**
+  String get markdownLineHeightDescription;
+
+  /// No description provided for @markdownParagraphSpacingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Markdown/HTML paragraph spacing'**
+  String get markdownParagraphSpacingTitle;
+
+  /// No description provided for @markdownParagraphSpacingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra space for blank lines in code blocks and between HTML paragraphs.'**
+  String get markdownParagraphSpacingDescription;
+
   /// No description provided for @uiFontFamilyTitle.
   ///
   /// In en, this message translates to:

@@ -7051,6 +7051,34 @@ class AppLocalizationsPt extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
+  String get chatLineHeightTitle => 'Chat line spacing';
+
+  @override
+  String get chatLineHeightDescription =>
+      'Space between lines in normal chat paragraphs.';
+
+  @override
+  String get chatParagraphSpacingTitle => 'Chat paragraph spacing';
+
+  @override
+  String get chatParagraphSpacingDescription =>
+      'Space between normal chat paragraphs.';
+
+  @override
+  String get markdownLineHeightTitle => 'Markdown/HTML line spacing';
+
+  @override
+  String get markdownLineHeightDescription =>
+      'Space between lines in code blocks and HTML messages.';
+
+  @override
+  String get markdownParagraphSpacingTitle => 'Markdown/HTML paragraph spacing';
+
+  @override
+  String get markdownParagraphSpacingDescription =>
+      'Extra space for blank lines in code blocks and between HTML paragraphs.';
+
+  @override
   String get uiFontFamilyTitle => 'Fonte';
 
   @override

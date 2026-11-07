@@ -88,6 +88,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
   bool? _cachedOverrideHtmlFont;
   String? _cachedFontFamily;
   String? _cachedFontPath;
+  double? _cachedChatLineHeight;
+  double? _cachedChatParagraphSpacing;
+  double? _cachedMarkdownLineHeight;
+  double? _cachedMarkdownParagraphSpacing;
   bool? _cachedSelectionArmed;
 
   bool get _isTouchPrimary {
@@ -310,6 +314,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     final ui = ref.watch(themeProvider.select((s) => s.ui));
     final fontFamily = ui.fontFamily;
     final fontPath = ui.fontPath;
+    final chatLineHeight = ui.chatLineHeight;
+    final chatParagraphSpacing = ui.chatParagraphSpacing;
+    final markdownLineHeight = ui.markdownLineHeight;
+    final markdownParagraphSpacing = ui.markdownParagraphSpacing;
     if (_cachedWidget != null &&
         _cachedContent == widget.content &&
         _cachedStreaming == widget.isStreaming &&
@@ -322,6 +330,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         _cachedOverrideHtmlFont == overrideHtmlFont &&
         _cachedFontFamily == fontFamily &&
         _cachedFontPath == fontPath &&
+        _cachedChatLineHeight == chatLineHeight &&
+        _cachedChatParagraphSpacing == chatParagraphSpacing &&
+        _cachedMarkdownLineHeight == markdownLineHeight &&
+        _cachedMarkdownParagraphSpacing == markdownParagraphSpacing &&
         _cachedSelectionArmed == _selectionArmed) {
       return _cachedWidget!;
     }
@@ -333,6 +345,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       overrideHtmlFont: overrideHtmlFont,
       fontFamily: fontFamily,
       fontPath: fontPath,
+      chatLineHeight: chatLineHeight,
+      chatParagraphSpacing: chatParagraphSpacing,
+      markdownLineHeight: markdownLineHeight,
+      markdownParagraphSpacing: markdownParagraphSpacing,
     );
     _cachedWidget = result;
     _cachedContent = widget.content;
@@ -346,6 +362,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     _cachedOverrideHtmlFont = overrideHtmlFont;
     _cachedFontFamily = fontFamily;
     _cachedFontPath = fontPath;
+    _cachedChatLineHeight = chatLineHeight;
+    _cachedChatParagraphSpacing = chatParagraphSpacing;
+    _cachedMarkdownLineHeight = markdownLineHeight;
+    _cachedMarkdownParagraphSpacing = markdownParagraphSpacing;
     _cachedSelectionArmed = _selectionArmed;
     return result;
   }
@@ -357,6 +377,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     required bool overrideHtmlFont,
     required String? fontFamily,
     required String? fontPath,
+    required double chatLineHeight,
+    required double chatParagraphSpacing,
+    required double markdownLineHeight,
+    required double markdownParagraphSpacing,
   }) {
     final containsHtml = _containsHtml(widget.content);
     final dialogueColor = ZephyrChatChrome.dialogueTextColor(
@@ -383,6 +407,8 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         dialogueColor: dialogueColor,
         fontSize:
             widget.fontSize ?? ZephyrChatChrome.messageFontSize(context),
+        lineHeight: markdownLineHeight,
+        paragraphSpacing: markdownParagraphSpacing,
         onLongPress: widget.onLongPress,
         contentKey: contentKey,
         neutralizeStyle: neutralizeHtml,
@@ -402,6 +428,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       enableSelection: _selectionEnabled,
       // Markdown / stripped HTML should use the app UI font whenever set.
       fontFamily: fontFamily,
+      lineHeight: chatLineHeight,
+      paragraphSpacing: chatParagraphSpacing,
+      codeLineHeight: markdownLineHeight,
+      codeParagraphSpacing: markdownParagraphSpacing,
     );
 
     // Touch + selection armed: do not claim long-press — SelectionArea needs it.
@@ -515,10 +545,23 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     result = result.replaceAll(RegExp(r'<hr\s*/?\s*>', caseSensitive: false), '\n---\n');
     
     // Convert line breaks to paragraph breaks (Markdown needs a blank line).
+    // Keep fenced code intact so a lone <br> inside ``` cannot become \n\n.
+    final mdFences = <String>[];
+    result = result.replaceAllMapped(
+      RegExp(r'(```[^\n]*\n[\s\S]*?```|~~~[^\n]*\n[\s\S]*?~~~)'),
+      (match) {
+        final index = mdFences.length;
+        mdFences.add(match.group(0)!);
+        return '\u0000MD_FENCE_$index\u0000';
+      },
+    );
     result = result.replaceAll(
       RegExp(r'<br\s*/?\s*>', caseSensitive: false),
       '\n\n',
     );
+    for (var i = 0; i < mdFences.length; i++) {
+      result = result.replaceFirst('\u0000MD_FENCE_$i\u0000', mdFences[i]);
+    }
     
     // Convert paragraphs
     result = result.replaceAllMapped(
@@ -593,6 +636,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     required Color dialogueColor,
     required bool enableSelection,
     String? fontFamily,
+    required double lineHeight,
+    required double paragraphSpacing,
+    required double codeLineHeight,
+    required double codeParagraphSpacing,
   }) {
     final effectiveFontSize =
         widget.fontSize ?? ZephyrChatChrome.messageFontSize(context);
@@ -601,16 +648,32 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       fontSize: effectiveFontSize,
       fontWeight: ZephyrChatChrome.dialogueFontWeight,
       fontFamily: fontFamily,
+      height: lineHeight,
     );
+    // Inline `code` follows body line height; fenced blocks use Markdown/HTML.
     final codeStyle = TextStyle(
       color: widget.textColor,
       backgroundColor: AppTheme.darkBackground.withValues(alpha: 0.5),
       fontFamily: 'monospace',
       fontSize: effectiveFontSize * 0.9,
+      height: lineHeight,
+    );
+    // Block code: no fill (decoration handles it) + Markdown/HTML typography.
+    final codeBlockStyle = TextStyle(
+      color: widget.textColor,
+      fontFamily: 'monospace',
+      fontSize: effectiveFontSize * 0.9,
+      height: codeLineHeight,
     );
     const codeblockPadding = EdgeInsets.all(12);
 
     final markdown = MarkdownBody(
+      // Force a fresh layout when typography prefs change.
+      key: ValueKey(
+        'md_${lineHeight}_${paragraphSpacing}_'
+        '${codeLineHeight}_$codeParagraphSpacing'
+        '_${fontFamily ?? ''}',
+      ),
       data: content,
       // Must stay false when wrapped in SelectionArea to avoid conflict.
       selectable: false,
@@ -621,8 +684,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         'dialogue': DialogueQuoteBuilder(dialogueStyle),
         // Override default horizontal-scrolling pre/code blocks with wrap.
         'pre': WrappingCodeBlockBuilder(
-          codeStyle: codeStyle,
+          codeStyle: codeBlockStyle,
           padding: codeblockPadding,
+          lineHeight: codeLineHeight,
+          paragraphSpacing: codeParagraphSpacing,
         ),
       },
       imageBuilder: (uri, title, alt) {
@@ -667,21 +732,27 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
           color: widget.textColor,
           fontSize: effectiveFontSize,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
+        // Gap between blocks only — avoid also padding <p> or it doubles.
+        blockSpacing: paragraphSpacing,
         strong: TextStyle(
           color: widget.textColor,
           fontWeight: FontWeight.bold,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         em: TextStyle(
           color: widget.textColor,
           fontStyle: FontStyle.italic,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         del: TextStyle(
           color: widget.textColor,
           decoration: TextDecoration.lineThrough,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         code: codeStyle,
         codeblockDecoration: BoxDecoration(
@@ -693,6 +764,7 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
           color: AppTheme.textSecondary,
           fontStyle: FontStyle.italic,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         blockquoteDecoration: BoxDecoration(
           border: Border(
@@ -708,45 +780,53 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
           fontSize: effectiveFontSize * 1.8,
           fontWeight: FontWeight.bold,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         h2: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize * 1.5,
           fontWeight: FontWeight.bold,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         h3: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize * 1.3,
           fontWeight: FontWeight.bold,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         h4: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize * 1.1,
           fontWeight: FontWeight.bold,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         h5: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize,
           fontWeight: FontWeight.bold,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         h6: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize * 0.9,
           fontWeight: FontWeight.bold,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         a: TextStyle(
           color: AppTheme.primaryColor,
           decoration: TextDecoration.underline,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         listBullet: TextStyle(
           color: widget.textColor,
           fontFamily: fontFamily,
+          height: lineHeight,
         ),
         horizontalRuleDecoration: BoxDecoration(
           border: Border(

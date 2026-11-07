@@ -81,4 +81,24 @@ void main() {
       '<div>a</div>\n<div>b</div>',
     );
   });
+
+  test('markdown fenced code newlines are not turned into br', () {
+    const src = '''<wrapper>
+```time
+时间: 傍晚
+天气: 闷热
+地点A: 客厅
+```
+</wrapper>
+旁白''';
+    final out = preserveHtmlTextNewlines(src);
+    expect(out, contains('```time\n时间: 傍晚\n天气: 闷热\n地点A: 客厅\n```'));
+    expect(out, isNot(contains('时间: 傍晚<br>')));
+    expect(out, contains('旁白'));
+    // Prose outside the fence still gets br treatment.
+    expect(
+      preserveHtmlTextNewlines('前文\n```\na\nb\n```\n后文\n继续'),
+      '前文<br>\n```\na\nb\n```<br>\n后文<br>\n继续',
+    );
+  });
 }

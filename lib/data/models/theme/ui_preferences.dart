@@ -7,6 +7,10 @@ class UiPreferences {
     required this.cornerRadius,
     required this.chatBubbleCornerRadius,
     required this.showBorders,
+    required this.chatLineHeight,
+    required this.chatParagraphSpacing,
+    required this.markdownLineHeight,
+    required this.markdownParagraphSpacing,
   });
 
   static const defaults = UiPreferences(
@@ -16,6 +20,10 @@ class UiPreferences {
     cornerRadius: 4,
     chatBubbleCornerRadius: 30,
     showBorders: false,
+    chatLineHeight: 1.4,
+    chatParagraphSpacing: 8,
+    markdownLineHeight: 1.5,
+    markdownParagraphSpacing: 8,
   );
 
   static const referenceFontSize = 15.0;
@@ -25,6 +33,10 @@ class UiPreferences {
   static const maxChatBubbleCornerRadius = 50.0;
   static const minFontSize = 11.0;
   static const maxFontSize = 18.0;
+  static const minLineHeight = 1.0;
+  static const maxLineHeight = 2.5;
+  static const minParagraphSpacing = 0.0;
+  static const maxParagraphSpacing = 24.0;
 
   final double fontSize;
 
@@ -43,6 +55,18 @@ class UiPreferences {
   /// When false, chrome controls omit outline borders.
   final bool showBorders;
 
+  /// Line height multiplier for Markdown chat body text.
+  final double chatLineHeight;
+
+  /// Space between Markdown paragraphs / blocks, in logical pixels.
+  final double chatParagraphSpacing;
+
+  /// Line height multiplier for HTML (WebView) message rendering.
+  final double markdownLineHeight;
+
+  /// Space between HTML paragraphs, in logical pixels.
+  final double markdownParagraphSpacing;
+
   double get scale => fontSize / referenceFontSize;
 
   UiPreferences copyWith({
@@ -53,6 +77,10 @@ class UiPreferences {
     double? cornerRadius,
     double? chatBubbleCornerRadius,
     bool? showBorders,
+    double? chatLineHeight,
+    double? chatParagraphSpacing,
+    double? markdownLineHeight,
+    double? markdownParagraphSpacing,
   }) =>
       UiPreferences(
         fontSize: fontSize ?? this.fontSize,
@@ -62,6 +90,12 @@ class UiPreferences {
         chatBubbleCornerRadius:
             chatBubbleCornerRadius ?? this.chatBubbleCornerRadius,
         showBorders: showBorders ?? this.showBorders,
+        chatLineHeight: chatLineHeight ?? this.chatLineHeight,
+        chatParagraphSpacing:
+            chatParagraphSpacing ?? this.chatParagraphSpacing,
+        markdownLineHeight: markdownLineHeight ?? this.markdownLineHeight,
+        markdownParagraphSpacing:
+            markdownParagraphSpacing ?? this.markdownParagraphSpacing,
       );
 
   Map<String, dynamic> toJson() => {
@@ -71,6 +105,10 @@ class UiPreferences {
         'cornerRadius': cornerRadius,
         'chatBubbleCornerRadius': chatBubbleCornerRadius,
         'showBorders': showBorders,
+        'chatLineHeight': chatLineHeight,
+        'chatParagraphSpacing': chatParagraphSpacing,
+        'markdownLineHeight': markdownLineHeight,
+        'markdownParagraphSpacing': markdownParagraphSpacing,
       };
 
   factory UiPreferences.fromJson(Map<String, dynamic>? json) {
@@ -99,6 +137,16 @@ class UiPreferences {
           (json['chatBubbleCornerRadius'] as num?)?.toDouble() ??
               defaults.chatBubbleCornerRadius,
       showBorders: json['showBorders'] as bool? ?? defaults.showBorders,
+      chatLineHeight: (json['chatLineHeight'] as num?)?.toDouble() ??
+          defaults.chatLineHeight,
+      chatParagraphSpacing:
+          (json['chatParagraphSpacing'] as num?)?.toDouble() ??
+              defaults.chatParagraphSpacing,
+      markdownLineHeight: (json['markdownLineHeight'] as num?)?.toDouble() ??
+          defaults.markdownLineHeight,
+      markdownParagraphSpacing:
+          (json['markdownParagraphSpacing'] as num?)?.toDouble() ??
+              defaults.markdownParagraphSpacing,
     );
   }
 }

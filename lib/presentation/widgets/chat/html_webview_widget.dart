@@ -53,6 +53,10 @@ class HtmlWebViewWidget extends StatefulWidget {
   /// Color applied to quoted dialogue via `.nt-dialogue` spans.
   final Color? dialogueColor;
   final double? fontSize;
+  /// CSS line-height multiplier for body text.
+  final double lineHeight;
+  /// Bottom margin for paragraphs, in logical pixels.
+  final double paragraphSpacing;
   final VoidCallback? onLongPress;
   /// Unique key to force rebuild when content changes significantly
   final String? contentKey;
@@ -72,6 +76,8 @@ class HtmlWebViewWidget extends StatefulWidget {
     this.textColor = AppTheme.textPrimary,
     this.dialogueColor,
     this.fontSize,
+    this.lineHeight = 1.5,
+    this.paragraphSpacing = 8,
     this.onLongPress,
     this.contentKey,
     this.neutralizeStyle = true,
@@ -174,7 +180,9 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
         widget.fontPath != oldWidget.fontPath ||
         widget.textColor != oldWidget.textColor ||
         widget.dialogueColor != oldWidget.dialogueColor ||
-        widget.fontSize != oldWidget.fontSize;
+        widget.fontSize != oldWidget.fontSize ||
+        widget.lineHeight != oldWidget.lineHeight ||
+        widget.paragraphSpacing != oldWidget.paragraphSpacing;
 
     if (contentChanged || keyChanged || styleChanged) {
       debugPrint(
@@ -338,6 +346,8 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
   /// Build the complete HTML document
   String _buildHtml() {
     final effectiveFontSize = widget.fontSize ?? 14.0;
+    final lineHeight = widget.lineHeight;
+    final paragraphSpacing = widget.paragraphSpacing;
     final textColorHex = _colorToHex(widget.textColor);
     final dialogueColorHex = _colorToHex(
       widget.dialogueColor ?? widget.textColor,
@@ -377,7 +387,7 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
       color: $textColorHex;
       font-family: $bodyFontFamily;
       font-size: ${effectiveFontSize}px;
-      line-height: 1.5;
+      line-height: $lineHeight;
       width: 100%;
       height: auto !important;
       min-height: 0 !important;
@@ -434,7 +444,7 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
     h3 { font-size: 1.3em; }
     h4 { font-size: 1.1em; }
     p {
-      margin: 0 0 0.5em 0;
+      margin: 0 0 ${paragraphSpacing}px 0;
     }
     ::-webkit-scrollbar {
       width: 6px;
@@ -1044,8 +1054,23 @@ double? resolveHtmlWebViewHeight({
 /// Browsers collapse `\n` in normal HTML flow, so character-card messages that
 /// rely on source newlines (without `<br>`/`<p>`) render as one wall of text.
 /// Skips `pre` / `script` / `style` / `textarea` so those keep raw content.
+///
+/// Also leaves Markdown fenced code (` ``` ` / `~~~`) untouched: converting
+/// those newlines to `<br>` and later back to `\n\n` would insert blank lines
+/// inside code blocks (huge vertical gaps that ignore chat spacing settings).
 String preserveHtmlTextNewlines(String html) {
   if (!html.contains('\n') && !html.contains('\r')) return html;
+
+  // Protect fenced code so prose newline→<br> never rewrites fence interiors.
+  final fences = <String>[];
+  final withPlaceholders = html.replaceAllMapped(
+    RegExp(r'(```[^\n]*\n[\s\S]*?```|~~~[^\n]*\n[\s\S]*?~~~)'),
+    (match) {
+      final index = fences.length;
+      fences.add(match.group(0)!);
+      return '\u0000MD_FENCE_$index\u0000';
+    },
+  );
 
   final out = StringBuffer();
   final tagRe = RegExp(r'<!--.*?-->|<[^>]+>', dotAll: true);
@@ -1079,9 +1104,9 @@ String preserveHtmlTextNewlines(String html) {
     );
   }
 
-  for (final match in tagRe.allMatches(html)) {
+  for (final match in tagRe.allMatches(withPlaceholders)) {
     if (match.start > cursor) {
-      writeText(html.substring(cursor, match.start));
+      writeText(withPlaceholders.substring(cursor, match.start));
     }
     final tag = match.group(0)!;
     out.write(tag);
@@ -1092,10 +1117,15 @@ String preserveHtmlTextNewlines(String html) {
     }
     cursor = match.end;
   }
-  if (cursor < html.length) {
-    writeText(html.substring(cursor));
+  if (cursor < withPlaceholders.length) {
+    writeText(withPlaceholders.substring(cursor));
   }
-  return out.toString();
+
+  var result = out.toString();
+  for (var i = 0; i < fences.length; i++) {
+    result = result.replaceFirst('\u0000MD_FENCE_$i\u0000', fences[i]);
+  }
+  return result;
 }
 
 /// CSS `font-family` stack for HTML WebViews.

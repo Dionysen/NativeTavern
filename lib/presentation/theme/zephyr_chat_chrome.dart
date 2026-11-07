@@ -360,10 +360,11 @@ abstract final class ZephyrChatChrome {
   static TextStyle messageInputStyle(BuildContext context, {Color? color}) {
     final theme = Theme.of(context);
     final base = theme.textTheme.bodyMedium;
-    return (base ?? const TextStyle(fontSize: 14, height: 1.4)).copyWith(
+    final lineHeight = context.appChatTypography.lineHeight;
+    return (base ?? TextStyle(fontSize: 14, height: lineHeight)).copyWith(
       color: color ?? theme.colorScheme.onSurface,
       fontSize: messageFontSize(context),
-      height: base?.height ?? 1.4,
+      height: lineHeight,
     );
   }
 }

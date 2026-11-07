@@ -103,6 +103,68 @@ class AppShapeTheme extends ThemeExtension<AppShapeTheme> {
   }
 }
 
+/// Chat message typography prefs (line height / paragraph gaps).
+@immutable
+class AppChatTypography extends ThemeExtension<AppChatTypography> {
+  const AppChatTypography({
+    required this.lineHeight,
+    required this.paragraphSpacing,
+    required this.markdownLineHeight,
+    required this.markdownParagraphSpacing,
+  });
+
+  factory AppChatTypography.fromUi(UiPreferences ui) => AppChatTypography(
+        lineHeight: ui.chatLineHeight,
+        paragraphSpacing: ui.chatParagraphSpacing,
+        markdownLineHeight: ui.markdownLineHeight,
+        markdownParagraphSpacing: ui.markdownParagraphSpacing,
+      );
+
+  static const defaults = AppChatTypography(
+    lineHeight: 1.4,
+    paragraphSpacing: 8,
+    markdownLineHeight: 1.5,
+    markdownParagraphSpacing: 8,
+  );
+
+  final double lineHeight;
+  final double paragraphSpacing;
+  final double markdownLineHeight;
+  final double markdownParagraphSpacing;
+
+  @override
+  AppChatTypography copyWith({
+    double? lineHeight,
+    double? paragraphSpacing,
+    double? markdownLineHeight,
+    double? markdownParagraphSpacing,
+  }) =>
+      AppChatTypography(
+        lineHeight: lineHeight ?? this.lineHeight,
+        paragraphSpacing: paragraphSpacing ?? this.paragraphSpacing,
+        markdownLineHeight: markdownLineHeight ?? this.markdownLineHeight,
+        markdownParagraphSpacing:
+            markdownParagraphSpacing ?? this.markdownParagraphSpacing,
+      );
+
+  @override
+  AppChatTypography lerp(ThemeExtension<AppChatTypography>? other, double t) {
+    if (other is! AppChatTypography) return this;
+    return AppChatTypography(
+      lineHeight: lerpDouble(lineHeight, other.lineHeight, t)!,
+      paragraphSpacing:
+          lerpDouble(paragraphSpacing, other.paragraphSpacing, t)!,
+      markdownLineHeight:
+          lerpDouble(markdownLineHeight, other.markdownLineHeight, t)!,
+      markdownParagraphSpacing: lerpDouble(
+        markdownParagraphSpacing,
+        other.markdownParagraphSpacing,
+        t,
+      )!,
+    );
+  }
+}
+
 /// Chat surface colors owned by [ThemeTokens] chat roles.
 @immutable
 class AppChatColors extends ThemeExtension<AppChatColors> {
@@ -165,6 +227,10 @@ extension AppThemeContext on BuildContext {
   AppChatColors get appChatColors =>
       Theme.of(this).extension<AppChatColors>() ??
       AppChatColors.fromTokens(ThemeTokens.defaults);
+
+  AppChatTypography get appChatTypography =>
+      Theme.of(this).extension<AppChatTypography>() ??
+      AppChatTypography.defaults;
 
   double get appCornerRadius => appShape.cornerRadius;
 
@@ -236,7 +302,11 @@ ThemeData buildNativeTavernTheme(
     // Keep density identical on phone and desktop; adaptive compact on macOS
     // was shrinking chrome relative to Android.
     visualDensity: VisualDensity.standard,
-    extensions: [shape, AppChatColors.fromTokens(tokens)],
+    extensions: [
+      shape,
+      AppChatColors.fromTokens(tokens),
+      AppChatTypography.fromUi(ui),
+    ],
     colorScheme: ColorScheme.fromSeed(seedColor: accent, brightness: brightness)
         .copyWith(
       primary: accent,

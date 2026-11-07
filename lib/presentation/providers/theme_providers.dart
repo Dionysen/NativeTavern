@@ -325,6 +325,18 @@ class ThemeAppearanceNotifier extends StateNotifier<ThemeState> {
   void updateFontSize(double value) =>
       updateUi(state.ui.copyWith(fontSize: value));
 
+  void updateChatLineHeight(double value) =>
+      updateUi(state.ui.copyWith(chatLineHeight: value));
+
+  void updateChatParagraphSpacing(double value) =>
+      updateUi(state.ui.copyWith(chatParagraphSpacing: value));
+
+  void updateMarkdownLineHeight(double value) =>
+      updateUi(state.ui.copyWith(markdownLineHeight: value));
+
+  void updateMarkdownParagraphSpacing(double value) =>
+      updateUi(state.ui.copyWith(markdownParagraphSpacing: value));
+
   Future<void> selectUiFont(SystemFont? font) async {
     if (font == null) {
       updateUi(state.ui.copyWith(clearFont: true));
