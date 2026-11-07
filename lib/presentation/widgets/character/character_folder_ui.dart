@@ -206,7 +206,10 @@ class _CharacterFolderPathPickerSheetState
                             leading: const Icon(Icons.folder_outlined),
                             title: Text(folder.name),
                             subtitle: Text(
-                              l10n.characterFolderCount(folder.characterCount),
+                              l10n.characterFolderContentsSummary(
+                                folder.characterCount,
+                                folder.childFolderCount,
+                              ),
                             ),
                             trailing: const Icon(Icons.chevron_right),
                             onTap: () => _enter(folder),

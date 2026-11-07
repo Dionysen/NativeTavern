@@ -1,4 +1,4 @@
-/// A slot in the folder cover mosaic (up to four characters).
+/// A character slot in the folder cover mosaic (up to four).
 class CharacterFolderPreview {
   const CharacterFolderPreview({
     required this.id,
@@ -20,6 +20,7 @@ class CharacterFolder {
     this.sortOrder = 0,
     required this.createdAt,
     this.characterCount = 0,
+    this.childFolderCount = 0,
     this.previewCharacters = const [],
   });
 
@@ -35,7 +36,11 @@ class CharacterFolder {
   /// Populated by list queries for display (direct members only).
   final int characterCount;
 
-  /// Up to four characters for folder cover mosaic, newest first.
+  /// Direct child folders of this folder.
+  final int childFolderCount;
+
+  /// Up to four character avatars for the cover mosaic.
+  /// Prefers direct members, then walks child folders recursively.
   final List<CharacterFolderPreview> previewCharacters;
 
   CharacterFolder copyWith({
@@ -46,6 +51,7 @@ class CharacterFolder {
     int? sortOrder,
     DateTime? createdAt,
     int? characterCount,
+    int? childFolderCount,
     List<CharacterFolderPreview>? previewCharacters,
   }) =>
       CharacterFolder(
@@ -55,6 +61,7 @@ class CharacterFolder {
         sortOrder: sortOrder ?? this.sortOrder,
         createdAt: createdAt ?? this.createdAt,
         characterCount: characterCount ?? this.characterCount,
+        childFolderCount: childFolderCount ?? this.childFolderCount,
         previewCharacters: previewCharacters ?? this.previewCharacters,
       );
 }

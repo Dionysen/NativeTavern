@@ -1342,6 +1342,11 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String characterFolderContentsSummary(int characterCount, int folderCount) {
+    return '$characterCount character(s) · $folderCount folder(s)';
+  }
+
+  @override
   String get charactersMovedToFolder => 'Karakterler taşındı';
 
   @override

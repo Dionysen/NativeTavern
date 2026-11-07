@@ -1327,6 +1327,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String characterFolderContentsSummary(int characterCount, int folderCount) {
+    return '$characterCount character(s) · $folderCount folder(s)';
+  }
+
+  @override
   String get charactersMovedToFolder => '캐릭터를 이동했습니다';
 
   @override

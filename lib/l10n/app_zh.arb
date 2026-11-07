@@ -1786,6 +1786,7 @@
   "moveToFolder": "移动到文件夹",
   "characterFolderRoot": "角色库根目录",
   "characterFolderCount": "{count} 个角色",
+  "characterFolderContentsSummary": "{characterCount} 个角色 · {folderCount} 个文件夹",
   "charactersMovedToFolder": "已移动角色",
   "copyToFolder": "复制到文件夹",
   "copyCharactersToFolder": "复制到文件夹",

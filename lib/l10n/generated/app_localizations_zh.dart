@@ -1319,6 +1319,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String characterFolderContentsSummary(int characterCount, int folderCount) {
+    return '$characterCount 个角色 · $folderCount 个文件夹';
+  }
+
+  @override
   String get charactersMovedToFolder => '已移动角色';
 
   @override
@@ -8444,6 +8449,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String characterFolderCount(int count) {
     return '$count 個角色';
+  }
+
+  @override
+  String characterFolderContentsSummary(int characterCount, int folderCount) {
+    return '$characterCount 個角色 · $folderCount 個資料夾';
   }
 
   @override

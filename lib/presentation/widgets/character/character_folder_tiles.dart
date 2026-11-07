@@ -188,7 +188,10 @@ class CharacterFolderGridCard extends StatelessWidget {
                         textAlign: compact ? TextAlign.center : TextAlign.start,
                       ),
                       Text(
-                        l10n.characterFolderCount(folder.characterCount),
+                        l10n.characterFolderContentsSummary(
+                          folder.characterCount,
+                          folder.childFolderCount,
+                        ),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: AppTheme.textMuted,
                               fontSize: compact ? 10 : null,
@@ -285,7 +288,10 @@ class CharacterFolderListTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      l10n.characterFolderCount(folder.characterCount),
+                      l10n.characterFolderContentsSummary(
+                        folder.characterCount,
+                        folder.childFolderCount,
+                      ),
                       style: metaStyle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

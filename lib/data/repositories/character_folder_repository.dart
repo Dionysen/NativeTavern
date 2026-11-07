@@ -25,7 +25,12 @@ class CharacterFolderRepository {
                FROM character_folder_members m
                INNER JOIN characters c ON c.id = m.character_id
                WHERE m.folder_id = f.id AND c.is_deleted = 0
-             ) AS character_count
+             ) AS character_count,
+             (
+               SELECT COUNT(*)
+               FROM character_folders child
+               WHERE child.parent_id = f.id
+             ) AS child_folder_count
       FROM character_folders f
   ''';
 
@@ -67,7 +72,7 @@ class CharacterFolderRepository {
     ).getSingleOrNull();
     if (row == null) return null;
     final folder = _folderFromRow(row);
-    final previews = await _loadPreviewCharactersByFolder(folderIds: {id});
+    final previews = await _loadPreviewItemsByFolder(folderIds: {id});
     return folder.copyWith(
       previewCharacters: previews[id] ?? const [],
     );
@@ -391,7 +396,7 @@ class CharacterFolderRepository {
   Future<List<CharacterFolder>> _hydrateFolders(List<QueryRow> rows) async {
     final folders = rows.map(_folderFromRow).toList(growable: false);
     if (folders.isEmpty) return folders;
-    final previews = await _loadPreviewCharactersByFolder(
+    final previews = await _loadPreviewItemsByFolder(
       folderIds: folders.map((f) => f.id).toSet(),
     );
     return folders
@@ -443,43 +448,106 @@ class CharacterFolderRepository {
       sortOrder: row.read<int>('sort_order'),
       createdAt: DateTime.fromMillisecondsSinceEpoch(createdMs),
       characterCount: row.read<int>('character_count'),
+      childFolderCount: row.read<int>('child_folder_count'),
     );
   }
 
-  Future<Map<String, List<CharacterFolderPreview>>>
-      _loadPreviewCharactersByFolder({
+  /// Cover mosaic: direct characters first, then recurse into child folders.
+  Future<Map<String, List<CharacterFolderPreview>>> _loadPreviewItemsByFolder({
     Set<String>? folderIds,
   }) async {
     if (folderIds != null && folderIds.isEmpty) {
       return const {};
     }
 
-    final folderFilter = folderIds == null
-        ? ''
-        : 'AND m.folder_id IN (${List.filled(folderIds.length, '?').join(', ')})';
-    final variables = folderIds == null
-        ? const <Variable<Object>>[]
-        : [for (final id in folderIds) Variable<String>(id)];
+    final folderRows = await _db.customSelect(
+      '''
+      SELECT id, parent_id, sort_order, name
+      FROM character_folders
+      ORDER BY sort_order ASC, name ASC
+      ''',
+      readsFrom: const {},
+    ).get();
+
+    final childrenByParent = <String, List<String>>{};
+    final allFolderIds = <String>{};
+    for (final row in folderRows) {
+      final id = row.read<String>('id');
+      allFolderIds.add(id);
+      final parentId = row.read<String?>('parent_id');
+      if (parentId == null) continue;
+      childrenByParent.putIfAbsent(parentId, () => []).add(id);
+    }
+
+    final roots = folderIds ?? allFolderIds;
+    final descendantIds = <String>{};
+    void collectDescendants(String id) {
+      if (!descendantIds.add(id)) return;
+      for (final childId in childrenByParent[id] ?? const <String>[]) {
+        collectDescendants(childId);
+      }
+    }
+
+    for (final id in roots) {
+      collectDescendants(id);
+    }
+
+    final charactersByFolder = await _loadPreviewCharactersByFolder(
+      folderIds: descendantIds,
+    );
+
+    final grouped = <String, List<CharacterFolderPreview>>{};
+    for (final rootId in roots) {
+      final out = <CharacterFolderPreview>[];
+      final seen = <String>{};
+
+      void collect(String folderId) {
+        if (out.length >= 4) return;
+        for (final preview in charactersByFolder[folderId] ??
+            const <CharacterFolderPreview>[]) {
+          if (!seen.add(preview.id)) continue;
+          out.add(preview);
+          if (out.length >= 4) return;
+        }
+        for (final childId
+            in childrenByParent[folderId] ?? const <String>[]) {
+          collect(childId);
+          if (out.length >= 4) return;
+        }
+      }
+
+      collect(rootId);
+      if (out.isNotEmpty) {
+        grouped[rootId] = out;
+      }
+    }
+    return grouped;
+  }
+
+  Future<Map<String, List<CharacterFolderPreview>>>
+      _loadPreviewCharactersByFolder({
+    required Set<String> folderIds,
+  }) async {
+    if (folderIds.isEmpty) {
+      return const {};
+    }
+
+    final folderFilter =
+        'AND m.folder_id IN (${List.filled(folderIds.length, '?').join(', ')})';
+    final variables = [for (final id in folderIds) Variable<String>(id)];
 
     final rows = await _db.customSelect(
       '''
-      SELECT folder_id, id, name, avatar_path, assets_json
-      FROM (
-        SELECT m.folder_id AS folder_id,
-               c.id AS id,
-               c.name AS name,
-               c.avatar_path AS avatar_path,
-               c.assets_json AS assets_json,
-               ROW_NUMBER() OVER (
-                 PARTITION BY m.folder_id
-                 ORDER BY c.modified_at DESC
-               ) AS rn
-        FROM character_folder_members m
-        INNER JOIN characters c ON c.id = m.character_id
-        WHERE c.is_deleted = 0
-          $folderFilter
-      )
-      WHERE rn <= 4
+      SELECT m.folder_id AS folder_id,
+             c.id AS id,
+             c.name AS name,
+             c.avatar_path AS avatar_path,
+             c.assets_json AS assets_json
+      FROM character_folder_members m
+      INNER JOIN characters c ON c.id = m.character_id
+      WHERE c.is_deleted = 0
+        $folderFilter
+      ORDER BY c.modified_at DESC
       ''',
       variables: variables,
       readsFrom: const {},

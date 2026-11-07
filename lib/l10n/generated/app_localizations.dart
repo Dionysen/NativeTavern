@@ -2576,6 +2576,12 @@ abstract class AppLocalizations {
   /// **'{count} character(s)'**
   String characterFolderCount(int count);
 
+  /// Character and child-folder counts on a folder tile
+  ///
+  /// In en, this message translates to:
+  /// **'{characterCount} character(s) · {folderCount} folder(s)'**
+  String characterFolderContentsSummary(int characterCount, int folderCount);
+
   /// Snack bar after moving characters into a folder
   ///
   /// In en, this message translates to:

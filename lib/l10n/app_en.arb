@@ -1901,6 +1901,20 @@
       }
     }
   },
+  "characterFolderContentsSummary": "{characterCount} character(s) · {folderCount} folder(s)",
+  "@characterFolderContentsSummary": {
+    "description": "Character and child-folder counts on a folder tile",
+    "placeholders": {
+      "characterCount": {
+        "type": "int",
+        "example": "5"
+      },
+      "folderCount": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
   "charactersMovedToFolder": "Characters moved",
   "@charactersMovedToFolder": {
     "description": "Snack bar after moving characters into a folder"

@@ -39,11 +39,36 @@ void main() {
 
     final listed = await folders.listFolders();
     expect(listed.single.characterCount, 1);
+    expect(listed.single.childFolderCount, 0);
     expect(listed.single.previewCharacters.single.id, 'char-a');
 
     await folders.dissolveFolder(folder.id);
     expect(await folders.listFolders(), isEmpty);
     expect(await folders.folderIdForCharacter('char-a'), isNull);
+  });
+
+  test('folder cover recurses into child folders for character previews',
+      () async {
+    final parent = await folders.createFolder('Parent');
+    final child = await folders.createFolder('Child', parentId: parent.id);
+    final leaf = await folders.createFolder('Leaf', parentId: child.id);
+    await folders.moveCharactersToFolder(['char-a'], folderId: leaf.id);
+    await folders.moveCharactersToFolder(['char-b'], folderId: child.id);
+
+    final listed = await folders.listFolders();
+    final cover = listed.single;
+    expect(cover.childFolderCount, 1);
+    expect(cover.characterCount, 0);
+    expect(
+      cover.previewCharacters.map((p) => p.id).toList(),
+      ['char-b', 'char-a'],
+    );
+
+    final emptyParent = await folders.createFolder('Empty');
+    await folders.createFolder('EmptyChild', parentId: emptyParent.id);
+    final emptyListed =
+        await folders.listFolders().then((all) => all.firstWhere((f) => f.id == emptyParent.id));
+    expect(emptyListed.previewCharacters, isEmpty);
   });
 
   test('move to root clears membership', () async {

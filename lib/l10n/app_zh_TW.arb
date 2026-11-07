@@ -1771,6 +1771,7 @@
   "moveToFolder": "移動到資料夾",
   "characterFolderRoot": "角色庫根目錄",
   "characterFolderCount": "{count} 個角色",
+  "characterFolderContentsSummary": "{characterCount} 個角色 · {folderCount} 個資料夾",
   "charactersMovedToFolder": "已移動角色",
   "dissolveCharacterFolder": "解散資料夾",
   "dissolveCharacterFolderBody": "解散「{name}」？角色會保留在庫中，不會被刪除。",
