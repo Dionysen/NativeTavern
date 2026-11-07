@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:archive/archive_io.dart';
 import 'package:native_tavern/core/utils/path_utils.dart';
@@ -20,9 +21,12 @@ class CharacterLibraryPackProgress {
   final int total;
   final int processed;
 
-  /// `folders` | `characters` | `avatars` | `zip` | `import`
+  /// `preparing` | `folders` | `characters` | `avatars` | `zip` | `import`
   final String phase;
   final String? currentName;
+
+  bool get isIndeterminate =>
+      phase == 'preparing' || total <= 0 || processed < 0;
 }
 
 class CharacterLibraryPackExportResult {
@@ -82,6 +86,15 @@ class CharacterLibraryPackService {
     String outputPath, {
     void Function(CharacterLibraryPackProgress progress)? onProgress,
   }) async {
+    onProgress?.call(
+      const CharacterLibraryPackProgress(
+        total: 0,
+        processed: 0,
+        phase: 'preparing',
+      ),
+    );
+    await Future<void>.delayed(Duration.zero);
+
     final tempRoot = await Directory.systemTemp.createTemp('ntchars_export_');
     try {
       final staging = Directory(p.join(tempRoot.path, 'pack'));
@@ -242,6 +255,15 @@ class CharacterLibraryPackService {
     String packPath, {
     void Function(CharacterLibraryPackProgress progress)? onProgress,
   }) async {
+    onProgress?.call(
+      const CharacterLibraryPackProgress(
+        total: 0,
+        processed: 0,
+        phase: 'preparing',
+      ),
+    );
+    await Future<void>.delayed(Duration.zero);
+
     final packFile = File(packPath);
     if (!await packFile.exists()) {
       throw StateError('Pack file not found');
@@ -251,6 +273,16 @@ class CharacterLibraryPackService {
     try {
       final extractDir = Directory(p.join(tempRoot.path, 'pack'));
       await extractDir.create(recursive: true);
+
+      onProgress?.call(
+        const CharacterLibraryPackProgress(
+          total: 0,
+          processed: 0,
+          phase: 'preparing',
+          currentName: 'zip',
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
 
       // Stream zip entries to disk — never materialize the whole  archive in RAM.
       // Avatar entries go straight into the app data dir to avoid a second copy.
@@ -421,72 +453,49 @@ class CharacterLibraryPackService {
 
   /// Extracts `.ntchars` without loading the whole archive into memory.
   ///
-  /// Returns relative avatar paths written under [_dataPath].
+  /// Heavy zip work runs in a background isolate so the UI can show a preparing
+  /// progress bar instead of freezing on large packs.
   Future<Set<String>> _extractPackStreaming({
     required String packPath,
     required Directory metadataDir,
     void Function(CharacterLibraryPackProgress progress)? onProgress,
   }) async {
-    final extractedAvatars = <String>{};
-    final input = InputFileStream(packPath);
+    final receive = ReceivePort();
+    final isolate = await Isolate.spawn(
+      _extractPackIsolateMain,
+      _ExtractPackIsolateRequest(
+        sendPort: receive.sendPort,
+        packPath: packPath,
+        metadataDirPath: metadataDir.path,
+        dataPath: _dataPath,
+      ),
+    );
+
     try {
-      final archive = ZipDecoder().decodeBuffer(input);
-      final files = archive.files;
-      final total = files.length;
-      for (var i = 0; i < files.length; i++) {
-        final file = files[i];
-        if (!file.isFile || file.name.isEmpty) {
-          file.clear();
-          continue;
-        }
-        final relative = p.normalize(file.name.replaceAll('\\', '/'));
-        if (relative.isEmpty ||
-            relative == '.' ||
-            relative.startsWith('../') ||
-            relative.contains('/../')) {
-          file.clear();
-          continue;
-        }
-
-        final isAvatar = relative == 'avatars' || relative.startsWith('avatars/');
-        final outPath = isAvatar
-            ? p.normalize(p.join(_dataPath, relative))
-            : p.normalize(p.join(metadataDir.path, relative));
-        final root = isAvatar ? _dataPath : metadataDir.path;
-        if (!p.isWithin(root, outPath) && outPath != root) {
-          file.clear();
-          continue;
-        }
-
-        await Directory(p.dirname(outPath)).create(recursive: true);
-        final output = OutputFileStream(outPath);
-        try {
-          file.writeContent(output);
-        } finally {
-          await output.close();
-          file.clear();
-        }
-        if (isAvatar) {
-          extractedAvatars.add(relative);
-        }
-
-        if (i % 8 == 0) {
+      await for (final message in receive) {
+        if (message is _ExtractPackProgressMessage) {
           onProgress?.call(
             CharacterLibraryPackProgress(
-              total: total,
-              processed: i,
-              phase: 'avatars',
-              currentName: relative,
+              total: message.total,
+              processed: message.processed,
+              phase: message.phase,
+              currentName: message.currentName,
             ),
           );
-          await Future<void>.delayed(Duration.zero);
+          continue;
+        }
+        if (message is _ExtractPackDoneMessage) {
+          if (message.error != null) {
+            throw StateError(message.error!);
+          }
+          return message.avatarPaths.toSet();
         }
       }
-      await archive.clear();
+      throw StateError('Pack extract isolate ended unexpectedly');
     } finally {
-      await input.close();
+      receive.close();
+      isolate.kill(priority: Isolate.immediate);
     }
-    return extractedAvatars;
   }
 
   /// Suggested filename for a new pack export.
@@ -579,5 +588,130 @@ class CharacterLibraryPackService {
       }
     }
     return extractDir;
+  }
+}
+
+class _ExtractPackIsolateRequest {
+  const _ExtractPackIsolateRequest({
+    required this.sendPort,
+    required this.packPath,
+    required this.metadataDirPath,
+    required this.dataPath,
+  });
+
+  final SendPort sendPort;
+  final String packPath;
+  final String metadataDirPath;
+  final String dataPath;
+}
+
+class _ExtractPackProgressMessage {
+  const _ExtractPackProgressMessage({
+    required this.phase,
+    required this.total,
+    required this.processed,
+    this.currentName,
+  });
+
+  final String phase;
+  final int total;
+  final int processed;
+  final String? currentName;
+}
+
+class _ExtractPackDoneMessage {
+  const _ExtractPackDoneMessage({
+    required this.avatarPaths,
+    this.error,
+  });
+
+  final List<String> avatarPaths;
+  final String? error;
+}
+
+void _extractPackIsolateMain(_ExtractPackIsolateRequest request) {
+  final send = request.sendPort;
+  try {
+    send.send(
+      const _ExtractPackProgressMessage(
+        phase: 'preparing',
+        total: 0,
+        processed: 0,
+      ),
+    );
+
+    final input = InputFileStream(request.packPath);
+    try {
+      final archive = ZipDecoder().decodeBuffer(input);
+      final files = archive.files;
+      final total = files.length;
+      final extractedAvatars = <String>[];
+
+      send.send(
+        _ExtractPackProgressMessage(
+          phase: 'avatars',
+          total: total,
+          processed: 0,
+        ),
+      );
+
+      for (var i = 0; i < files.length; i++) {
+        final file = files[i];
+        if (!file.isFile || file.name.isEmpty) {
+          file.clear();
+          continue;
+        }
+        final relative = p.normalize(file.name.replaceAll('\\', '/'));
+        if (relative.isEmpty ||
+            relative == '.' ||
+            relative.startsWith('../') ||
+            relative.contains('/../')) {
+          file.clear();
+          continue;
+        }
+
+        final isAvatar =
+            relative == 'avatars' || relative.startsWith('avatars/');
+        final outPath = isAvatar
+            ? p.normalize(p.join(request.dataPath, relative))
+            : p.normalize(p.join(request.metadataDirPath, relative));
+        final root = isAvatar ? request.dataPath : request.metadataDirPath;
+        if (!p.isWithin(root, outPath) && outPath != root) {
+          file.clear();
+          continue;
+        }
+
+        Directory(p.dirname(outPath)).createSync(recursive: true);
+        final output = OutputFileStream(outPath);
+        try {
+          file.writeContent(output);
+        } finally {
+          output.closeSync();
+          file.clear();
+        }
+        if (isAvatar) {
+          extractedAvatars.add(relative);
+        }
+
+        if (i % 8 == 0 || i == files.length - 1) {
+          send.send(
+            _ExtractPackProgressMessage(
+              phase: 'avatars',
+              total: total,
+              processed: i + 1,
+              currentName: relative,
+            ),
+          );
+        }
+      }
+      archive.clear();
+      send.send(_ExtractPackDoneMessage(avatarPaths: extractedAvatars));
+    } finally {
+      input.closeSync();
+    }
+  } catch (e) {
+    send.send(
+      _ExtractPackDoneMessage(avatarPaths: const [], error: '$e'),
+    );
   }
 }

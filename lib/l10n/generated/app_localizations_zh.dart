@@ -1363,6 +1363,9 @@ class AppLocalizationsZh extends AppLocalizations {
       '包里和本地 id 相同的角色会被更新，对应聊天仍会留在这些角色上。';
 
   @override
+  String get characterLibraryFastPackPreparing => '正在准备…';
+
+  @override
   String characterLibraryFastPackImportProgress(int processed, int total) {
     return '正在快速导入 $processed/$total';
   }
@@ -1370,6 +1373,11 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String characterLibraryFastPackExportProgress(int processed, int total) {
     return '正在快速导出 $processed/$total';
+  }
+
+  @override
+  String characterLibraryFastPackExtractProgress(int processed, int total) {
+    return '正在解压文件 $processed/$total';
   }
 
   @override

@@ -1969,6 +1969,10 @@
   "@characterLibraryFastPackOverwriteBody": {
     "description": "Explains id overwrite behavior for fast pack import"
   },
+  "characterLibraryFastPackPreparing": "Preparing…",
+  "@characterLibraryFastPackPreparing": {
+    "description": "Shown while opening a large character library pack before counted progress starts"
+  },
   "characterLibraryFastPackImportProgress": "Quick importing {processed} of {total}",
   "@characterLibraryFastPackImportProgress": {
     "description": "Progress while importing a .ntchars pack",
@@ -1980,6 +1984,14 @@
   "characterLibraryFastPackExportProgress": "Quick exporting {processed} of {total}",
   "@characterLibraryFastPackExportProgress": {
     "description": "Progress while exporting a .ntchars pack",
+    "placeholders": {
+      "processed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "characterLibraryFastPackExtractProgress": "Extracting files {processed} of {total}",
+  "@characterLibraryFastPackExtractProgress": {
+    "description": "Progress while streaming files out of a .ntchars pack",
     "placeholders": {
       "processed": { "type": "int" },
       "total": { "type": "int" }

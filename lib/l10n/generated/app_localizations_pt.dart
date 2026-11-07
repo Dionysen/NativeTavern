@@ -1390,6 +1390,9 @@ class AppLocalizationsPt extends AppLocalizations {
       'Characters with the same id will be updated. Chats stay linked to those characters.';
 
   @override
+  String get characterLibraryFastPackPreparing => 'Preparing…';
+
+  @override
   String characterLibraryFastPackImportProgress(int processed, int total) {
     return 'Quick importing $processed of $total';
   }
@@ -1397,6 +1400,11 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String characterLibraryFastPackExportProgress(int processed, int total) {
     return 'Quick exporting $processed of $total';
+  }
+
+  @override
+  String characterLibraryFastPackExtractProgress(int processed, int total) {
+    return 'Extracting files $processed of $total';
   }
 
   @override

@@ -2654,6 +2654,12 @@ abstract class AppLocalizations {
   /// **'Characters with the same id will be updated. Chats stay linked to those characters.'**
   String get characterLibraryFastPackOverwriteBody;
 
+  /// Shown while opening a large character library pack before counted progress starts
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing…'**
+  String get characterLibraryFastPackPreparing;
+
   /// Progress while importing a .ntchars pack
   ///
   /// In en, this message translates to:
@@ -2665,6 +2671,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Quick exporting {processed} of {total}'**
   String characterLibraryFastPackExportProgress(int processed, int total);
+
+  /// Progress while streaming files out of a .ntchars pack
+  ///
+  /// In en, this message translates to:
+  /// **'Extracting files {processed} of {total}'**
+  String characterLibraryFastPackExtractProgress(int processed, int total);
 
   /// Summary after fast pack import
   ///

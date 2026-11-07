@@ -244,12 +244,49 @@ Future<bool> _confirmFastPackOverwrite(
   return confirmed == true;
 }
 
-void _showPackProgressDialog(
+String _packProgressLabel(
+  AppLocalizations l10n,
+  CharacterLibraryPackProgress value, {
+  required bool exporting,
+}) {
+  switch (value.phase) {
+    case 'preparing':
+      return l10n.characterLibraryFastPackPreparing;
+    case 'avatars':
+      if (!exporting && value.total > 0) {
+        return l10n.characterLibraryFastPackExtractProgress(
+          value.processed,
+          value.total,
+        );
+      }
+      return exporting
+          ? l10n.characterLibraryFastPackExportProgress(
+              value.processed,
+              value.total,
+            )
+          : l10n.characterLibraryFastPackImportProgress(
+              value.processed,
+              value.total,
+            );
+    default:
+      return exporting
+          ? l10n.characterLibraryFastPackExportProgress(
+              value.processed,
+              value.total,
+            )
+          : l10n.characterLibraryFastPackImportProgress(
+              value.processed,
+              value.total,
+            );
+  }
+}
+
+Future<void> _showPackProgressDialog(
   BuildContext context, {
   required String title,
-  required ValueNotifier<CharacterLibraryPackProgress?> progress,
+  required ValueNotifier<CharacterLibraryPackProgress> progress,
   required String Function(CharacterLibraryPackProgress value) labelBuilder,
-}) {
+}) async {
   showDialog<void>(
     context: context,
     barrierDismissible: false,
@@ -257,17 +294,12 @@ void _showPackProgressDialog(
       canPop: false,
       child: AlertDialog(
         title: Text(title),
-        content: ValueListenableBuilder<CharacterLibraryPackProgress?>(
+        content: ValueListenableBuilder<CharacterLibraryPackProgress>(
           valueListenable: progress,
           builder: (context, value, _) {
-            if (value == null) {
-              return const SizedBox(
-                height: 72,
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-            final ratio =
-                value.total == 0 ? null : value.processed / value.total;
+            final ratio = value.isIndeterminate
+                ? null
+                : (value.processed / value.total).clamp(0.0, 1.0);
             return Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -275,7 +307,8 @@ void _showPackProgressDialog(
                 LinearProgressIndicator(value: ratio),
                 const SizedBox(height: 12),
                 Text(labelBuilder(value)),
-                if (value.currentName != null) ...[
+                if (value.currentName != null &&
+                    value.phase != 'preparing') ...[
                   const SizedBox(height: 8),
                   Text(
                     value.currentName!,
@@ -291,6 +324,10 @@ void _showPackProgressDialog(
       ),
     ),
   );
+  // Let the dialog paint before heavy import/export work starts.
+  await WidgetsBinding.instance.endOfFrame;
+  await Future<void>.delayed(Duration.zero);
+  await WidgetsBinding.instance.endOfFrame;
 }
 
 Future<void> importCharacterLibraryFastPack(
@@ -310,16 +347,23 @@ Future<void> importCharacterLibraryFastPack(
   final confirmed = await _confirmFastPackOverwrite(context, l10n);
   if (!confirmed || !context.mounted) return;
 
-  final progress = ValueNotifier<CharacterLibraryPackProgress?>(null);
-  _showPackProgressDialog(
+  final progress = ValueNotifier<CharacterLibraryPackProgress>(
+    const CharacterLibraryPackProgress(
+      total: 0,
+      processed: 0,
+      phase: 'preparing',
+    ),
+  );
+  await _showPackProgressDialog(
     context,
     title: l10n.importCharacterLibraryFastPack,
     progress: progress,
-    labelBuilder: (value) => l10n.characterLibraryFastPackImportProgress(
-      value.processed,
-      value.total,
-    ),
+    labelBuilder: (value) => _packProgressLabel(l10n, value, exporting: false),
   );
+  if (!context.mounted) {
+    progress.dispose();
+    return;
+  }
 
   try {
     final result = await _characterLibraryPackService(ref).importFromFile(
@@ -380,16 +424,23 @@ Future<void> exportCharacterLibraryFastPack(
   }
   if (!context.mounted) return;
 
-  final progress = ValueNotifier<CharacterLibraryPackProgress?>(null);
-  _showPackProgressDialog(
+  final progress = ValueNotifier<CharacterLibraryPackProgress>(
+    const CharacterLibraryPackProgress(
+      total: 0,
+      processed: 0,
+      phase: 'preparing',
+    ),
+  );
+  await _showPackProgressDialog(
     context,
     title: l10n.exportCharacterLibraryFastPack,
     progress: progress,
-    labelBuilder: (value) => l10n.characterLibraryFastPackExportProgress(
-      value.processed,
-      value.total,
-    ),
+    labelBuilder: (value) => _packProgressLabel(l10n, value, exporting: true),
   );
+  if (!context.mounted) {
+    progress.dispose();
+    return;
+  }
 
   try {
     final result = await _characterLibraryPackService(ref).exportToFile(
