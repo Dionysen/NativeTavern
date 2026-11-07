@@ -4948,6 +4948,18 @@
   "@lorebooksInjectContext": {
     "description": "Lorebooks description"
   },
+  "searchLorebooks": "Search lorebooks...",
+  "@searchLorebooks": {
+    "description": "Search field hint on the lorebook list"
+  },
+  "localScope": "Local",
+  "@localScope": {
+    "description": "Non-global lorebook scope label"
+  },
+  "noMatchingLorebooks": "No matching lorebooks",
+  "@noMatchingLorebooks": {
+    "description": "Empty state when lorebook search or filter has no results"
+  },
   "entriesCount": "{count} entries",
   "@entriesCount": {
     "description": "Entries count label",

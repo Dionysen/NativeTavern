@@ -4607,6 +4607,9 @@
   "@lorebooksInjectContext": {
     "description": "Lorebooks description"
   },
+  "searchLorebooks": "搜索世界书…",
+  "localScope": "局部",
+  "noMatchingLorebooks": "没有匹配的世界书",
   "entriesCount": "{count} 个条目",
   "@entriesCount": {
     "description": "Entries count label",

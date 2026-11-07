@@ -3466,6 +3466,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lorebooksInjectContext => '检测到关键词时，世界书会向聊天注入上下文。';
 
   @override
+  String get searchLorebooks => '搜索世界书…';
+
+  @override
+  String get localScope => '局部';
+
+  @override
+  String get noMatchingLorebooks => '没有匹配的世界书';
+
+  @override
   String entriesCount(int count) {
     return '$count 个条目';
   }
@@ -10517,6 +10526,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get lorebooksInjectContext => '偵測到關鍵字時，世界書會向聊天注入上下文。';
+
+  @override
+  String get searchLorebooks => '搜尋世界書…';
+
+  @override
+  String get localScope => '局部';
+
+  @override
+  String get noMatchingLorebooks => '沒有符合的世界書';
 
   @override
   String entriesCount(int count) {

@@ -6513,6 +6513,24 @@ abstract class AppLocalizations {
   /// **'Lorebooks inject context into your chats when keywords are detected.'**
   String get lorebooksInjectContext;
 
+  /// Search field hint on the lorebook list
+  ///
+  /// In en, this message translates to:
+  /// **'Search lorebooks...'**
+  String get searchLorebooks;
+
+  /// Non-global lorebook scope label
+  ///
+  /// In en, this message translates to:
+  /// **'Local'**
+  String get localScope;
+
+  /// Empty state when lorebook search or filter has no results
+  ///
+  /// In en, this message translates to:
+  /// **'No matching lorebooks'**
+  String get noMatchingLorebooks;
+
   /// Entries count label
   ///
   /// In en, this message translates to:

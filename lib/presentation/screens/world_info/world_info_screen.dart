@@ -40,29 +40,52 @@ void _log(String message, {String? error, StackTrace? stackTrace}) {
   );
 }
 
+enum _LorebookListScope { all, global, local }
+
 /// Screen for managing World Info / Lorebooks
-class WorldInfoScreen extends ConsumerWidget {
+class WorldInfoScreen extends ConsumerStatefulWidget {
   const WorldInfoScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WorldInfoScreen> createState() => _WorldInfoScreenState();
+}
+
+class _WorldInfoScreenState extends ConsumerState<WorldInfoScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  _LorebookListScope _scopeFilter = _LorebookListScope.all;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final worldInfosAsync = ref.watch(worldInfoNotifierProvider);
     final entryCounts = ref.watch(worldInfoEntryCountsProvider).valueOrNull ??
         const <String, int>{};
+    final characters =
+        ref.watch(characterListProvider).valueOrNull ?? const [];
+    final characterNames = {
+      for (final c in characters) c.id: c.name,
+    };
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.worldInfoLorebooks),
+        title: Text(l10n.worldInfoLorebooks),
         actions: spacedAppBarActions([
           ChromeIconButton(
             icon: const Icon(Icons.file_download),
-            tooltip: AppLocalizations.of(context)!.import,
-            onPressed: () => _importWorldInfo(context, ref),
+            tooltip: l10n.import,
+            onPressed: () => _importWorldInfo(context),
           ),
           ChromeIconButton(
             icon: const Icon(Icons.add),
-            tooltip: AppLocalizations.of(context)!.createLorebook,
-            onPressed: () => _showCreateDialog(context, ref),
+            tooltip: l10n.createLorebook,
+            onPressed: _showCreateDialog,
           ),
         ]),
       ),
@@ -74,50 +97,201 @@ class WorldInfoScreen extends ConsumerWidget {
             children: [
               const Icon(Icons.error_outline, size: 48, color: Colors.red),
               const SizedBox(height: 16),
-              Text('${AppLocalizations.of(context).error}: $error'),
+              Text('${l10n.error}: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () =>
                     ref.read(worldInfoNotifierProvider.notifier).refresh(),
-                child: Text(AppLocalizations.of(context)!.retry),
+                child: Text(l10n.retry),
               ),
             ],
           ),
         ),
         data: (worldInfos) {
           if (worldInfos.isEmpty) {
-            return _buildEmptyState(context, ref);
+            return _buildEmptyState();
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: worldInfos.length,
-            itemBuilder: (context, index) {
-              final worldInfo = worldInfos[index];
-              return _WorldInfoCard(
-                worldInfo: worldInfo,
-                entryCount:
-                    entryCounts[worldInfo.id] ?? worldInfo.entries.length,
-                onTap: () => _openWorldInfo(context, worldInfo),
-                onEdit: () => _showEditDialog(context, ref, worldInfo),
-                onDelete: () =>
-                    _showDeleteConfirmation(context, ref, worldInfo),
-                onToggle: (enabled) {
-                  ref.read(worldInfoNotifierProvider.notifier).updateWorldInfo(
-                        worldInfo.copyWith(enabled: enabled),
-                      );
-                },
-              );
-            },
+          final filtered = _filterWorldInfos(worldInfos);
+          return Column(
+            children: [
+              _buildSearchField(l10n),
+              _buildScopeFilter(l10n),
+              Expanded(
+                child: filtered.isEmpty
+                    ? _buildNoMatchesState(l10n)
+                    : _buildGroupedList(
+                        filtered,
+                        entryCounts,
+                        characterNames,
+                      ),
+              ),
+            ],
           );
         },
       ),
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
+  List<WorldInfo> _filterWorldInfos(List<WorldInfo> worldInfos) {
+    final query = _searchQuery.trim().toLowerCase();
+    return worldInfos.where((w) {
+      final matchesScope = switch (_scopeFilter) {
+        _LorebookListScope.all => true,
+        _LorebookListScope.global => w.isGlobal,
+        _LorebookListScope.local => !w.isGlobal,
+      };
+      if (!matchesScope) return false;
+      if (query.isEmpty) return true;
+      final name = w.name.toLowerCase();
+      final description = (w.description ?? '').toLowerCase();
+      return name.contains(query) || description.contains(query);
+    }).toList();
+  }
+
+  Widget _buildSearchField(AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) => setState(() => _searchQuery = value),
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: l10n.searchLorebooks,
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: _searchQuery.isEmpty
+              ? null
+              : ChromeIconButton(
+                  icon: const Icon(Icons.clear),
+                  tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() => _searchQuery = '');
+                  },
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScopeFilter(AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: SizedBox(
+        width: double.infinity,
+        child: SegmentedButton<_LorebookListScope>(
+          showSelectedIcon: false,
+          segments: [
+            ButtonSegment(
+              value: _LorebookListScope.all,
+              label: Text(l10n.allLabel),
+              tooltip: l10n.allLabel,
+            ),
+            ButtonSegment(
+              value: _LorebookListScope.global,
+              label: Text(l10n.globalScope),
+              tooltip: l10n.globalScope,
+            ),
+            ButtonSegment(
+              value: _LorebookListScope.local,
+              label: Text(l10n.localScope),
+              tooltip: l10n.localScope,
+            ),
+          ],
+          selected: {_scopeFilter},
+          onSelectionChanged: (next) {
+            if (next.isEmpty) return;
+            setState(() => _scopeFilter = next.first);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGroupedList(
+    List<WorldInfo> filtered,
+    Map<String, int> entryCounts,
+    Map<String, String> characterNames,
+  ) {
+    final showSections = _scopeFilter == _LorebookListScope.all;
+    final global = filtered.where((w) => w.isGlobal).toList();
+    final local = filtered.where((w) => !w.isGlobal).toList();
+
+    final rows = <Widget>[];
+    void addSection(String title, List<WorldInfo> books) {
+      if (books.isEmpty) return;
+      if (showSections) {
+        rows.add(
+          Padding(
+            padding: EdgeInsets.only(
+              top: rows.isEmpty ? 0 : 8,
+              bottom: 8,
+            ),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ),
+        );
+      }
+      for (final worldInfo in books) {
+        rows.add(
+          _WorldInfoCard(
+            worldInfo: worldInfo,
+            entryCount: entryCounts[worldInfo.id] ?? worldInfo.entries.length,
+            characterName: worldInfo.characterId == null
+                ? null
+                : characterNames[worldInfo.characterId!],
+            onTap: () => _openWorldInfo(worldInfo),
+            onEdit: () => _showEditDialog(worldInfo),
+            onDelete: () => _showDeleteConfirmation(worldInfo),
+            onToggle: (enabled) {
+              ref.read(worldInfoNotifierProvider.notifier).updateWorldInfo(
+                    worldInfo.copyWith(enabled: enabled),
+                  );
+            },
+          ),
+        );
+      }
+    }
+
+    final l10n = AppLocalizations.of(context);
+    if (showSections) {
+      addSection(l10n.globalScope, global);
+      addSection(l10n.localScope, local);
+    } else if (_scopeFilter == _LorebookListScope.global) {
+      addSection(l10n.globalScope, global);
+    } else {
+      addSection(l10n.localScope, local);
+    }
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      children: rows,
+    );
+  }
+
+  Widget _buildNoMatchesState(AppLocalizations l10n) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Text(
+          l10n.noMatchingLorebooks,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: muted),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -129,35 +303,37 @@ class WorldInfoScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            AppLocalizations.of(context)!.noLorebooksYet,
+            l10n.noLorebooksYet,
             style: theme.textTheme.titleMedium?.copyWith(color: muted),
           ),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              AppLocalizations.of(context)!.lorebooksInjectContext,
+              l10n.lorebooksInjectContext,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(color: muted),
             ),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () => _showCreateDialog(context, ref),
+            onPressed: _showCreateDialog,
             icon: const Icon(Icons.add),
-            label: Text(AppLocalizations.of(context)!.createLorebook),
+            label: Text(l10n.createLorebook),
           ),
         ],
       ),
     );
   }
 
-  void _showCreateDialog(BuildContext context, WidgetRef ref) {
+  void _showCreateDialog() {
+    final preferGlobal = _scopeFilter != _LorebookListScope.local;
     showDialog(
       context: context,
       builder: (context) => _WorldInfoDialog(
         ref: ref,
-        title: AppLocalizations.of(context)!.createLorebook,
+        title: AppLocalizations.of(context).createLorebook,
+        initialIsGlobal: preferGlobal,
         onSave: (name, description, isGlobal, characterId) async {
           _log(
               'Creating world info: name=$name, isGlobal=$isGlobal, characterId=$characterId');
@@ -172,13 +348,12 @@ class WorldInfoScreen extends ConsumerWidget {
     );
   }
 
-  void _showEditDialog(
-      BuildContext context, WidgetRef ref, WorldInfo worldInfo) {
+  void _showEditDialog(WorldInfo worldInfo) {
     showDialog(
       context: context,
       builder: (context) => _WorldInfoDialog(
         ref: ref,
-        title: AppLocalizations.of(context)!.editGroup,
+        title: AppLocalizations.of(context).editGroup,
         initialName: worldInfo.name,
         initialDescription: worldInfo.description,
         initialIsGlobal: worldInfo.isGlobal,
@@ -199,18 +374,17 @@ class WorldInfoScreen extends ConsumerWidget {
     );
   }
 
-  void _showDeleteConfirmation(
-      BuildContext context, WidgetRef ref, WorldInfo worldInfo) {
+  void _showDeleteConfirmation(WorldInfo worldInfo) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.deleteGroup),
-        content: Text(AppLocalizations.of(context)!
+        title: Text(AppLocalizations.of(context).deleteGroup),
+        content: Text(AppLocalizations.of(context)
             .deleteLorebookConfirmation(worldInfo.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           TextButton(
             onPressed: () {
@@ -220,14 +394,14 @@ class WorldInfoScreen extends ConsumerWidget {
                   .deleteWorldInfo(worldInfo.id);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(AppLocalizations.of(context)!.delete),
+            child: Text(AppLocalizations.of(context).delete),
           ),
         ],
       ),
     );
   }
 
-  void _openWorldInfo(BuildContext context, WorldInfo worldInfo) {
+  void _openWorldInfo(WorldInfo worldInfo) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -236,7 +410,7 @@ class WorldInfoScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _importWorldInfo(BuildContext context, WidgetRef ref) async {
+  Future<void> _importWorldInfo(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     try {
       _log('Starting world info import...');
@@ -343,6 +517,7 @@ class WorldInfoScreen extends ConsumerWidget {
 class _WorldInfoCard extends StatelessWidget {
   final WorldInfo worldInfo;
   final int entryCount;
+  final String? characterName;
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -351,6 +526,7 @@ class _WorldInfoCard extends StatelessWidget {
   const _WorldInfoCard({
     required this.worldInfo,
     required this.entryCount,
+    this.characterName,
     required this.onTap,
     required this.onEdit,
     required this.onDelete,
@@ -363,6 +539,16 @@ class _WorldInfoCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     final muted = scheme.onSurfaceVariant;
     final accent = worldInfo.enabled ? scheme.primary : muted;
+    final l10n = AppLocalizations.of(context);
+    final scopeLabel =
+        worldInfo.isGlobal ? l10n.globalScope : l10n.localScope;
+    final scopeColor =
+        worldInfo.isGlobal ? scheme.secondary : scheme.tertiary;
+    final boundLabel = characterName?.trim().isNotEmpty == true
+        ? characterName!
+        : (worldInfo.characterId != null
+            ? l10n.specificCharacter
+            : l10n.allCharactersAvailable);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -400,31 +586,31 @@ class _WorldInfoCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (worldInfo.isGlobal)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: scheme.secondary.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context)!.globalScope,
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: scheme.secondary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: scopeColor.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            scopeLabel,
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: scopeColor,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      AppLocalizations.of(context)!
-                          .entriesCount(entryCount),
+                      worldInfo.isGlobal
+                          ? l10n.entriesCount(entryCount)
+                          : '${l10n.entriesCount(entryCount)} · $boundLabel',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: muted,
                       ),

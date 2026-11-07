@@ -4390,6 +4390,9 @@
   "@lorebooksInjectContext": {
     "description": "Lorebooks description"
   },
+  "searchLorebooks": "Search lorebooks...",
+  "localScope": "Local",
+  "noMatchingLorebooks": "No matching lorebooks",
   "entriesCount": "{count} entries",
   "@entriesCount": {
     "description": "Entries count label",

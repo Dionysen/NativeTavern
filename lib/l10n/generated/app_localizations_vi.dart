@@ -3555,6 +3555,15 @@ class AppLocalizationsVi extends AppLocalizations {
       'Lorebooks inject context into your chats when keywords are detected.';
 
   @override
+  String get searchLorebooks => 'Search lorebooks...';
+
+  @override
+  String get localScope => 'Local';
+
+  @override
+  String get noMatchingLorebooks => 'No matching lorebooks';
+
+  @override
   String entriesCount(int count) {
     return '$count entries';
   }
