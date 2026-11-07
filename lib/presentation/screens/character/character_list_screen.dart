@@ -131,8 +131,6 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
         await importCharacterLibraryFastPack(context, ref);
       case 'export_fast_pack':
         await exportCharacterLibraryFastPack(context, ref);
-      case 'import':
-        context.push(AppRoutes.import_);
       case 'rename_folder':
         if (currentFolder != null) {
           await renameCharacterFolder(context, ref, currentFolder);
@@ -434,6 +432,11 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                     tooltip: l10n.characterDisplayMode,
                   ),
                   ChromeIconButton(
+                    icon: const Icon(Icons.file_download_outlined),
+                    tooltip: l10n.import,
+                    onPressed: () => context.push(AppRoutes.import_),
+                  ),
+                  ChromeIconButton(
                     icon: const Icon(Icons.add),
                     tooltip: l10n.createCharacter,
                     onPressed: () => context.push(AppRoutes.characterCreate),
@@ -466,11 +469,6 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                         value: 'export_fast_pack',
                         leading: const Icon(Icons.archive_outlined),
                         title: Text(l10n.exportCharacterLibraryFastPack),
-                      ),
-                      AdaptiveActionDrawerItem(
-                        value: 'import',
-                        leading: const Icon(Icons.file_download_outlined),
-                        title: Text(l10n.import),
                       ),
                       if (browseFolderId != null) ...[
                         AdaptiveActionDrawerItem(
