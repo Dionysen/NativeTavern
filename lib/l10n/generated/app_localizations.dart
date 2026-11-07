@@ -2582,6 +2582,12 @@ abstract class AppLocalizations {
   /// **'{characterCount} character(s) · {folderCount} folder(s)'**
   String characterFolderContentsSummary(int characterCount, int folderCount);
 
+  /// Shown when creating or moving a folder would exceed the depth limit
+  ///
+  /// In en, this message translates to:
+  /// **'Folders can only nest up to {maxDepth} levels'**
+  String characterFolderDepthLimit(int maxDepth);
+
   /// Snack bar after moving characters into a folder
   ///
   /// In en, this message translates to:

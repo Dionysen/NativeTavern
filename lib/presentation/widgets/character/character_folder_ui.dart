@@ -149,10 +149,23 @@ class _CharacterFolderPathPickerSheetState
       title: l10n.createCharacterFolder,
     );
     if (name == null || !mounted) return;
-    await ref.read(characterFolderRepositoryProvider).createFolder(
-          name,
-          parentId: _currentParentId,
-        );
+    try {
+      await ref.read(characterFolderRepositoryProvider).createFolder(
+            name,
+            parentId: _currentParentId,
+          );
+    } catch (error) {
+      if (!mounted) return;
+      final message = error.toString().contains('Folder depth limit')
+          ? l10n.characterFolderDepthLimit(
+              CharacterFolderRepository.maxFolderDepth,
+            )
+          : '${l10n.error}: $error';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+      return;
+    }
     await _loadChildren();
     ref.invalidate(characterFoldersProvider);
   }

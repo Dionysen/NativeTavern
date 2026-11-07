@@ -1324,6 +1324,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String characterFolderDepthLimit(int maxDepth) {
+    return '文件夹最多嵌套 $maxDepth 层';
+  }
+
+  @override
   String get charactersMovedToFolder => '已移动角色';
 
   @override
@@ -8462,6 +8467,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String characterFolderContentsSummary(int characterCount, int folderCount) {
     return '$characterCount 個角色 · $folderCount 個資料夾';
+  }
+
+  @override
+  String characterFolderDepthLimit(int maxDepth) {
+    return '資料夾最多巢狀 $maxDepth 層';
   }
 
   @override

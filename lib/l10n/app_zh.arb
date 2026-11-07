@@ -1787,6 +1787,7 @@
   "characterFolderRoot": "角色库根目录",
   "characterFolderCount": "{count} 个角色",
   "characterFolderContentsSummary": "{characterCount} 个角色 · {folderCount} 个文件夹",
+  "characterFolderDepthLimit": "文件夹最多嵌套 {maxDepth} 层",
   "charactersMovedToFolder": "已移动角色",
   "copyToFolder": "复制到文件夹",
   "copyCharactersToFolder": "复制到文件夹",

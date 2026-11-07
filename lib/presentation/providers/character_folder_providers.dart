@@ -9,6 +9,13 @@ final characterBrowseFolderIdProvider = StateProvider<String?>((ref) => null);
 /// When true inside a folder, character search spans the whole library.
 final characterSearchGlobalProvider = StateProvider<bool>((ref) => false);
 
+/// One-shot: collapse folders deeper than [CharacterFolderRepository.maxFolderDepth].
+final characterFolderDepthNormalizeProvider = FutureProvider<int>((ref) async {
+  return ref
+      .read(characterFolderRepositoryProvider)
+      .enforceMaxFolderDepth();
+});
+
 /// Metadata for the currently open browse folder (null at library root).
 final characterBrowseFolderProvider =
     FutureProvider<CharacterFolder?>((ref) async {
@@ -24,21 +31,51 @@ final characterFoldersProvider =
 );
 
 class CharacterFoldersNotifier extends AsyncNotifier<List<CharacterFolder>> {
+  int _previewGeneration = 0;
+
   @override
   Future<List<CharacterFolder>> build() async {
+    _previewGeneration++;
+    // Ensure deep trees are flattened before the first browse paint.
+    await ref.watch(characterFolderDepthNormalizeProvider.future);
+
     final parentId = ref.watch(characterBrowseFolderIdProvider);
-    return ref
-        .read(characterFolderRepositoryProvider)
-        .listFolders(parentId: parentId);
+    final repo = ref.read(characterFolderRepositoryProvider);
+    // Metadata only — cover mosaics attach after first paint.
+    final folders = await repo.listFolders(
+      parentId: parentId,
+      includePreviews: false,
+    );
+    _schedulePreviewAttach(parentId: parentId, folders: folders);
+    return folders;
   }
 
   Future<void> refresh() async {
     final parentId = ref.read(characterBrowseFolderIdProvider);
-    state = await AsyncValue.guard(
-      () => ref
-          .read(characterFolderRepositoryProvider)
-          .listFolders(parentId: parentId),
-    );
+    final repo = ref.read(characterFolderRepositoryProvider);
+    state = await AsyncValue.guard(() async {
+      final folders = await repo.listFolders(
+        parentId: parentId,
+        includePreviews: false,
+      );
+      _schedulePreviewAttach(parentId: parentId, folders: folders);
+      return folders;
+    });
+  }
+
+  void _schedulePreviewAttach({
+    required String? parentId,
+    required List<CharacterFolder> folders,
+  }) {
+    if (folders.isEmpty) return;
+    final generation = ++_previewGeneration;
+    final repo = ref.read(characterFolderRepositoryProvider);
+    Future<void>(() async {
+      final hydrated = await repo.attachPreviews(folders);
+      if (generation != _previewGeneration) return;
+      if (ref.read(characterBrowseFolderIdProvider) != parentId) return;
+      state = AsyncData(hydrated);
+    });
   }
 
   Future<CharacterFolder> createFolder(

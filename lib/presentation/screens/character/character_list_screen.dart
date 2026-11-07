@@ -103,7 +103,15 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     if (name == null || !mounted) return;
     await Future<void>.delayed(Duration.zero);
     if (!mounted) return;
-    await ref.read(characterFoldersProvider.notifier).createFolder(name);
+    try {
+      await ref.read(characterFoldersProvider.notifier).createFolder(name);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_folderActionErrorMessage(l10n, error))),
+      );
+      return;
+    }
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l10n.createCharacterFolder)),
@@ -153,12 +161,20 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
       title: l10n.createFolderFromSelection,
     );
     if (name == null || !mounted) return;
-    final folder =
-        await ref.read(characterFoldersProvider.notifier).createFolder(name);
-    await ref.read(characterFoldersProvider.notifier).moveCharacters(
-          _selection.characterIds,
-          folderId: folder.id,
-        );
+    try {
+      final folder =
+          await ref.read(characterFoldersProvider.notifier).createFolder(name);
+      await ref.read(characterFoldersProvider.notifier).moveCharacters(
+            _selection.characterIds,
+            folderId: folder.id,
+          );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_folderActionErrorMessage(l10n, error))),
+      );
+      return;
+    }
     await ref.read(characterListProvider.notifier).refresh();
     _exitSelectionMode();
     if (mounted) {
@@ -182,17 +198,25 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     final folderIds = _selection.folderIds
         .where((id) => id != selection.folderId)
         .toList(growable: false);
-    if (folderIds.isNotEmpty) {
-      await ref.read(characterFoldersProvider.notifier).reparentFolders(
-            folderIds,
-            parentId: selection.folderId,
-          );
-    }
-    if (_selection.characterIds.isNotEmpty) {
-      await ref.read(characterFoldersProvider.notifier).moveCharacters(
-            _selection.characterIds,
-            folderId: selection.folderId,
-          );
+    try {
+      if (folderIds.isNotEmpty) {
+        await ref.read(characterFoldersProvider.notifier).reparentFolders(
+              folderIds,
+              parentId: selection.folderId,
+            );
+      }
+      if (_selection.characterIds.isNotEmpty) {
+        await ref.read(characterFoldersProvider.notifier).moveCharacters(
+              _selection.characterIds,
+              folderId: selection.folderId,
+            );
+      }
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_folderActionErrorMessage(l10n, error))),
+      );
+      return;
     }
     await ref.read(characterListProvider.notifier).refresh();
     _exitSelectionMode();
@@ -201,6 +225,15 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
         SnackBar(content: Text(l10n.charactersMovedToFolder)),
       );
     }
+  }
+
+  String _folderActionErrorMessage(AppLocalizations l10n, Object error) {
+    if (error.toString().contains('Folder depth limit')) {
+      return l10n.characterFolderDepthLimit(
+        CharacterFolderRepository.maxFolderDepth,
+      );
+    }
+    return '${l10n.error}: $error';
   }
 
   Future<void> _copySelectedCharacters() async {
@@ -556,10 +589,22 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     required Set<String> tagFilter,
     required AsyncValue<List<CharacterFolder>> foldersAsync,
   }) {
-    // While folder contents reload, show a spinner instead of the previous
-    // folder's cards (those would remount and re-decode every avatar).
-    if (charactersAsync.isLoading || foldersAsync.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+    // Prefer a lightweight wait over painting the previous folder's tiles
+    // (those remount and re-decode avatars). Folders load without mosaics
+    // first, so this should stay short.
+    final waitingForFreshPage = (charactersAsync.isLoading &&
+            !charactersAsync.hasValue) ||
+        (foldersAsync.isLoading && !foldersAsync.hasValue) ||
+        charactersAsync.isRefreshing ||
+        foldersAsync.isRefreshing;
+    if (waitingForFreshPage) {
+      return const Center(
+        child: SizedBox(
+          width: 28,
+          height: 28,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
     }
 
     return charactersAsync.when(
@@ -572,7 +617,13 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
           foldersAsync: foldersAsync,
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(
+        child: SizedBox(
+          width: 28,
+          height: 28,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
       error: (error, stack) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

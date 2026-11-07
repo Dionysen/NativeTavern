@@ -37,7 +37,7 @@ void main() {
     expect(await folders.folderIdForCharacter('char-a'), folder.id);
     expect(await folders.folderIdForCharacter('char-b'), isNull);
 
-    final listed = await folders.listFolders();
+    final listed = await folders.listFolders(includePreviews: true);
     expect(listed.single.characterCount, 1);
     expect(listed.single.childFolderCount, 0);
     expect(listed.single.previewCharacters.single.id, 'char-a');
@@ -55,7 +55,7 @@ void main() {
     await folders.moveCharactersToFolder(['char-a'], folderId: leaf.id);
     await folders.moveCharactersToFolder(['char-b'], folderId: child.id);
 
-    final listed = await folders.listFolders();
+    final listed = await folders.listFolders(includePreviews: true);
     final cover = listed.single;
     expect(cover.childFolderCount, 1);
     expect(cover.characterCount, 0);
@@ -66,8 +66,9 @@ void main() {
 
     final emptyParent = await folders.createFolder('Empty');
     await folders.createFolder('EmptyChild', parentId: emptyParent.id);
-    final emptyListed =
-        await folders.listFolders().then((all) => all.firstWhere((f) => f.id == emptyParent.id));
+    final emptyListed = await folders
+        .listFolders(includePreviews: true)
+        .then((all) => all.firstWhere((f) => f.id == emptyParent.id));
     expect(emptyListed.previewCharacters, isEmpty);
   });
 
@@ -79,11 +80,51 @@ void main() {
       await folders.moveCharactersToFolder([id], folderId: folder.id);
     }
 
-    final listed = await folders.listFolders();
+    final listed = await folders.listFolders(includePreviews: true);
     final cover = listed.single;
     expect(cover.characterCount, 40);
     expect(cover.previewCharacters, hasLength(4));
     expect(await folders.parentIdOfFolder(folder.id), isNull);
+  });
+
+  test('enforces max folder depth by moving cards and deleting overflow',
+      () async {
+    final d1 = await folders.createFolder('D1');
+    final d2 = await folders.createFolder('D2', parentId: d1.id);
+    final d3 = await folders.createFolder('D3', parentId: d2.id);
+    final d4 = await folders.createFolder('D4', parentId: d3.id);
+    final d5 = await folders.createFolder('D5', parentId: d4.id);
+
+    expect(
+      () => folders.createFolder('TooDeep', parentId: d5.id),
+      throwsA(isA<StateError>()),
+    );
+
+    // Bypass createFolder guard to simulate a pre-existing deep tree.
+    Future<String> insertOverflow(String id, String name, String parentId) async {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await database.customStatement(
+        'INSERT INTO character_folders '
+        '(id, name, parent_id, sort_order, created_at) '
+        'VALUES (?, ?, ?, ?, ?)',
+        [id, name, parentId, 1, now],
+      );
+      return id;
+    }
+
+    final d6 = await insertOverflow('d6', 'D6', d5.id);
+    final d7 = await insertOverflow('d7', 'D7', d6);
+    await folders.moveCharactersToFolder(['char-a'], folderId: d7);
+    await folders.moveCharactersToFolder(['char-b'], folderId: d6);
+
+    final removed = await folders.enforceMaxFolderDepth();
+    expect(removed, 2);
+    expect(await folders.getFolder(d6), isNull);
+    expect(await folders.getFolder(d7), isNull);
+    expect(await folders.getFolder(d5.id), isNotNull);
+    expect(await folders.folderIdForCharacter('char-a'), d5.id);
+    expect(await folders.folderIdForCharacter('char-b'), d5.id);
+    expect(await folders.depthOfFolder(d5.id), 5);
   });
 
   test('move to root clears membership', () async {

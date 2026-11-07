@@ -17,6 +17,9 @@ class CharacterFolderRepository {
   final AppDatabase _db;
   static const _uuid = Uuid();
 
+  /// Library root is depth 0; a folder directly under root is depth 1.
+  static const maxFolderDepth = 5;
+
   static const _folderSelect = '''
       SELECT f.id AS id, f.name AS name, f.parent_id AS parent_id,
              f.sort_order AS sort_order, f.created_at AS created_at,
@@ -35,7 +38,13 @@ class CharacterFolderRepository {
   ''';
 
   /// Lists folders under [parentId] (`null` = library root).
-  Future<List<CharacterFolder>> listFolders({String? parentId}) async {
+  ///
+  /// Cover previews are opt-in: browsing loads metadata first, then attaches
+  /// mosaics after the first frame so enter/leave stays responsive.
+  Future<List<CharacterFolder>> listFolders({
+    String? parentId,
+    bool includePreviews = false,
+  }) async {
     final rows = await _db.customSelect(
       '''
       $_folderSelect
@@ -45,7 +54,26 @@ class CharacterFolderRepository {
       variables: parentId == null ? const [] : [Variable<String>(parentId)],
       readsFrom: const {},
     ).get();
-    return _hydrateFolders(rows);
+    final folders = rows.map(_folderFromRow).toList(growable: false);
+    if (!includePreviews || folders.isEmpty) return folders;
+    return attachPreviews(folders);
+  }
+
+  /// Fills cover mosaics for already-loaded folder rows.
+  Future<List<CharacterFolder>> attachPreviews(
+    List<CharacterFolder> folders,
+  ) async {
+    if (folders.isEmpty) return folders;
+    final previews = await _loadPreviewItemsByFolder(
+      folderIds: folders.map((f) => f.id).toSet(),
+    );
+    return folders
+        .map(
+          (folder) => folder.copyWith(
+            previewCharacters: previews[folder.id] ?? const [],
+          ),
+        )
+        .toList(growable: false);
   }
 
   /// Flat list of every folder (any depth). Skips cover previews.
@@ -128,6 +156,10 @@ class CharacterFolderRepository {
       final parent = await getFolder(parentId);
       if (parent == null) {
         throw StateError('Parent folder not found');
+      }
+      final parentDepth = await depthOfFolder(parentId);
+      if (parentDepth >= maxFolderDepth) {
+        throw StateError('Folder depth limit is $maxFolderDepth');
       }
     }
     final existing = await _findChildByName(parentId, trimmed);
@@ -213,15 +245,128 @@ class CharacterFolderRepository {
   }
 
   /// Ensures nested folders exist for [segments]; returns leaf id or null if empty.
+  /// Paths deeper than [maxFolderDepth] stop at the depth limit (extra segments
+  /// are ignored so imported cards land in the deepest allowed folder).
   Future<String?> ensureFolderPath(List<String> segments) async {
     String? parentId;
+    var depth = 0;
     for (final raw in segments) {
       final name = raw.trim();
       if (name.isEmpty || name == '.' || name == '..') continue;
+      if (depth >= maxFolderDepth) break;
       final folder = await createFolder(name, parentId: parentId);
       parentId = folder.id;
+      depth += 1;
     }
     return parentId;
+  }
+
+  /// Depth of [folderId] (root children = 1). Null / missing → 0.
+  Future<int> depthOfFolder(String? folderId) async {
+    if (folderId == null) return 0;
+    var depth = 0;
+    String? currentId = folderId;
+    final seen = <String>{};
+    while (currentId != null) {
+      if (!seen.add(currentId)) {
+        throw StateError('Folder parent cycle detected');
+      }
+      depth += 1;
+      currentId = await parentIdOfFolder(currentId);
+    }
+    return depth;
+  }
+
+  /// Moves characters from folders deeper than [maxFolderDepth] into their
+  /// depth-[maxFolderDepth] ancestor, then deletes the excess folders.
+  ///
+  /// Returns how many folders were removed.
+  Future<int> enforceMaxFolderDepth({int maxDepth = maxFolderDepth}) async {
+    if (maxDepth < 1) {
+      throw ArgumentError.value(maxDepth, 'maxDepth', 'must be >= 1');
+    }
+
+    final rows = await _db.customSelect(
+      'SELECT id AS id, parent_id AS parent_id FROM character_folders',
+      readsFrom: const {},
+    ).get();
+    if (rows.isEmpty) return 0;
+
+    final parentById = <String, String?>{
+      for (final row in rows)
+        row.read<String>('id'): row.read<String?>('parent_id'),
+    };
+    final childrenByParent = <String?, List<String>>{};
+    for (final entry in parentById.entries) {
+      childrenByParent.putIfAbsent(entry.value, () => []).add(entry.key);
+    }
+
+    final depthById = <String, int>{};
+    void walk(String? parentId, int depth) {
+      for (final id in childrenByParent[parentId] ?? const <String>[]) {
+        depthById[id] = depth;
+        walk(id, depth + 1);
+      }
+    }
+
+    walk(null, 1);
+
+    final overflowIds = depthById.entries
+        .where((e) => e.value > maxDepth)
+        .map((e) => e.key)
+        .toList(growable: false);
+    if (overflowIds.isEmpty) return 0;
+
+    String ancestorAtDepth(String id, int targetDepth) {
+      var current = id;
+      while ((depthById[current] ?? 0) > targetDepth) {
+        final parentId = parentById[current];
+        if (parentId == null) break;
+        current = parentId;
+      }
+      return current;
+    }
+
+    await _db.transaction(() async {
+      for (final folderId in overflowIds) {
+        final targetId = ancestorAtDepth(folderId, maxDepth);
+        if (targetId == folderId) continue;
+        final memberRows = await _db.customSelect(
+          'SELECT character_id AS character_id '
+          'FROM character_folder_members WHERE folder_id = ?',
+          variables: [Variable<String>(folderId)],
+          readsFrom: const {},
+        ).get();
+        for (final row in memberRows) {
+          final characterId = row.read<String>('character_id');
+          await _db.customStatement(
+            'DELETE FROM character_folder_members WHERE character_id = ?',
+            [characterId],
+          );
+          await _db.customStatement(
+            'INSERT INTO character_folder_members (character_id, folder_id) '
+            'VALUES (?, ?)',
+            [characterId, targetId],
+          );
+        }
+      }
+
+      // Delete deepest folders first so parent_id FKs (if any) stay valid.
+      final ordered = overflowIds.toList()
+        ..sort((a, b) => (depthById[b] ?? 0).compareTo(depthById[a] ?? 0));
+      for (final folderId in ordered) {
+        await _db.customStatement(
+          'DELETE FROM character_folder_members WHERE folder_id = ?',
+          [folderId],
+        );
+        await _db.customStatement(
+          'DELETE FROM character_folders WHERE id = ?',
+          [folderId],
+        );
+      }
+    });
+
+    return overflowIds.length;
   }
 
   Future<CharacterFolder> renameFolder(String id, String name) async {
@@ -302,12 +447,46 @@ class CharacterFolderRepository {
       final id = queue.removeAt(0);
       if (!seen.add(id)) continue;
       ordered.add(id);
-      final children = await listFolders(parentId: id);
-      for (final child in children) {
-        queue.add(child.id);
+      final childRows = await _db.customSelect(
+        'SELECT id AS id FROM character_folders WHERE parent_id = ? '
+        'ORDER BY sort_order ASC, name ASC',
+        variables: [Variable<String>(id)],
+        readsFrom: const {},
+      ).get();
+      for (final row in childRows) {
+        queue.add(row.read<String>('id'));
       }
     }
     return ordered;
+  }
+
+  /// Relative height of a folder tree (folder itself = 1).
+  Future<int> _subtreeHeight(String rootId) async {
+    final ids = await collectDescendantFolderIds(rootId);
+    if (ids.isEmpty) return 0;
+    final parentById = <String, String?>{};
+    final rows = await _db.customSelect(
+      'SELECT id AS id, parent_id AS parent_id FROM character_folders '
+      'WHERE id IN (${List.filled(ids.length, '?').join(', ')})',
+      variables: [for (final id in ids) Variable<String>(id)],
+      readsFrom: const {},
+    ).get();
+    for (final row in rows) {
+      parentById[row.read<String>('id')] = row.read<String?>('parent_id');
+    }
+    var maxDepth = 1;
+    for (final id in ids) {
+      var depth = 0;
+      String? current = id;
+      final seen = <String>{};
+      while (current != null && ids.contains(current)) {
+        if (!seen.add(current)) break;
+        depth += 1;
+        current = parentById[current];
+      }
+      if (depth > maxDepth) maxDepth = depth;
+    }
+    return maxDepth;
   }
 
   Future<List<String>> characterIdsInFolders(Iterable<String> folderIds) async {
@@ -347,6 +526,11 @@ class CharacterFolderRepository {
       if (descendants.contains(parentId)) {
         throw StateError('Cannot move a folder into its descendant');
       }
+    }
+    final parentDepth = await depthOfFolder(parentId);
+    final height = await _subtreeHeight(id);
+    if (parentDepth + height > maxFolderDepth) {
+      throw StateError('Folder depth limit is $maxFolderDepth');
     }
     await _db.customStatement(
       'UPDATE character_folders SET parent_id = ? WHERE id = ?',
@@ -406,21 +590,6 @@ class CharacterFolderRepository {
       for (final row in rows)
         row.read<String>('character_id'): row.read<String>('folder_id'),
     };
-  }
-
-  Future<List<CharacterFolder>> _hydrateFolders(List<QueryRow> rows) async {
-    final folders = rows.map(_folderFromRow).toList(growable: false);
-    if (folders.isEmpty) return folders;
-    final previews = await _loadPreviewItemsByFolder(
-      folderIds: folders.map((f) => f.id).toSet(),
-    );
-    return folders
-        .map(
-          (folder) => folder.copyWith(
-            previewCharacters: previews[folder.id] ?? const [],
-          ),
-        )
-        .toList(growable: false);
   }
 
   Future<CharacterFolder?> _findChildByName(

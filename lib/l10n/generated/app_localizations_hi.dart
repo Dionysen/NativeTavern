@@ -1346,6 +1346,11 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String characterFolderDepthLimit(int maxDepth) {
+    return 'Folders can only nest up to $maxDepth levels';
+  }
+
+  @override
   String get charactersMovedToFolder => 'चरित्र स्थानांतरित';
 
   @override

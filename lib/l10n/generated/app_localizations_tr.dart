@@ -1347,6 +1347,11 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String characterFolderDepthLimit(int maxDepth) {
+    return 'Folders can only nest up to $maxDepth levels';
+  }
+
+  @override
   String get charactersMovedToFolder => 'Karakterler taşındı';
 
   @override

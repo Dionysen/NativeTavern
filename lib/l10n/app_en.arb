@@ -1915,6 +1915,17 @@
       }
     }
   },
+  "characterFolderDepthLimit": "Folders can only nest up to {maxDepth} levels",
+  "@characterFolderDepthLimit": {
+    "description": "Shown when creating or moving a folder would exceed the depth limit",
+    "placeholders": {
+      "maxDepth": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+
   "charactersMovedToFolder": "Characters moved",
   "@charactersMovedToFolder": {
     "description": "Snack bar after moving characters into a folder"
