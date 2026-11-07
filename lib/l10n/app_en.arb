@@ -1939,6 +1939,55 @@
   "@exportCharacterLibrary": {
     "description": "Export all character cards preserving folder structure"
   },
+  "exportCharacterLibraryFastPack": "Quick export library pack",
+  "@exportCharacterLibraryFastPack": {
+    "description": "Export the character library as a single fast .ntchars file"
+  },
+  "importCharacterLibraryFastPack": "Quick import library pack",
+  "@importCharacterLibraryFastPack": {
+    "description": "Import a .ntchars character library pack"
+  },
+  "characterLibraryFastPackOverwriteTitle": "Overwrite matching characters?",
+  "@characterLibraryFastPackOverwriteTitle": {
+    "description": "Confirm before fast pack import overwrites by id"
+  },
+  "characterLibraryFastPackOverwriteBody": "Characters with the same id will be updated. Chats stay linked to those characters.",
+  "@characterLibraryFastPackOverwriteBody": {
+    "description": "Explains id overwrite behavior for fast pack import"
+  },
+  "characterLibraryFastPackImportProgress": "Quick importing {processed} of {total}",
+  "@characterLibraryFastPackImportProgress": {
+    "description": "Progress while importing a .ntchars pack",
+    "placeholders": {
+      "processed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "characterLibraryFastPackExportProgress": "Quick exporting {processed} of {total}",
+  "@characterLibraryFastPackExportProgress": {
+    "description": "Progress while exporting a .ntchars pack",
+    "placeholders": {
+      "processed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "characterLibraryFastPackImportSummary": "Created {created}. Updated {updated}. Failed {failed}.",
+  "@characterLibraryFastPackImportSummary": {
+    "description": "Summary after fast pack import",
+    "placeholders": {
+      "created": { "type": "int" },
+      "updated": { "type": "int" },
+      "failed": { "type": "int" }
+    }
+  },
+  "characterLibraryFastPackExportSummary": "Exported {characters} characters and {folders} folders",
+  "@characterLibraryFastPackExportSummary": {
+    "description": "Summary after fast pack export",
+    "placeholders": {
+      "characters": { "type": "int" },
+      "folders": { "type": "int" }
+    }
+  },
   "characterLibraryImportProgress": "Importing {processed} of {total}",
   "@characterLibraryImportProgress": {
     "description": "Progress while importing a character folder",

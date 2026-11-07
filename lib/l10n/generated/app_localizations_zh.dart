@@ -1345,6 +1345,40 @@ class AppLocalizationsZh extends AppLocalizations {
   String get exportCharacterLibrary => '导出角色库';
 
   @override
+  String get exportCharacterLibraryFastPack => '快速导出角色库包';
+
+  @override
+  String get importCharacterLibraryFastPack => '快速导入角色库包';
+
+  @override
+  String get characterLibraryFastPackOverwriteTitle => '覆盖相同角色？';
+
+  @override
+  String get characterLibraryFastPackOverwriteBody =>
+      '包里和本地 id 相同的角色会被更新，对应聊天仍会留在这些角色上。';
+
+  @override
+  String characterLibraryFastPackImportProgress(int processed, int total) {
+    return '正在快速导入 $processed/$total';
+  }
+
+  @override
+  String characterLibraryFastPackExportProgress(int processed, int total) {
+    return '正在快速导出 $processed/$total';
+  }
+
+  @override
+  String characterLibraryFastPackImportSummary(
+      int created, int updated, int failed) {
+    return '新建 $created，更新 $updated，失败 $failed';
+  }
+
+  @override
+  String characterLibraryFastPackExportSummary(int characters, int folders) {
+    return '已导出 $characters 个角色、$folders 个文件夹';
+  }
+
+  @override
   String characterLibraryImportProgress(int processed, int total) {
     return '正在导入 $processed/$total';
   }

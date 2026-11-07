@@ -2624,6 +2624,55 @@ abstract class AppLocalizations {
   /// **'Export character library'**
   String get exportCharacterLibrary;
 
+  /// Export the character library as a single fast .ntchars file
+  ///
+  /// In en, this message translates to:
+  /// **'Quick export library pack'**
+  String get exportCharacterLibraryFastPack;
+
+  /// Import a .ntchars character library pack
+  ///
+  /// In en, this message translates to:
+  /// **'Quick import library pack'**
+  String get importCharacterLibraryFastPack;
+
+  /// Confirm before fast pack import overwrites by id
+  ///
+  /// In en, this message translates to:
+  /// **'Overwrite matching characters?'**
+  String get characterLibraryFastPackOverwriteTitle;
+
+  /// Explains id overwrite behavior for fast pack import
+  ///
+  /// In en, this message translates to:
+  /// **'Characters with the same id will be updated. Chats stay linked to those characters.'**
+  String get characterLibraryFastPackOverwriteBody;
+
+  /// Progress while importing a .ntchars pack
+  ///
+  /// In en, this message translates to:
+  /// **'Quick importing {processed} of {total}'**
+  String characterLibraryFastPackImportProgress(int processed, int total);
+
+  /// Progress while exporting a .ntchars pack
+  ///
+  /// In en, this message translates to:
+  /// **'Quick exporting {processed} of {total}'**
+  String characterLibraryFastPackExportProgress(int processed, int total);
+
+  /// Summary after fast pack import
+  ///
+  /// In en, this message translates to:
+  /// **'Created {created}. Updated {updated}. Failed {failed}.'**
+  String characterLibraryFastPackImportSummary(
+      int created, int updated, int failed);
+
+  /// Summary after fast pack export
+  ///
+  /// In en, this message translates to:
+  /// **'Exported {characters} characters and {folders} folders'**
+  String characterLibraryFastPackExportSummary(int characters, int folders);
+
   /// Progress while importing a character folder
   ///
   /// In en, this message translates to:

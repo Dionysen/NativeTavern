@@ -132,6 +132,66 @@ class CharacterFolderRepository {
     );
   }
 
+  /// Insert or update a folder row by stable [folder.id] (fast pack import).
+  Future<void> upsertFolder(CharacterFolder folder) async {
+    final trimmed = folder.name.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError('Folder name cannot be empty');
+    }
+    final existing = await getFolder(folder.id);
+    if (existing == null) {
+      await _db.customStatement(
+        'INSERT INTO character_folders '
+        '(id, name, parent_id, sort_order, created_at) '
+        'VALUES (?, ?, ?, ?, ?)',
+        [
+          folder.id,
+          trimmed,
+          folder.parentId,
+          folder.sortOrder,
+          folder.createdAt.millisecondsSinceEpoch,
+        ],
+      );
+      return;
+    }
+    await _db.customStatement(
+      'UPDATE character_folders '
+      'SET name = ?, parent_id = ?, sort_order = ? '
+      'WHERE id = ?',
+      [trimmed, folder.parentId, folder.sortOrder, folder.id],
+    );
+  }
+
+  /// Replaces folder membership for the given character ids.
+  /// `null` folder id means the character returns to the library root.
+  Future<void> replaceMemberships(
+    Map<String, String?> characterIdToFolderId,
+  ) async {
+    if (characterIdToFolderId.isEmpty) return;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await _db.transaction(() async {
+      for (final entry in characterIdToFolderId.entries) {
+        final characterId = entry.key;
+        final folderId = entry.value;
+        await _db.customStatement(
+          'DELETE FROM character_folder_members WHERE character_id = ?',
+          [characterId],
+        );
+        if (folderId != null) {
+          await _db.customStatement(
+            'INSERT INTO character_folder_members (character_id, folder_id) '
+            'VALUES (?, ?)',
+            [characterId, folderId],
+          );
+        }
+        await _db.customStatement(
+          'UPDATE characters SET modified_at = ? WHERE id = ?',
+          [now, characterId],
+        );
+      }
+    });
+  }
+
   /// Ensures nested folders exist for [segments]; returns leaf id or null if empty.
   Future<String?> ensureFolderPath(List<String> segments) async {
     String? parentId;

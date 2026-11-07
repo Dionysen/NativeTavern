@@ -1370,6 +1370,41 @@ class AppLocalizationsId extends AppLocalizations {
   String get exportCharacterLibrary => 'Export character library';
 
   @override
+  String get exportCharacterLibraryFastPack => 'Quick export library pack';
+
+  @override
+  String get importCharacterLibraryFastPack => 'Quick import library pack';
+
+  @override
+  String get characterLibraryFastPackOverwriteTitle =>
+      'Overwrite matching characters?';
+
+  @override
+  String get characterLibraryFastPackOverwriteBody =>
+      'Characters with the same id will be updated. Chats stay linked to those characters.';
+
+  @override
+  String characterLibraryFastPackImportProgress(int processed, int total) {
+    return 'Quick importing $processed of $total';
+  }
+
+  @override
+  String characterLibraryFastPackExportProgress(int processed, int total) {
+    return 'Quick exporting $processed of $total';
+  }
+
+  @override
+  String characterLibraryFastPackImportSummary(
+      int created, int updated, int failed) {
+    return 'Created $created. Updated $updated. Failed $failed.';
+  }
+
+  @override
+  String characterLibraryFastPackExportSummary(int characters, int folders) {
+    return 'Exported $characters characters and $folders folders';
+  }
+
+  @override
   String characterLibraryImportProgress(int processed, int total) {
     return 'Importing $processed of $total';
   }

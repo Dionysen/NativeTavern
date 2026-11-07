@@ -126,6 +126,10 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
         await importCharacterLibraryFromFolder(context, ref);
       case 'export_library':
         await exportCharacterLibraryToFolder(context, ref);
+      case 'import_fast_pack':
+        await importCharacterLibraryFastPack(context, ref);
+      case 'export_fast_pack':
+        await exportCharacterLibraryFastPack(context, ref);
       case 'import':
         context.push(AppRoutes.import_);
       case 'rename_folder':
@@ -451,6 +455,16 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                         value: 'export_library',
                         leading: const Icon(Icons.drive_folder_upload_outlined),
                         title: Text(l10n.exportCharacterLibrary),
+                      ),
+                      AdaptiveActionDrawerItem(
+                        value: 'import_fast_pack',
+                        leading: const Icon(Icons.unarchive_outlined),
+                        title: Text(l10n.importCharacterLibraryFastPack),
+                      ),
+                      AdaptiveActionDrawerItem(
+                        value: 'export_fast_pack',
+                        leading: const Icon(Icons.archive_outlined),
+                        title: Text(l10n.exportCharacterLibraryFastPack),
                       ),
                       AdaptiveActionDrawerItem(
                         value: 'import',

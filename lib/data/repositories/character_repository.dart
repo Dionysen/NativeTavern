@@ -516,6 +516,41 @@ class CharacterRepository {
     return updatedCharacter;
   }
 
+  /// All character ids currently in the table (including soft-deleted).
+  Future<Set<String>> listAllCharacterIds() async {
+    final rows = await _db.customSelect(
+      'SELECT id AS id FROM characters',
+      readsFrom: {_db.characters},
+    ).get();
+    return rows.map((row) => row.read<String>('id')).toSet();
+  }
+
+  /// Insert or overwrite a character by stable id (fast pack import).
+  Future<models.Character> upsertCharacter(models.Character character) async {
+    final id = character.id.isEmpty ? _uuid.v4() : character.id;
+    final now = DateTime.now();
+    final existing = await getCharacter(id);
+    if (existing == null) {
+      final created = character.copyWith(
+        id: id,
+        isDeleted: false,
+        createdAt: character.createdAt,
+        modifiedAt: now,
+      );
+      await _db.into(_db.characters).insert(_characterToCompanion(created));
+      return created;
+    }
+    final updated = character.copyWith(
+      id: id,
+      isDeleted: false,
+      createdAt: existing.createdAt,
+      modifiedAt: now,
+    );
+    await (_db.update(_db.characters)..where((t) => t.id.equals(id)))
+        .write(_characterToCompanion(updated));
+    return updated;
+  }
+
   /// Delete a character
   Future<void> deleteCharacter(String id) async {
     // Keep the row and its history so old moment links and the editor remain
