@@ -146,6 +146,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   /// Chat top bar visibility when [AppSettings.hideChatAppBarOnScroll] is on.
   bool _chatAppBarVisible = true;
 
+  /// Height of the floating bottom chrome (composer + tool/rpg panels).
+  /// Message list extends under it; this inset keeps the latest bubble readable.
+  double _bottomChromeHeight = 96;
+
   /// Accumulated user scroll delta for hide/show thresholding.
   double _appBarScrollAccumulator = 0;
 
@@ -1443,23 +1447,42 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             ),
                           ),
 
-                        // Messages list
+                        // Messages fill the viewport; composer floats on top so
+                        // bubbles can scroll behind / under the input shell.
                         Expanded(
-                          child: chatState.isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : _buildMessagesAreaWithScrollButton(chatState),
-                        ),
-
-                        if (kRpgProductUiEnabled)
-                          RpgGamePanel(
-                            chatId: widget.chatId,
-                            onDisable: _toggleRpgMode,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              chatState.isLoading
+                                  ? const Center(
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : _buildMessagesAreaWithScrollButton(
+                                      chatState,
+                                    ),
+                              Positioned(
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                child: _MeasureSize(
+                                  onChange: _onBottomChromeSize,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (kRpgProductUiEnabled)
+                                        RpgGamePanel(
+                                          chatId: widget.chatId,
+                                          onDisable: _toggleRpgMode,
+                                        ),
+                                      ToolActivityPanel(chatId: widget.chatId),
+                                      _buildInputArea(chatState),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-
-                        ToolActivityPanel(chatId: widget.chatId),
-
-                        // Input area
-                        _buildInputArea(chatState),
+                        ),
                       ],
                     ),
                   ],
@@ -1923,8 +1946,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           Positioned(
             left: 0,
             right: 0,
-            // Mid-lower of the message viewport, above the composer.
-            bottom: 28,
+            // Sit just above the floating composer chrome.
+            bottom: _bottomChromeHeight + 12,
             child: Center(child: _buildScrollToBottomButton()),
           ),
       ],
@@ -2086,21 +2109,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             Align(
               alignment: Alignment.bottomCenter,
-              child: VisualNovelMessageView(
-                messages: chatState.messages,
-                character: chatState.character,
-                characterForMessage: chatState.characterForMessage,
-                isGenerating: chatState.isGenerating,
-                onLongPress: (message) => _showMessageOptionsForVisualNovel(
-                  context,
-                  message,
-                  chatState,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: _bottomChromeHeight),
+                child: VisualNovelMessageView(
+                  messages: chatState.messages,
+                  character: chatState.character,
+                  characterForMessage: chatState.characterForMessage,
+                  isGenerating: chatState.isGenerating,
+                  onLongPress: (message) => _showMessageOptionsForVisualNovel(
+                    context,
+                    message,
+                    chatState,
+                  ),
+                  onSwipe: (swipeIndex, messageId) {
+                    ref
+                        .read(activeChatProvider.notifier)
+                        .swipeMessage(messageId, swipeIndex);
+                  },
                 ),
-                onSwipe: (swipeIndex, messageId) {
-                  ref
-                      .read(activeChatProvider.notifier)
-                      .swipeMessage(messageId, swipeIndex);
-                },
               ),
             ),
           ],
@@ -2374,7 +2400,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         physics: const AlwaysScrollableScrollPhysics(
           parent: ClampingScrollPhysics(),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8 + _bottomChromeHeight),
         itemCount: chatState.messages.length + (showOlderLoader ? 1 : 0),
         itemBuilder: (context, index) {
           if (showOlderLoader && index == 0) {
@@ -2775,6 +2801,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ref.read(activeChatProvider).character?.assets?.live2d?.enabled ==
             true;
     return background.type == BackgroundType.image || live2d;
+  }
+
+  void _onBottomChromeSize(Size size) {
+    if (!mounted) return;
+    if ((size.height - _bottomChromeHeight).abs() < 0.5) return;
+    setState(() => _bottomChromeHeight = size.height);
   }
 
   /// Composer fill opacity when floating over a visual stage.
@@ -4902,5 +4934,43 @@ class _InputMenuButton extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Reports child layout size after each change (for floating chrome inset).
+class _MeasureSize extends SingleChildRenderObjectWidget {
+  const _MeasureSize({
+    required this.onChange,
+    required Widget child,
+  }) : super(child: child);
+
+  final ValueChanged<Size> onChange;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderMeasureSize(onChange);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderMeasureSize renderObject,
+  ) {
+    renderObject.onChange = onChange;
+  }
+}
+
+class _RenderMeasureSize extends RenderProxyBox {
+  _RenderMeasureSize(this.onChange);
+
+  ValueChanged<Size> onChange;
+  Size? _oldSize;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    final next = size;
+    if (_oldSize == next) return;
+    _oldSize = next;
+    WidgetsBinding.instance.addPostFrameCallback((_) => onChange(next));
   }
 }
