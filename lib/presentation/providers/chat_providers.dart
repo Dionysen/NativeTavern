@@ -842,6 +842,15 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     return [updated, ...messages.skip(1)];
   }
 
+  void _invalidateChatLists({String? characterId}) {
+    _ref.invalidate(pagedChatsProvider);
+    _ref.invalidate(allChatsProvider);
+    _ref.invalidate(recentChatsProvider);
+    if (characterId != null) {
+      _ref.invalidate(characterChatsProvider(characterId));
+    }
+  }
+
   /// Create a new chat with a character
   Future<String?> createChat(String characterId) async {
     _chatLoadGeneration++;
@@ -919,6 +928,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         );
       }
 
+      _invalidateChatLists(characterId: characterId);
       return chat.id;
     } catch (e, stackTrace) {
       debugPrint('❌ ChatProvider createChat error: $e\n$stackTrace');
@@ -1027,6 +1037,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         isLoading: false,
       );
 
+      _invalidateChatLists(characterId: firstCharId);
       return chat.id;
     } catch (e, stackTrace) {
       debugPrint('❌ ChatProvider createGroupChat error: $e\n$stackTrace');
@@ -3277,8 +3288,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         );
       }
 
-      _ref.invalidate(allChatsProvider);
-      _ref.invalidate(characterChatsProvider(source.characterId));
+      _invalidateChatLists(characterId: source.characterId);
       return newChatId;
     } catch (e, stackTrace) {
       debugPrint('❌ ChatProvider branchChatFromMessage error: $e\n$stackTrace');
