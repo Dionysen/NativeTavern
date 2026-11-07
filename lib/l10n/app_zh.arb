@@ -5428,7 +5428,7 @@
   "@bubbleOpacity": {
     "description": "Label for message bubble and input opacity slider"
   },
-  "bubbleOpacityHelp": "有背景图时，消息气泡和输入框的不透明度。",
+  "bubbleOpacityHelp": "有背景或 Live2D 时，消息气泡和输入框会半透明浮在上面。",
   "@bubbleOpacityHelp": {
     "description": "Helper text for message bubble and input opacity slider"
   },

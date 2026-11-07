@@ -2330,9 +2330,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       effectiveBackgroundProvider(chatState.character?.id),
     );
     final background = backgroundAsync.valueOrNull ?? ChatBackground.none;
-    final hasBackground = background.type != BackgroundType.none ||
+    final live2dEnabled =
         chatState.character?.assets?.live2d?.enabled == true;
-    final hasImageBackground = background.type == BackgroundType.image;
+    final hasBackground = _hasFloatingChatStage(
+      background,
+      live2dEnabled: live2dEnabled,
+    );
+    final frostBubbles = _hasFrostableChatStage(
+      background,
+      live2dEnabled: live2dEnabled,
+    );
 
     final showOlderLoader =
         chatState.hasOlderMessages || chatState.isLoadingOlderMessages;
@@ -2410,7 +2417,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     chatState.generatingMessageIds.isEmpty),
             isLast: isLast,
             hasBackground: hasBackground,
-            hasImageBackground: hasImageBackground,
+            frostOverBackground: frostBubbles,
             bubbleOpacity: background.bubbleOpacity,
             layoutMode: layoutMode,
             highlighted: _highlightedMessageId == message.id,
@@ -2748,14 +2755,46 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  /// Composer fill opacity when an image background is active.
-  double _composerShellOpacity(ChatBackground background) {
-    if (background.type != BackgroundType.image) return 1.0;
+  /// True when chat chrome should float over a visual stage (bg / Live2D).
+  bool _hasFloatingChatStage(
+    ChatBackground background, {
+    bool? live2dEnabled,
+  }) {
+    final live2d = live2dEnabled ??
+        ref.read(activeChatProvider).character?.assets?.live2d?.enabled ==
+            true;
+    return background.type != BackgroundType.none || live2d;
+  }
+
+  /// Frosted glass only helps over textured stages (image / Live2D).
+  bool _hasFrostableChatStage(
+    ChatBackground background, {
+    bool? live2dEnabled,
+  }) {
+    final live2d = live2dEnabled ??
+        ref.read(activeChatProvider).character?.assets?.live2d?.enabled ==
+            true;
+    return background.type == BackgroundType.image || live2d;
+  }
+
+  /// Composer fill opacity when floating over a visual stage.
+  double _composerShellOpacity(
+    ChatBackground background, {
+    bool? live2dEnabled,
+  }) {
+    if (!_hasFloatingChatStage(background, live2dEnabled: live2dEnabled)) {
+      return 1.0;
+    }
     return background.bubbleOpacity.clamp(0.0, 1.0);
   }
 
-  double _composerFrostSigma(ChatBackground background) {
-    if (background.type != BackgroundType.image) return 0;
+  double _composerFrostSigma(
+    ChatBackground background, {
+    bool? live2dEnabled,
+  }) {
+    if (!_hasFrostableChatStage(background, live2dEnabled: live2dEnabled)) {
+      return 0;
+    }
     return ref.watch(
       appSettingsProvider.select((s) => s.bubbleBlurSigma),
     );
@@ -3833,7 +3872,7 @@ class _MessageBubble extends ConsumerStatefulWidget {
   final bool isGenerating;
   final bool isLast;
   final bool hasBackground;
-  final bool hasImageBackground;
+  final bool frostOverBackground;
   final double bubbleOpacity;
   final String layoutMode;
   final bool highlighted;
@@ -3858,7 +3897,7 @@ class _MessageBubble extends ConsumerStatefulWidget {
     required this.isGenerating,
     required this.isLast,
     this.hasBackground = false,
-    this.hasImageBackground = false,
+    this.frostOverBackground = false,
     this.bubbleOpacity = 0.8,
     this.layoutMode = 'bubble',
     this.highlighted = false,
@@ -3990,7 +4029,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
               ? null
               : () => _showMessageOptions(context),
           child: ZephyrChatChrome.maybeFrosted(
-            sigma: widget.hasImageBackground ? bubbleBlurSigma : 0,
+            sigma: widget.frostOverBackground ? bubbleBlurSigma : 0,
             shape: ZephyrChatChrome.messageBubbleShape(
               isUser: isUser,
               radius: context.appChatBubbleCornerRadius,

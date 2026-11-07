@@ -4209,7 +4209,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bubbleOpacityHelp =>
-      'Opacity of chat bubbles and the input box over a background image.';
+      'How see-through bubbles and the input are when floating over a background or Live2D.';
 
   @override
   String get swipes => 'Swipes';

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:native_tavern/core/utils/path_utils.dart';
 import 'package:native_tavern/data/database/database.dart';
 import 'package:native_tavern/data/models/character.dart' as models;
 import 'package:native_tavern/data/repositories/character_repository.dart';
@@ -49,6 +50,7 @@ class InitializationService {
     // Get data directory
     final appDir = await getApplicationDocumentsDirectory();
     final dataPath = '${appDir.path}/NativeTavern';
+    PathUtils.seed(documentsPath: appDir.path, dataPath: dataPath);
 
     // Ensure directories exist
     await _ensureDirectories(dataPath);

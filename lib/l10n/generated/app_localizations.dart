@@ -7644,7 +7644,7 @@ abstract class AppLocalizations {
   /// Helper text for message bubble and input opacity slider
   ///
   /// In en, this message translates to:
-  /// **'Opacity of chat bubbles and the input box over a background image.'**
+  /// **'How see-through bubbles and the input are when floating over a background or Live2D.'**
   String get bubbleOpacityHelp;
 
   /// UI label: Swipes

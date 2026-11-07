@@ -70,7 +70,11 @@ class CharacterFoldersNotifier extends AsyncNotifier<List<CharacterFolder>> {
     if (folders.isEmpty) return;
     final generation = ++_previewGeneration;
     final repo = ref.read(characterFolderRepositoryProvider);
+    // Wait until after first character-grid paint, then hydrate mosaics so
+    // cover-avatar decoding does not compete with the initial tile wave.
     Future<void>(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      if (generation != _previewGeneration) return;
       final hydrated = await repo.attachPreviews(folders);
       if (generation != _previewGeneration) return;
       if (ref.read(characterBrowseFolderIdProvider) != parentId) return;

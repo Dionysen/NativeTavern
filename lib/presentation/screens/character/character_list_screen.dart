@@ -589,14 +589,11 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     required Set<String> tagFilter,
     required AsyncValue<List<CharacterFolder>> foldersAsync,
   }) {
-    // Prefer a lightweight wait over painting the previous folder's tiles
-    // (those remount and re-decode avatars). Folders load without mosaics
-    // first, so this should stay short.
-    final waitingForFreshPage = (charactersAsync.isLoading &&
-            !charactersAsync.hasValue) ||
-        (foldersAsync.isLoading && !foldersAsync.hasValue) ||
-        charactersAsync.isRefreshing ||
-        foldersAsync.isRefreshing;
+    // Only block the first character page. Folder chrome can arrive a tick
+    // later (without mosaics) so the grid paints sooner on cold open.
+    final waitingForFreshPage =
+        (charactersAsync.isLoading && !charactersAsync.hasValue) ||
+            charactersAsync.isRefreshing;
     if (waitingForFreshPage) {
       return const Center(
         child: SizedBox(

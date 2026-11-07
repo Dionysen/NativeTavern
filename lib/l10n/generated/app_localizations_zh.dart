@@ -4088,7 +4088,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bubbleOpacity => '气泡与输入框';
 
   @override
-  String get bubbleOpacityHelp => '有背景图时，消息气泡和输入框的不透明度。';
+  String get bubbleOpacityHelp => '有背景或 Live2D 时，消息气泡和输入框会半透明浮在上面。';
 
   @override
   String get swipes => '备选回复';
@@ -11126,7 +11126,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get bubbleOpacity => '氣泡與輸入框';
 
   @override
-  String get bubbleOpacityHelp => '有背景圖時，訊息氣泡和輸入框的不透明度。';
+  String get bubbleOpacityHelp => '有背景或 Live2D 時，訊息氣泡和輸入框會半透明浮在上面。';
 
   @override
   String get swipes => '備選回覆';

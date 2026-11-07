@@ -92,12 +92,21 @@ class CharacterAvatarImage extends StatefulWidget {
 }
 
 class _CharacterAvatarImageState extends State<CharacterAvatarImage> {
-  late Future<String?> _resolvedPath;
+  Future<String?>? _resolvedPath;
+  bool _decodeEnabled = false;
 
   @override
   void initState() {
     super.initState();
-    _resolvedPath = resolveAvatarFilePath(widget.imagePath);
+    // Defer path resolve + decode until after the first frame so opening the
+    // character tab can paint placeholders without a decode storm.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        _decodeEnabled = true;
+        _resolvedPath = resolveAvatarFilePath(widget.imagePath);
+      });
+    });
   }
 
   @override
@@ -111,22 +120,19 @@ class _CharacterAvatarImageState extends State<CharacterAvatarImage> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final loading = ColoredBox(
-      color: scheme.surfaceContainerHigh,
-      child: const Center(
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-      ),
-    );
+    // Solid placeholder only — dozens of CircularProgressIndicators on first
+    // open were a major source of jank.
+    final loading = ColoredBox(color: scheme.surfaceContainerHigh);
     final missing = widget.errorBuilder?.call(
           context,
           StateError('Avatar file missing'),
           StackTrace.empty,
         ) ??
         ColoredBox(color: scheme.surfaceContainerHigh);
+
+    if (!_decodeEnabled || _resolvedPath == null) {
+      return loading;
+    }
 
     return FutureBuilder<String?>(
       future: _resolvedPath,

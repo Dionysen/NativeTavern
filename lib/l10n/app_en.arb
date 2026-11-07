@@ -5769,7 +5769,7 @@
   "@bubbleOpacity": {
     "description": "Label for message bubble and input opacity slider"
   },
-  "bubbleOpacityHelp": "Opacity of chat bubbles and the input box over a background image.",
+  "bubbleOpacityHelp": "How see-through bubbles and the input are when floating over a background or Live2D.",
   "@bubbleOpacityHelp": {
     "description": "Helper text for message bubble and input opacity slider"
   },

@@ -12,6 +12,14 @@ class PathUtils {
   static String? _cachedDataPath;
   static Future<String>? _dataPathFuture;
 
+  /// Warm caches from app startup so the first character grid does not wait on
+  /// path_provider again.
+  static void seed({required String documentsPath, required String dataPath}) {
+    _cachedAppDocumentsPath = documentsPath;
+    _cachedDataPath = dataPath;
+    _dataPathFuture = null;
+  }
+
   /// Get the base application documents directory
   static Future<String> getAppDocumentsPath() async {
     final cached = _cachedAppDocumentsPath;

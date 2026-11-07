@@ -36,6 +36,26 @@ abstract final class ZephyrChatChrome {
     ];
   }
 
+  /// Softer lift than [composerShadows] — many bubbles share the list.
+  static List<BoxShadow> messageBubbleShadows(
+    Brightness brightness, {
+    double opacity = 1.0,
+  }) {
+    final o = opacity.clamp(0.0, 1.0);
+    if (o <= 0) return const [];
+    final color = brightness == Brightness.dark
+        ? Colors.black.withValues(alpha: 0.28 * o)
+        : Colors.black.withValues(alpha: 0.08 * o);
+    return [
+      BoxShadow(
+        color: color,
+        blurRadius: 10,
+        offset: const Offset(0, 3),
+        spreadRadius: -1,
+      ),
+    ];
+  }
+
   /// Same soft drop shadow as [composerShell], for floating buttons / chips.
   ///
   /// Wrap Material buttons that use `elevation: 0` so they do not double-draw
@@ -289,24 +309,28 @@ abstract final class ZephyrChatChrome {
     required double bubbleOpacity,
     required bool highlighted,
   }) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final chat = context.appChatColors;
     final radius = context.appChatBubbleCornerRadius;
     // User bubbles always track accent; character bubbles use the chat token.
     final base =
         isUser ? userBubbleFromAccent(scheme) : chat.characterBubble;
 
-    final Color fill;
+    final double fillOpacity;
     if (transparent && hasBackground) {
-      fill = base.withValues(alpha: 0.55);
+      fillOpacity = 0.55;
     } else if (hasBackground) {
-      fill = base.withValues(alpha: bubbleOpacity);
+      fillOpacity = bubbleOpacity.clamp(0.0, 1.0);
     } else {
-      fill = base;
+      fillOpacity = 1.0;
     }
+    final fill =
+        fillOpacity >= 1.0 ? base : base.withValues(alpha: fillOpacity);
 
     return ShapeDecoration(
       color: fill,
+      shadows: messageBubbleShadows(theme.brightness, opacity: fillOpacity),
       shape: ContinuousRectangleBorder(
         borderRadius: bubbleBorderRadius(isUser: isUser, radius: radius),
         side: highlighted
