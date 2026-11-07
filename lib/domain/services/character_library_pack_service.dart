@@ -8,6 +8,7 @@ import 'package:native_tavern/data/models/character_folder.dart';
 import 'package:native_tavern/data/repositories/character_folder_repository.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:path/path.dart' as p;
+
 class CharacterLibraryPackProgress {
   const CharacterLibraryPackProgress({
     required this.total,
@@ -125,56 +126,61 @@ class CharacterLibraryPackService {
         const JsonEncoder.withIndent('  ').convert(membersJson),
       );
 
-      final ndjson = StringBuffer();
+      final ndjsonFile = File(p.join(staging.path, 'characters.ndjson'));
+      final ndjsonSink = ndjsonFile.openWrite();
       var avatarCount = 0;
       final usedAvatarNames = <String>{};
 
-      for (var i = 0; i < characters.length; i++) {
-        final character = characters[i];
-        onProgress?.call(
-          CharacterLibraryPackProgress(
-            total: characters.length,
-            processed: i,
-            phase: 'characters',
-            currentName: character.name,
-          ),
-        );
+      try {
+        for (var i = 0; i < characters.length; i++) {
+          final character = characters[i];
+          onProgress?.call(
+            CharacterLibraryPackProgress(
+              total: characters.length,
+              processed: i,
+              phase: 'characters',
+              currentName: character.name,
+            ),
+          );
 
-        var exported = character;
-        final sourcePath = character.assets?.avatarPath;
-        if (sourcePath != null && sourcePath.trim().isNotEmpty) {
-          final absolute = await _resolveExistingAvatar(sourcePath);
-          if (absolute != null) {
-            final packRelative = _uniqueAvatarPackPath(
-              characterId: character.id,
-              sourceAbsolute: absolute,
-              usedNames: usedAvatarNames,
-            );
-            final dest = File(p.join(staging.path, packRelative));
-            await dest.parent.create(recursive: true);
-            await File(absolute).copy(dest.path);
-            avatarCount++;
-            exported = character.copyWith(
-              assets: (character.assets ?? const CharacterAssets()).copyWith(
-                avatarPath: packRelative,
-              ),
-            );
-            onProgress?.call(
-              CharacterLibraryPackProgress(
-                total: characters.length,
-                processed: i,
-                phase: 'avatars',
-                currentName: character.name,
-              ),
-            );
+          var exported = character;
+          final sourcePath = character.assets?.avatarPath;
+          if (sourcePath != null && sourcePath.trim().isNotEmpty) {
+            final absolute = await _resolveExistingAvatar(sourcePath);
+            if (absolute != null) {
+              final packRelative = _uniqueAvatarPackPath(
+                characterId: character.id,
+                sourceAbsolute: absolute,
+                usedNames: usedAvatarNames,
+              );
+              final dest = File(p.join(staging.path, packRelative));
+              await dest.parent.create(recursive: true);
+              await File(absolute).copy(dest.path);
+              avatarCount++;
+              exported = character.copyWith(
+                assets: (character.assets ?? const CharacterAssets()).copyWith(
+                  avatarPath: packRelative,
+                ),
+              );
+              onProgress?.call(
+                CharacterLibraryPackProgress(
+                  total: characters.length,
+                  processed: i,
+                  phase: 'avatars',
+                  currentName: character.name,
+                ),
+              );
+            }
+          }
+
+          ndjsonSink.writeln(jsonEncode(exported.toJson()));
+          if (i % 32 == 0) {
+            await Future<void>.delayed(Duration.zero);
           }
         }
-
-        ndjson.writeln(jsonEncode(exported.toJson()));
+      } finally {
+        await ndjsonSink.close();
       }
-
-      await File(p.join(staging.path, 'characters.ndjson'))
-          .writeAsString(ndjson.toString());
 
       final manifest = {
         'format': formatName,
@@ -246,22 +252,13 @@ class CharacterLibraryPackService {
       final extractDir = Directory(p.join(tempRoot.path, 'pack'));
       await extractDir.create(recursive: true);
 
-      final input = InputFileStream(packPath);
-      final archive = ZipDecoder().decodeBuffer(input);
-      for (final file in archive.files) {
-        if (!file.isFile || file.name.isEmpty) continue;
-        // Zip slip: keep entries under the extract directory.
-        final outPath = p.normalize(p.join(extractDir.path, file.name));
-        if (!p.isWithin(extractDir.path, outPath) &&
-            outPath != extractDir.path) {
-          continue;
-        }
-        final content = file.content;
-        if (content is! List<int>) continue;
-        final outFile = File(outPath);
-        await outFile.parent.create(recursive: true);
-        await outFile.writeAsBytes(content, flush: true);
-      }
+      // Stream zip entries to disk — never materialize the whole  archive in RAM.
+      // Avatar entries go straight into the app data dir to avoid a second copy.
+      final extractedAvatarRelPaths = await _extractPackStreaming(
+        packPath: packPath,
+        metadataDir: extractDir,
+        onProgress: onProgress,
+      );
 
       final staging = await _resolvePackRoot(extractDir);
       final manifestFile = File(p.join(staging.path, 'manifest.json'));
@@ -277,6 +274,9 @@ class CharacterLibraryPackService {
       if (version is! int || version > formatVersion) {
         throw StateError('Unsupported pack version');
       }
+      final characterTotal = manifest['characterCount'] is int
+          ? manifest['characterCount'] as int
+          : 0;
 
       final foldersRaw =
           jsonDecode(await File(p.join(staging.path, 'folders.json')).readAsString())
@@ -301,46 +301,56 @@ class CharacterLibraryPackService {
 
       final existingIds = await _characterRepository.listAllCharacterIds();
       final ndjsonFile = File(p.join(staging.path, 'characters.ndjson'));
-      final lines = (await ndjsonFile.readAsLines())
-          .map((line) => line.trim())
-          .where((line) => line.isNotEmpty)
-          .toList(growable: false);
 
       var created = 0;
       var updated = 0;
       var failed = 0;
       var avatarCount = 0;
+      var processed = 0;
       final errors = <String>[];
       final importedCharacterIds = <String>{};
 
-      for (var i = 0; i < lines.length; i++) {
+      await for (final line in ndjsonFile
+          .openRead()
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())) {
+        final trimmed = line.trim();
+        if (trimmed.isEmpty) continue;
+        processed++;
         try {
-          final json = jsonDecode(lines[i]) as Map<String, dynamic>;
+          final json = jsonDecode(trimmed) as Map<String, dynamic>;
           var character = Character.fromJson(json);
           if (character.id.isEmpty) {
             throw StateError('Character id missing');
           }
           onProgress?.call(
             CharacterLibraryPackProgress(
-              total: lines.length,
-              processed: i,
+              total: characterTotal == 0 ? processed : characterTotal,
+              processed: processed - 1,
               phase: 'import',
               currentName: character.name,
             ),
           );
 
-          final avatarRelative = character.assets?.avatarPath;
-          if (avatarRelative != null && avatarRelative.trim().isNotEmpty) {
-            final packed = File(p.join(staging.path, avatarRelative));
-            if (await packed.exists()) {
-              final destRelative = _normalizeAvatarRelative(
-                characterId: character.id,
-                packRelative: avatarRelative,
-              );
-              final dest = File(p.join(_dataPath, destRelative));
-              await dest.parent.create(recursive: true);
-              await packed.copy(dest.path);
+          final avatarRelative = character.assets?.avatarPath?.trim();
+          if (avatarRelative != null && avatarRelative.isNotEmpty) {
+            final destRelative = _normalizeAvatarRelative(
+              characterId: character.id,
+              packRelative: avatarRelative,
+            );
+            final dest = File(p.join(_dataPath, destRelative));
+            // Prefer the entry already streamed into dataPath; fall back to
+            // metadata-dir extract for older/odd packs.
+            if (!await dest.exists()) {
+              final packed = File(p.join(staging.path, avatarRelative));
+              if (await packed.exists()) {
+                await dest.parent.create(recursive: true);
+                await packed.copy(dest.path);
+              }
+            }
+            if (await dest.exists()) {
               avatarCount++;
+              extractedAvatarRelPaths.remove(avatarRelative.replaceAll('\\', '/'));
               character = character.copyWith(
                 assets: (character.assets ?? const CharacterAssets()).copyWith(
                   avatarPath: destRelative,
@@ -360,7 +370,12 @@ class CharacterLibraryPackService {
           }
         } catch (e) {
           failed++;
-          errors.add('line ${i + 1}: $e');
+          if (errors.length < 50) {
+            errors.add('line $processed: $e');
+          }
+        }
+        if (processed % 16 == 0) {
+          await Future<void>.delayed(Duration.zero);
         }
       }
 
@@ -383,8 +398,8 @@ class CharacterLibraryPackService {
 
       onProgress?.call(
         CharacterLibraryPackProgress(
-          total: lines.length,
-          processed: lines.length,
+          total: processed,
+          processed: processed,
           phase: 'import',
         ),
       );
@@ -402,6 +417,76 @@ class CharacterLibraryPackService {
         await tempRoot.delete(recursive: true);
       }
     }
+  }
+
+  /// Extracts `.ntchars` without loading the whole archive into memory.
+  ///
+  /// Returns relative avatar paths written under [_dataPath].
+  Future<Set<String>> _extractPackStreaming({
+    required String packPath,
+    required Directory metadataDir,
+    void Function(CharacterLibraryPackProgress progress)? onProgress,
+  }) async {
+    final extractedAvatars = <String>{};
+    final input = InputFileStream(packPath);
+    try {
+      final archive = ZipDecoder().decodeBuffer(input);
+      final files = archive.files;
+      final total = files.length;
+      for (var i = 0; i < files.length; i++) {
+        final file = files[i];
+        if (!file.isFile || file.name.isEmpty) {
+          file.clear();
+          continue;
+        }
+        final relative = p.normalize(file.name.replaceAll('\\', '/'));
+        if (relative.isEmpty ||
+            relative == '.' ||
+            relative.startsWith('../') ||
+            relative.contains('/../')) {
+          file.clear();
+          continue;
+        }
+
+        final isAvatar = relative == 'avatars' || relative.startsWith('avatars/');
+        final outPath = isAvatar
+            ? p.normalize(p.join(_dataPath, relative))
+            : p.normalize(p.join(metadataDir.path, relative));
+        final root = isAvatar ? _dataPath : metadataDir.path;
+        if (!p.isWithin(root, outPath) && outPath != root) {
+          file.clear();
+          continue;
+        }
+
+        await Directory(p.dirname(outPath)).create(recursive: true);
+        final output = OutputFileStream(outPath);
+        try {
+          file.writeContent(output);
+        } finally {
+          await output.close();
+          file.clear();
+        }
+        if (isAvatar) {
+          extractedAvatars.add(relative);
+        }
+
+        if (i % 8 == 0) {
+          onProgress?.call(
+            CharacterLibraryPackProgress(
+              total: total,
+              processed: i,
+              phase: 'avatars',
+              currentName: relative,
+            ),
+          );
+          await Future<void>.delayed(Duration.zero);
+        }
+      }
+      await archive.clear();
+    } finally {
+      await input.close();
+    }
+    return extractedAvatars;
   }
 
   /// Suggested filename for a new pack export.
