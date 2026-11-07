@@ -21,6 +21,7 @@ import 'package:native_tavern/presentation/widgets/common/group_avatar.dart';
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
+import 'package:native_tavern/presentation/widgets/common/intercept_pop_scope.dart';
 
 /// Home screen showing recent chats
 class HomeScreen extends ConsumerStatefulWidget {
@@ -130,14 +131,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return PopScope(
+    return InterceptPopScope(
       canPop: !_selectionMode,
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) return;
-        if (_selectionMode) {
-          _exitSelectionMode();
-        }
-      },
+      onIntercept: _exitSelectionMode,
       child: Scaffold(
         appBar: AppBar(
           leading: _selectionMode

@@ -22,6 +22,7 @@ import 'package:native_tavern/presentation/widgets/common/character_avatar_image
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
+import 'package:native_tavern/presentation/widgets/common/intercept_pop_scope.dart';
 import 'character_view_mode.dart';
 
 /// Character list screen
@@ -324,11 +325,11 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
         final selectionMode = _selection.selectionMode;
         final hasSelection = _selection.hasSelection;
         final selectedItemCount = _selection.selectedItemCount;
-        return PopScope(
-          // System/back: leave multi-select, then nested folder, before shell pop.
+        return InterceptPopScope(
+          // System back / Esc: leave multi-select, then nested folder, before
+          // the shell route would exit the app.
           canPop: !selectionMode && browseFolderId == null,
-          onPopInvokedWithResult: (didPop, _) {
-            if (didPop) return;
+          onIntercept: () {
             if (selectionMode) {
               _exitSelectionMode();
               return;
