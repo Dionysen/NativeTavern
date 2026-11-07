@@ -93,12 +93,15 @@ class _PreviewCell extends StatelessWidget {
         child: preview!.avatarPath != null
             ? LayoutBuilder(
                 builder: (context, constraints) {
-                  final side = constraints.biggest.shortestSide;
+                  // Only pass one decode dimension so Flutter keeps the
+                  // source aspect ratio. Setting both to a square side
+                  // stretches portrait avatars in the 2x2 mosaic.
+                  final cacheSide = constraints.biggest.longestSide;
                   return CharacterAvatarImage(
                     imagePath: preview!.avatarPath!,
                     fit: BoxFit.cover,
-                    cacheWidth: side,
-                    cacheHeight: side,
+                    alignment: Alignment.topCenter,
+                    cacheWidth: cacheSide,
                     errorBuilder: (context, _, __) =>
                         _fallback(context, color),
                   );
@@ -184,16 +187,16 @@ class CharacterFolderGridCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         textAlign: compact ? TextAlign.center : TextAlign.start,
                       ),
-                      if (!compact) ...[
-                        Text(
-                          l10n.characterFolderCount(folder.characterCount),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppTheme.textMuted,
-                              ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                      Text(
+                        l10n.characterFolderCount(folder.characterCount),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppTheme.textMuted,
+                              fontSize: compact ? 10 : null,
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: compact ? TextAlign.center : TextAlign.start,
+                      ),
                     ],
                   ),
                 ),
