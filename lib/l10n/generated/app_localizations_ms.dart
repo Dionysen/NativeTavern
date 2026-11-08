@@ -731,6 +731,13 @@ class AppLocalizationsMs extends AppLocalizations {
   String get characterStatusFieldLabel => 'Field name';
 
   @override
+  String get characterStatusFieldPrompt => 'Field prompt';
+
+  @override
+  String get characterStatusFieldPromptHint =>
+      'Optional. Tell the AI how to write this field.';
+
+  @override
   String get characterStatusFieldLocked => 'Required';
 
   @override

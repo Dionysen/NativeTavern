@@ -708,6 +708,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get characterStatusFieldLabel => '字段名称';
 
   @override
+  String get characterStatusFieldPrompt => '字段提示词';
+
+  @override
+  String get characterStatusFieldPromptHint => '可不填。用来告诉 AI 这项该怎么写。';
+
+  @override
   String get characterStatusFieldLocked => '必填';
 
   @override

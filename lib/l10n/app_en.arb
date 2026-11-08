@@ -997,6 +997,14 @@
   "@characterStatusFieldLabel": {
     "description": "Dialog label for new status field"
   },
+  "characterStatusFieldPrompt": "Field prompt",
+  "@characterStatusFieldPrompt": {
+    "description": "Optional per-field instruction for status generation"
+  },
+  "characterStatusFieldPromptHint": "Optional. Tell the AI how to write this field.",
+  "@characterStatusFieldPromptHint": {
+    "description": "Hint under the optional status field prompt input"
+  },
   "characterStatusFieldLocked": "Required",
   "@characterStatusFieldLocked": {
     "description": "Badge for undeletable name field"

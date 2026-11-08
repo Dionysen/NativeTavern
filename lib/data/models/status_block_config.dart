@@ -4,22 +4,28 @@ import 'dart:convert';
 class StatusFieldSlot {
   final String id;
   final String label;
+
+  /// Optional per-field instruction for the status generator. Empty = none.
+  final String prompt;
   final bool locked;
 
   const StatusFieldSlot({
     required this.id,
     required this.label,
+    this.prompt = '',
     this.locked = false,
   });
 
   StatusFieldSlot copyWith({
     String? id,
     String? label,
+    String? prompt,
     bool? locked,
   }) {
     return StatusFieldSlot(
       id: id ?? this.id,
       label: label ?? this.label,
+      prompt: prompt ?? this.prompt,
       locked: locked ?? this.locked,
     );
   }
@@ -27,13 +33,21 @@ class StatusFieldSlot {
   Map<String, dynamic> toJson() => {
         'id': id,
         'label': label,
+        'prompt': prompt,
         'locked': locked,
       };
 
   factory StatusFieldSlot.fromJson(Map<String, dynamic> json) {
+    final id = json['id'] as String? ?? '';
+    final hasPromptKey = json.containsKey('prompt');
+    final prompt = hasPromptKey
+        ? (json['prompt'] as String?)?.trim() ?? ''
+        // Migrate older saves that never had per-field prompts.
+        : (id == 'arousal' ? StatusBlockConfig.defaultArousalPrompt : '');
     return StatusFieldSlot(
-      id: json['id'] as String? ?? '',
+      id: id,
       label: json['label'] as String? ?? '',
+      prompt: prompt,
       locked: json['locked'] as bool? ?? false,
     );
   }
@@ -144,12 +158,19 @@ class StatusBlockSnapshot {
 class StatusBlockConfig {
   static const int maxFields = 16;
 
+  /// Default instruction for the built-in arousal field.
+  static const String defaultArousalPrompt = '生成唤起程度百分比';
+
   static const List<StatusFieldSlot> defaultFields = [
     StatusFieldSlot(id: 'name', label: '名字', locked: true),
     StatusFieldSlot(id: 'outfit', label: '穿搭'),
     StatusFieldSlot(id: 'action', label: '行动'),
     StatusFieldSlot(id: 'thoughts', label: '内心'),
-    StatusFieldSlot(id: 'arousal', label: '性唤起程度'),
+    StatusFieldSlot(
+      id: 'arousal',
+      label: '性唤起程度',
+      prompt: defaultArousalPrompt,
+    ),
   ];
 
   static const String defaultPromptTemplate = '''
@@ -195,6 +216,7 @@ Do not wrap in markdown or add commentary.
     for (final field in fields) {
       final id = field.id.trim();
       final label = field.label.trim();
+      final prompt = field.prompt.trim();
       if (id.isEmpty || label.isEmpty) continue;
       final locked = field.locked || id == 'name';
       if (locked) {
@@ -202,10 +224,15 @@ Do not wrap in markdown or add commentary.
         hasLockedName = true;
         list.insert(
           0,
-          StatusFieldSlot(id: 'name', label: label.isEmpty ? '名字' : label, locked: true),
+          StatusFieldSlot(
+            id: 'name',
+            label: label.isEmpty ? '名字' : label,
+            prompt: prompt,
+            locked: true,
+          ),
         );
       } else {
-        list.add(StatusFieldSlot(id: id, label: label));
+        list.add(StatusFieldSlot(id: id, label: label, prompt: prompt));
       }
     }
     if (!hasLockedName) {

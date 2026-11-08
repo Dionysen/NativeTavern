@@ -1459,6 +1459,18 @@ abstract class AppLocalizations {
   /// **'Field name'**
   String get characterStatusFieldLabel;
 
+  /// Optional per-field instruction for status generation
+  ///
+  /// In en, this message translates to:
+  /// **'Field prompt'**
+  String get characterStatusFieldPrompt;
+
+  /// Hint under the optional status field prompt input
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Tell the AI how to write this field.'**
+  String get characterStatusFieldPromptHint;
+
   /// Badge for undeletable name field
   ///
   /// In en, this message translates to:

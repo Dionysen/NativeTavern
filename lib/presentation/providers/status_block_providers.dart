@@ -69,13 +69,19 @@ class StatusBlockConfigNotifier extends StateNotifier<StatusBlockConfig> {
     await _saveConfig();
   }
 
-  Future<void> addField(String label) async {
+  Future<void> addField(String label, {String prompt = ''}) async {
     final trimmed = label.trim();
     if (trimmed.isEmpty) return;
     final fields = state.normalizedFields();
     if (fields.length >= StatusBlockConfig.maxFields) return;
     final id = trimmed.toLowerCase().replaceAll(RegExp(r'\s+'), '_');
-    fields.add(StatusFieldSlot(id: id, label: trimmed));
+    fields.add(
+      StatusFieldSlot(
+        id: id,
+        label: trimmed,
+        prompt: prompt.trim(),
+      ),
+    );
     await setFields(fields);
   }
 
@@ -87,7 +93,11 @@ class StatusBlockConfigNotifier extends StateNotifier<StatusBlockConfig> {
     await setFields(fields);
   }
 
-  Future<void> renameFieldAt(int index, String label) async {
+  Future<void> updateFieldAt(
+    int index, {
+    required String label,
+    String prompt = '',
+  }) async {
     final fields = state.normalizedFields();
     if (index < 0 || index >= fields.length) return;
     final trimmed = label.trim();
@@ -95,6 +105,7 @@ class StatusBlockConfigNotifier extends StateNotifier<StatusBlockConfig> {
     final current = fields[index];
     fields[index] = current.copyWith(
       label: trimmed,
+      prompt: prompt.trim(),
       id: current.locked
           ? current.id
           : trimmed.toLowerCase().replaceAll(RegExp(r'\s+'), '_'),

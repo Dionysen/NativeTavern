@@ -29,7 +29,12 @@ abstract final class StatusBlockPromptService {
         .toList(growable: false);
     final fieldLines = StringBuffer();
     for (final field in fields) {
-      fieldLines.writeln('- ${field.label}');
+      final prompt = field.prompt.trim();
+      if (prompt.isEmpty) {
+        fieldLines.writeln('- ${field.label}');
+      } else {
+        fieldLines.writeln('- ${field.label}: $prompt');
+      }
     }
 
     final resolvedUser =

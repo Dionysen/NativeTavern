@@ -73,4 +73,35 @@ void main() {
     expect(result.isComplete, isTrue);
     expect(result.snapshot!.characters.single.name, '林晚');
   });
+
+  test('field lines include optional per-field prompts', () {
+    final prompt = StatusBlockPromptService.buildSystemPrompt(
+      config: StatusBlockConfig.defaultConfig,
+      userName: '林晚',
+      sceneCharacterHints: const ['Alice'],
+    );
+    expect(prompt, contains('- 穿搭'));
+    expect(prompt, isNot(contains('- 穿搭:')));
+    expect(
+      prompt,
+      contains('- 性唤起程度: ${StatusBlockConfig.defaultArousalPrompt}'),
+    );
+  });
+
+  test('legacy arousal field without prompt migrates to default', () {
+    final field = StatusFieldSlot.fromJson({
+      'id': 'arousal',
+      'label': '性唤起程度',
+      'locked': false,
+    });
+    expect(field.prompt, StatusBlockConfig.defaultArousalPrompt);
+
+    final cleared = StatusFieldSlot.fromJson({
+      'id': 'arousal',
+      'label': '性唤起程度',
+      'prompt': '',
+      'locked': false,
+    });
+    expect(cleared.prompt, isEmpty);
+  });
 }

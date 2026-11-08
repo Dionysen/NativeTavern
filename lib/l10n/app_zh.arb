@@ -891,6 +891,8 @@
   "characterStatusFields": "状态字段",
   "characterStatusAddField": "添加字段",
   "characterStatusFieldLabel": "字段名称",
+  "characterStatusFieldPrompt": "字段提示词",
+  "characterStatusFieldPromptHint": "可不填。用来告诉 AI 这项该怎么写。",
   "characterStatusFieldLocked": "必填",
   "characterStatusPromptTemplate": "生成提示词",
   "characterStatusPromptPlaceholders": "可用占位符：field_lines、character_lines、previous_status（用双花括号包裹）",

@@ -97,6 +97,7 @@ class _StatusBlockSettingsScreenState
                 onReorder: notifier.reorderFields,
                 itemBuilder: (context, index) {
                   final field = fields[index];
+                  final fieldPrompt = field.prompt.trim();
                   return ListTile(
                     key: ValueKey('status-field-${field.id}-$index'),
                     leading: Icon(
@@ -105,7 +106,13 @@ class _StatusBlockSettingsScreenState
                     title: Text(field.label),
                     subtitle: field.locked
                         ? Text(l10n.characterStatusFieldLocked)
-                        : null,
+                        : fieldPrompt.isEmpty
+                            ? null
+                            : Text(
+                                fieldPrompt,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                     trailing: field.locked
                         ? null
                         : Row(
@@ -115,8 +122,7 @@ class _StatusBlockSettingsScreenState
                                 density: ChromeIconButtonDensity.compact,
                                 tooltip: l10n.edit,
                                 icon: const Icon(Icons.edit_outlined, size: 20),
-                                onPressed: () =>
-                                    _editField(context, index, field.label),
+                                onPressed: () => _editField(context, index, field),
                               ),
                               ChromeIconButton(
                                 density: ChromeIconButtonDensity.compact,
@@ -174,55 +180,73 @@ class _StatusBlockSettingsScreenState
   }
 
   Future<void> _addField(BuildContext context) async {
-    final l10n = AppLocalizations.of(context);
-    final controller = TextEditingController();
-    final label = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.characterStatusAddField),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: l10n.characterStatusFieldLabel,
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
+    final result = await _showFieldEditorDialog(
+      context,
+      title: AppLocalizations.of(context).characterStatusAddField,
     );
-    if (label != null && label.isNotEmpty) {
-      await ref.read(statusBlockConfigProvider.notifier).addField(label);
-    }
+    if (result == null || result.label.isEmpty) return;
+    await ref.read(statusBlockConfigProvider.notifier).addField(
+          result.label,
+          prompt: result.prompt,
+        );
   }
 
   Future<void> _editField(
     BuildContext context,
     int index,
-    String current,
+    StatusFieldSlot field,
   ) async {
+    final result = await _showFieldEditorDialog(
+      context,
+      title: AppLocalizations.of(context).edit,
+      initialLabel: field.label,
+      initialPrompt: field.prompt,
+    );
+    if (result == null || result.label.isEmpty) return;
+    await ref.read(statusBlockConfigProvider.notifier).updateFieldAt(
+          index,
+          label: result.label,
+          prompt: result.prompt,
+        );
+  }
+
+  Future<({String label, String prompt})?> _showFieldEditorDialog(
+    BuildContext context, {
+    required String title,
+    String initialLabel = '',
+    String initialPrompt = '',
+  }) async {
     final l10n = AppLocalizations.of(context);
-    final controller = TextEditingController(text: current);
-    final label = await showDialog<String>(
+    final labelController = TextEditingController(text: initialLabel);
+    final promptController = TextEditingController(text: initialPrompt);
+    final result = await showDialog<({String label, String prompt})>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.edit),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: l10n.characterStatusFieldLabel,
-            border: const OutlineInputBorder(),
-          ),
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: labelController,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: l10n.characterStatusFieldLabel,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: promptController,
+              maxLines: 3,
+              minLines: 1,
+              decoration: InputDecoration(
+                labelText: l10n.characterStatusFieldPrompt,
+                hintText: l10n.characterStatusFieldPromptHint,
+                border: const OutlineInputBorder(),
+                alignLabelWithHint: true,
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -230,16 +254,20 @@ class _StatusBlockSettingsScreenState
             child: Text(l10n.cancel),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            onPressed: () => Navigator.pop(
+              context,
+              (
+                label: labelController.text.trim(),
+                prompt: promptController.text.trim(),
+              ),
+            ),
             child: Text(l10n.save),
           ),
         ],
       ),
     );
-    if (label != null && label.isNotEmpty) {
-      await ref
-          .read(statusBlockConfigProvider.notifier)
-          .renameFieldAt(index, label);
-    }
+    labelController.dispose();
+    promptController.dispose();
+    return result;
   }
 }
