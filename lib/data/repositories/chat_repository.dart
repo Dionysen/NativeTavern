@@ -262,6 +262,33 @@ class ChatRepository {
     return row.read(countExpression) ?? 0;
   }
 
+  /// Message count and approximate DB storage for home/list tiles.
+  Future<ChatListStats> getChatListStats(String chatId) async {
+    final row = await _db.customSelect(
+      '''
+      SELECT
+        COUNT(*) AS message_count,
+        COALESCE(
+          SUM(
+            LENGTH(CAST(content AS BLOB))
+            + LENGTH(CAST(swipes AS BLOB))
+            + LENGTH(CAST(metadata_json AS BLOB))
+            + LENGTH(CAST(attachments_json AS BLOB))
+          ),
+          0
+        ) AS storage_bytes
+      FROM messages
+      WHERE chat_id = ?
+      ''',
+      variables: [Variable<String>(chatId)],
+      readsFrom: {_db.messages},
+    ).getSingle();
+    return ChatListStats(
+      messageCount: row.read<int>('message_count'),
+      storageBytes: row.read<int>('storage_bytes'),
+    );
+  }
+
   /// Total messages across all chats (for app statistics).
   Future<int> getTotalMessageCount() async {
     final countExpression = _db.messages.id.count();
@@ -423,4 +450,15 @@ class ChatRepository {
       reasoningSwipes: reasoningSwipes,
     );
   }
+}
+
+/// Lightweight stats for chat list tiles.
+class ChatListStats {
+  final int messageCount;
+  final int storageBytes;
+
+  const ChatListStats({
+    required this.messageCount,
+    required this.storageBytes,
+  });
 }

@@ -117,6 +117,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     for (final id in ids) {
       await repo.deleteChat(id);
       ref.invalidate(_lastMessageProvider(id));
+      ref.invalidate(_chatListStatsProvider(id));
     }
     ref.invalidate(pagedChatsProvider);
     ref.invalidate(allChatsProvider);
@@ -326,87 +327,85 @@ class _ChatListTile extends ConsumerWidget {
         ? null
         : ref.watch(_groupPresentationProvider(chat.groupId!));
     final lastMessageAsync = ref.watch(_lastMessageProvider(chat.id));
+    final statsAsync = ref.watch(_chatListStatsProvider(chat.id));
 
-    return Card(
-      child: ListTile(
-        selected: selectionMode && selected,
-        contentPadding: const EdgeInsets.only(left: 16, right: 4),
-        leading: selectionMode
-            ? Icon(
-                selected ? Icons.check_circle : Icons.circle_outlined,
-                color: selected ? scheme.primary : scheme.outline,
-              )
-            : groupPresentationAsync != null
-                ? groupPresentationAsync.when(
-                    loading: () => const SizedBox.square(
-                      dimension: 56,
-                      child: Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    ),
-                    error: (_, __) => const GroupAvatar(characters: []),
-                    data: (presentation) => GroupAvatar(
-                      characters: presentation?.characters ?? const [],
-                    ),
-                  )
-                : characterAsync.when(
-                    loading: () => const CircleAvatar(
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                    error: (_, __) =>
-                        const CircleAvatar(child: Icon(Icons.person)),
-                    data: _buildCharacterAvatar,
-                  ),
-        title: groupPresentationAsync != null
+    final leading = selectionMode
+        ? Icon(
+            selected ? Icons.check_circle : Icons.circle_outlined,
+            color: selected ? scheme.primary : scheme.outline,
+          )
+        : groupPresentationAsync != null
             ? groupPresentationAsync.when(
-                loading: () => _titleText(l10n.loading),
-                error: (_, __) => _titleText(chat.title),
-                data: (presentation) =>
-                    _titleText(presentation?.group.name ?? chat.title),
+                loading: () => const SizedBox.square(
+                  dimension: 56,
+                  child: Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+                error: (_, __) => const GroupAvatar(characters: []),
+                data: (presentation) => GroupAvatar(
+                  characters: presentation?.characters ?? const [],
+                ),
               )
             : characterAsync.when(
-                loading: () => _titleText(l10n.loading),
-                error: (_, __) => _titleText(chat.title),
-                data: (character) =>
-                    _titleText(character?.name ?? chat.title),
-              ),
-        subtitle: lastMessageAsync.when(
-          loading: () => _previewText(context, '...'),
-          error: (_, __) => _previewText(context, l10n.noMessages),
-          data: (message) => _previewText(
-            context,
-            message?.content ?? l10n.noMessagesYet,
-          ),
+                loading: () => const CircleAvatar(
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                error: (_, __) =>
+                    const CircleAvatar(child: Icon(Icons.person)),
+                data: _buildCharacterAvatar,
+              );
+
+    final title = groupPresentationAsync != null
+        ? groupPresentationAsync.when(
+            loading: () => _titleText(l10n.loading),
+            error: (_, __) => _titleText(chat.title),
+            data: (presentation) =>
+                _titleText(presentation?.group.name ?? chat.title),
+          )
+        : characterAsync.when(
+            loading: () => _titleText(l10n.loading),
+            error: (_, __) => _titleText(chat.title),
+            data: (character) =>
+                _titleText(character?.name ?? chat.title),
+          );
+
+    final preview = lastMessageAsync.when(
+      loading: () => _previewText(context, '...'),
+      error: (_, __) => _previewText(context, l10n.noMessages),
+      data: (message) => _previewText(
+        context,
+        message?.content ?? l10n.noMessagesYet,
+      ),
+    );
+
+    final stats = statsAsync.when(
+      loading: () => _statsText(context, '...'),
+      error: (_, __) => _statsText(
+        context,
+        _formatChatStats(
+          l10n,
+          messageCount: 0,
+          storageBytes: 0,
+          createdAt: chat.createdAt,
+          lastChatAt: chat.updatedAt,
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              _formatTime(context, chat.updatedAt),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textMuted,
-                  ),
-            ),
-            if (!selectionMode)
-              AdaptiveActionMenuButton<String>(
-                title: chat.title,
-                onSelected: (value) => _handleMenuAction(context, ref, value),
-                itemBuilder: (context) => [
-                  AdaptiveActionDrawerItem(
-                    value: 'new_chat',
-                    leading: const Icon(Icons.add_comment_outlined),
-                    title: Text(l10n.newChat),
-                  ),
-                  AdaptiveActionDrawerItem(
-                    value: 'delete',
-                    leading: const Icon(Icons.delete),
-                    title: Text(l10n.delete),
-                    destructive: true,
-                  ),
-                ],
-              ),
-          ],
+      ),
+      data: (stats) => _statsText(
+        context,
+        _formatChatStats(
+          l10n,
+          messageCount: stats.messageCount,
+          storageBytes: stats.storageBytes,
+          createdAt: chat.createdAt,
+          lastChatAt: chat.updatedAt,
         ),
+      ),
+    );
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
         onTap: () {
           if (selectionMode) {
             onToggleSelect(chat.id);
@@ -421,6 +420,74 @@ class _ChatListTile extends ConsumerWidget {
             onEnterSelection(chat.id);
           }
         },
+        child: ColoredBox(
+          color: selectionMode && selected
+              ? scheme.primary.withValues(alpha: 0.12)
+              : Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 4, 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                leading,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                title,
+                                preview,
+                              ],
+                            ),
+                          ),
+                          Text(
+                            _formatTime(context, chat.updatedAt),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppTheme.textMuted,
+                                    ),
+                          ),
+                          if (!selectionMode)
+                            AdaptiveActionMenuButton<String>(
+                              title: chat.title,
+                              onSelected: (value) =>
+                                  _handleMenuAction(context, ref, value),
+                              itemBuilder: (context) => [
+                                AdaptiveActionDrawerItem(
+                                  value: 'new_chat',
+                                  leading:
+                                      const Icon(Icons.add_comment_outlined),
+                                  title: Text(l10n.newChat),
+                                ),
+                                AdaptiveActionDrawerItem(
+                                  value: 'delete',
+                                  leading: const Icon(Icons.delete),
+                                  title: Text(l10n.delete),
+                                  destructive: true,
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: stats,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -444,6 +511,52 @@ class _ChatListTile extends ConsumerWidget {
             color: AppTheme.textSecondary,
           ),
     );
+  }
+
+  Widget _statsText(BuildContext context, String text) {
+    return Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            fontSize: 11,
+            height: 1.3,
+            color: AppTheme.textSecondary,
+          ),
+    );
+  }
+
+  String _formatChatStats(
+    AppLocalizations l10n, {
+    required int messageCount,
+    required int storageBytes,
+    required DateTime createdAt,
+    required DateTime lastChatAt,
+  }) {
+    return l10n.chatListItemStats(
+      messageCount,
+      _formatStorageBytes(storageBytes),
+      _formatAbsoluteDate(createdAt),
+      _formatAbsoluteDate(lastChatAt),
+    );
+  }
+
+  String _formatAbsoluteDate(DateTime dateTime) {
+    final local = dateTime.toLocal();
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    return '${local.year}-$month-$day';
+  }
+
+  String _formatStorageBytes(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    }
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
+    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
   Widget _buildCharacterAvatar(Character? character) {
@@ -552,6 +665,7 @@ class _ChatListTile extends ConsumerWidget {
     ref.invalidate(pagedChatsProvider);
     ref.invalidate(allChatsProvider);
     ref.invalidate(_lastMessageProvider(chat.id));
+    ref.invalidate(_chatListStatsProvider(chat.id));
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.chatDeleted)),
@@ -585,4 +699,11 @@ final _groupPresentationProvider =
 final _lastMessageProvider = FutureProvider.family((ref, String chatId) async {
   final repo = ref.watch(chatRepositoryProvider);
   return repo.getLastMessage(chatId);
+});
+
+/// Provider for bubble count + approximate storage for a chat list tile.
+final _chatListStatsProvider =
+    FutureProvider.family<ChatListStats, String>((ref, chatId) async {
+  final repo = ref.watch(chatRepositoryProvider);
+  return repo.getChatListStats(chatId);
 });

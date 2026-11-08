@@ -386,6 +386,7 @@
       }
     }
   },
+  "chatListItemStats": "{count} · {size} · {created} · {last}",
   "chooseExportFormat": "选择导出格式：",
   "@chooseExportFormat": {
     "description": "Choose export format label"

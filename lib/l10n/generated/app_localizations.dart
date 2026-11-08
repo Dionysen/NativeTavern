@@ -631,6 +631,12 @@ abstract class AppLocalizations {
   /// **'{count} messages'**
   String messagesCount(int count);
 
+  /// Secondary meta line under a home chat list item
+  ///
+  /// In en, this message translates to:
+  /// **'{count} · {size} · {created} · {last}'**
+  String chatListItemStats(int count, String size, String created, String last);
+
   /// Choose export format label
   ///
   /// In en, this message translates to:

@@ -386,6 +386,28 @@
       }
     }
   },
+  "chatListItemStats": "{count} · {size} · {created} · {last}",
+  "@chatListItemStats": {
+    "description": "Secondary meta line under a home chat list item",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "42"
+      },
+      "size": {
+        "type": "String",
+        "example": "128.0 KB"
+      },
+      "created": {
+        "type": "String",
+        "example": "2024-11-01"
+      },
+      "last": {
+        "type": "String",
+        "example": "2024-11-08"
+      }
+    }
+  },
   "chooseExportFormat": "Choose export format:",
   "@chooseExportFormat": {
     "description": "Choose export format label"

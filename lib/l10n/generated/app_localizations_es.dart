@@ -284,6 +284,12 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String chatListItemStats(
+      int count, String size, String created, String last) {
+    return '$count · $size · $created · $last';
+  }
+
+  @override
   String get chooseExportFormat => 'Elige el formato de exportación:';
 
   @override

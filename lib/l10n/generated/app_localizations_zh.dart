@@ -276,6 +276,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String chatListItemStats(
+      int count, String size, String created, String last) {
+    return '$count · $size · $created · $last';
+  }
+
+  @override
   String get chooseExportFormat => '选择导出格式：';
 
   @override
@@ -7491,6 +7497,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String messagesCount(int count) {
     return '$count 則訊息';
+  }
+
+  @override
+  String chatListItemStats(
+      int count, String size, String created, String last) {
+    return '$count · $size · $created · $last';
   }
 
   @override
