@@ -153,21 +153,23 @@ class StatusBlockConfig {
   ];
 
   static const String defaultPromptTemplate = '''
-Based on the conversation so far, update the status of each character listed below.
+Based on the conversation so far, update status for the people currently in the scene.
 Use ONLY these field labels (exact spelling):
 {{field_lines}}
 
-Characters to cover:
+Who to cover:
 {{character_lines}}
 
 Previous status (may be empty):
 {{previous_status}}
 
+Naming rules:
+- For the user, the "name" field MUST be exactly: {{user_name}}
+- For NPCs, use their in-story / scenario names (how they are addressed in the narrative). Do NOT use character-card titles or meta labels.
 Write values in the same language as the recent messages.
 Keep each value short and concrete. Do not invent events that have not happened.
 Return ONLY valid JSON in this exact shape:
 {"characters":[{"name":"Display Name","fields":{"穿搭":"...","行动":"...","内心":"...","性唤起程度":"..."}}]}
-Every character must include a "name" matching the list above.
 Do not wrap in markdown or add commentary.
 ''';
 

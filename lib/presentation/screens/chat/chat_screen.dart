@@ -4149,7 +4149,11 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                       messageId: widget.message.id,
                     ),
                   if (embeddedStatus != null && !widget.isGenerating)
-                    MessageStatusBlockCard(snapshot: embeddedStatus),
+                    MessageStatusBlockCard(
+                      snapshot: embeddedStatus,
+                      characterDisplayName:
+                          widget.message.characterName?.trim() ?? '',
+                    ),
                 ],
                 if (!isUser && !widget.isGenerating)
                   DataBankCitationPreview(

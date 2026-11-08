@@ -54,10 +54,23 @@ void main() {
     final result = StatusBlockPromptService.parseAndValidate(
       raw,
       StatusBlockConfig.defaultConfig,
-      expectedNames: const ['Alice'],
+      userName: 'Alice',
     );
     expect(result.isComplete, isTrue);
     expect(result.snapshot!.characters.single.name, 'Alice');
     expect(result.snapshot!.characters.single.fields['穿搭'], 'coat');
+  });
+
+  test('prompt service remaps placeholder User to persona name', () {
+    const raw = '''
+{"characters":[{"name":"User","fields":{"穿搭":"coat","行动":"stand","内心":"calm","性唤起程度":"low"}}]}
+''';
+    final result = StatusBlockPromptService.parseAndValidate(
+      raw,
+      StatusBlockConfig.defaultConfig,
+      userName: '林晚',
+    );
+    expect(result.isComplete, isTrue);
+    expect(result.snapshot!.characters.single.name, '林晚');
   });
 }

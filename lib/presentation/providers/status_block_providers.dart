@@ -198,11 +198,11 @@ class StatusBlockSessionNotifier extends StateNotifier<StatusBlockSessionState> 
     required String chatId,
     required LLMConfig config,
     required List<Map<String, dynamic>> contextMessages,
-    required List<String> characterNames,
+    required String userName,
+    List<String> sceneCharacterHints = const [],
   }) async {
     final statusConfig = _ref.read(statusBlockConfigProvider);
     if (!statusConfig.enabled) return null;
-    if (characterNames.where((n) => n.trim().isNotEmpty).isEmpty) return null;
 
     final token = ++_generationToken;
     state = StatusBlockSessionState(
@@ -214,7 +214,8 @@ class StatusBlockSessionNotifier extends StateNotifier<StatusBlockSessionState> 
     try {
       final systemPrompt = StatusBlockPromptService.buildSystemPrompt(
         config: statusConfig,
-        characterNames: characterNames,
+        userName: userName,
+        sceneCharacterHints: sceneCharacterHints,
         previous: state.snapshot,
       );
       final messages = <Map<String, dynamic>>[
@@ -224,7 +225,7 @@ class StatusBlockSessionNotifier extends StateNotifier<StatusBlockSessionState> 
       final llm = _ref.read(llmServiceProvider);
       final statusLlmConfig = config.copyWith(
         streamEnabled: false,
-        maxTokens: (characterNames.length * 256).clamp(256, 2048),
+        maxTokens: ((1 + sceneCharacterHints.length) * 256).clamp(256, 2048),
       );
 
       final maxAttempts = 1 + StatusBlockPromptService.maxFormatRetries;
@@ -240,7 +241,7 @@ class StatusBlockSessionNotifier extends StateNotifier<StatusBlockSessionState> 
         final parsed = StatusBlockPromptService.parseAndValidate(
           response.content,
           statusConfig,
-          expectedNames: characterNames,
+          userName: userName,
         );
         if (parsed.isComplete && parsed.snapshot != null) {
           state = StatusBlockSessionState(

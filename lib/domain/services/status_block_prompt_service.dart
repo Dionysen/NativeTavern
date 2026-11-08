@@ -20,7 +20,8 @@ abstract final class StatusBlockPromptService {
 
   static String buildSystemPrompt({
     required StatusBlockConfig config,
-    required List<String> characterNames,
+    required String userName,
+    required List<String> sceneCharacterHints,
     StatusBlockSnapshot? previous,
   }) {
     final fields = config.normalizedFields()
@@ -30,11 +31,27 @@ abstract final class StatusBlockPromptService {
     for (final field in fields) {
       fieldLines.writeln('- ${field.label}');
     }
-    final characterLines = StringBuffer();
-    for (final name in characterNames) {
-      final trimmed = name.trim();
-      if (trimmed.isEmpty) continue;
-      characterLines.writeln('- $trimmed');
+
+    final resolvedUser =
+        userName.trim().isEmpty ? 'User' : userName.trim();
+    final characterLines = StringBuffer()
+      ..writeln(
+        '- User persona — "name" must be exactly "$resolvedUser"',
+      );
+    if (sceneCharacterHints.isEmpty) {
+      characterLines.writeln(
+        '- Main NPC(s) currently in the scene — use the name they have '
+        'in the story/dialogue, never the character-card file title',
+      );
+    } else {
+      for (final hint in sceneCharacterHints) {
+        final trimmed = hint.trim();
+        if (trimmed.isEmpty) continue;
+        characterLines.writeln(
+          '- Also cover this person if they are in the scene: "$trimmed" '
+          '(use their in-story name if the narrative calls them something else)',
+        );
+      }
     }
 
     var template = config.promptTemplate.trim();
@@ -45,6 +62,7 @@ abstract final class StatusBlockPromptService {
     return template
         .replaceAll('{{field_lines}}', fieldLines.toString().trim())
         .replaceAll('{{character_lines}}', characterLines.toString().trim())
+        .replaceAll('{{user_name}}', resolvedUser)
         .replaceAll(
           '{{previous_status}}',
           previous == null || previous.isEmpty
@@ -56,9 +74,9 @@ abstract final class StatusBlockPromptService {
   static StatusBlockValidationResult parseAndValidate(
     String raw,
     StatusBlockConfig config, {
-    required List<String> expectedNames,
+    String userName = '',
   }) {
-    final snapshot = parseSnapshot(raw, config);
+    final snapshot = parseSnapshot(raw, config, userName: userName);
     if (snapshot == null || snapshot.characters.isEmpty) {
       return const StatusBlockValidationResult(
         snapshot: null,
@@ -68,22 +86,16 @@ abstract final class StatusBlockPromptService {
       );
     }
 
-    final expected = expectedNames
-        .map((n) => n.trim())
+    final got = snapshot.characters
+        .map((c) => c.name.trim())
         .where((n) => n.isNotEmpty)
         .toSet();
-    if (expected.isNotEmpty) {
-      final got = snapshot.characters
-          .map((c) => c.name.trim())
-          .where((n) => n.isNotEmpty)
-          .toSet();
-      if (got.isEmpty) {
-        return StatusBlockValidationResult(
-          snapshot: snapshot,
-          isComplete: false,
-          validationError: 'Missing character names in status JSON.',
-        );
-      }
+    if (got.isEmpty) {
+      return StatusBlockValidationResult(
+        snapshot: snapshot,
+        isComplete: false,
+        validationError: 'Missing character names in status JSON.',
+      );
     }
 
     return StatusBlockValidationResult(
@@ -111,8 +123,9 @@ Use the exact field labels configured. Do not wrap in markdown.''';
 
   static StatusBlockSnapshot? parseSnapshot(
     String raw,
-    StatusBlockConfig config,
-  ) {
+    StatusBlockConfig config, {
+    String userName = '',
+  }) {
     final trimmed = raw.trim();
     if (trimmed.isEmpty) return null;
     final decoded = _decodeJsonCandidate(trimmed);
@@ -125,6 +138,7 @@ Use the exact field labels configured. Do not wrap in markdown.''';
     });
     if (snapshot.characters.isEmpty) return null;
 
+    final resolvedUser = userName.trim();
     final normalized = snapshot.characters.map((character) {
       final fields = <String, String>{};
       for (final entry in character.fields.entries) {
@@ -132,8 +146,21 @@ Use the exact field labels configured. Do not wrap in markdown.''';
         if (value.isEmpty) continue;
         fields[entry.key] = value;
       }
+      var name = character.name.trim();
+      if (resolvedUser.isNotEmpty &&
+          (name.isEmpty ||
+              name == 'User' ||
+              name == '{{user}}' ||
+              name == '👤 User' ||
+              name == '👤 {{user}}')) {
+        name = resolvedUser;
+      } else if (resolvedUser.isNotEmpty) {
+        name = name
+            .replaceAll('{{user}}', resolvedUser)
+            .replaceAll('{{persona}}', resolvedUser);
+      }
       return StatusCharacterSnapshot(
-        name: character.name.trim(),
+        name: name,
         fields: fields,
       );
     }).where((c) => c.name.isNotEmpty).toList(growable: false);

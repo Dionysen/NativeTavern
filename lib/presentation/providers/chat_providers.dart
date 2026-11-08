@@ -3515,8 +3515,8 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     if (!statusConfig.enabled) return;
 
     final assistant = state.messages.last;
-    final names = _statusCharacterNamesForGeneration();
-    if (names.isEmpty) return;
+    final userName = _statusUserDisplayName();
+    final sceneHints = _statusSceneCharacterHints();
 
     try {
       _ref.read(statusBlockContextRegistrationProvider);
@@ -3526,7 +3526,8 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
                 chatId: chatId,
                 config: config,
                 contextMessages: context,
-                characterNames: names,
+                userName: userName,
+                sceneCharacterHints: sceneHints,
               );
       if (!mounted || snapshot == null) return;
       await _attachStatusSnapshotToMessage(assistant.id, snapshot);
@@ -3535,42 +3536,42 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     }
   }
 
-  List<String> _statusCharacterNamesForGeneration() {
-    final names = <String>[];
+  String _statusUserDisplayName() {
     final persona = _ref.read(activePersonaProvider).valueOrNull;
-    final personaName = persona?.name.trim();
-    if (personaName != null && personaName.isNotEmpty) {
-      names.add(personaName);
+    final name = persona?.name.trim() ?? '';
+    return name.isEmpty ? 'User' : name;
+  }
+
+  /// Soft hints for who is in the scene. Prefer empty over card titles so the
+  /// model picks in-story names from the narrative instead of meta labels.
+  List<String> _statusSceneCharacterHints() {
+    final hints = <String>[];
+    final seen = <String>{};
+    final cardName = state.character?.name.trim() ?? '';
+
+    for (final message in state.messages.reversed) {
+      if (message.role != MessageRole.assistant) continue;
+      final name = (message.characterName ?? '').trim();
+      if (name.isEmpty || !seen.add(name)) continue;
+      // Skip raw card titles in 1:1 — they are meta, not scenario names.
+      if (state.group == null && cardName.isNotEmpty && name == cardName) {
+        continue;
+      }
+      hints.add(name);
+      if (hints.length >= 3) break;
     }
+    if (hints.isNotEmpty) return hints;
 
     if (state.group != null) {
-      final recent = state.messages.reversed
-          .where((m) => m.role == MessageRole.assistant)
-          .take(6);
-      final seen = <String>{};
-      for (final message in recent) {
-        final name = (message.characterName ?? '').trim();
+      for (final member in state.group!.members.where((m) => !m.isMuted)) {
+        final character = state.groupCharacters[member.characterId];
+        final name = character?.name.trim() ?? '';
         if (name.isEmpty || !seen.add(name)) continue;
-        names.add(name);
-        if (names.length >= 4) break;
-      }
-      if (names.length < 2) {
-        for (final member in state.group!.members.where((m) => !m.isMuted)) {
-          final character =
-              state.groupCharacters[member.characterId];
-          final name = character?.name.trim() ?? '';
-          if (name.isEmpty || !seen.add(name)) continue;
-          names.add(name);
-          if (names.length >= 4) break;
-        }
-      }
-    } else {
-      final characterName = state.character?.name.trim();
-      if (characterName != null && characterName.isNotEmpty) {
-        names.add(characterName);
+        hints.add(name);
+        if (hints.length >= 3) break;
       }
     }
-    return names;
+    return hints;
   }
 
   Future<void> _attachStatusSnapshotToMessage(
