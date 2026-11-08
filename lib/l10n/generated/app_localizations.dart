@@ -3441,6 +3441,30 @@ abstract class AppLocalizations {
   /// **'Maximum tokens to generate.'**
   String get maxTokensDescription;
 
+  /// Minimum AI reply character count setting
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum reply length'**
+  String get replyMinChars;
+
+  /// Minimum AI reply character count description
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the AI to write at least this many characters. 0 turns it off. Too-short replies may be expanded automatically.'**
+  String get replyMinCharsDescription;
+
+  /// Maximum AI reply character count setting
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum reply length'**
+  String get replyMaxChars;
+
+  /// Maximum AI reply character count description
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the AI to keep replies at or below this many characters. 0 turns it off. Overlong replies may be trimmed.'**
+  String get replyMaxCharsDescription;
+
   /// Seed label
   ///
   /// In en, this message translates to:

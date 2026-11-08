@@ -25,6 +25,7 @@ import 'package:native_tavern/domain/services/chat_regex_facade.dart';
 import 'package:native_tavern/domain/services/macro_service.dart';
 import 'package:native_tavern/domain/services/chat_summarization_service.dart';
 import 'package:native_tavern/domain/services/chat_generation_pipeline.dart';
+import 'package:native_tavern/domain/services/reply_length_policy.dart';
 import 'package:native_tavern/domain/services/tokenizer_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/chat_extension_providers.dart';
@@ -396,7 +397,9 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     ChatGenerationSession? generationSession,
   }) async {
     final session = generationSession ?? _activeGenerationSession;
-    if (session == null) return messages;
+    if (session == null) {
+      return _appendReplyLengthConstraint(messages);
+    }
     final result = await session.assemble(
       messages,
       conversationStartIndex: conversationStartIndex,
@@ -411,7 +414,155 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         session.cancellationToken.reason ?? 'Cancelled',
       );
     }
-    return result.messages;
+    return _appendReplyLengthConstraint(
+      result.messages,
+      generationSession: session,
+    );
+  }
+
+  List<Map<String, dynamic>> _appendReplyLengthConstraint(
+    List<Map<String, dynamic>> messages, {
+    ChatGenerationSession? generationSession,
+  }) {
+    final session = generationSession ?? _activeGenerationSession;
+    if (session?.mode == ChatGenerationMode.impersonate) {
+      return messages;
+    }
+    final settings = _ref.read(appSettingsProvider);
+    final hint = ReplyLengthPolicy.promptHint(
+      minChars: settings.replyMinChars,
+      maxChars: settings.replyMaxChars,
+    );
+    if (hint == null) return messages;
+    return [
+      ...messages,
+      {'role': 'system', 'content': hint},
+    ];
+  }
+
+  LLMConfig _withReplyLengthTokenCap(LLMConfig config) {
+    final maxChars = _ref.read(appSettingsProvider).replyMaxChars;
+    if (maxChars <= 0) return config;
+    final capped = ReplyLengthPolicy.estimateMaxTokens(
+      maxChars,
+      currentMaxTokens: config.maxTokens,
+    );
+    if (capped >= config.maxTokens) return config;
+    return config.copyWith(maxTokens: capped);
+  }
+
+  void _previewMessageContent(int messageIndex, String content) {
+    if (messageIndex < 0 || messageIndex >= state.messages.length) return;
+    final message = state.messages[messageIndex];
+    final swipes = List<String>.from(message.swipes);
+    if (swipes.isEmpty) {
+      swipes.add(content);
+    } else {
+      final swipeIndex =
+          message.currentSwipeIndex.clamp(0, swipes.length - 1);
+      swipes[swipeIndex] = content;
+    }
+    final updated = List<ChatMessage>.from(state.messages);
+    updated[messageIndex] = message.copyWith(
+      content: content,
+      swipes: swipes,
+    );
+    state = state.copyWith(messages: updated);
+  }
+
+  /// Truncate oversized replies and optionally re-ask the model to expand
+  /// undersized ones before persistence.
+  Future<String> _enforceReplyLengthLimits(
+    String content,
+    LLMConfig config, {
+    required int messageIndex,
+    int? repairContextUpTo,
+    String? characterId,
+    String? characterName,
+  }) async {
+    final settings = _ref.read(appSettingsProvider);
+    final bounds = ReplyLengthPolicy.normalize(
+      minChars: settings.replyMinChars,
+      maxChars: settings.replyMaxChars,
+    );
+    if (!ReplyLengthPolicy.isEnabled(
+      minChars: bounds.minChars,
+      maxChars: bounds.maxChars,
+    )) {
+      return content;
+    }
+
+    var result = content;
+    void publish(String next) {
+      result = next;
+      _previewMessageContent(messageIndex, next);
+    }
+
+    if (bounds.maxChars > 0 &&
+        ReplyLengthPolicy.countChars(result) > bounds.maxChars) {
+      publish(ReplyLengthPolicy.truncateToMax(result, bounds.maxChars));
+    }
+
+    var attempts = 0;
+    while (bounds.minChars > 0 &&
+        ReplyLengthPolicy.countChars(result) < bounds.minChars &&
+        attempts < ReplyLengthPolicy.maxExpandAttempts) {
+      if (_isCancelling) break;
+      attempts++;
+      final expanded = await _requestReplyLengthExpansion(
+        currentContent: result,
+        minChars: bounds.minChars,
+        maxChars: bounds.maxChars,
+        config: config,
+        repairContextUpTo: repairContextUpTo,
+      );
+      if (expanded == null || expanded.trim().isEmpty) break;
+      var next = _persistAiRegex(
+        expanded,
+        characterId: characterId,
+        characterName: characterName,
+      );
+      if (bounds.maxChars > 0 &&
+          ReplyLengthPolicy.countChars(next) > bounds.maxChars) {
+        next = ReplyLengthPolicy.truncateToMax(next, bounds.maxChars);
+      }
+      publish(next);
+    }
+
+    return result;
+  }
+
+  Future<String?> _requestReplyLengthExpansion({
+    required String currentContent,
+    required int minChars,
+    required int maxChars,
+    required LLMConfig config,
+    int? repairContextUpTo,
+  }) async {
+    try {
+      final context = repairContextUpTo != null
+          ? await _buildContextUpTo(repairContextUpTo)
+          : await _buildContext(excludeLastAssistant: true);
+      context.add({'role': 'assistant', 'content': currentContent});
+      context.add({
+        'role': 'system',
+        'content': ReplyLengthPolicy.expandInstruction(
+          currentChars: ReplyLengthPolicy.countChars(currentContent),
+          minChars: minChars,
+          maxChars: maxChars,
+        ),
+      });
+      final capped = _withReplyLengthTokenCap(config);
+      final response =
+          await _llmService.generateWithReasoning(context, capped);
+      return response.content;
+    } catch (e, stackTrace) {
+      if (e is ChatGenerationCancelledException) rethrow;
+      debugPrint(
+        '⚠️ Reply length expansion failed: $e\n$stackTrace',
+      );
+      return null;
+    }
   }
 
   Map<String, dynamic> _newAssistantMetadata() {
@@ -528,14 +679,18 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     LLMConfig config, {
     ChatGenerationSession? generationSession,
   }) async* {
+    final cappedConfig = _withReplyLengthTokenCap(config);
     final session = generationSession ?? _activeGenerationSession;
     if (session == null) {
-      yield* _toolAwareStream(context, config);
+      yield* _toolAwareStream(context, cappedConfig);
       return;
     }
 
     Stream<LLMStreamChunk> transport(ChatGenerationRequest request) async* {
-      yield* _toolAwareStream(request.messages, request.config);
+      yield* _toolAwareStream(
+        request.messages,
+        _withReplyLengthTokenCap(request.config),
+      );
     }
 
     try {
@@ -551,15 +706,16 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     LLMConfig config, {
     ChatGenerationSession? generationSession,
   }) async {
+    final cappedConfig = _withReplyLengthTokenCap(config);
     final session = generationSession ?? _activeGenerationSession;
     final prefill = state.chat?.startReplyWith ?? '';
     try {
       if (session == null) {
         final response =
-            await _generateWithTools(_withPrefill(context), config) ??
+            await _generateWithTools(_withPrefill(context), cappedConfig) ??
                 await _llmService.generateWithReasoning(
                   _withPrefill(context),
-                  config,
+                  cappedConfig,
                 );
         if (prefill.isEmpty) return response;
         return LLMResponse(
@@ -568,13 +724,14 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         );
       }
       return await session.generate(context, (request) async {
+        final requestConfig = _withReplyLengthTokenCap(request.config);
         final response = await _generateWithTools(
               _withPrefill(request.messages),
-              request.config,
+              requestConfig,
             ) ??
             await _llmService.generateWithReasoning(
               _withPrefill(request.messages),
-              request.config,
+              requestConfig,
             );
         if (prefill.isEmpty) return response;
         return LLMResponse(
@@ -591,15 +748,18 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     List<Map<String, dynamic>> context,
     LLMConfig config,
   ) async {
+    final cappedConfig = _withReplyLengthTokenCap(config);
     final session = _activeGenerationSession;
     try {
       if (session == null) {
-        return _llmService.generateWithReasoning(context, config);
+        return await _llmService.generateWithReasoning(context, cappedConfig);
       }
       return await session.generate(
         context,
-        (request) =>
-            _llmService.generateWithReasoning(request.messages, request.config),
+        (request) => _llmService.generateWithReasoning(
+          request.messages,
+          _withReplyLengthTokenCap(request.config),
+        ),
       );
     } finally {
       if (session != null) _closeGenerationSession(session);
@@ -1172,6 +1332,11 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       }
 
       finalContent = _persistAiRegex(finalContent);
+      finalContent = await _enforceReplyLengthLimits(
+        finalContent,
+        config,
+        messageIndex: state.messages.length - 1,
+      );
       final statsMeta = _recordGenerationStats(
         completionText: finalContent,
         reasoningText: finalReasoning,
@@ -1290,6 +1455,11 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       }
 
       finalContent = _persistAiRegex(finalContent);
+      finalContent = await _enforceReplyLengthLimits(
+        finalContent,
+        config,
+        messageIndex: state.messages.length - 1,
+      );
       final statsMeta = _recordGenerationStats(
         completionText: finalContent,
         reasoningText: finalReasoning,
@@ -1597,6 +1767,12 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       }
 
       finalContent = _persistAiRegex(finalContent);
+      finalContent = await _enforceReplyLengthLimits(
+        finalContent,
+        config,
+        messageIndex: messageIndex,
+        repairContextUpTo: messageIndex,
+      );
       final statsMeta = _recordGenerationStats(
         completionText: finalContent,
         reasoningText: finalReasoning,
@@ -1825,6 +2001,11 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       }
 
       finalContent = _persistAiRegex(finalContent);
+      finalContent = await _enforceReplyLengthLimits(
+        finalContent,
+        config,
+        messageIndex: state.messages.length - 1,
+      );
       final statsMeta = _recordGenerationStats(
         completionText: finalContent,
         reasoningText: finalReasoning,
@@ -3890,6 +4071,15 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
       finalContent = _persistAiRegex(
         finalContent,
+        characterId: assistantMessage.characterId,
+        characterName: assistantMessage.characterName,
+      );
+      final messageIndex =
+          state.messages.indexWhere((m) => m.id == assistantMessage.id);
+      finalContent = await _enforceReplyLengthLimits(
+        finalContent,
+        config,
+        messageIndex: messageIndex >= 0 ? messageIndex : state.messages.length - 1,
         characterId: assistantMessage.characterId,
         characterName: assistantMessage.characterName,
       );

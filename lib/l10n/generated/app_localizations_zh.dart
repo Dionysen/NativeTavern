@@ -1816,6 +1816,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get maxTokensDescription => '最多生成的 Token 数。';
 
   @override
+  String get replyMinChars => '最短回复字数';
+
+  @override
+  String get replyMinCharsDescription => '希望 AI 至少写这么多字。填 0 表示不限制。太短时可能会自动加长。';
+
+  @override
+  String get replyMaxChars => '最长回复字数';
+
+  @override
+  String get replyMaxCharsDescription =>
+      '希望 AI 回复不超过这么多字。填 0 表示不限制。太长时可能会自动截断。';
+
+  @override
   String get seed => '种子';
 
   @override
@@ -8976,6 +8989,19 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get maxTokensDescription => '最多產生的 Token 數。';
+
+  @override
+  String get replyMinChars => '最短回覆字數';
+
+  @override
+  String get replyMinCharsDescription => '希望 AI 至少寫這麼多字。填 0 表示不限制。太短時可能會自動加長。';
+
+  @override
+  String get replyMaxChars => '最長回覆字數';
+
+  @override
+  String get replyMaxCharsDescription =>
+      '希望 AI 回覆不超過這麼多字。填 0 表示不限制。太長時可能會自動截斷。';
 
   @override
   String get seed => '種子';

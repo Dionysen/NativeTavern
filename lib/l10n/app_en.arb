@@ -2623,6 +2623,22 @@
   "@maxTokensDescription": {
     "description": "Max tokens description"
   },
+  "replyMinChars": "Minimum reply length",
+  "@replyMinChars": {
+    "description": "Minimum AI reply character count setting"
+  },
+  "replyMinCharsDescription": "Ask the AI to write at least this many characters. 0 turns it off. Too-short replies may be expanded automatically.",
+  "@replyMinCharsDescription": {
+    "description": "Minimum AI reply character count description"
+  },
+  "replyMaxChars": "Maximum reply length",
+  "@replyMaxChars": {
+    "description": "Maximum AI reply character count setting"
+  },
+  "replyMaxCharsDescription": "Ask the AI to keep replies at or below this many characters. 0 turns it off. Overlong replies may be trimmed.",
+  "@replyMaxCharsDescription": {
+    "description": "Maximum AI reply character count description"
+  },
   "seed": "Seed",
   "@seed": {
     "description": "Seed label"

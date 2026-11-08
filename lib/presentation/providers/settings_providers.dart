@@ -821,6 +821,16 @@ class AppSettings {
   final int storyTurnsPerChapter;
   final double storyHighConfidenceThreshold;
   final bool momentsEnabled;
+  /// Minimum non-whitespace characters in an AI reply. 0 = no minimum.
+  final int replyMinChars;
+  /// Maximum non-whitespace characters in an AI reply. 0 = no maximum.
+  final int replyMaxChars;
+  /// Bumped when product defaults for reply length change.
+  final int replyLengthDefaultsVersion;
+
+  static const defaultReplyMinChars = 1000;
+  static const defaultReplyMaxChars = 10000;
+  static const currentReplyLengthDefaultsVersion = 1;
 
   const AppSettings({
     this.theme = 'dark',
@@ -852,6 +862,9 @@ class AppSettings {
     this.storyTurnsPerChapter = 20,
     this.storyHighConfidenceThreshold = 0.8,
     this.momentsEnabled = false,
+    this.replyMinChars = defaultReplyMinChars,
+    this.replyMaxChars = defaultReplyMaxChars,
+    this.replyLengthDefaultsVersion = currentReplyLengthDefaultsVersion,
   });
 
   AppSettings copyWith({
@@ -884,6 +897,9 @@ class AppSettings {
     int? storyTurnsPerChapter,
     double? storyHighConfidenceThreshold,
     bool? momentsEnabled,
+    int? replyMinChars,
+    int? replyMaxChars,
+    int? replyLengthDefaultsVersion,
   }) {
     return AppSettings(
       theme: theme ?? this.theme,
@@ -925,6 +941,10 @@ class AppSettings {
       storyHighConfidenceThreshold:
           storyHighConfidenceThreshold ?? this.storyHighConfidenceThreshold,
       momentsEnabled: momentsEnabled ?? this.momentsEnabled,
+      replyMinChars: replyMinChars ?? this.replyMinChars,
+      replyMaxChars: replyMaxChars ?? this.replyMaxChars,
+      replyLengthDefaultsVersion:
+          replyLengthDefaultsVersion ?? this.replyLengthDefaultsVersion,
     );
   }
 
@@ -958,9 +978,29 @@ class AppSettings {
         'storyTurnsPerChapter': storyTurnsPerChapter,
         'storyHighConfidenceThreshold': storyHighConfidenceThreshold,
         'momentsEnabled': momentsEnabled,
+        'replyMinChars': replyMinChars,
+        'replyMaxChars': replyMaxChars,
+        'replyLengthDefaultsVersion': replyLengthDefaultsVersion,
       };
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
+    final storedVersion =
+        (json['replyLengthDefaultsVersion'] as num?)?.toInt() ?? 0;
+    final hasReplyMin = json.containsKey('replyMinChars');
+    final hasReplyMax = json.containsKey('replyMaxChars');
+    // First ship used 0/0. Promote untouched installs to the product defaults.
+    final migrateLegacyOffDefaults = storedVersion <
+            currentReplyLengthDefaultsVersion &&
+        (!hasReplyMin || (json['replyMinChars'] as num?)?.toInt() == 0) &&
+        (!hasReplyMax || (json['replyMaxChars'] as num?)?.toInt() == 0);
+    final bounds = normalizeReplyCharBounds(
+      minChars: migrateLegacyOffDefaults
+          ? defaultReplyMinChars
+          : (json['replyMinChars'] as num?)?.toInt() ?? defaultReplyMinChars,
+      maxChars: migrateLegacyOffDefaults
+          ? defaultReplyMaxChars
+          : (json['replyMaxChars'] as num?)?.toInt() ?? defaultReplyMaxChars,
+    );
     return AppSettings(
       theme: json['theme'] as String? ?? 'dark',
       language: json['language'] as String? ?? 'en',
@@ -1010,6 +1050,9 @@ class AppSettings {
         (json['storyHighConfidenceThreshold'] as num?)?.toDouble(),
       ),
       momentsEnabled: json['momentsEnabled'] as bool? ?? false,
+      replyMinChars: bounds.minChars,
+      replyMaxChars: bounds.maxChars,
+      replyLengthDefaultsVersion: currentReplyLengthDefaultsVersion,
     );
   }
 
@@ -1049,6 +1092,21 @@ class AppSettings {
     if (value == null || !value.isFinite) return 0.8;
     return value.clamp(0.5, 1.0).toDouble();
   }
+
+  /// 0 disables that bound. Values are clamped to a practical range.
+  static ({int minChars, int maxChars}) normalizeReplyCharBounds({
+    int? minChars,
+    int? maxChars,
+  }) {
+    var min = (minChars ?? 0).clamp(0, 100000);
+    var max = (maxChars ?? 0).clamp(0, 100000);
+    if (min > 0 && max > 0 && min > max) {
+      final tmp = min;
+      min = max;
+      max = tmp;
+    }
+    return (minChars: min, maxChars: max);
+  }
 }
 
 /// App settings notifier
@@ -1083,10 +1141,19 @@ class AppSettingsNotifier extends StateNotifier<AppSettings> {
     if (jsonStr != null) {
       try {
         final map = jsonDecode(jsonStr) as Map<String, dynamic>;
+        final previousReplyDefaultsVersion =
+            (map['replyLengthDefaultsVersion'] as num?)?.toInt() ?? 0;
         state = AppSettings.fromJson(map);
 
-        if (needsMigration) {
-          _log('Migrating App Settings from SharedPreferences to Database');
+        final replyDefaultsMigrated = previousReplyDefaultsVersion <
+            AppSettings.currentReplyLengthDefaultsVersion;
+        if (needsMigration || replyDefaultsMigrated) {
+          if (needsMigration) {
+            _log('Migrating App Settings from SharedPreferences to Database');
+          }
+          if (replyDefaultsMigrated) {
+            _log('Migrating reply length defaults to 1000–10000');
+          }
           _saveSettings();
         }
       } catch (e) {
@@ -1266,6 +1333,30 @@ class AppSettingsNotifier extends StateNotifier<AppSettings> {
 
   void updateMomentsEnabled(bool enabled) {
     state = state.copyWith(momentsEnabled: enabled);
+    _saveSettings();
+  }
+
+  void updateReplyMinChars(int value) {
+    final bounds = AppSettings.normalizeReplyCharBounds(
+      minChars: value,
+      maxChars: state.replyMaxChars,
+    );
+    state = state.copyWith(
+      replyMinChars: bounds.minChars,
+      replyMaxChars: bounds.maxChars,
+    );
+    _saveSettings();
+  }
+
+  void updateReplyMaxChars(int value) {
+    final bounds = AppSettings.normalizeReplyCharBounds(
+      minChars: state.replyMinChars,
+      maxChars: value,
+    );
+    state = state.copyWith(
+      replyMinChars: bounds.minChars,
+      replyMaxChars: bounds.maxChars,
+    );
     _saveSettings();
   }
 

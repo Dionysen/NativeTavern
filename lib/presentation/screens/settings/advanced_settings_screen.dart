@@ -267,6 +267,35 @@ class AdvancedSettingsScreen extends ConsumerWidget {
                 onChanged: (v) =>
                     ref.read(llmConfigProvider.notifier).updateMaxTokens(v),
               ),
+              Builder(
+                builder: (context) {
+                  final appSettings = ref.watch(appSettingsProvider);
+                  return Column(
+                    children: [
+                      _buildIntInputTile(
+                        context: context,
+                        ref: ref,
+                        title: l10n.replyMinChars,
+                        subtitle: l10n.replyMinCharsDescription,
+                        value: appSettings.replyMinChars,
+                        onChanged: (v) => ref
+                            .read(appSettingsProvider.notifier)
+                            .updateReplyMinChars(v),
+                      ),
+                      _buildIntInputTile(
+                        context: context,
+                        ref: ref,
+                        title: l10n.replyMaxChars,
+                        subtitle: l10n.replyMaxCharsDescription,
+                        value: appSettings.replyMaxChars,
+                        onChanged: (v) => ref
+                            .read(appSettingsProvider.notifier)
+                            .updateReplyMaxChars(v),
+                      ),
+                    ],
+                  );
+                },
+              ),
               _buildIntInputTile(
                 context: context,
                 ref: ref,

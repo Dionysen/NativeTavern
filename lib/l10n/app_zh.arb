@@ -2221,6 +2221,22 @@
   "@maxTokensDescription": {
     "description": "Max tokens description"
   },
+  "replyMinChars": "最短回复字数",
+  "@replyMinChars": {
+    "description": "Minimum AI reply character count setting"
+  },
+  "replyMinCharsDescription": "希望 AI 至少写这么多字。填 0 表示不限制。太短时可能会自动加长。",
+  "@replyMinCharsDescription": {
+    "description": "Minimum AI reply character count description"
+  },
+  "replyMaxChars": "最长回复字数",
+  "@replyMaxChars": {
+    "description": "Maximum AI reply character count setting"
+  },
+  "replyMaxCharsDescription": "希望 AI 回复不超过这么多字。填 0 表示不限制。太长时可能会自动截断。",
+  "@replyMaxCharsDescription": {
+    "description": "Maximum AI reply character count description"
+  },
   "seed": "种子",
   "@seed": {
     "description": "Seed label"

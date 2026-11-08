@@ -1866,6 +1866,20 @@ class AppLocalizationsVi extends AppLocalizations {
   String get maxTokensDescription => 'Maximum tokens to generate.';
 
   @override
+  String get replyMinChars => 'Minimum reply length';
+
+  @override
+  String get replyMinCharsDescription =>
+      'Ask the AI to write at least this many characters. 0 turns it off. Too-short replies may be expanded automatically.';
+
+  @override
+  String get replyMaxChars => 'Maximum reply length';
+
+  @override
+  String get replyMaxCharsDescription =>
+      'Ask the AI to keep replies at or below this many characters. 0 turns it off. Overlong replies may be trimmed.';
+
+  @override
   String get seed => 'Seed';
 
   @override
