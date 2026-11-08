@@ -2810,19 +2810,19 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
     for (final wi in allWorldInfos) {
       final included = allWorldInfoIds.contains(wi.id);
+      if (!included) continue;
+
       final isGlobalMatch = wi.isGlobal;
       final isCharacterMatch = wi.characterId == character.id;
       final isManuallyActive = activeIds.contains(wi.id);
 
-      final status = included ? '✅ INCLUDED' : '❌ EXCLUDED';
       final reasons = <String>[];
-      if (!wi.enabled) reasons.add('disabled');
       if (isGlobalMatch) reasons.add('global (isGlobal=true)');
       if (isCharacterMatch) reasons.add('linked to this character');
       if (isManuallyActive) reasons.add('manually activated');
 
       debugPrint('║');
-      debugPrint('║ $status ${wi.name}');
+      debugPrint('║ ✅ INCLUDED ${wi.name}');
       debugPrint('║   • ID: ${wi.id}');
       debugPrint('║   • Entries: ${wi.entries.length}');
       debugPrint('║   • enabled: ${wi.enabled}');
@@ -2832,14 +2832,6 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       );
       if (reasons.isNotEmpty) {
         debugPrint('║   • Reasons: ${reasons.join(", ")}');
-      }
-      if (!wi.enabled) {
-        debugPrint('║   ⚠️ World Info is DISABLED - will not be used!');
-      }
-      if (!wi.isGlobal && wi.characterId == null && !isManuallyActive) {
-        debugPrint(
-          '║   ℹ️ Not global and not linked - enable isGlobal to use with all characters',
-        );
       }
     }
 
