@@ -544,8 +544,10 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     // Convert horizontal rule
     result = result.replaceAll(RegExp(r'<hr\s*/?\s*>', caseSensitive: false), '\n---\n');
     
-    // Convert line breaks to paragraph breaks (Markdown needs a blank line).
-    // Keep fenced code intact so a lone <br> inside ``` cannot become \n\n.
+    // Convert <br> to a single newline (soft break with softLineBreak: true).
+    // Do not emit blank lines here — paragraph gaps come from real <p>/<div>
+    // and the user's spacing settings. Consume an optional trailing \n left by
+    // preserveHtmlTextNewlines so "<br>\n" does not become "\n\n".
     final mdFences = <String>[];
     result = result.replaceAllMapped(
       RegExp(r'(```[^\n]*\n[\s\S]*?```|~~~[^\n]*\n[\s\S]*?~~~)'),
@@ -556,8 +558,8 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       },
     );
     result = result.replaceAll(
-      RegExp(r'<br\s*/?\s*>', caseSensitive: false),
-      '\n\n',
+      RegExp(r'<br\s*/?\s*>\n?', caseSensitive: false),
+      '\n',
     );
     for (var i = 0; i < mdFences.length; i++) {
       result = result.replaceFirst('\u0000MD_FENCE_$i\u0000', mdFences[i]);

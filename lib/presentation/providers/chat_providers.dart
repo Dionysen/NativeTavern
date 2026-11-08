@@ -44,6 +44,9 @@ import 'package:native_tavern/presentation/providers/tool_calling_providers.dart
 import 'package:native_tavern/presentation/providers/vector_storage_providers.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_choice_providers.dart';
+import 'package:native_tavern/presentation/providers/status_block_providers.dart';
+import 'package:native_tavern/data/models/status_block_config.dart';
+import 'package:native_tavern/domain/services/status_block_parser.dart';
 
 // Note: Repository providers are defined in their respective repository files
 // llmServiceProvider is defined in settings_providers.dart
@@ -705,6 +708,14 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
           hasUnsavedChanges: false,
         );
       }
+      _ref.read(statusBlockSessionProvider.notifier).clearForChat(chatId);
+      _ref
+          .read(statusBlockSessionProvider.notifier)
+          .hydrateFromMessages(messages);
+      _ref.read(statusBlockContextRegistrationProvider);
+      if (character != null) {
+        _maybeAutoDisableStatusForCard(character);
+      }
     } catch (e, stackTrace) {
       if (loadGeneration != _chatLoadGeneration) return;
       debugPrint('❌ ChatProvider error: $e\n$stackTrace');
@@ -1080,6 +1091,9 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
     await _persistAddMessage(userMessage);
     _ref.read(chatChoiceSessionProvider.notifier).clearForUserSend();
+    _ref.read(statusBlockSessionProvider.notifier).clearForUserSend();
+    // Ensure status context contributor stays registered for this session.
+    _ref.read(statusBlockContextRegistrationProvider);
     state = state.copyWith(
       messages: [...state.messages, userMessage],
       isGenerating: true,
@@ -1182,7 +1196,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
           config: config,
         ),
       );
-      unawaited(_refreshReplyChoicesIfEnabled(config));
+      unawaited(_refreshPostReplyAuxiliaries(config));
     } catch (e, stackTrace) {
       _generationStopwatch = null;
       _closeGenerationSession();
@@ -1309,7 +1323,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
       state = state.copyWith(isGenerating: false);
       await _restoreRecentMessagesPage();
-      unawaited(_refreshReplyChoicesIfEnabled(config));
+      unawaited(_refreshPostReplyAuxiliaries(config));
     } catch (e, stackTrace) {
       _generationStopwatch = null;
       _closeGenerationSession();
@@ -1616,7 +1630,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
       state = state.copyWith(isGenerating: false);
       await _restoreRecentMessagesPage();
-      unawaited(_refreshReplyChoicesIfEnabled(config));
+      unawaited(_refreshPostReplyAuxiliaries(config));
     } catch (e, stackTrace) {
       _generationStopwatch = null;
       _closeGenerationSession();
@@ -1828,7 +1842,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
       state = state.copyWith(isGenerating: false);
       await _restoreRecentMessagesPage();
-      unawaited(_refreshReplyChoicesIfEnabled(config));
+      unawaited(_refreshPostReplyAuxiliaries(config));
     } catch (e, stackTrace) {
       _generationStopwatch = null;
       _closeGenerationSession();
@@ -3339,6 +3353,8 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
 
     await _persistAddMessage(userMessage);
     _ref.read(chatChoiceSessionProvider.notifier).clearForUserSend();
+    _ref.read(statusBlockSessionProvider.notifier).clearForUserSend();
+    _ref.read(statusBlockContextRegistrationProvider);
     state = state.copyWith(
       messages: [...state.messages, userMessage],
       error: null,
@@ -3364,7 +3380,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
           config: config,
         ),
       );
-      unawaited(_refreshReplyChoicesIfEnabled(config));
+      unawaited(_refreshPostReplyAuxiliaries(config));
     }
     await _restoreRecentMessagesPage();
   }
@@ -3437,6 +3453,11 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     return _buildContext();
   }
 
+  Future<void> _refreshPostReplyAuxiliaries(LLMConfig config) async {
+    unawaited(_refreshReplyChoicesIfEnabled(config));
+    unawaited(_refreshStatusBlockIfEnabled(config));
+  }
+
   Future<void> _refreshReplyChoicesIfEnabled(LLMConfig config) async {
     if (!mounted) return;
     final chatId = state.chat?.id;
@@ -3457,6 +3478,116 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     } catch (error, stackTrace) {
       debugPrint('Reply choice generation failed: $error\n$stackTrace');
     }
+  }
+
+  /// Manual refresh from the status panel (same path as post-reply generation).
+  Future<void> refreshStatusBlockManually(LLMConfig config) {
+    return _refreshStatusBlockIfEnabled(config);
+  }
+
+  void _maybeAutoDisableStatusForCard(Character character) {
+    final config = _ref.read(statusBlockConfigProvider);
+    if (!config.autoDisableWhenCardHasStatus) return;
+    if (!StatusBlockParser.characterHasStatusBlock(character)) return;
+    // Preference only: leave built-in off; do not force-disable if user
+    // already turned it on for this device.
+    if (config.enabled) return;
+  }
+
+  Future<void> _refreshStatusBlockIfEnabled(LLMConfig config) async {
+    if (!mounted) return;
+    final chatId = state.chat?.id;
+    if (chatId == null) return;
+    if (state.messages.isEmpty ||
+        state.messages.last.role != MessageRole.assistant) {
+      return;
+    }
+
+    var statusConfig = _ref.read(statusBlockConfigProvider);
+    final character = state.character;
+    if (character != null &&
+        statusConfig.autoDisableWhenCardHasStatus &&
+        StatusBlockParser.characterHasStatusBlock(character) &&
+        !statusConfig.enabled) {
+      // Card already ships status; keep built-in off unless user enabled it.
+      return;
+    }
+    if (!statusConfig.enabled) return;
+
+    final assistant = state.messages.last;
+    final names = _statusCharacterNamesForGeneration();
+    if (names.isEmpty) return;
+
+    try {
+      _ref.read(statusBlockContextRegistrationProvider);
+      final context = await _buildContext();
+      final snapshot =
+          await _ref.read(statusBlockSessionProvider.notifier).generateForChat(
+                chatId: chatId,
+                config: config,
+                contextMessages: context,
+                characterNames: names,
+              );
+      if (!mounted || snapshot == null) return;
+      await _attachStatusSnapshotToMessage(assistant.id, snapshot);
+    } catch (error, stackTrace) {
+      debugPrint('Status block generation failed: $error\n$stackTrace');
+    }
+  }
+
+  List<String> _statusCharacterNamesForGeneration() {
+    final names = <String>[];
+    final persona = _ref.read(activePersonaProvider).valueOrNull;
+    final personaName = persona?.name.trim();
+    if (personaName != null && personaName.isNotEmpty) {
+      names.add(personaName);
+    }
+
+    if (state.group != null) {
+      final recent = state.messages.reversed
+          .where((m) => m.role == MessageRole.assistant)
+          .take(6);
+      final seen = <String>{};
+      for (final message in recent) {
+        final name = (message.characterName ?? '').trim();
+        if (name.isEmpty || !seen.add(name)) continue;
+        names.add(name);
+        if (names.length >= 4) break;
+      }
+      if (names.length < 2) {
+        for (final member in state.group!.members.where((m) => !m.isMuted)) {
+          final character =
+              state.groupCharacters[member.characterId];
+          final name = character?.name.trim() ?? '';
+          if (name.isEmpty || !seen.add(name)) continue;
+          names.add(name);
+          if (names.length >= 4) break;
+        }
+      }
+    } else {
+      final characterName = state.character?.name.trim();
+      if (characterName != null && characterName.isNotEmpty) {
+        names.add(characterName);
+      }
+    }
+    return names;
+  }
+
+  Future<void> _attachStatusSnapshotToMessage(
+    String messageId,
+    StatusBlockSnapshot snapshot,
+  ) async {
+    final index = state.messages.indexWhere((m) => m.id == messageId);
+    if (index < 0) return;
+    final message = state.messages[index];
+    final metadata = Map<String, dynamic>.from(message.metadata);
+    metadata[StatusBlockSnapshot.metadataKey] = snapshot.toJson();
+    final updated = message.copyWith(metadata: metadata);
+    await _persistUpdateMessage(updated);
+    if (!mounted) return;
+    final messages = List<ChatMessage>.from(state.messages);
+    messages[index] = updated;
+    state = state.copyWith(messages: messages);
   }
 
   /// Select which characters should respond based on group settings

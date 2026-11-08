@@ -953,6 +953,99 @@
   "@unpinReplyChoicesPanel": {
     "description": "Tooltip to allow reply choices panel to auto-hide"
   },
+  "characterStatus": "Character status",
+  "@characterStatus": {
+    "description": "Built-in character status panel title"
+  },
+  "enableCharacterStatus": "Generate status after replies",
+  "@enableCharacterStatus": {
+    "description": "Toggle for built-in status generation"
+  },
+  "enableCharacterStatusHint": "After each AI message, update status for characters in the scene",
+  "@enableCharacterStatusHint": {
+    "description": "Subtitle for status generation toggle"
+  },
+  "characterStatusInjectContext": "Include status in next prompt",
+  "@characterStatusInjectContext": {
+    "description": "Toggle to inject last status into LLM context"
+  },
+  "characterStatusInjectContextHint": "Helps the AI keep status consistent across turns",
+  "@characterStatusInjectContextHint": {
+    "description": "Subtitle for status context injection toggle"
+  },
+  "characterStatusAutoDisableCard": "Prefer card status when present",
+  "@characterStatusAutoDisableCard": {
+    "description": "Auto-disable builtin when card already has status"
+  },
+  "characterStatusAutoDisableCardHint": "If this character card already includes a status block, leave built-in generation off",
+  "@characterStatusAutoDisableCardHint": {
+    "description": "Subtitle for card status preference"
+  },
+  "characterStatusCardDetected": "This character card already includes a status block",
+  "@characterStatusCardDetected": {
+    "description": "Hint when opening a card that has Status_block"
+  },
+  "characterStatusFields": "Status fields",
+  "@characterStatusFields": {
+    "description": "Section title for configurable status fields"
+  },
+  "characterStatusAddField": "Add field",
+  "@characterStatusAddField": {
+    "description": "Button to add a status field"
+  },
+  "characterStatusFieldLabel": "Field name",
+  "@characterStatusFieldLabel": {
+    "description": "Dialog label for new status field"
+  },
+  "characterStatusFieldLocked": "Required",
+  "@characterStatusFieldLocked": {
+    "description": "Badge for undeletable name field"
+  },
+  "characterStatusPromptTemplate": "Prompt template",
+  "@characterStatusPromptTemplate": {
+    "description": "Settings section for status generation prompt"
+  },
+  "characterStatusPromptPlaceholders": "Placeholders: field_lines, character_lines, previous_status (each wrapped in double curly braces)",
+  "@characterStatusPromptPlaceholders": {
+    "description": "Help text for status prompt placeholders"
+  },
+  "characterStatusDisabledTitle": "Character status is off",
+  "@characterStatusDisabledTitle": {
+    "description": "Panel title when feature disabled"
+  },
+  "characterStatusDisabledHint": "Turn on in settings to update character status after each reply.",
+  "@characterStatusDisabledHint": {
+    "description": "Panel body when feature disabled"
+  },
+  "openCharacterStatusSettings": "Open settings",
+  "@openCharacterStatusSettings": {
+    "description": "Button to open status settings"
+  },
+  "characterStatusGenerateFailed": "Could not generate status. Try again after the next reply.",
+  "@characterStatusGenerateFailed": {
+    "description": "Error when status generation fails"
+  },
+  "characterStatusEmpty": "No status yet. It appears after the character replies.",
+  "@characterStatusEmpty": {
+    "description": "Empty state in status panel"
+  },
+  "showCharacterStatus": "Character status",
+  "@showCharacterStatus": {
+    "description": "Chat composer button tooltip for status panel"
+  },
+  "pinCharacterStatusPanel": "Pin panel",
+  "@pinCharacterStatusPanel": {
+    "description": "Tooltip to keep status panel open"
+  },
+  "unpinCharacterStatusPanel": "Unpin panel",
+  "@unpinCharacterStatusPanel": {
+    "description": "Tooltip to allow status panel to auto-hide"
+  },
+  "deleteStatusField": "Remove field",
+  "@deleteStatusField": {
+    "description": "Action to delete a custom status field"
+  },
+
   "createQuickReply": "Create Quick Reply",
   "@createQuickReply": {
     "description": "Create quick reply button"

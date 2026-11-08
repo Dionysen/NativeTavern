@@ -298,6 +298,15 @@ class ChatRepository {
     return row.read(countExpression) ?? 0;
   }
 
+  /// Get a single message by id.
+  Future<models.ChatMessage?> getMessage(String messageId) async {
+    final row = await (_db.select(_db.messages)
+          ..where((t) => t.id.equals(messageId))
+          ..limit(1))
+        .getSingleOrNull();
+    return row != null ? _messageFromRow(row) : null;
+  }
+
   /// Get last message of a chat
   Future<models.ChatMessage?> getLastMessage(String chatId) async {
     final row = await (_db.select(_db.messages)

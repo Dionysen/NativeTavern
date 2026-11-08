@@ -1393,6 +1393,144 @@ abstract class AppLocalizations {
   /// **'Unpin panel'**
   String get unpinReplyChoicesPanel;
 
+  /// Built-in character status panel title
+  ///
+  /// In en, this message translates to:
+  /// **'Character status'**
+  String get characterStatus;
+
+  /// Toggle for built-in status generation
+  ///
+  /// In en, this message translates to:
+  /// **'Generate status after replies'**
+  String get enableCharacterStatus;
+
+  /// Subtitle for status generation toggle
+  ///
+  /// In en, this message translates to:
+  /// **'After each AI message, update status for characters in the scene'**
+  String get enableCharacterStatusHint;
+
+  /// Toggle to inject last status into LLM context
+  ///
+  /// In en, this message translates to:
+  /// **'Include status in next prompt'**
+  String get characterStatusInjectContext;
+
+  /// Subtitle for status context injection toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Helps the AI keep status consistent across turns'**
+  String get characterStatusInjectContextHint;
+
+  /// Auto-disable builtin when card already has status
+  ///
+  /// In en, this message translates to:
+  /// **'Prefer card status when present'**
+  String get characterStatusAutoDisableCard;
+
+  /// Subtitle for card status preference
+  ///
+  /// In en, this message translates to:
+  /// **'If this character card already includes a status block, leave built-in generation off'**
+  String get characterStatusAutoDisableCardHint;
+
+  /// Hint when opening a card that has Status_block
+  ///
+  /// In en, this message translates to:
+  /// **'This character card already includes a status block'**
+  String get characterStatusCardDetected;
+
+  /// Section title for configurable status fields
+  ///
+  /// In en, this message translates to:
+  /// **'Status fields'**
+  String get characterStatusFields;
+
+  /// Button to add a status field
+  ///
+  /// In en, this message translates to:
+  /// **'Add field'**
+  String get characterStatusAddField;
+
+  /// Dialog label for new status field
+  ///
+  /// In en, this message translates to:
+  /// **'Field name'**
+  String get characterStatusFieldLabel;
+
+  /// Badge for undeletable name field
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get characterStatusFieldLocked;
+
+  /// Settings section for status generation prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Prompt template'**
+  String get characterStatusPromptTemplate;
+
+  /// Help text for status prompt placeholders
+  ///
+  /// In en, this message translates to:
+  /// **'Placeholders: field_lines, character_lines, previous_status (each wrapped in double curly braces)'**
+  String get characterStatusPromptPlaceholders;
+
+  /// Panel title when feature disabled
+  ///
+  /// In en, this message translates to:
+  /// **'Character status is off'**
+  String get characterStatusDisabledTitle;
+
+  /// Panel body when feature disabled
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on in settings to update character status after each reply.'**
+  String get characterStatusDisabledHint;
+
+  /// Button to open status settings
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get openCharacterStatusSettings;
+
+  /// Error when status generation fails
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate status. Try again after the next reply.'**
+  String get characterStatusGenerateFailed;
+
+  /// Empty state in status panel
+  ///
+  /// In en, this message translates to:
+  /// **'No status yet. It appears after the character replies.'**
+  String get characterStatusEmpty;
+
+  /// Chat composer button tooltip for status panel
+  ///
+  /// In en, this message translates to:
+  /// **'Character status'**
+  String get showCharacterStatus;
+
+  /// Tooltip to keep status panel open
+  ///
+  /// In en, this message translates to:
+  /// **'Pin panel'**
+  String get pinCharacterStatusPanel;
+
+  /// Tooltip to allow status panel to auto-hide
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin panel'**
+  String get unpinCharacterStatusPanel;
+
+  /// Action to delete a custom status field
+  ///
+  /// In en, this message translates to:
+  /// **'Remove field'**
+  String get deleteStatusField;
+
   /// Create quick reply button
   ///
   /// In en, this message translates to:

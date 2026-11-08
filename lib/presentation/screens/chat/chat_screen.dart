@@ -33,6 +33,9 @@ import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/quick_reply_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_choice_providers.dart';
+import 'package:native_tavern/presentation/providers/status_block_providers.dart';
+import 'package:native_tavern/data/models/status_block_config.dart';
+import 'package:native_tavern/domain/services/status_block_parser.dart';
 import 'package:native_tavern/presentation/providers/rpg_chat_providers.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
@@ -55,6 +58,7 @@ import 'package:native_tavern/presentation/widgets/chat/message_content_widget.d
 import 'package:native_tavern/presentation/widgets/chat/memory_context_usage_sheet.dart';
 import 'package:native_tavern/presentation/widgets/chat/quick_reply_bar.dart';
 import 'package:native_tavern/presentation/widgets/chat/chat_choice_panel.dart';
+import 'package:native_tavern/presentation/widgets/chat/status_block_panel.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_scaffold.dart';
 import 'package:native_tavern/presentation/widgets/play/ai_play_feature_gate.dart';
@@ -119,6 +123,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _showInputMenu = false;
   bool _showChoicePanel = false;
   bool _choicePanelPinned = false;
+  bool _showStatusPanel = false;
+  bool _statusPanelPinned = false;
   final List<ChatAttachment> _pendingAttachments = [];
   final ImagePicker _imagePicker = ImagePicker();
   final ChatTTSAutoPlayController _ttsAutoPlayController =
@@ -258,8 +264,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (_showInputMenu == visible) return;
     setState(() {
       _showInputMenu = visible;
-      // Keep a pinned reply-choice panel open while the input menu is shown.
+      // Keep pinned auxiliary panels open while the input menu is shown.
       if (visible && !_choicePanelPinned) _showChoicePanel = false;
+      if (visible && !_statusPanelPinned) _showStatusPanel = false;
     });
   }
 
@@ -267,7 +274,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (_showChoicePanel == visible) return;
     setState(() {
       _showChoicePanel = visible;
-      if (visible) _showInputMenu = false;
+      if (visible) {
+        _showInputMenu = false;
+        if (!_statusPanelPinned) _showStatusPanel = false;
+      }
+    });
+  }
+
+  void _setStatusPanelVisible(bool visible) {
+    if (_showStatusPanel == visible) return;
+    setState(() {
+      _showStatusPanel = visible;
+      if (visible) {
+        _showInputMenu = false;
+        if (!_choicePanelPinned) _showChoicePanel = false;
+      }
     });
   }
 
@@ -275,15 +296,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     setState(() => _choicePanelPinned = !_choicePanelPinned);
   }
 
+  void _toggleStatusPanelPinned() {
+    setState(() => _statusPanelPinned = !_statusPanelPinned);
+  }
+
   void _dismissComposerOptionPanels() {
-    if (!_showInputMenu && !_showChoicePanel && !_showSlashSuggestions) {
+    if (!_showInputMenu &&
+        !_showChoicePanel &&
+        !_showStatusPanel &&
+        !_showSlashSuggestions) {
       return;
     }
     setState(() {
       _showInputMenu = false;
-      // Pinned choice panel survives tap-outside / focus loss.
+      // Pinned panels survive tap-outside / focus loss.
       if (!_choicePanelPinned) {
         _showChoicePanel = false;
+      }
+      if (!_statusPanelPinned) {
+        _showStatusPanel = false;
       }
       _showSlashSuggestions = false;
     });
@@ -303,6 +334,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _openReplyChoicesSettings() {
     _setChoicePanelVisible(false);
     context.push(AppRoutes.replyChoices);
+  }
+
+  void _openCharacterStatusSettings() {
+    _setStatusPanelVisible(false);
+    context.push(AppRoutes.characterStatus);
   }
 
   Future<void> _refreshReplyChoices() async {
@@ -333,6 +369,29 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         );
   }
 
+  Future<void> _refreshCharacterStatus() async {
+    final statusConfig = ref.read(statusBlockConfigProvider);
+    if (!statusConfig.enabled) return;
+
+    final chatState = ref.read(activeChatProvider);
+    if (chatState.isGenerating) return;
+    if (chatState.messages.isEmpty ||
+        chatState.messages.last.role != MessageRole.assistant) {
+      _showSnackBar(AppLocalizations.of(context).characterStatusEmpty);
+      return;
+    }
+
+    final llmConfig = ref.read(llmConfigProvider);
+    if (!_isApiConfigured(llmConfig)) {
+      _showApiConfigurationDialog();
+      return;
+    }
+
+    await ref
+        .read(activeChatProvider.notifier)
+        .refreshStatusBlockManually(llmConfig);
+  }
+
   Future<void> _sendChoiceMessage(String text) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
@@ -360,6 +419,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _onReplyChoicesButtonPressed() {
     _setChoicePanelVisible(!_showChoicePanel);
+  }
+
+  void _onCharacterStatusButtonPressed() {
+    _setStatusPanelVisible(!_showStatusPanel);
   }
 
   Future<void> _saveLive2DTransform(
@@ -2876,6 +2939,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
                 const SizedBox(height: 8),
               ],
+              if (_showStatusPanel) ...[
+                _composerOptionsDismissable(
+                  child: _composerExpansionPanel(
+                    opacity: composerOpacity,
+                    frostSigma: composerFrostSigma,
+                    child: StatusBlockPanel(
+                      onOpenSettings: _openCharacterStatusSettings,
+                      onRefresh: _refreshCharacterStatus,
+                      isPinned: _statusPanelPinned,
+                      onTogglePin: _toggleStatusPanelPinned,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
               if (_showSlashSuggestions) ...[
                 _composerOptionsDismissable(
                   child: _composerExpansionPanel(
@@ -2995,6 +3073,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                 Icons.alt_route_outlined,
                                 size: 22,
                                 color: ref.watch(chatChoiceConfigProvider)
+                                        .enabled
+                                    ? null
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.38),
+                              ),
+                            ),
+                          ),
+                          _composerOptionsTapTarget(
+                            child: ChromeIconButton(
+                              density: ChromeIconButtonDensity.compact,
+                              onPressed: _onCharacterStatusButtonPressed,
+                              tooltip: l10n.showCharacterStatus,
+                              isSelected: _showStatusPanel,
+                              icon: Icon(
+                                Icons.badge_outlined,
+                                size: 22,
+                                color: ref.watch(statusBlockConfigProvider)
                                         .enabled
                                     ? null
                                     : Theme.of(context)
@@ -3968,7 +4065,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
   }
 
   /// Display regex only after streaming completes (avoids flicker / partial HTML).
-  String _displayContent() {
+  String _rawDisplayContent() {
     final raw = widget.message.content;
     if (widget.isGenerating || raw.isEmpty) return raw;
     final placement = widget.message.role == MessageRole.user
@@ -3989,6 +4086,15 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
   Widget build(BuildContext context) {
     final isUser = widget.message.role == MessageRole.user;
     final hasSwipes = widget.message.swipes.length > 1;
+    final rawDisplay = _rawDisplayContent();
+    final parsedStatus =
+        isUser ? null : StatusBlockParser.parse(rawDisplay);
+    final displayContent =
+        isUser ? rawDisplay : (parsedStatus?.contentWithoutStatus ?? rawDisplay);
+    final embeddedStatus = isUser
+        ? null
+        : (parsedStatus?.snapshot ??
+            StatusBlockSnapshot.fromMetadata(widget.message.metadata));
     final showCharacterAvatar = ref.watch(
       appSettingsProvider.select((s) => s.showCharacterAvatar),
     );
@@ -4024,23 +4130,27 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                   _buildReasoningSection(),
                 if (widget.isGenerating && widget.message.content.isEmpty)
                   const _TypingIndicator()
-                else
-                  MessageContentWidget(
-                    content: _displayContent(),
-                    textColor: ZephyrChatChrome.bubbleTextColor(
-                      context,
+                else ...[
+                  if (displayContent.isNotEmpty)
+                    MessageContentWidget(
+                      content: displayContent,
+                      textColor: ZephyrChatChrome.bubbleTextColor(
+                        context,
+                        isUser: isUser,
+                      ),
                       isUser: isUser,
+                      selectable: true,
+                      onLongPress: () => _showMessageOptions(context),
+                      onSelectionModeChanged: (armed) {
+                        if (_contentSelectionArmed == armed) return;
+                        setState(() => _contentSelectionArmed = armed);
+                      },
+                      isStreaming: widget.isGenerating,
+                      messageId: widget.message.id,
                     ),
-                    isUser: isUser,
-                    selectable: true,
-                    onLongPress: () => _showMessageOptions(context),
-                    onSelectionModeChanged: (armed) {
-                      if (_contentSelectionArmed == armed) return;
-                      setState(() => _contentSelectionArmed = armed);
-                    },
-                    isStreaming: widget.isGenerating,
-                    messageId: widget.message.id,
-                  ),
+                  if (embeddedStatus != null && !widget.isGenerating)
+                    MessageStatusBlockCard(snapshot: embeddedStatus),
+                ],
                 if (!isUser && !widget.isGenerating)
                   DataBankCitationPreview(
                     message: widget.message,

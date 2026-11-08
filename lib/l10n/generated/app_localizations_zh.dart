@@ -675,6 +675,76 @@ class AppLocalizationsZh extends AppLocalizations {
   String get unpinReplyChoicesPanel => '取消固定';
 
   @override
+  String get characterStatus => '角色状态';
+
+  @override
+  String get enableCharacterStatus => '回复后生成状态';
+
+  @override
+  String get enableCharacterStatusHint => '每次 AI 回复后，更新在场角色的状态';
+
+  @override
+  String get characterStatusInjectContext => '把状态写入下一轮提示';
+
+  @override
+  String get characterStatusInjectContextHint => '帮助模型在后续对话中保持状态一致';
+
+  @override
+  String get characterStatusAutoDisableCard => '角色卡已有状态栏时优先用卡';
+
+  @override
+  String get characterStatusAutoDisableCardHint => '如果角色卡自带状态块，默认关闭内置生成';
+
+  @override
+  String get characterStatusCardDetected => '该角色卡已包含状态栏';
+
+  @override
+  String get characterStatusFields => '状态字段';
+
+  @override
+  String get characterStatusAddField => '添加字段';
+
+  @override
+  String get characterStatusFieldLabel => '字段名称';
+
+  @override
+  String get characterStatusFieldLocked => '必填';
+
+  @override
+  String get characterStatusPromptTemplate => '生成提示词';
+
+  @override
+  String get characterStatusPromptPlaceholders =>
+      '可用占位符：field_lines、character_lines、previous_status（用双花括号包裹）';
+
+  @override
+  String get characterStatusDisabledTitle => '角色状态已关闭';
+
+  @override
+  String get characterStatusDisabledHint => '在设置中打开后，每次回复都会更新角色状态。';
+
+  @override
+  String get openCharacterStatusSettings => '打开设置';
+
+  @override
+  String get characterStatusGenerateFailed => '状态生成失败，可在下一轮回复后再试。';
+
+  @override
+  String get characterStatusEmpty => '还没有状态。角色回复后会出现在这里。';
+
+  @override
+  String get showCharacterStatus => '角色状态';
+
+  @override
+  String get pinCharacterStatusPanel => '固定面板';
+
+  @override
+  String get unpinCharacterStatusPanel => '取消固定';
+
+  @override
+  String get deleteStatusField => '删除字段';
+
+  @override
   String get createQuickReply => '创建快捷回复';
 
   @override
@@ -7897,6 +7967,76 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get unpinReplyChoicesPanel => '取消固定';
+
+  @override
+  String get characterStatus => '角色狀態';
+
+  @override
+  String get enableCharacterStatus => '回覆後產生狀態';
+
+  @override
+  String get enableCharacterStatusHint => '每次 AI 回覆後，更新在場角色的狀態';
+
+  @override
+  String get characterStatusInjectContext => '把狀態寫入下一輪提示';
+
+  @override
+  String get characterStatusInjectContextHint => '幫助模型在後續對話中保持狀態一致';
+
+  @override
+  String get characterStatusAutoDisableCard => '角色卡已有狀態欄時優先用卡';
+
+  @override
+  String get characterStatusAutoDisableCardHint => '如果角色卡自帶狀態塊，預設關閉內建產生';
+
+  @override
+  String get characterStatusCardDetected => '該角色卡已包含狀態欄';
+
+  @override
+  String get characterStatusFields => '狀態欄位';
+
+  @override
+  String get characterStatusAddField => '新增欄位';
+
+  @override
+  String get characterStatusFieldLabel => '欄位名稱';
+
+  @override
+  String get characterStatusFieldLocked => '必填';
+
+  @override
+  String get characterStatusPromptTemplate => '產生提示詞';
+
+  @override
+  String get characterStatusPromptPlaceholders =>
+      '可用佔位符：field_lines、character_lines、previous_status（用雙花括號包住）';
+
+  @override
+  String get characterStatusDisabledTitle => '角色狀態已關閉';
+
+  @override
+  String get characterStatusDisabledHint => '在設定中開啟後，每次回覆都會更新角色狀態。';
+
+  @override
+  String get openCharacterStatusSettings => '開啟設定';
+
+  @override
+  String get characterStatusGenerateFailed => '狀態產生失敗，可在下一輪回覆後再試。';
+
+  @override
+  String get characterStatusEmpty => '還沒有狀態。角色回覆後會出現在這裡。';
+
+  @override
+  String get showCharacterStatus => '角色狀態';
+
+  @override
+  String get pinCharacterStatusPanel => '固定面板';
+
+  @override
+  String get unpinCharacterStatusPanel => '取消固定';
+
+  @override
+  String get deleteStatusField => '刪除欄位';
 
   @override
   String get createQuickReply => '建立快速回覆';

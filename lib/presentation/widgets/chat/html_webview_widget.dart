@@ -1053,7 +1053,8 @@ double? resolveHtmlWebViewHeight({
 ///
 /// Browsers collapse `\n` in normal HTML flow, so character-card messages that
 /// rely on source newlines (without `<br>`/`<p>`) render as one wall of text.
-/// Skips `pre` / `script` / `style` / `textarea` so those keep raw content.
+/// Skips `pre` / `script` / `style` / `textarea` / `Status_block` so those
+/// keep raw content (status panels become one Markdown code fence later).
 ///
 /// Also leaves Markdown fenced code (` ``` ` / `~~~`) untouched: converting
 /// those newlines to `<br>` and later back to `\n\n` would insert blank lines
@@ -1077,11 +1078,11 @@ String preserveHtmlTextNewlines(String html) {
   var cursor = 0;
   var skipDepth = 0;
   final openSkip = RegExp(
-    r'^<\s*(pre|script|style|textarea)\b',
+    r'^<\s*(pre|script|style|textarea|status_block)\b',
     caseSensitive: false,
   );
   final closeSkip = RegExp(
-    r'^<\s*/\s*(pre|script|style|textarea)\s*>',
+    r'^<\s*/\s*(pre|script|style|textarea|status_block)\s*>',
     caseSensitive: false,
   );
 

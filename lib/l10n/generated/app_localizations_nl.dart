@@ -694,6 +694,84 @@ class AppLocalizationsNl extends AppLocalizations {
   String get unpinReplyChoicesPanel => 'Paneel losmaken';
 
   @override
+  String get characterStatus => 'Character status';
+
+  @override
+  String get enableCharacterStatus => 'Generate status after replies';
+
+  @override
+  String get enableCharacterStatusHint =>
+      'After each AI message, update status for characters in the scene';
+
+  @override
+  String get characterStatusInjectContext => 'Include status in next prompt';
+
+  @override
+  String get characterStatusInjectContextHint =>
+      'Helps the AI keep status consistent across turns';
+
+  @override
+  String get characterStatusAutoDisableCard =>
+      'Prefer card status when present';
+
+  @override
+  String get characterStatusAutoDisableCardHint =>
+      'If this character card already includes a status block, leave built-in generation off';
+
+  @override
+  String get characterStatusCardDetected =>
+      'This character card already includes a status block';
+
+  @override
+  String get characterStatusFields => 'Status fields';
+
+  @override
+  String get characterStatusAddField => 'Add field';
+
+  @override
+  String get characterStatusFieldLabel => 'Field name';
+
+  @override
+  String get characterStatusFieldLocked => 'Required';
+
+  @override
+  String get characterStatusPromptTemplate => 'Prompt template';
+
+  @override
+  String get characterStatusPromptPlaceholders =>
+      'Placeholders: field_lines, character_lines, previous_status (each wrapped in double curly braces)';
+
+  @override
+  String get characterStatusDisabledTitle => 'Character status is off';
+
+  @override
+  String get characterStatusDisabledHint =>
+      'Turn on in settings to update character status after each reply.';
+
+  @override
+  String get openCharacterStatusSettings => 'Open settings';
+
+  @override
+  String get characterStatusGenerateFailed =>
+      'Could not generate status. Try again after the next reply.';
+
+  @override
+  String get characterStatusEmpty =>
+      'No status yet. It appears after the character replies.';
+
+  @override
+  String get showCharacterStatus => 'Character status';
+
+  @override
+  String get pinCharacterStatusPanel => 'Pin panel';
+
+  @override
+  String get unpinCharacterStatusPanel => 'Unpin panel';
+
+  @override
+  String get deleteStatusField => 'Remove field';
+
+  @override
   String get createQuickReply => 'Snel Antwoord Maken';
 
   @override
