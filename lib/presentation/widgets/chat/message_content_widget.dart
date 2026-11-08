@@ -92,6 +92,7 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
   double? _cachedChatParagraphSpacing;
   double? _cachedMarkdownLineHeight;
   double? _cachedMarkdownParagraphSpacing;
+  int? _cachedSecondaryAccent;
   bool? _cachedSelectionArmed;
 
   bool get _isTouchPrimary {
@@ -312,6 +313,9 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
       appSettingsProvider.select((s) => s.overrideMessageHtmlFont),
     );
     final ui = ref.watch(themeProvider.select((s) => s.ui));
+    final secondaryAccent = ref.watch(
+      themeProvider.select((s) => s.tokens.secondaryAccent),
+    );
     final fontFamily = ui.fontFamily;
     final fontPath = ui.fontPath;
     final chatLineHeight = ui.chatLineHeight;
@@ -334,6 +338,7 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         _cachedChatParagraphSpacing == chatParagraphSpacing &&
         _cachedMarkdownLineHeight == markdownLineHeight &&
         _cachedMarkdownParagraphSpacing == markdownParagraphSpacing &&
+        _cachedSecondaryAccent == secondaryAccent &&
         _cachedSelectionArmed == _selectionArmed) {
       return _cachedWidget!;
     }
@@ -366,6 +371,7 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
     _cachedChatParagraphSpacing = chatParagraphSpacing;
     _cachedMarkdownLineHeight = markdownLineHeight;
     _cachedMarkdownParagraphSpacing = markdownParagraphSpacing;
+    _cachedSecondaryAccent = secondaryAccent;
     _cachedSelectionArmed = _selectionArmed;
     return result;
   }
@@ -763,20 +769,25 @@ class _MessageContentWidgetState extends ConsumerState<MessageContentWidget> {
         ),
         codeblockPadding: codeblockPadding,
         blockquote: TextStyle(
-          color: AppTheme.textSecondary,
+          color: Theme.of(context).colorScheme.onSecondaryContainer,
           fontStyle: FontStyle.italic,
           fontFamily: fontFamily,
           height: lineHeight,
         ),
         blockquoteDecoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          // Keep the left accent bar square; only round the trailing edge.
+          borderRadius: BorderRadius.horizontal(
+            right: Radius.circular(context.appCornerRadius),
+          ),
           border: Border(
             left: BorderSide(
-              color: AppTheme.primaryColor,
+              color: Theme.of(context).colorScheme.secondary,
               width: 3,
             ),
           ),
         ),
-        blockquotePadding: const EdgeInsets.only(left: 12),
+        blockquotePadding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
         h1: TextStyle(
           color: widget.textColor,
           fontSize: effectiveFontSize * 1.8,

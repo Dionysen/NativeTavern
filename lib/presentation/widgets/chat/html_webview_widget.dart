@@ -352,6 +352,10 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
     final dialogueColorHex = _colorToHex(
       widget.dialogueColor ?? widget.textColor,
     );
+    final scheme = Theme.of(context).colorScheme;
+    final blockquoteBgHex = _colorToHex(scheme.secondaryContainer);
+    final blockquoteBarHex = _colorToHex(scheme.secondary);
+    final blockquoteTextHex = _colorToHex(scheme.onSecondaryContainer);
     // Prefer theme bubble color over pure transparent: native WebViews often
     // still paint an opaque white plate even with transparentBackground=true.
     final surfaceHex = _colorToHex(widget.backgroundColor);
@@ -445,6 +449,15 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget>
     h4 { font-size: 1.1em; }
     p {
       margin: 0 0 ${paragraphSpacing}px 0;
+    }
+    blockquote {
+      margin: 0.5em 0;
+      padding: 8px 12px;
+      color: $blockquoteTextHex;
+      font-style: italic;
+      background: $blockquoteBgHex;
+      border-radius: 0 4px 4px 0;
+      border-left: 3px solid $blockquoteBarHex;
     }
     ::-webkit-scrollbar {
       width: 6px;
