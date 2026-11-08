@@ -14,6 +14,9 @@ import 'package:go_router/go_router.dart';
 /// whenever the root navigator / [GoRouter] can pop — otherwise
 /// [BackButtonListener.takePriority] steals back and unwinds folder/selection
 /// state underneath the overlay.
+///
+/// [BackButtonListener] stays mounted even when not intercepting so toggling
+/// [canPop] does not remount the child subtree (which would reset scroll).
 class InterceptPopScope extends StatelessWidget {
   const InterceptPopScope({
     super.key,
@@ -62,6 +65,10 @@ class InterceptPopScope extends StatelessWidget {
   Widget _buildInterceptTree(BuildContext context) {
     final intercepting = _shouldIntercept(context);
 
+    // Keep this subtree shape stable across [canPop] toggles. Conditionally
+    // inserting BackButtonListener remounts the child and resets scroll.
+    // BackButtonListener requires a Router ancestor — always wrap when one
+    // exists (the app shell), never toggle based on [intercepting].
     Widget content = PopScope(
       canPop: !intercepting,
       onPopInvokedWithResult: (didPop, _) {
@@ -71,7 +78,7 @@ class InterceptPopScope extends StatelessWidget {
       child: child,
     );
 
-    if (intercepting) {
+    if (Router.maybeOf(context) != null) {
       content = BackButtonListener(
         onBackButtonPressed: () async {
           if (!_shouldIntercept(context)) return false;
@@ -90,7 +97,7 @@ class InterceptPopScope extends StatelessWidget {
         },
       },
       child: Focus(
-        autofocus: intercepting,
+        canRequestFocus: intercepting,
         skipTraversal: true,
         child: content,
       ),

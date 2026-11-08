@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/character.dart';
+import 'package:native_tavern/data/models/character_sort_option.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
@@ -14,23 +15,28 @@ final selectedCharacterIdProvider = StateProvider<String?>((ref) => null);
 
 const _characterViewModeKey = 'character_browse_view_mode';
 const _characterAvatarShapeKey = 'character_browse_avatar_shape';
+const _characterSortKey = 'character_browse_sort';
 
 class CharacterBrowseDisplayPrefs {
   const CharacterBrowseDisplayPrefs({
     required this.viewMode,
     required this.avatarShape,
+    this.sortOption = CharacterSortOption.modifiedAtDesc,
   });
 
   final CharacterViewMode viewMode;
   final CharacterAvatarShape avatarShape;
+  final CharacterSortOption sortOption;
 
   CharacterBrowseDisplayPrefs copyWith({
     CharacterViewMode? viewMode,
     CharacterAvatarShape? avatarShape,
+    CharacterSortOption? sortOption,
   }) {
     return CharacterBrowseDisplayPrefs(
       viewMode: viewMode ?? this.viewMode,
       avatarShape: avatarShape ?? this.avatarShape,
+      sortOption: sortOption ?? this.sortOption,
     );
   }
 }
@@ -49,6 +55,7 @@ class CharacterBrowseDisplayPrefsNotifier
           CharacterBrowseDisplayPrefs(
             viewMode: _readViewMode(_prefs),
             avatarShape: _readAvatarShape(_prefs),
+            sortOption: _readSortOption(_prefs),
           ),
         );
 
@@ -66,6 +73,12 @@ class CharacterBrowseDisplayPrefsNotifier
         CharacterAvatarShape.circle;
   }
 
+  static CharacterSortOption _readSortOption(SharedPreferences prefs) {
+    final raw = prefs.getString(_characterSortKey);
+    return CharacterSortOption.values.asNameMap()[raw] ??
+        CharacterSortOption.modifiedAtDesc;
+  }
+
   Future<void> setViewMode(CharacterViewMode viewMode) async {
     state = state.copyWith(viewMode: viewMode);
     await _prefs.setString(_characterViewModeKey, viewMode.name);
@@ -74,6 +87,11 @@ class CharacterBrowseDisplayPrefsNotifier
   Future<void> setAvatarShape(CharacterAvatarShape avatarShape) async {
     state = state.copyWith(avatarShape: avatarShape);
     await _prefs.setString(_characterAvatarShapeKey, avatarShape.name);
+  }
+
+  Future<void> setSortOption(CharacterSortOption sortOption) async {
+    state = state.copyWith(sortOption: sortOption);
+    await _prefs.setString(_characterSortKey, sortOption.name);
   }
 
   Future<void> cycleViewMode() => setViewMode(state.viewMode.next);
@@ -133,6 +151,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
           browseFolderId: ref.read(characterBrowseFolderIdProvider),
           searchGlobally: _searchGlobally(),
           requiredTags: _requiredTags(),
+          sort: ref.read(characterBrowseDisplayPrefsProvider).sortOption,
         );
   }
 
@@ -141,6 +160,9 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
     ref.watch(characterBrowseFolderIdProvider);
     ref.watch(characterSearchGlobalProvider);
     ref.watch(characterBrowseTagFilterProvider);
+    ref.watch(
+      characterBrowseDisplayPrefsProvider.select((p) => p.sortOption),
+    );
     ref.watch(characterRepositoryProvider);
     _offset = 0;
     _hasMore = true;
@@ -251,6 +273,7 @@ class CharacterListNotifier extends AsyncNotifier<List<Character>> {
           browseFolderId: ref.read(characterBrowseFolderIdProvider),
           searchGlobally: _searchGlobally(),
           requiredTags: _requiredTags(),
+          sort: ref.read(characterBrowseDisplayPrefsProvider).sortOption,
         );
   }
 

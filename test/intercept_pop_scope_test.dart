@@ -108,6 +108,49 @@ void main() {
     },
   );
 
+  testWidgets(
+    'toggling canPop does not remount child subtree under Router',
+    (tester) async {
+      _MountProbe.mounts = 0;
+      var canPop = true;
+      final router = GoRouter(
+        initialLocation: '/',
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) {
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return InterceptPopScope(
+                    canPop: canPop,
+                    onIntercept: () {},
+                    child: Scaffold(
+                      body: const _MountProbe(),
+                      floatingActionButton: FloatingActionButton(
+                        onPressed: () => setState(() => canPop = !canPop),
+                        child: const Icon(Icons.swap_horiz),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
+      expect(_MountProbe.mounts, 1);
+
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pump();
+      expect(canPop, isFalse);
+      expect(_MountProbe.mounts, 1);
+    },
+  );
+
   testWidgets('Escape only intercepts on the current route', (tester) async {
     var interceptCount = 0;
     final rootKey = GlobalKey<NavigatorState>();
@@ -164,4 +207,24 @@ void main() {
     expect(interceptCount, 0);
     expect(find.text('detail'), findsOneWidget);
   });
+}
+
+class _MountProbe extends StatefulWidget {
+  const _MountProbe();
+
+  static int mounts = 0;
+
+  @override
+  State<_MountProbe> createState() => _MountProbeState();
+}
+
+class _MountProbeState extends State<_MountProbe> {
+  @override
+  void initState() {
+    super.initState();
+    _MountProbe.mounts += 1;
+  }
+
+  @override
+  Widget build(BuildContext context) => const Text('probe');
 }

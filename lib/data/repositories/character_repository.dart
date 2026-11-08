@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/database/database.dart' hide Character;
 import 'package:native_tavern/data/database/database.dart' as db;
 import 'package:native_tavern/data/models/character.dart' as models;
+import 'package:native_tavern/data/models/character_sort_option.dart';
 import 'package:native_tavern/data/models/character_card_codec.dart';
 import 'package:native_tavern/core/utils/png_text_chunks.dart';
 import 'package:path/path.dart' as p;
@@ -24,6 +25,12 @@ class CharacterRepository {
   static const _uuid = Uuid();
 
   CharacterRepository(this._db, this._dataPath);
+
+  static String _browseOrderBy(
+    CharacterSortOption sort, {
+    String alias = 'c',
+  }) =>
+      sort.orderBySql(alias: alias);
 
   /// Get all characters
   Future<List<models.Character>> getAllCharacters() async {
@@ -55,6 +62,7 @@ class CharacterRepository {
     String? browseFolderId,
     bool searchGlobally = true,
     List<String> requiredTags = const [],
+    CharacterSortOption sort = CharacterSortOption.modifiedAtDesc,
   }) async {
     final normalized = query.trim();
     final tags = _normalizedTagFilter(requiredTags);
@@ -62,10 +70,11 @@ class CharacterRepository {
       return _characterIdsInFolder(
         folderId: browseFolderId,
         requiredTags: tags,
+        sort: sort,
       );
     }
     if (normalized.isEmpty && browseFolderId == null) {
-      return _characterIdsAtRoot(requiredTags: tags);
+      return _characterIdsAtRoot(requiredTags: tags, sort: sort);
     }
     if (normalized.isNotEmpty &&
         browseFolderId != null &&
@@ -74,10 +83,12 @@ class CharacterRepository {
         folderId: browseFolderId,
         query: normalized,
         requiredTags: tags,
+        sort: sort,
       );
     }
     final pattern = '%$normalized%';
     final (tagSql, tagVars) = _sqlTagFilters('characters', tags);
+    final orderBy = _browseOrderBy(sort, alias: '');
     final idRows = await _db.customSelect(
       '''
       SELECT id AS id
@@ -85,7 +96,7 @@ class CharacterRepository {
       WHERE is_deleted = 0
         AND (name LIKE ? OR description LIKE ?)
         $tagSql
-      ORDER BY modified_at DESC
+      ORDER BY $orderBy
       ''',
       variables: [
         Variable<String>(pattern),
@@ -106,6 +117,7 @@ class CharacterRepository {
     String? browseFolderId,
     bool searchGlobally = true,
     List<String> requiredTags = const [],
+    CharacterSortOption sort = CharacterSortOption.modifiedAtDesc,
   }) async {
     final normalized = query.trim();
     final tags = _normalizedTagFilter(requiredTags);
@@ -115,6 +127,7 @@ class CharacterRepository {
         limit: limit,
         offset: offset,
         requiredTags: tags,
+        sort: sort,
       );
     }
     if (normalized.isEmpty && browseFolderId == null) {
@@ -122,6 +135,7 @@ class CharacterRepository {
         limit: limit,
         offset: offset,
         requiredTags: tags,
+        sort: sort,
       );
     }
     if (normalized.isNotEmpty &&
@@ -133,10 +147,12 @@ class CharacterRepository {
         limit: limit,
         offset: offset,
         requiredTags: tags,
+        sort: sort,
       );
     }
     final pattern = '%$normalized%';
     final (tagSql, tagVars) = _sqlTagFilters('characters', tags);
+    final orderBy = _browseOrderBy(sort, alias: '');
     final idRows = await _db.customSelect(
       '''
       SELECT id AS id
@@ -144,7 +160,7 @@ class CharacterRepository {
       WHERE is_deleted = 0
         AND (name LIKE ? OR description LIKE ?)
         $tagSql
-      ORDER BY modified_at DESC
+      ORDER BY $orderBy
       LIMIT ? OFFSET ?
       ''',
       variables: [
@@ -215,9 +231,11 @@ class CharacterRepository {
 
   Future<List<String>> _characterIdsAtRoot({
     List<String> requiredTags = const [],
+    CharacterSortOption sort = CharacterSortOption.modifiedAtDesc,
   }) async {
     final tags = _normalizedTagFilter(requiredTags);
     final (tagSql, tagVars) = _sqlTagFilters('c', tags);
+    final orderBy = _browseOrderBy(sort);
     final idRows = await _db.customSelect(
       '''
       SELECT c.id AS id
@@ -225,7 +243,7 @@ class CharacterRepository {
       LEFT JOIN character_folder_members m ON m.character_id = c.id
       WHERE c.is_deleted = 0 AND m.character_id IS NULL
       $tagSql
-      ORDER BY c.modified_at DESC
+      ORDER BY $orderBy
       ''',
       variables: [...tagVars],
       readsFrom: {_db.characters},
@@ -237,9 +255,11 @@ class CharacterRepository {
     required int limit,
     required int offset,
     List<String> requiredTags = const [],
+    CharacterSortOption sort = CharacterSortOption.modifiedAtDesc,
   }) async {
     final tags = _normalizedTagFilter(requiredTags);
     final (tagSql, tagVars) = _sqlTagFilters('c', tags);
+    final orderBy = _browseOrderBy(sort);
     final idRows = await _db.customSelect(
       '''
       SELECT c.id AS id
@@ -247,7 +267,7 @@ class CharacterRepository {
       LEFT JOIN character_folder_members m ON m.character_id = c.id
       WHERE c.is_deleted = 0 AND m.character_id IS NULL
       $tagSql
-      ORDER BY c.modified_at DESC
+      ORDER BY $orderBy
       LIMIT ? OFFSET ?
       ''',
       variables: [
@@ -266,10 +286,12 @@ class CharacterRepository {
     required String folderId,
     required String query,
     List<String> requiredTags = const [],
+    CharacterSortOption sort = CharacterSortOption.modifiedAtDesc,
   }) async {
     final pattern = '%$query%';
     final tags = _normalizedTagFilter(requiredTags);
     final (tagSql, tagVars) = _sqlTagFilters('c', tags);
+    final orderBy = _browseOrderBy(sort);
     final idRows = await _db.customSelect(
       '''
       SELECT c.id AS id
@@ -278,7 +300,7 @@ class CharacterRepository {
       WHERE c.is_deleted = 0 AND m.folder_id = ?
         AND (c.name LIKE ? OR c.description LIKE ?)
         $tagSql
-      ORDER BY c.modified_at DESC
+      ORDER BY $orderBy
       ''',
       variables: [
         Variable<String>(folderId),
@@ -297,10 +319,12 @@ class CharacterRepository {
     required int limit,
     required int offset,
     List<String> requiredTags = const [],
+    CharacterSortOption sort = CharacterSortOption.modifiedAtDesc,
   }) async {
     final pattern = '%$query%';
     final tags = _normalizedTagFilter(requiredTags);
     final (tagSql, tagVars) = _sqlTagFilters('c', tags);
+    final orderBy = _browseOrderBy(sort);
     final idRows = await _db.customSelect(
       '''
       SELECT c.id AS id
@@ -309,7 +333,7 @@ class CharacterRepository {
       WHERE c.is_deleted = 0 AND m.folder_id = ?
         AND (c.name LIKE ? OR c.description LIKE ?)
         $tagSql
-      ORDER BY c.modified_at DESC
+      ORDER BY $orderBy
       LIMIT ? OFFSET ?
       ''',
       variables: [
@@ -330,9 +354,11 @@ class CharacterRepository {
   Future<List<String>> _characterIdsInFolder({
     required String folderId,
     List<String> requiredTags = const [],
+    CharacterSortOption sort = CharacterSortOption.modifiedAtDesc,
   }) async {
     final tags = _normalizedTagFilter(requiredTags);
     final (tagSql, tagVars) = _sqlTagFilters('c', tags);
+    final orderBy = _browseOrderBy(sort);
     final idRows = await _db.customSelect(
       '''
       SELECT c.id AS id
@@ -340,7 +366,7 @@ class CharacterRepository {
       INNER JOIN character_folder_members m ON m.character_id = c.id
       WHERE c.is_deleted = 0 AND m.folder_id = ?
       $tagSql
-      ORDER BY c.modified_at DESC
+      ORDER BY $orderBy
       ''',
       variables: [
         Variable<String>(folderId),
@@ -356,9 +382,11 @@ class CharacterRepository {
     required int limit,
     required int offset,
     List<String> requiredTags = const [],
+    CharacterSortOption sort = CharacterSortOption.modifiedAtDesc,
   }) async {
     final tags = _normalizedTagFilter(requiredTags);
     final (tagSql, tagVars) = _sqlTagFilters('c', tags);
+    final orderBy = _browseOrderBy(sort);
     final idRows = await _db.customSelect(
       '''
       SELECT c.id AS id
@@ -366,7 +394,7 @@ class CharacterRepository {
       INNER JOIN character_folder_members m ON m.character_id = c.id
       WHERE c.is_deleted = 0 AND m.folder_id = ?
       $tagSql
-      ORDER BY c.modified_at DESC
+      ORDER BY $orderBy
       LIMIT ? OFFSET ?
       ''',
       variables: [

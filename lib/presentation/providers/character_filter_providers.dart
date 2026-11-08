@@ -1,17 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/character.dart';
+import '../../data/models/character_sort_option.dart';
 import '../../data/repositories/character_repository.dart';
 import './tag_providers.dart';
 
-/// Sort options for characters
-enum CharacterSortOption {
-  nameAsc,
-  nameDesc,
-  createdAtDesc,
-  createdAtAsc,
-  modifiedAtDesc,
-  modifiedAtAsc,
-}
+export '../../data/models/character_sort_option.dart';
 
 /// Filter state for character list
 class CharacterFilterState {

@@ -4,8 +4,69 @@ import 'package:native_tavern/data/repositories/character_folder_repository.dart
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 
-/// null = library root; otherwise the open folder id.
-final characterBrowseFolderIdProvider = StateProvider<String?>((ref) => null);
+/// Folder browse path from library root (empty = root). Last id is current.
+final characterBrowsePathProvider =
+    StateNotifierProvider<CharacterBrowsePathNotifier, List<String>>((ref) {
+  return CharacterBrowsePathNotifier(ref);
+});
+
+class CharacterBrowsePathNotifier extends StateNotifier<List<String>> {
+  CharacterBrowsePathNotifier(this._ref) : super(const []);
+
+  final Ref _ref;
+
+  String? get currentFolderId => state.isEmpty ? null : state.last;
+
+  void enterFolder(String folderId) {
+    final id = folderId.trim();
+    if (id.isEmpty) return;
+    if (state.isNotEmpty && state.last == id) return;
+    state = [...state, id];
+  }
+
+  /// Pop one level. No-op at root.
+  void leaveFolder() {
+    if (state.isEmpty) return;
+    state = state.sublist(0, state.length - 1);
+  }
+
+  /// Jump to breadcrumb depth. [index] `-1` = root; `0` = first folder, etc.
+  void jumpToDepth(int index) {
+    if (index < -1) return;
+    if (index < 0) {
+      if (state.isEmpty) return;
+      state = const [];
+      return;
+    }
+    if (index >= state.length - 1) return;
+    state = state.sublist(0, index + 1);
+  }
+
+  void replacePath(List<String> path) {
+    state = List<String>.unmodifiable(path);
+  }
+
+  /// Drop any trailing segments whose folders no longer exist.
+  Future<void> truncateToExistingAncestors() async {
+    if (state.isEmpty) return;
+    final repo = _ref.read(characterFolderRepositoryProvider);
+    final kept = <String>[];
+    for (final id in state) {
+      final folder = await repo.getFolder(id);
+      if (folder == null) break;
+      kept.add(id);
+    }
+    if (kept.length != state.length) {
+      state = List<String>.unmodifiable(kept);
+    }
+  }
+}
+
+/// null = library root; otherwise the open folder id (derived from path stack).
+final characterBrowseFolderIdProvider = Provider<String?>((ref) {
+  final path = ref.watch(characterBrowsePathProvider);
+  return path.isEmpty ? null : path.last;
+});
 
 /// When true inside a folder, character search spans the whole library.
 final characterSearchGlobalProvider = StateProvider<bool>((ref) => false);
@@ -23,6 +84,21 @@ final characterBrowseFolderProvider =
   final id = ref.watch(characterBrowseFolderIdProvider);
   if (id == null) return null;
   return ref.read(characterFolderRepositoryProvider).getFolder(id);
+});
+
+/// Breadcrumb folders for the current path (root → current), skipping missing.
+final characterBrowseBreadcrumbProvider =
+    FutureProvider<List<CharacterFolder>>((ref) async {
+  final path = ref.watch(characterBrowsePathProvider);
+  if (path.isEmpty) return const [];
+  final repo = ref.read(characterFolderRepositoryProvider);
+  final crumbs = <CharacterFolder>[];
+  for (final id in path) {
+    final folder = await repo.getFolder(id);
+    if (folder == null) break;
+    crumbs.add(folder);
+  }
+  return crumbs;
 });
 
 /// Child folders of the current browse location.
@@ -100,17 +176,17 @@ class CharacterFoldersNotifier extends AsyncNotifier<List<CharacterFolder>> {
         .read(characterFolderRepositoryProvider)
         .renameFolder(id, name);
     await refresh();
+    ref.invalidate(characterBrowseBreadcrumbProvider);
     return folder;
   }
 
   Future<void> dissolveFolder(String id) async {
     final repo = ref.read(characterFolderRepositoryProvider);
-    final folder = await repo.getFolder(id);
-    final parentId = folder?.parentId;
     await repo.dissolveFolder(id);
-    if (ref.read(characterBrowseFolderIdProvider) == id) {
-      ref.read(characterBrowseFolderIdProvider.notifier).state = parentId;
-    }
+    await ref
+        .read(characterBrowsePathProvider.notifier)
+        .truncateToExistingAncestors();
+    ref.invalidate(characterBrowseBreadcrumbProvider);
     await refresh();
   }
 
@@ -118,19 +194,14 @@ class CharacterFoldersNotifier extends AsyncNotifier<List<CharacterFolder>> {
   Future<void> deleteFolder(String id) async {
     final repo = ref.read(characterFolderRepositoryProvider);
     final characterRepo = ref.read(characterRepositoryProvider);
-    final folder = await repo.getFolder(id);
-    final parentId = folder?.parentId;
     final characterIds = await repo.deleteFolderTree(id);
     for (final characterId in characterIds) {
       await characterRepo.deleteCharacter(characterId);
     }
-    final browseId = ref.read(characterBrowseFolderIdProvider);
-    if (browseId != null) {
-      final stillThere = await repo.getFolder(browseId);
-      if (stillThere == null) {
-        ref.read(characterBrowseFolderIdProvider.notifier).state = parentId;
-      }
-    }
+    await ref
+        .read(characterBrowsePathProvider.notifier)
+        .truncateToExistingAncestors();
+    ref.invalidate(characterBrowseBreadcrumbProvider);
     // Solo chats for deleted characters are removed in deleteCharacter;
     // refresh chat lists so the home screen drops them immediately.
     ref.invalidate(pagedChatsProvider);
@@ -162,6 +233,10 @@ class CharacterFoldersNotifier extends AsyncNotifier<List<CharacterFolder>> {
       if (id == parentId) continue;
       await repo.reparentFolder(id, parentId: parentId);
     }
+    await ref
+        .read(characterBrowsePathProvider.notifier)
+        .truncateToExistingAncestors();
+    ref.invalidate(characterBrowseBreadcrumbProvider);
     await refresh();
   }
 }
