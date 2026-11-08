@@ -32,13 +32,25 @@ class InterceptPopScope extends StatelessWidget {
   final VoidCallback onIntercept;
   final Widget child;
 
-  /// True when a root-navigator overlay above this shell tab should get back.
+  /// True when a route above this widget should receive back first.
   static bool hasCoveringRoute(BuildContext context) {
+    // Shell under a root overlay, or an offstage IndexedStack tab.
+    final route = ModalRoute.of(context);
+    if (route != null && !route.isCurrent) return true;
+
     final root = Navigator.maybeOf(context, rootNavigator: true);
     final local = Navigator.maybeOf(context);
-    if (root == null || local == null) return false;
-    // Distinct root stack with something above the shell page.
-    if (!identical(root, local) && root.canPop()) return true;
+    if (root == null) return false;
+
+    // Nested shell-tab routes stay [ModalRoute.isCurrent] under a root overlay
+    // (StatefulShellRoute). Detect that via the root stack.
+    if (local != null && !identical(root, local) && root.canPop()) {
+      return true;
+    }
+
+    // Shell content lives on the root navigator: another root page above us.
+    if (identical(root, local) && root.canPop()) return true;
+
     return false;
   }
 
@@ -64,6 +76,11 @@ class InterceptPopScope extends StatelessWidget {
     Widget content = PopScope(
       // Keep shell un-poppable while local state must unwind (folder /
       // selection), even if a root overlay is currently showing.
+      //
+      // GoRouter.popRoute skips Navigator.maybePop when the root stack has
+      // only the shell, so this PopScope alone cannot stop app exit — it
+      // still matters: Android predictive-back uses the shell route's
+      // popDisposition (canHandlePop) to decide whether to ask Flutter.
       canPop: canPop,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop || !_shouldIntercept(context)) return;

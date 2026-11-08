@@ -22,7 +22,6 @@ import 'package:native_tavern/presentation/widgets/common/character_avatar_image
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
-import 'package:native_tavern/presentation/widgets/common/intercept_pop_scope.dart';
 import 'package:native_tavern/data/models/character_sort_option.dart';
 import 'character_library_app_bar.dart';
 import 'character_library_selection.dart';
@@ -44,24 +43,44 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   bool _folderEnterForward = true;
 
   @override
+  void initState() {
+    super.initState();
+    _selection.addListener(_syncSelectionProvider);
+  }
+
+  @override
   void dispose() {
+    _selection.removeListener(_syncSelectionProvider);
     _searchDebounce?.cancel();
     _selection.dispose();
     super.dispose();
   }
 
-  void _exitSelectionMode() => _selection.exit();
+  void _syncSelectionProvider() {
+    final active = _selection.selectionMode;
+    if (ref.read(characterLibrarySelectionActiveProvider) != active) {
+      ref.read(characterLibrarySelectionActiveProvider.notifier).state = active;
+    }
+  }
+
+  void _exitSelectionMode() {
+    _selection.exit();
+    _syncSelectionProvider();
+  }
 
   void _enterSelectionMode({String? characterId, String? folderId}) {
     _selection.enter(characterId: characterId, folderId: folderId);
+    _syncSelectionProvider();
   }
 
   void _toggleCharacterSelection(String characterId) {
     _selection.toggleCharacter(characterId);
+    _syncSelectionProvider();
   }
 
   void _toggleFolderSelection(String folderId) {
     _selection.toggleFolder(folderId);
+    _syncSelectionProvider();
   }
 
   Future<void> _toggleSelectAllLibraryItems() async {
@@ -76,19 +95,13 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
       characterIds: characterIds,
       folderIds: folderIds,
     );
+    _syncSelectionProvider();
   }
 
   void _openFolder(String folderId) {
     setState(() => _folderEnterForward = true);
     _exitSelectionMode();
     ref.read(characterBrowsePathProvider.notifier).enterFolder(folderId);
-  }
-
-  void _leaveFolder() {
-    setState(() => _folderEnterForward = false);
-    _exitSelectionMode();
-    ref.read(characterSearchGlobalProvider.notifier).state = false;
-    ref.read(characterBrowsePathProvider.notifier).leaveFolder();
   }
 
   void _jumpBreadcrumb(int index) {
@@ -392,28 +405,23 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
       setState(() => _folderEnterForward = nextLen >= prevLen);
     });
 
+    // AppShell owns Android back for folders; mirror selection exit from shell.
+    ref.listen<bool>(characterLibrarySelectionActiveProvider, (previous, next) {
+      if (next == false && _selection.selectionMode) {
+        _selection.exit();
+        setState(() {});
+      }
+    });
+
     return ListenableBuilder(
       listenable: _selection,
       builder: (context, _) {
         final selectionMode = _selection.selectionMode;
         final hasSelection = _selection.hasSelection;
         final selectedItemCount = _selection.selectedItemCount;
-        return InterceptPopScope(
-          // System back / Esc: leave multi-select, then nested folder, before
-          // the shell route would exit the app. Read live state in onIntercept
-          // — closure captures go stale after delete exits selection.
-          canPop: !selectionMode && browsePath.isEmpty,
-          onIntercept: () {
-            ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
-            if (_selection.selectionMode) {
-              _exitSelectionMode();
-              return;
-            }
-            if (ref.read(characterBrowsePathProvider).isNotEmpty) {
-              _leaveFolder();
-            }
-          },
-          child: Scaffold(
+        // Folder / selection back is owned by AppShell (shell-route PopScope +
+        // BackButtonListener). Nested interceptors cannot stop Android exit.
+        return Scaffold(
             appBar: AppBar(
               // No folder back chevron — it shifts the fixed「角色」title.
               // Leave folder via breadcrumb or system/gesture back instead.
@@ -640,7 +648,6 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                 ),
               ],
             ),
-          ),
         );
       },
     );

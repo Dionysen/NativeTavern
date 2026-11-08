@@ -71,6 +71,14 @@ final characterBrowseFolderIdProvider = Provider<String?>((ref) {
 /// When true inside a folder, character search spans the whole library.
 final characterSearchGlobalProvider = StateProvider<bool>((ref) => false);
 
+/// Synced from the character library screen — used by [AppShell] so Android
+/// back can unwind selection even though the screen sits under IndexedStack.
+final characterLibrarySelectionActiveProvider =
+    StateProvider<bool>((ref) => false);
+
+/// Characters tab index in [StatefulNavigationShell] / bottom nav.
+const characterLibraryShellBranchIndex = 1;
+
 /// One-shot: collapse folders deeper than [CharacterFolderRepository.maxFolderDepth].
 final characterFolderDepthNormalizeProvider = FutureProvider<int>((ref) async {
   return ref

@@ -1,13 +1,26 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/app_viewport.dart';
+import 'package:native_tavern/presentation/widgets/common/intercept_pop_scope.dart';
 
 /// Main navigation follows the system's bar edge or the available width.
-class AppShell extends StatelessWidget {
+///
+/// Owns shell-level back interception for the character library. Folder /
+/// selection back must be handled on this shell route — not only inside a
+/// branch [IndexedStack] page — because:
+/// 1. Android predictive-back uses the *root* route's popDisposition
+///    (`canHandlePop`). Nested [PopScope] never marks the shell as handling
+///    back, so the system finishes the Activity without asking Flutter.
+/// 2. [GoRouterDelegate.popRoute] skips [Navigator.maybePop] when the root
+///    stack is only the shell, so nested [PopScope.onPopInvoked] never runs.
+///    [BackButtonListener] on this shell is what actually unwinds folder state.
+class AppShell extends ConsumerWidget {
   /// Preferred: keeps tab pages alive via [StatefulShellRoute.indexedStack].
   final StatefulNavigationShell? navigationShell;
 
@@ -20,55 +33,90 @@ class AppShell extends StatelessWidget {
     this.child,
   }) : assert(navigationShell != null || child != null);
 
+  bool _characterLibraryBlocksExit(WidgetRef ref, int tabIndex) {
+    if (tabIndex != characterLibraryShellBranchIndex) return false;
+    if (ref.watch(characterLibrarySelectionActiveProvider)) return true;
+    return ref.watch(characterBrowsePathProvider).isNotEmpty;
+  }
+
+  void _handleCharacterLibraryBack(WidgetRef ref) {
+    if (ref.read(characterLibrarySelectionActiveProvider)) {
+      ref.read(characterLibrarySelectionActiveProvider.notifier).state = false;
+      return;
+    }
+    if (ref.read(characterBrowsePathProvider).isEmpty) return;
+    ref.read(characterSearchGlobalProvider.notifier).state = false;
+    ref.read(characterBrowsePathProvider.notifier).leaveFolder();
+  }
+
+  static int legacyTabIndex(String location) {
+    if (location.startsWith('/characters')) return 1;
+    if (location.startsWith('/play') || location.startsWith('/world-info')) {
+      return 2;
+    }
+    if (location.startsWith('/ai-config')) return 3;
+    if (location.startsWith('/appearance')) return 4;
+    if (location.startsWith('/settings')) return 5;
+    return 0;
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final body = navigationShell ?? child!;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final windowLayout = WindowLayoutScope.maybeOf(context);
-        final edge = windowLayout?.supportsVerticalBars == true
-            ? windowLayout?.verticalBarEdge
-            : constraints.maxWidth >= 600
-                ? VerticalBarEdge.left
-                : null;
-        final railWidth =
-            windowLayout?.barWidth != null && windowLayout!.barWidth > 0
-                ? windowLayout.barWidth
-                : 96.0;
-        return Scaffold(
-          // Keep the routed child in the same element slot as bars move.
-          body: Row(
-            textDirection: TextDirection.ltr,
-            children: [
-              SizedBox(
-                width: edge == VerticalBarEdge.left ? railWidth : 0,
-                child: edge == VerticalBarEdge.left
-                    ? _AppNavigation(
-                        vertical: true,
-                        navigationShell: navigationShell,
-                      )
-                    : null,
-              ),
-              Expanded(child: body),
-              SizedBox(
-                width: edge == VerticalBarEdge.right ? railWidth : 0,
-                child: edge == VerticalBarEdge.right
-                    ? _AppNavigation(
-                        vertical: true,
-                        navigationShell: navigationShell,
-                      )
-                    : null,
-              ),
-            ],
-          ),
-          bottomNavigationBar: edge == null
-              ? _AppNavigation(
-                  vertical: false,
-                  navigationShell: navigationShell,
-                )
-              : null,
-        );
-      },
+    final tabIndex = navigationShell?.currentIndex ??
+        legacyTabIndex(GoRouterState.of(context).uri.path);
+    final blockExit = _characterLibraryBlocksExit(ref, tabIndex);
+
+    return InterceptPopScope(
+      canPop: !blockExit,
+      onIntercept: () => _handleCharacterLibraryBack(ref),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final windowLayout = WindowLayoutScope.maybeOf(context);
+          final edge = windowLayout?.supportsVerticalBars == true
+              ? windowLayout?.verticalBarEdge
+              : constraints.maxWidth >= 600
+                  ? VerticalBarEdge.left
+                  : null;
+          final railWidth =
+              windowLayout?.barWidth != null && windowLayout!.barWidth > 0
+                  ? windowLayout.barWidth
+                  : 96.0;
+          return Scaffold(
+            // Keep the routed child in the same element slot as bars move.
+            body: Row(
+              textDirection: TextDirection.ltr,
+              children: [
+                SizedBox(
+                  width: edge == VerticalBarEdge.left ? railWidth : 0,
+                  child: edge == VerticalBarEdge.left
+                      ? _AppNavigation(
+                          vertical: true,
+                          navigationShell: navigationShell,
+                        )
+                      : null,
+                ),
+                Expanded(child: body),
+                SizedBox(
+                  width: edge == VerticalBarEdge.right ? railWidth : 0,
+                  child: edge == VerticalBarEdge.right
+                      ? _AppNavigation(
+                          vertical: true,
+                          navigationShell: navigationShell,
+                        )
+                      : null,
+                ),
+              ],
+            ),
+            bottomNavigationBar: edge == null
+                ? _AppNavigation(
+                    vertical: false,
+                    navigationShell: navigationShell,
+                  )
+                : null,
+          );
+        },
+      ),
     );
   }
 }
@@ -86,23 +134,7 @@ class _AppNavigation extends StatelessWidget {
     if (navigationShell != null) {
       return navigationShell!.currentIndex;
     }
-    final String location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/characters')) {
-      return 1;
-    }
-    if (location.startsWith('/play') || location.startsWith('/world-info')) {
-      return 2;
-    }
-    if (location.startsWith('/ai-config')) {
-      return 3;
-    }
-    if (location.startsWith('/appearance')) {
-      return 4;
-    }
-    if (location.startsWith('/settings')) {
-      return 5;
-    }
-    return 0;
+    return AppShell.legacyTabIndex(GoRouterState.of(context).uri.path);
   }
 
   void _onItemTapped(BuildContext context, int index) {

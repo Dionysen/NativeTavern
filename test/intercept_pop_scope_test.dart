@@ -18,22 +18,25 @@ void main() {
         initialLocation: '/characters',
         routes: [
           StatefulShellRoute.indexedStack(
-            builder: (context, state, navigationShell) => navigationShell,
+            builder: (context, state, navigationShell) {
+              // Shell-level intercept — mirrors AppShell (root canHandlePop).
+              return InterceptPopScope(
+                canPop: false,
+                onIntercept: () => interceptCount++,
+                child: navigationShell,
+              );
+            },
             branches: [
               StatefulShellBranch(
                 routes: [
                   GoRoute(
                     path: '/characters',
                     builder: (context, state) {
-                      return InterceptPopScope(
-                        canPop: false,
-                        onIntercept: () => interceptCount++,
-                        child: Scaffold(
-                          body: Center(
-                            child: TextButton(
-                              onPressed: () => context.push('/characters/1'),
-                              child: const Text('open'),
-                            ),
+                      return Scaffold(
+                        body: Center(
+                          child: TextButton(
+                            onPressed: () => context.push('/characters/1'),
+                            child: const Text('open'),
                           ),
                         ),
                       );
@@ -65,6 +68,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('detail'), findsOneWidget);
       expect(interceptCount, 0);
+      expect(
+        InterceptPopScope.hasCoveringRoute(
+          tester.element(find.text('open', skipOffstage: false)),
+        ),
+        isTrue,
+        reason: 'nested tab stays current; root stack must count as covering',
+      );
 
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
@@ -168,22 +178,24 @@ void main() {
       initialLocation: '/characters',
       routes: [
         StatefulShellRoute.indexedStack(
-          builder: (context, state, navigationShell) => navigationShell,
+          builder: (context, state, navigationShell) {
+            return InterceptPopScope(
+              canPop: false,
+              onIntercept: () => interceptCount++,
+              child: navigationShell,
+            );
+          },
           branches: [
             StatefulShellBranch(
               routes: [
                 GoRoute(
                   path: '/characters',
                   builder: (context, state) {
-                    return InterceptPopScope(
-                      canPop: false,
-                      onIntercept: () => interceptCount++,
-                      child: Scaffold(
-                        body: Center(
-                          child: TextButton(
-                            onPressed: () => context.push('/characters/1'),
-                            child: const Text('open'),
-                          ),
+                    return Scaffold(
+                      body: Center(
+                        child: TextButton(
+                          onPressed: () => context.push('/characters/1'),
+                          child: const Text('open'),
                         ),
                       ),
                     );
