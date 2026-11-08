@@ -380,26 +380,26 @@ class _ChatListTile extends ConsumerWidget {
     );
 
     final stats = statsAsync.when(
-      loading: () => _statsText(context, '...'),
-      error: (_, __) => _statsText(
+      loading: () => _statsLine(
         context,
-        _formatChatStats(
-          l10n,
-          messageCount: 0,
-          storageBytes: 0,
-          createdAt: chat.createdAt,
-          lastChatAt: chat.updatedAt,
-        ),
+        messageCount: null,
+        storageBytes: 0,
+        createdAt: chat.createdAt,
+        lastChatAt: chat.updatedAt,
       ),
-      data: (stats) => _statsText(
+      error: (_, __) => _statsLine(
         context,
-        _formatChatStats(
-          l10n,
-          messageCount: stats.messageCount,
-          storageBytes: stats.storageBytes,
-          createdAt: chat.createdAt,
-          lastChatAt: chat.updatedAt,
-        ),
+        messageCount: 0,
+        storageBytes: 0,
+        createdAt: chat.createdAt,
+        lastChatAt: chat.updatedAt,
+      ),
+      data: (stats) => _statsLine(
+        context,
+        messageCount: stats.messageCount,
+        storageBytes: stats.storageBytes,
+        createdAt: chat.createdAt,
+        lastChatAt: chat.updatedAt,
       ),
     );
 
@@ -513,31 +513,41 @@ class _ChatListTile extends ConsumerWidget {
     );
   }
 
-  Widget _statsText(BuildContext context, String text) {
-    return Text(
-      text,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            fontSize: 11,
-            height: 1.3,
-            color: AppTheme.textSecondary,
-          ),
-    );
-  }
-
-  String _formatChatStats(
-    AppLocalizations l10n, {
-    required int messageCount,
+  Widget _statsLine(
+    BuildContext context, {
+    required int? messageCount,
     required int storageBytes,
     required DateTime createdAt,
     required DateTime lastChatAt,
   }) {
-    return l10n.chatListItemStats(
-      messageCount,
-      _formatStorageBytes(storageBytes),
-      _formatAbsoluteDate(createdAt),
-      _formatAbsoluteDate(lastChatAt),
+    const fontSize = 11.0;
+    final style = Theme.of(context).textTheme.labelSmall?.copyWith(
+          fontSize: fontSize,
+          height: 1.3,
+          color: AppTheme.textSecondary,
+        );
+    final countLabel = messageCount?.toString() ?? '...';
+    final text =
+        '$countLabel · ${_formatStorageBytes(storageBytes)} · '
+        '${_formatAbsoluteDate(createdAt)} · ${_formatAbsoluteDate(lastChatAt)}';
+
+    return Text.rich(
+      TextSpan(
+        style: style,
+        children: [
+          const WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Icon(
+              Icons.chat_bubble_outline,
+              size: fontSize,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          TextSpan(text: ' $text'),
+        ],
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
