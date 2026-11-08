@@ -72,6 +72,15 @@ void main() {
       expect(interceptCount, 0, reason: 'must not leave folder under detail');
       expect(find.text('detail'), findsNothing);
       expect(find.text('open'), findsOneWidget);
+
+      // After closing detail, back should unwind folder state — not exit.
+      expect(InterceptPopScope.hasCoveringRoute(
+        tester.element(find.text('open')),
+      ), isFalse);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(interceptCount, 1, reason: 'back after detail should leave folder');
+      expect(find.text('open'), findsOneWidget);
     },
   );
 

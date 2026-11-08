@@ -9,14 +9,17 @@ import 'package:go_router/go_router.dart';
 /// Android/iOS back from leaving the app, and Escape does not map to pop.
 ///
 /// Full-screen routes (character detail, chat, …) are pushed on the root
-/// navigator while shell tabs stay mounted in a nested navigator. In that
-/// case the tab's [ModalRoute.isCurrent] stays true, so we must also yield
-/// whenever the root navigator / [GoRouter] can pop — otherwise
-/// [BackButtonListener.takePriority] steals back and unwinds folder/selection
-/// state underneath the overlay.
+/// navigator while shell tabs stay mounted in a nested navigator. While a
+/// root overlay is up, [BackButtonListener] yields so the overlay pops first.
 ///
-/// [BackButtonListener] stays mounted even when not intercepting so toggling
-/// [canPop] does not remount the child subtree (which would reset scroll).
+/// Important: [PopScope.canPop] always mirrors [canPop] (e.g. false inside a
+/// folder). It must **not** flip to true merely because a covering route is
+/// showing — that made the shell advertise itself as poppable under detail,
+/// and after closing detail the next gesture back exited the app instead of
+/// leaving the folder.
+///
+/// [BackButtonListener] stays mounted whenever a [Router] is present so
+/// toggling [canPop] does not remount the child subtree (scroll jump).
 class InterceptPopScope extends StatelessWidget {
   const InterceptPopScope({
     super.key,
@@ -29,21 +32,13 @@ class InterceptPopScope extends StatelessWidget {
   final VoidCallback onIntercept;
   final Widget child;
 
-  /// True when a route above this shell tab should receive back first.
+  /// True when a root-navigator overlay above this shell tab should get back.
   static bool hasCoveringRoute(BuildContext context) {
-    if (!(ModalRoute.of(context)?.isCurrent ?? true)) return true;
-
-    final router = GoRouter.maybeOf(context);
-    if (router != null && router.canPop()) return true;
-
     final root = Navigator.maybeOf(context, rootNavigator: true);
     final local = Navigator.maybeOf(context);
-    if (root != null &&
-        local != null &&
-        !identical(root, local) &&
-        root.canPop()) {
-      return true;
-    }
+    if (root == null || local == null) return false;
+    // Distinct root stack with something above the shell page.
+    if (!identical(root, local) && root.canPop()) return true;
     return false;
   }
 
@@ -63,14 +58,13 @@ class InterceptPopScope extends StatelessWidget {
   }
 
   Widget _buildInterceptTree(BuildContext context) {
-    final intercepting = _shouldIntercept(context);
+    final covered = hasCoveringRoute(context);
+    final intercepting = !canPop && !covered;
 
-    // Keep this subtree shape stable across [canPop] toggles. Conditionally
-    // inserting BackButtonListener remounts the child and resets scroll.
-    // BackButtonListener requires a Router ancestor — always wrap when one
-    // exists (the app shell), never toggle based on [intercepting].
     Widget content = PopScope(
-      canPop: !intercepting,
+      // Keep shell un-poppable while local state must unwind (folder /
+      // selection), even if a root overlay is currently showing.
+      canPop: canPop,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop || !_shouldIntercept(context)) return;
         onIntercept();
@@ -81,7 +75,8 @@ class InterceptPopScope extends StatelessWidget {
     if (Router.maybeOf(context) != null) {
       content = BackButtonListener(
         onBackButtonPressed: () async {
-          if (!_shouldIntercept(context)) return false;
+          if (hasCoveringRoute(context)) return false;
+          if (canPop) return false;
           onIntercept();
           return true;
         },

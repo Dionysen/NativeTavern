@@ -400,14 +400,16 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
         final selectedItemCount = _selection.selectedItemCount;
         return InterceptPopScope(
           // System back / Esc: leave multi-select, then nested folder, before
-          // the shell route would exit the app.
+          // the shell route would exit the app. Read live state in onIntercept
+          // — closure captures go stale after delete exits selection.
           canPop: !selectionMode && browsePath.isEmpty,
           onIntercept: () {
-            if (selectionMode) {
+            ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
+            if (_selection.selectionMode) {
               _exitSelectionMode();
               return;
             }
-            if (browsePath.isNotEmpty) {
+            if (ref.read(characterBrowsePathProvider).isNotEmpty) {
               _leaveFolder();
             }
           },
