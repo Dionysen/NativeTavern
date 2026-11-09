@@ -687,42 +687,41 @@ class AppLocalizationsAr extends AppLocalizations {
   String get unpinReplyChoicesPanel => 'إلغاء تثبيت اللوحة';
 
   @override
-  String get characterStatus => 'Character status';
+  String get characterStatus => 'حالة الشخصية';
 
   @override
-  String get enableCharacterStatus => 'Generate status after replies';
+  String get enableCharacterStatus => 'إنشاء الحالة بعد الردود';
 
   @override
   String get enableCharacterStatusHint =>
-      'After each AI message, update status for characters in the scene';
+      'بعد كل رسالة من الذكاء الاصطناعي، حدّث حالة الشخصيات في المشهد';
 
   @override
-  String get characterStatusInjectContext => 'Include status in next prompt';
+  String get characterStatusInjectContext => 'تضمين الحالة في الموجه التالي';
 
   @override
   String get characterStatusInjectContextHint =>
-      'Helps the AI keep status consistent across turns';
+      'يساعد الذكاء الاصطناعي على إبقاء الحالة متسقة عبر الجولات';
 
   @override
-  String get characterStatusAutoDisableCard =>
-      'Prefer card status when present';
+  String get characterStatusAutoDisableCard => 'تفضيل حالة البطاقة عند وجودها';
 
   @override
   String get characterStatusAutoDisableCardHint =>
-      'If this character card already includes a status block, leave built-in generation off';
+      'إذا كانت بطاقة الشخصية تتضمن بالفعل كتلة حالة، أبقِ التوليد المدمج متوقفًا';
 
   @override
   String get characterStatusCardDetected =>
-      'This character card already includes a status block';
+      'تتضمن بطاقة الشخصية هذه بالفعل كتلة حالة';
 
   @override
-  String get characterStatusFields => 'Status fields';
+  String get characterStatusFields => 'حقول الحالة';
 
   @override
-  String get characterStatusAddField => 'Add field';
+  String get characterStatusAddField => 'إضافة حقل';
 
   @override
-  String get characterStatusFieldLabel => 'Field name';
+  String get characterStatusFieldLabel => 'اسم الحقل';
 
   @override
   String get characterStatusFieldPrompt => 'Field prompt';
@@ -732,44 +731,43 @@ class AppLocalizationsAr extends AppLocalizations {
       'Optional. Tell the AI how to write this field.';
 
   @override
-  String get characterStatusFieldLocked => 'Required';
+  String get characterStatusFieldLocked => 'مطلوب';
 
   @override
-  String get characterStatusPromptTemplate => 'Prompt template';
+  String get characterStatusPromptTemplate => 'قالب الموجه';
 
   @override
   String get characterStatusPromptPlaceholders =>
-      'Placeholders: field_lines, character_lines, previous_status (each wrapped in double curly braces)';
+      'العناصر النائبة: field_lines و character_lines و previous_status (كل منها داخل أقواس مزدوجة)';
 
   @override
-  String get characterStatusDisabledTitle => 'Character status is off';
+  String get characterStatusDisabledTitle => 'حالة الشخصية متوقفة';
 
   @override
   String get characterStatusDisabledHint =>
-      'Turn on in settings to update character status after each reply.';
+      'فعّلها في الإعدادات لتحديث حالة الشخصية بعد كل رد.';
 
   @override
-  String get openCharacterStatusSettings => 'Open settings';
+  String get openCharacterStatusSettings => 'فتح الإعدادات';
 
   @override
   String get characterStatusGenerateFailed =>
-      'Could not generate status. Try again after the next reply.';
+      'تعذر إنشاء الحالة. حاول مرة أخرى بعد الرد التالي.';
 
   @override
-  String get characterStatusEmpty =>
-      'No status yet. It appears after the character replies.';
+  String get characterStatusEmpty => 'لا توجد حالة بعد. تظهر بعد رد الشخصية.';
 
   @override
-  String get showCharacterStatus => 'Character status';
+  String get showCharacterStatus => 'حالة الشخصية';
 
   @override
-  String get pinCharacterStatusPanel => 'Pin panel';
+  String get pinCharacterStatusPanel => 'تثبيت اللوحة';
 
   @override
-  String get unpinCharacterStatusPanel => 'Unpin panel';
+  String get unpinCharacterStatusPanel => 'إلغاء تثبيت اللوحة';
 
   @override
-  String get deleteStatusField => 'Remove field';
+  String get deleteStatusField => 'إزالة الحقل';
 
   @override
   String get createQuickReply => 'إنشاء رد سريع';
@@ -1361,19 +1359,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String libraryItemsSelected(int count) {
-    return '$count selected';
+    return 'تم تحديد $count';
   }
 
   @override
   String get deleteSelectedCharacters => 'حذف الشخصيات';
 
   @override
-  String get deleteSelectedLibraryItems => 'Delete selected';
+  String get deleteSelectedLibraryItems => 'حذف المحدد';
 
   @override
   String deleteSelectedLibraryItemsConfirmation(
       int characterCount, int folderCount) {
-    return 'Delete $characterCount character(s) and $folderCount folder(s)? Folder contents will also be deleted. This cannot be undone.';
+    return 'هل تريد حذف $characterCount شخصية و$folderCount مجلد(ات)؟ سيتم حذف محتويات المجلدات أيضًا. لا يمكن التراجع عن هذا.';
   }
 
   @override
@@ -1429,110 +1427,110 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String characterFolderContentsSummary(int characterCount, int folderCount) {
-    return '$characterCount character(s) · $folderCount folder(s)';
+    return '$characterCount شخصية · $folderCount مجلد(ات)';
   }
 
   @override
   String characterFolderDepthLimit(int maxDepth) {
-    return 'Folders can only nest up to $maxDepth levels';
+    return 'لا يمكن تداخل المجلدات لأكثر من $maxDepth مستويات';
   }
 
   @override
   String get charactersMovedToFolder => 'تم نقل الشخصيات';
 
   @override
-  String get copyToFolder => 'Copy to folder';
+  String get copyToFolder => 'نسخ إلى مجلد';
 
   @override
-  String get copyCharactersToFolder => 'Copy to folder';
+  String get copyCharactersToFolder => 'نسخ إلى مجلد';
 
   @override
   String charactersCopiedToFolder(int count) {
-    return 'Copied $count character(s)';
+    return 'تم نسخ $count شخصية';
   }
 
   @override
-  String get characterFolderUseThisPath => 'Use this folder';
+  String get characterFolderUseThisPath => 'استخدم هذا المجلد';
 
   @override
-  String get characterFolderPathEmpty => 'No subfolders here yet';
+  String get characterFolderPathEmpty => 'لا توجد مجلدات فرعية هنا بعد';
 
   @override
-  String get importCharactersFromFolder => 'Import from folder';
+  String get importCharactersFromFolder => 'استيراد من مجلد';
 
   @override
-  String get exportCharacterLibrary => 'Export character library';
+  String get exportCharacterLibrary => 'تصدير مكتبة الشخصيات';
 
   @override
-  String get exportCharacterLibraryFastPack => 'Quick export library pack';
+  String get exportCharacterLibraryFastPack => 'تصدير سريع لحزمة المكتبة';
 
   @override
-  String get importCharacterLibraryFastPack => 'Quick import library pack';
+  String get importCharacterLibraryFastPack => 'استيراد سريع لحزمة المكتبة';
 
   @override
   String get importCharacterLibraryStorageFull =>
-      'Not enough free storage to open this pack. Free some space and try again.';
+      'لا توجد مساحة كافية لفتح هذه الحزمة. حرّر بعض المساحة ثم أعد المحاولة.';
 
   @override
   String get characterLibraryFastPackOverwriteTitle =>
-      'Overwrite matching characters?';
+      'هل تريد الكتابة فوق الشخصيات المطابقة؟';
 
   @override
   String get characterLibraryFastPackOverwriteBody =>
-      'Characters with the same id will be updated. Chats stay linked to those characters.';
+      'سيتم تحديث الشخصيات ذات المعرّف نفسه. تبقى المحادثات مرتبطة بتلك الشخصيات.';
 
   @override
-  String get characterLibraryFastPackPreparing => 'Preparing…';
+  String get characterLibraryFastPackPreparing => 'جارٍ التحضير…';
 
   @override
   String characterLibraryFastPackImportProgress(int processed, int total) {
-    return 'Quick importing $processed of $total';
+    return 'استيراد سريع $processed من $total';
   }
 
   @override
   String characterLibraryFastPackExportProgress(int processed, int total) {
-    return 'Quick exporting $processed of $total';
+    return 'تصدير سريع $processed من $total';
   }
 
   @override
   String characterLibraryFastPackExtractProgress(int processed, int total) {
-    return 'Extracting files $processed of $total';
+    return 'جارٍ استخراج الملفات $processed من $total';
   }
 
   @override
   String characterLibraryFastPackImportSummary(
       int created, int updated, int failed) {
-    return 'Created $created. Updated $updated. Failed $failed.';
+    return 'تم إنشاء $created. تحديث $updated. فشل $failed.';
   }
 
   @override
   String characterLibraryFastPackExportSummary(int characters, int folders) {
-    return 'Exported $characters characters and $folders folders';
+    return 'تم تصدير $characters شخصية و$folders مجلدًا';
   }
 
   @override
   String characterLibraryImportProgress(int processed, int total) {
-    return 'Importing $processed of $total';
+    return 'جارٍ الاستيراد $processed من $total';
   }
 
   @override
   String characterLibraryImportSummary(int succeeded, int failed, int skipped) {
-    return 'Imported $succeeded. Failed $failed. Skipped $skipped.';
+    return 'تم استيراد $succeeded. فشل $failed. تم تخطي $skipped.';
   }
 
   @override
   String characterLibraryExportProgress(int processed, int total) {
-    return 'Exporting $processed of $total';
+    return 'جارٍ التصدير $processed من $total';
   }
 
   @override
   String characterLibraryExportSummary(int succeeded, int failed) {
-    return 'Exported $succeeded. Failed $failed.';
+    return 'تم تصدير $succeeded. فشل $failed.';
   }
 
   @override
   String get characterLibraryFolderPickerUnavailable =>
-      'This device can’t pick a folder. Import cards as files instead.';
+      'هذا الجهاز لا يمكنه اختيار مجلد. استورد البطاقات كملفات بدلاً من ذلك.';
 
   @override
   String get dissolveCharacterFolder => 'حل المجلد';
@@ -1543,30 +1541,30 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get deleteCharacterFolder => 'Delete folder';
+  String get deleteCharacterFolder => 'حذف المجلد';
 
   @override
   String deleteCharacterFolderBody(String name) {
-    return 'Delete \"$name\" and its subfolders? Characters inside will also be deleted.';
+    return 'هل تريد حذف \"$name\" ومجلداته الفرعية؟ سيتم حذف الشخصيات داخله أيضًا.';
   }
 
   @override
-  String get selectAllCharacters => 'Select all';
+  String get selectAllCharacters => 'تحديد الكل';
 
   @override
-  String get deselectAllCharacters => 'Deselect all';
+  String get deselectAllCharacters => 'إلغاء تحديد الكل';
 
   @override
-  String get characterFolderDeleted => 'Folder deleted';
+  String get characterFolderDeleted => 'تم حذف المجلد';
 
   @override
-  String get characterFolderDissolved => 'Folder dissolved';
+  String get characterFolderDissolved => 'تم حل المجلد';
 
   @override
-  String get characterLibraryManage => 'Library';
+  String get characterLibraryManage => 'المكتبة';
 
   @override
-  String get manageCurrentCharacterFolder => 'This folder';
+  String get manageCurrentCharacterFolder => 'هذا المجلد';
 
   @override
   String get renameCharacterFolder => 'إعادة تسمية المجلد';
@@ -1866,18 +1864,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get maxTokensDescription => 'Maximum tokens to generate.';
 
   @override
-  String get replyMinChars => 'Minimum reply length';
+  String get replyMinChars => 'الحد الأدنى لطول الرد';
 
   @override
   String get replyMinCharsDescription =>
-      'Ask the AI to write at least this many characters. 0 turns it off. Too-short replies may be expanded automatically.';
+      'اطلب من الذكاء الاصطناعي كتابة هذا العدد من الأحرف على الأقل. 0 يعطل الحد. قد تُوسَّع الردود القصيرة جدًا تلقائيًا.';
 
   @override
-  String get replyMaxChars => 'Maximum reply length';
+  String get replyMaxChars => 'الحد الأقصى لطول الرد';
 
   @override
   String get replyMaxCharsDescription =>
-      'Ask the AI to keep replies at or below this many characters. 0 turns it off. Overlong replies may be trimmed.';
+      'اطلب من الذكاء الاصطناعي إبقاء الردود عند هذا العدد من الأحرف أو أقل. 0 يعطل الحد. قد تُقصّ الردود الطويلة جدًا.';
 
   @override
   String get seed => 'Seed';
@@ -4731,11 +4729,11 @@ class AppLocalizationsAr extends AppLocalizations {
       'When this is off, the feed stays still and characters do not post.';
 
   @override
-  String get characterWorldRuntimeEnabled => 'Post in Moments';
+  String get characterWorldRuntimeEnabled => 'النشر في اللحظات';
 
   @override
   String get characterWorldRuntimeEnabledHint =>
-      'Off by default. When on, this character can wake and post in Moments on their own.';
+      'متوقف افتراضيًا. عند التفعيل، يمكن لهذه الشخصية أن تستيقظ وتنشر في اللحظات بنفسها.';
 
   @override
   String get momentsInChat => 'Use Moments in this chat';
@@ -7054,6 +7052,24 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pageNotFound => 'Page not found';
 
   @override
+  String get emptySecondarySelectChat => 'Select a chat';
+
+  @override
+  String get emptySecondarySelectCharacter => 'Select a character';
+
+  @override
+  String get emptySecondarySelectPlay => 'Select something to play';
+
+  @override
+  String get emptySecondarySelectAiConfig => 'Select an AI setting';
+
+  @override
+  String get emptySecondarySelectAppearance => 'Select an appearance setting';
+
+  @override
+  String get emptySecondarySelectSetting => 'Select a setting';
+
+  @override
   String get goHome => 'Go home';
 
   @override
@@ -7146,32 +7162,32 @@ class AppLocalizationsAr extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get chatLineHeightTitle => 'Chat line spacing';
+  String get chatLineHeightTitle => 'تباعد أسطر الدردشة';
 
   @override
   String get chatLineHeightDescription =>
-      'Space between lines in normal chat paragraphs.';
+      'المسافة بين الأسطر في فقرات الدردشة العادية.';
 
   @override
-  String get chatParagraphSpacingTitle => 'Chat paragraph spacing';
+  String get chatParagraphSpacingTitle => 'تباعد فقرات الدردشة';
 
   @override
   String get chatParagraphSpacingDescription =>
-      'Space between normal chat paragraphs.';
+      'المسافة بين فقرات الدردشة العادية.';
 
   @override
-  String get markdownLineHeightTitle => 'Markdown/HTML line spacing';
+  String get markdownLineHeightTitle => 'تباعد أسطر Markdown/HTML';
 
   @override
   String get markdownLineHeightDescription =>
-      'Space between lines in code blocks and HTML messages.';
+      'المسافة بين الأسطر في كتل التعليمات البرمجية ورسائل HTML.';
 
   @override
-  String get markdownParagraphSpacingTitle => 'Markdown/HTML paragraph spacing';
+  String get markdownParagraphSpacingTitle => 'تباعد فقرات Markdown/HTML';
 
   @override
   String get markdownParagraphSpacingDescription =>
-      'Extra space for blank lines in code blocks and between HTML paragraphs.';
+      'مساحة إضافية للأسطر الفارغة في كتل التعليمات البرمجية وبين فقرات HTML.';
 
   @override
   String get uiFontFamilyTitle => 'الخط';
@@ -7382,6 +7398,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get themePresetDusk => 'Dusk';
+
+  @override
+  String get themePresetCursorDark => 'Cursor Dark';
 
   @override
   String get tokenEditorSurface => 'App background';
@@ -7607,4 +7626,23 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get promptOwnedByCharacter => 'من بطاقة الشخصية · عرض فقط';
+
+  @override
+  String get momentsDraftSaveTitle => 'Save draft?';
+
+  @override
+  String get momentsDraftSaveMessage =>
+      'You have unpublished content. Save it as the only draft? It will restore the next time you post.';
+
+  @override
+  String get momentsDraftSave => 'Save draft';
+
+  @override
+  String get momentsDraftDiscard => 'Discard';
+
+  @override
+  String get searchChats => 'Search chats';
+
+  @override
+  String get noMatchingChats => 'No matching chats';
 }

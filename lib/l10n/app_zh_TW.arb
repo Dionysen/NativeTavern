@@ -1,4 +1,4 @@
-﻿{
+{
   "@@locale": "zh_TW",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7073,6 +7073,12 @@
   "numberedList": "編號清單",
   "horizontalRule": "分隔線",
   "pageNotFound": "找不到頁面",
+  "emptySecondarySelectChat": "選擇一個聊天",
+  "emptySecondarySelectCharacter": "選擇一個角色",
+  "emptySecondarySelectPlay": "選擇要開啟的內容",
+  "emptySecondarySelectAiConfig": "選擇一項 AI 設定",
+  "emptySecondarySelectAppearance": "選擇一項外觀設定",
+  "emptySecondarySelectSetting": "選擇一項設定",
   "goHome": "返回首頁",
   "officialWebsite": "官方網站",
   "mcpStreamableHttp": "可串流 HTTP",
@@ -7202,6 +7208,7 @@
   "themePresetEspresso": "咖啡",
   "themePresetMidnight": "午夜",
   "themePresetDusk": "暮色",
+  "themePresetCursorDark": "Cursor 深色",
   "tokenEditorSurface": "應用背景",
   "tokenSidebarSurface": "面板背景",
   "tokenControlSurface": "按钮和輸入框",
@@ -7459,5 +7466,271 @@
   "renderMessageHtmlTitle": "渲染 HTML",
   "renderMessageHtmlSubtitle": "在聊天裡顯示 HTML 排版。關閉後仍會保留文字，並轉成 Markdown 顯示。",
   "neutralizeMessageHtmlStyleTitle": "清除角色卡 HTML 背景",
-  "neutralizeMessageHtmlStyleSubtitle": "用你的聊天氣泡色和文字色替換角色卡 HTML 自帶底色。這不會改氣泡本身；若氣泡發白，請到外觀裡調整「角色氣泡」顏色。"
+  "neutralizeMessageHtmlStyleSubtitle": "用你的聊天氣泡色和文字色替換角色卡 HTML 自帶底色。這不會改氣泡本身；若氣泡發白，請到外觀裡調整「角色氣泡」顏色。",
+  "characterFolderDeleted": "已刪除資料夾",
+  "@characterFolderDeleted": {
+    "description": "Snack bar after deleting a character folder"
+  },
+  "characterFolderDissolved": "已解散資料夾",
+  "@characterFolderDissolved": {
+    "description": "Snack bar after dissolving a character folder"
+  },
+  "characterFolderPathEmpty": "這裡還沒有子資料夾",
+  "@characterFolderPathEmpty": {
+    "description": "Empty state inside folder path picker"
+  },
+  "characterFolderUseThisPath": "使用此資料夾",
+  "@characterFolderUseThisPath": {
+    "description": "Confirm current folder path in the picker"
+  },
+  "characterLibraryExportProgress": "正在匯出 {processed}/{total}",
+  "@characterLibraryExportProgress": {
+    "description": "Progress while exporting the character library",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryExportSummary": "已匯出 {succeeded}，失敗 {failed}",
+  "@characterLibraryExportSummary": {
+    "description": "Summary after library export",
+    "placeholders": {
+      "succeeded": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExportProgress": "正在快速匯出 {processed}/{total}",
+  "@characterLibraryFastPackExportProgress": {
+    "description": "Progress while exporting a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExportSummary": "已匯出 {characters} 個角色、{folders} 個資料夾",
+  "@characterLibraryFastPackExportSummary": {
+    "description": "Summary after fast pack export",
+    "placeholders": {
+      "characters": {
+        "type": "int"
+      },
+      "folders": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExtractProgress": "正在解壓檔案 {processed}/{total}",
+  "@characterLibraryFastPackExtractProgress": {
+    "description": "Progress while streaming files out of a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackImportProgress": "正在快速匯入 {processed}/{total}",
+  "@characterLibraryFastPackImportProgress": {
+    "description": "Progress while importing a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackImportSummary": "新建 {created}，更新 {updated}，失敗 {failed}",
+  "@characterLibraryFastPackImportSummary": {
+    "description": "Summary after fast pack import",
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackOverwriteBody": "包裡和本地 id 相同的角色會被更新，對應聊天仍會留在這些角色上。",
+  "@characterLibraryFastPackOverwriteBody": {
+    "description": "Explains id overwrite behavior for fast pack import"
+  },
+  "characterLibraryFastPackOverwriteTitle": "覆蓋相同角色？",
+  "@characterLibraryFastPackOverwriteTitle": {
+    "description": "Confirm before fast pack import overwrites by id"
+  },
+  "characterLibraryFastPackPreparing": "正在準備…",
+  "@characterLibraryFastPackPreparing": {
+    "description": "Shown while opening a large character library pack before counted progress starts"
+  },
+  "characterLibraryFolderPickerUnavailable": "目前裝置無法選擇資料夾，請改用檔案匯入。",
+  "@characterLibraryFolderPickerUnavailable": {
+    "description": "Shown when directory picking is unavailable"
+  },
+  "characterLibraryImportProgress": "正在匯入 {processed}/{total}",
+  "@characterLibraryImportProgress": {
+    "description": "Progress while importing a character folder",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryImportSummary": "已匯入 {succeeded}，失敗 {failed}，跳過 {skipped}",
+  "@characterLibraryImportSummary": {
+    "description": "Summary after folder import",
+    "placeholders": {
+      "succeeded": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryManage": "角色庫",
+  "@characterLibraryManage": {
+    "description": "Title for character library overflow menu"
+  },
+  "charactersCopiedToFolder": "已複製 {count} 個角色",
+  "@charactersCopiedToFolder": {
+    "description": "Snack bar after copying characters into a folder",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "copyCharactersToFolder": "複製到資料夾",
+  "@copyCharactersToFolder": {
+    "description": "Title for copy characters path picker"
+  },
+  "copyToFolder": "複製到資料夾",
+  "@copyToFolder": {
+    "description": "Copy selected characters into a folder path"
+  },
+  "deleteCharacterFolder": "刪除資料夾",
+  "@deleteCharacterFolder": {
+    "description": "Delete a character folder, its subfolders, and characters inside"
+  },
+  "deleteCharacterFolderBody": "刪除「{name}」及其子資料夾？裡面的角色也會被刪除。",
+  "@deleteCharacterFolderBody": {
+    "description": "Confirm deleting a character folder tree and its characters",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "deleteSelectedLibraryItems": "刪除所選",
+  "@deleteSelectedLibraryItems": {
+    "description": "Title for deleting selected characters and folders"
+  },
+  "deleteSelectedLibraryItemsConfirmation": "確定刪除選中的 {characterCount} 個角色和 {folderCount} 個資料夾嗎？資料夾裡的內容也會被刪除，此操作無法撤銷。",
+  "@deleteSelectedLibraryItemsConfirmation": {
+    "description": "Confirmation body for bulk delete of characters and folders",
+    "placeholders": {
+      "characterCount": {
+        "type": "int",
+        "example": "3"
+      },
+      "folderCount": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "deselectAllCharacters": "取消全選",
+  "@deselectAllCharacters": {
+    "description": "Clear the character multi-selection"
+  },
+  "exportCharacterLibrary": "匯出角色庫",
+  "@exportCharacterLibrary": {
+    "description": "Export all character cards preserving folder structure"
+  },
+  "exportCharacterLibraryFastPack": "快速匯出角色庫包",
+  "@exportCharacterLibraryFastPack": {
+    "description": "Export the character library as a single fast .ntchars file"
+  },
+  "importCharacterLibraryFastPack": "快速匯入角色庫包",
+  "@importCharacterLibraryFastPack": {
+    "description": "Import a .ntchars character library pack"
+  },
+  "importCharacterLibraryStorageFull": "手機空間不夠，打不開這個角色庫包。請先騰出一些空間再試。",
+  "@importCharacterLibraryStorageFull": {
+    "description": "Shown when picking a library pack fails because the device is out of space"
+  },
+  "importCharactersFromFolder": "從資料夾匯入",
+  "@importCharactersFromFolder": {
+    "description": "Recursively import character cards from a folder"
+  },
+  "libraryItemsSelected": "已選擇 {count} 項",
+  "@libraryItemsSelected": {
+    "description": "Selected characters and/or folders count",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "manageCurrentCharacterFolder": "目前資料夾",
+  "@manageCurrentCharacterFolder": {
+    "description": "Section label for actions on the open character folder"
+  },
+  "selectAllCharacters": "全選",
+  "@selectAllCharacters": {
+    "description": "Select all characters in the current character list filter"
+  },
+  "momentsDraftSaveTitle": "存入草稿？",
+  "@momentsDraftSaveTitle": {
+    "description": "Title asking whether to keep a moments compose draft"
+  },
+  "momentsDraftSaveMessage": "還有未發佈的內容。草稿箱只能保留一份，下次發佈時會自動恢復。",
+  "@momentsDraftSaveMessage": {
+    "description": "Explains single-slot moments draft on cancel"
+  },
+  "momentsDraftSave": "存草稿",
+  "@momentsDraftSave": {
+    "description": "Confirm saving moments compose draft"
+  },
+  "momentsDraftDiscard": "不儲存",
+  "@momentsDraftDiscard": {
+    "description": "Discard moments compose content without saving a draft"
+  },
+  "searchChats": "搜尋聊天",
+  "@searchChats": {
+    "description": "Hint for the chat list search field"
+  },
+  "noMatchingChats": "沒有相符的聊天",
+  "@noMatchingChats": {
+    "description": "Empty state when the chat list search has no hits"
+  }
 }

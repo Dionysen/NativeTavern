@@ -22,6 +22,8 @@ import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer
 import 'package:native_tavern/presentation/widgets/regex/character_regex_section.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
+import 'package:native_tavern/presentation/widgets/common/desktop_layout.dart';
 
 /// Character detail screen
 class CharacterDetailScreen extends ConsumerWidget {
@@ -228,7 +230,7 @@ class _CharacterDetailContentState
 
       if (chatId != null && mounted) {
         ref.invalidate(characterChatsProvider(widget.character.id));
-        context.push('/chat/$chatId');
+        context.openShell('/chat/$chatId');
       } else if (mounted) {
         final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -394,6 +396,8 @@ class _CharacterDetailContentState
                 expandedHeight: expandedHeight,
                 pinned: true,
                 stretch: true,
+                automaticallyImplyLeading:
+                    !ThreePaneScope.isActive(context),
                 // Collapsed toolbar title: AppBar lays this out between leading
                 // and actions, so it never overlaps Live2D / edit / overflow.
                 centerTitle: true,
@@ -1482,7 +1486,7 @@ class _CharacterFriendsList extends ConsumerWidget {
                       dense: true,
                       title: Text(friend.name),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => context.push('/characters/${friend.id}'),
+                      onTap: () => context.openShell('/characters/${friend.id}'),
                     ),
               ],
             ),
@@ -1605,7 +1609,7 @@ class _CharacterChatList extends ConsumerWidget {
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         trailing: const Icon(Icons.chevron_right),
-                        onTap: () => context.push('/chat/${chat.id}'),
+                        onTap: () => context.openShell('/chat/${chat.id}'),
                       ),
                   ],
                 );

@@ -6,6 +6,7 @@ import 'package:native_tavern/domain/models/tool_generation.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/tool_calling_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
 class ToolCallingSettingsScreen extends ConsumerWidget {
@@ -63,7 +64,7 @@ class ToolCallingSettingsScreen extends ConsumerWidget {
                 subtitle: l10n.toolMcpPermissionsSubtitle,
                 valueText: '',
                 showDivider: false,
-                onTap: () => context.push(AppRoutes.mcpSettings),
+                onTap: () => context.openShell(AppRoutes.mcpSettings),
               ),
             ],
           ),

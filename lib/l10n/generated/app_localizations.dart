@@ -12497,6 +12497,42 @@ abstract class AppLocalizations {
   /// **'Page not found'**
   String get pageNotFound;
 
+  /// No description provided for @emptySecondarySelectChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a chat'**
+  String get emptySecondarySelectChat;
+
+  /// No description provided for @emptySecondarySelectCharacter.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a character'**
+  String get emptySecondarySelectCharacter;
+
+  /// No description provided for @emptySecondarySelectPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Select something to play'**
+  String get emptySecondarySelectPlay;
+
+  /// No description provided for @emptySecondarySelectAiConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an AI setting'**
+  String get emptySecondarySelectAiConfig;
+
+  /// No description provided for @emptySecondarySelectAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an appearance setting'**
+  String get emptySecondarySelectAppearance;
+
+  /// No description provided for @emptySecondarySelectSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a setting'**
+  String get emptySecondarySelectSetting;
+
   /// No description provided for @goHome.
   ///
   /// In en, this message translates to:
@@ -13085,6 +13121,12 @@ abstract class AppLocalizations {
   /// **'Dusk'**
   String get themePresetDusk;
 
+  /// No description provided for @themePresetCursorDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Cursor Dark'**
+  String get themePresetCursorDark;
+
   /// No description provided for @tokenEditorSurface.
   ///
   /// In en, this message translates to:
@@ -13474,6 +13516,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Filled from the character card when you chat'**
   String get promptOwnedByCharacter;
+
+  /// Title asking whether to keep a moments compose draft
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft?'**
+  String get momentsDraftSaveTitle;
+
+  /// Explains single-slot moments draft on cancel
+  ///
+  /// In en, this message translates to:
+  /// **'You have unpublished content. Save it as the only draft? It will restore the next time you post.'**
+  String get momentsDraftSaveMessage;
+
+  /// Confirm saving moments compose draft
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft'**
+  String get momentsDraftSave;
+
+  /// Discard moments compose content without saving a draft
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get momentsDraftDiscard;
+
+  /// Hint for the chat list search field
+  ///
+  /// In en, this message translates to:
+  /// **'Search chats'**
+  String get searchChats;
+
+  /// Empty state when the chat list search has no hits
+  ///
+  /// In en, this message translates to:
+  /// **'No matching chats'**
+  String get noMatchingChats;
 }
 
 class _AppLocalizationsDelegate

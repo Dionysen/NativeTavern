@@ -7062,6 +7062,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pageNotFound => 'Page not found';
 
   @override
+  String get emptySecondarySelectChat => 'Select a chat';
+
+  @override
+  String get emptySecondarySelectCharacter => 'Select a character';
+
+  @override
+  String get emptySecondarySelectPlay => 'Select something to play';
+
+  @override
+  String get emptySecondarySelectAiConfig => 'Select an AI setting';
+
+  @override
+  String get emptySecondarySelectAppearance => 'Select an appearance setting';
+
+  @override
+  String get emptySecondarySelectSetting => 'Select a setting';
+
+  @override
   String get goHome => 'Go home';
 
   @override
@@ -7392,6 +7410,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themePresetDusk => 'Dusk';
 
   @override
+  String get themePresetCursorDark => 'Cursor Dark';
+
+  @override
   String get tokenEditorSurface => 'App background';
 
   @override
@@ -7615,4 +7636,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get promptOwnedByCharacter =>
       'Filled from the character card when you chat';
+
+  @override
+  String get momentsDraftSaveTitle => 'Save draft?';
+
+  @override
+  String get momentsDraftSaveMessage =>
+      'You have unpublished content. Save it as the only draft? It will restore the next time you post.';
+
+  @override
+  String get momentsDraftSave => 'Save draft';
+
+  @override
+  String get momentsDraftDiscard => 'Discard';
+
+  @override
+  String get searchChats => 'Search chats';
+
+  @override
+  String get noMatchingChats => 'No matching chats';
 }

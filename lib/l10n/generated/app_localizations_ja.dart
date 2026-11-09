@@ -680,42 +680,40 @@ class AppLocalizationsJa extends AppLocalizations {
   String get unpinReplyChoicesPanel => 'パネルの固定を解除';
 
   @override
-  String get characterStatus => 'Character status';
+  String get characterStatus => 'キャラクターステータス';
 
   @override
-  String get enableCharacterStatus => 'Generate status after replies';
+  String get enableCharacterStatus => '返信後にステータスを生成';
 
   @override
   String get enableCharacterStatusHint =>
-      'After each AI message, update status for characters in the scene';
+      'AI の各メッセージのあと、場面にいるキャラクターのステータスを更新します';
 
   @override
-  String get characterStatusInjectContext => 'Include status in next prompt';
+  String get characterStatusInjectContext => '次のプロンプトにステータスを含める';
 
   @override
   String get characterStatusInjectContextHint =>
-      'Helps the AI keep status consistent across turns';
+      'AI がターンをまたいでステータスを一貫させるのに役立ちます';
 
   @override
-  String get characterStatusAutoDisableCard =>
-      'Prefer card status when present';
+  String get characterStatusAutoDisableCard => 'カードにステータスがある場合はそちらを優先';
 
   @override
   String get characterStatusAutoDisableCardHint =>
-      'If this character card already includes a status block, leave built-in generation off';
+      'このキャラクターカードにすでにステータスブロックがある場合は、内蔵生成をオフのままにします';
 
   @override
-  String get characterStatusCardDetected =>
-      'This character card already includes a status block';
+  String get characterStatusCardDetected => 'このキャラクターカードにはすでにステータスブロックがあります';
 
   @override
-  String get characterStatusFields => 'Status fields';
+  String get characterStatusFields => 'ステータスフィールド';
 
   @override
-  String get characterStatusAddField => 'Add field';
+  String get characterStatusAddField => 'フィールドを追加';
 
   @override
-  String get characterStatusFieldLabel => 'Field name';
+  String get characterStatusFieldLabel => 'フィールド名';
 
   @override
   String get characterStatusFieldPrompt => 'Field prompt';
@@ -725,44 +723,43 @@ class AppLocalizationsJa extends AppLocalizations {
       'Optional. Tell the AI how to write this field.';
 
   @override
-  String get characterStatusFieldLocked => 'Required';
+  String get characterStatusFieldLocked => '必須';
 
   @override
-  String get characterStatusPromptTemplate => 'Prompt template';
+  String get characterStatusPromptTemplate => 'プロンプトテンプレート';
 
   @override
   String get characterStatusPromptPlaceholders =>
-      'Placeholders: field_lines, character_lines, previous_status (each wrapped in double curly braces)';
+      'プレースホルダー: field_lines、character_lines、previous_status（それぞれ二重中括弧で囲む）';
 
   @override
-  String get characterStatusDisabledTitle => 'Character status is off';
+  String get characterStatusDisabledTitle => 'キャラクターステータスはオフです';
 
   @override
   String get characterStatusDisabledHint =>
-      'Turn on in settings to update character status after each reply.';
+      '設定でオンにすると、毎回の返信後にキャラクターステータスが更新されます。';
 
   @override
-  String get openCharacterStatusSettings => 'Open settings';
+  String get openCharacterStatusSettings => '設定を開く';
 
   @override
   String get characterStatusGenerateFailed =>
-      'Could not generate status. Try again after the next reply.';
+      'ステータスを生成できませんでした。次の返信のあとに再試行してください。';
 
   @override
-  String get characterStatusEmpty =>
-      'No status yet. It appears after the character replies.';
+  String get characterStatusEmpty => 'まだステータスがありません。キャラクターが返信すると表示されます。';
 
   @override
-  String get showCharacterStatus => 'Character status';
+  String get showCharacterStatus => 'キャラクターステータス';
 
   @override
-  String get pinCharacterStatusPanel => 'Pin panel';
+  String get pinCharacterStatusPanel => 'パネルを固定';
 
   @override
-  String get unpinCharacterStatusPanel => 'Unpin panel';
+  String get unpinCharacterStatusPanel => 'パネルの固定を解除';
 
   @override
-  String get deleteStatusField => 'Remove field';
+  String get deleteStatusField => 'フィールドを削除';
 
   @override
   String get createQuickReply => 'クイック返信を作成';
@@ -1353,19 +1350,19 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String libraryItemsSelected(int count) {
-    return '$count selected';
+    return '$count 件選択中';
   }
 
   @override
   String get deleteSelectedCharacters => 'キャラクターを削除';
 
   @override
-  String get deleteSelectedLibraryItems => 'Delete selected';
+  String get deleteSelectedLibraryItems => '選択を削除';
 
   @override
   String deleteSelectedLibraryItemsConfirmation(
       int characterCount, int folderCount) {
-    return 'Delete $characterCount character(s) and $folderCount folder(s)? Folder contents will also be deleted. This cannot be undone.';
+    return '$characterCount キャラクターと $folderCount フォルダを削除しますか？フォルダ内も削除され、元に戻せません。';
   }
 
   @override
@@ -1421,110 +1418,109 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String characterFolderContentsSummary(int characterCount, int folderCount) {
-    return '$characterCount character(s) · $folderCount folder(s)';
+    return '$characterCount キャラクター · $folderCount フォルダ';
   }
 
   @override
   String characterFolderDepthLimit(int maxDepth) {
-    return 'Folders can only nest up to $maxDepth levels';
+    return 'フォルダの入れ子は最大 $maxDepth 階層までです';
   }
 
   @override
   String get charactersMovedToFolder => 'キャラクターを移動しました';
 
   @override
-  String get copyToFolder => 'Copy to folder';
+  String get copyToFolder => 'フォルダにコピー';
 
   @override
-  String get copyCharactersToFolder => 'Copy to folder';
+  String get copyCharactersToFolder => 'フォルダにコピー';
 
   @override
   String charactersCopiedToFolder(int count) {
-    return 'Copied $count character(s)';
+    return '$count キャラクターをコピーしました';
   }
 
   @override
-  String get characterFolderUseThisPath => 'Use this folder';
+  String get characterFolderUseThisPath => 'このフォルダを使う';
 
   @override
-  String get characterFolderPathEmpty => 'No subfolders here yet';
+  String get characterFolderPathEmpty => 'ここにはまだサブフォルダがありません';
 
   @override
-  String get importCharactersFromFolder => 'Import from folder';
+  String get importCharactersFromFolder => 'フォルダからインポート';
 
   @override
-  String get exportCharacterLibrary => 'Export character library';
+  String get exportCharacterLibrary => 'キャラクターライブラリをエクスポート';
 
   @override
-  String get exportCharacterLibraryFastPack => 'Quick export library pack';
+  String get exportCharacterLibraryFastPack => 'ライブラリパックをクイックエクスポート';
 
   @override
-  String get importCharacterLibraryFastPack => 'Quick import library pack';
+  String get importCharacterLibraryFastPack => 'ライブラリパックをクイックインポート';
 
   @override
   String get importCharacterLibraryStorageFull =>
-      'Not enough free storage to open this pack. Free some space and try again.';
+      'このパックを開く空き容量が足りません。容量を確保してから再試行してください。';
 
   @override
-  String get characterLibraryFastPackOverwriteTitle =>
-      'Overwrite matching characters?';
+  String get characterLibraryFastPackOverwriteTitle => '一致するキャラクターを上書きしますか？';
 
   @override
   String get characterLibraryFastPackOverwriteBody =>
-      'Characters with the same id will be updated. Chats stay linked to those characters.';
+      '同じ id のキャラクターは更新されます。チャットはそのキャラクターに紐づいたままです。';
 
   @override
-  String get characterLibraryFastPackPreparing => 'Preparing…';
+  String get characterLibraryFastPackPreparing => '準備中…';
 
   @override
   String characterLibraryFastPackImportProgress(int processed, int total) {
-    return 'Quick importing $processed of $total';
+    return 'クイックインポート中 $processed/$total';
   }
 
   @override
   String characterLibraryFastPackExportProgress(int processed, int total) {
-    return 'Quick exporting $processed of $total';
+    return 'クイックエクスポート中 $processed/$total';
   }
 
   @override
   String characterLibraryFastPackExtractProgress(int processed, int total) {
-    return 'Extracting files $processed of $total';
+    return 'ファイルを展開中 $processed/$total';
   }
 
   @override
   String characterLibraryFastPackImportSummary(
       int created, int updated, int failed) {
-    return 'Created $created. Updated $updated. Failed $failed.';
+    return '作成 $created。更新 $updated。失敗 $failed。';
   }
 
   @override
   String characterLibraryFastPackExportSummary(int characters, int folders) {
-    return 'Exported $characters characters and $folders folders';
+    return '$characters キャラクターと $folders フォルダをエクスポートしました';
   }
 
   @override
   String characterLibraryImportProgress(int processed, int total) {
-    return 'Importing $processed of $total';
+    return 'インポート中 $processed/$total';
   }
 
   @override
   String characterLibraryImportSummary(int succeeded, int failed, int skipped) {
-    return 'Imported $succeeded. Failed $failed. Skipped $skipped.';
+    return '$succeeded 件をインポート。失敗 $failed 件。スキップ $skipped 件。';
   }
 
   @override
   String characterLibraryExportProgress(int processed, int total) {
-    return 'Exporting $processed of $total';
+    return 'エクスポート中 $processed/$total';
   }
 
   @override
   String characterLibraryExportSummary(int succeeded, int failed) {
-    return 'Exported $succeeded. Failed $failed.';
+    return '$succeeded 件をエクスポート。失敗 $failed 件。';
   }
 
   @override
   String get characterLibraryFolderPickerUnavailable =>
-      'This device can’t pick a folder. Import cards as files instead.';
+      'この端末ではフォルダを選べません。カードをファイルとしてインポートしてください。';
 
   @override
   String get dissolveCharacterFolder => 'フォルダを解散';
@@ -1535,30 +1531,30 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get deleteCharacterFolder => 'Delete folder';
+  String get deleteCharacterFolder => 'フォルダを削除';
 
   @override
   String deleteCharacterFolderBody(String name) {
-    return 'Delete \"$name\" and its subfolders? Characters inside will also be deleted.';
+    return '「$name」とそのサブフォルダを削除しますか？中のキャラクターも削除されます。';
   }
 
   @override
-  String get selectAllCharacters => 'Select all';
+  String get selectAllCharacters => 'すべて選択';
 
   @override
-  String get deselectAllCharacters => 'Deselect all';
+  String get deselectAllCharacters => 'すべて選択解除';
 
   @override
-  String get characterFolderDeleted => 'Folder deleted';
+  String get characterFolderDeleted => 'フォルダを削除しました';
 
   @override
-  String get characterFolderDissolved => 'Folder dissolved';
+  String get characterFolderDissolved => 'フォルダを解散しました';
 
   @override
-  String get characterLibraryManage => 'Library';
+  String get characterLibraryManage => 'ライブラリ';
 
   @override
-  String get manageCurrentCharacterFolder => 'This folder';
+  String get manageCurrentCharacterFolder => 'このフォルダ';
 
   @override
   String get renameCharacterFolder => 'フォルダ名を変更';
@@ -1856,18 +1852,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get maxTokensDescription => 'Maximum tokens to generate.';
 
   @override
-  String get replyMinChars => 'Minimum reply length';
+  String get replyMinChars => '最小返信文字数';
 
   @override
   String get replyMinCharsDescription =>
-      'Ask the AI to write at least this many characters. 0 turns it off. Too-short replies may be expanded automatically.';
+      'AI に少なくともこの文字数書くよう求めます。0 で無効。短すぎる返信は自動で伸ばされることがあります。';
 
   @override
-  String get replyMaxChars => 'Maximum reply length';
+  String get replyMaxChars => '最大返信文字数';
 
   @override
   String get replyMaxCharsDescription =>
-      'Ask the AI to keep replies at or below this many characters. 0 turns it off. Overlong replies may be trimmed.';
+      'AI にこの文字数以下で返すよう求めます。0 で無効。長すぎる返信は切り詰められることがあります。';
 
   @override
   String get seed => 'Seed';
@@ -4713,11 +4709,11 @@ class AppLocalizationsJa extends AppLocalizations {
       'When this is off, the feed stays still and characters do not post.';
 
   @override
-  String get characterWorldRuntimeEnabled => 'Post in Moments';
+  String get characterWorldRuntimeEnabled => 'モーメントに投稿';
 
   @override
   String get characterWorldRuntimeEnabledHint =>
-      'Off by default. When on, this character can wake and post in Moments on their own.';
+      '既定ではオフ。オンにすると、このキャラクターが自分で起きてモーメントに投稿できます。';
 
   @override
   String get momentsInChat => 'Use Moments in this chat';
@@ -7036,6 +7032,24 @@ class AppLocalizationsJa extends AppLocalizations {
   String get pageNotFound => 'Page not found';
 
   @override
+  String get emptySecondarySelectChat => 'Select a chat';
+
+  @override
+  String get emptySecondarySelectCharacter => 'Select a character';
+
+  @override
+  String get emptySecondarySelectPlay => 'Select something to play';
+
+  @override
+  String get emptySecondarySelectAiConfig => 'Select an AI setting';
+
+  @override
+  String get emptySecondarySelectAppearance => 'Select an appearance setting';
+
+  @override
+  String get emptySecondarySelectSetting => 'Select a setting';
+
+  @override
   String get goHome => 'Go home';
 
   @override
@@ -7124,32 +7138,29 @@ class AppLocalizationsJa extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get chatLineHeightTitle => 'Chat line spacing';
+  String get chatLineHeightTitle => 'チャットの行間';
 
   @override
-  String get chatLineHeightDescription =>
-      'Space between lines in normal chat paragraphs.';
+  String get chatLineHeightDescription => '通常のチャット段落の行間です。';
 
   @override
-  String get chatParagraphSpacingTitle => 'Chat paragraph spacing';
+  String get chatParagraphSpacingTitle => 'チャットの段落間隔';
 
   @override
-  String get chatParagraphSpacingDescription =>
-      'Space between normal chat paragraphs.';
+  String get chatParagraphSpacingDescription => '通常のチャット段落どうしの間隔です。';
 
   @override
-  String get markdownLineHeightTitle => 'Markdown/HTML line spacing';
+  String get markdownLineHeightTitle => 'Markdown/HTML の行間';
 
   @override
-  String get markdownLineHeightDescription =>
-      'Space between lines in code blocks and HTML messages.';
+  String get markdownLineHeightDescription => 'コードブロックと HTML メッセージの行間です。';
 
   @override
-  String get markdownParagraphSpacingTitle => 'Markdown/HTML paragraph spacing';
+  String get markdownParagraphSpacingTitle => 'Markdown/HTML の段落間隔';
 
   @override
   String get markdownParagraphSpacingDescription =>
-      'Extra space for blank lines in code blocks and between HTML paragraphs.';
+      'コードブロックの空行と HTML 段落のあいだの余白です。';
 
   @override
   String get uiFontFamilyTitle => 'フォント';
@@ -7358,6 +7369,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get themePresetDusk => 'Dusk';
+
+  @override
+  String get themePresetCursorDark => 'Cursor Dark';
 
   @override
   String get tokenEditorSurface => 'App background';
@@ -7579,4 +7593,23 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get promptOwnedByCharacter => 'キャラクターカード由来 · 表示のみ';
+
+  @override
+  String get momentsDraftSaveTitle => 'Save draft?';
+
+  @override
+  String get momentsDraftSaveMessage =>
+      'You have unpublished content. Save it as the only draft? It will restore the next time you post.';
+
+  @override
+  String get momentsDraftSave => 'Save draft';
+
+  @override
+  String get momentsDraftDiscard => 'Discard';
+
+  @override
+  String get searchChats => 'Search chats';
+
+  @override
+  String get noMatchingChats => 'No matching chats';
 }

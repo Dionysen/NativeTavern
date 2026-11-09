@@ -19,6 +19,16 @@ set_target_properties(spine_flutter PROPERTIES
 target_include_directories(spine_flutter PUBLIC spine-cpp/include)
 target_compile_definitions(spine_flutter PUBLIC DART_SHARED_LIB)
 
+# Upstream spine-cpp / bindings are noisy under MSVC (narrowing, CRT deprecations).
+# Keep the log clean for app builds; do not treat these as product defects.
+if(MSVC)
+  target_compile_definitions(spine_flutter PRIVATE
+    _CRT_SECURE_NO_WARNINGS
+    _CRT_NONSTDC_NO_WARNINGS
+  )
+  target_compile_options(spine_flutter PRIVATE /wd4244 /wd4996)
+endif()
+
 if(${SPINE_FLUTTER_TESTBED})
 set (CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=undefined")

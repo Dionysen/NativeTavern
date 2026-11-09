@@ -1,4 +1,4 @@
-﻿{
+{
   "@@locale": "fr",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -6875,6 +6875,12 @@
   "numberedList": "Numbered list",
   "horizontalRule": "Horizontal rule",
   "pageNotFound": "Page not found",
+  "emptySecondarySelectChat": "Select a chat",
+  "emptySecondarySelectCharacter": "Select a character",
+  "emptySecondarySelectPlay": "Select something to play",
+  "emptySecondarySelectAiConfig": "Select an AI setting",
+  "emptySecondarySelectAppearance": "Select an appearance setting",
+  "emptySecondarySelectSetting": "Select a setting",
   "goHome": "Go home",
   "officialWebsite": "Official website",
   "mcpStreamableHttp": "Streamable HTTP",
@@ -6973,6 +6979,7 @@
   "themePresetEspresso": "Espresso",
   "themePresetMidnight": "Midnight",
   "themePresetDusk": "Dusk",
+  "themePresetCursorDark": "Cursor Dark",
   "tokenEditorSurface": "App background",
   "tokenSidebarSurface": "Panel background",
   "tokenControlSurface": "Buttons and fields",
@@ -7564,5 +7571,441 @@
   "unpinReplyChoicesPanel": "Désépingler le panneau",
   "@unpinReplyChoicesPanel": {
     "description": "Tooltip to allow reply choices panel to auto-hide"
+  },
+  "characterFolderContentsSummary": "{characterCount} personnage(s) · {folderCount} dossier(s)",
+  "@characterFolderContentsSummary": {
+    "description": "Character and child-folder counts on a folder tile",
+    "placeholders": {
+      "characterCount": {
+        "type": "int",
+        "example": "5"
+      },
+      "folderCount": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "characterFolderDeleted": "Dossier supprimé",
+  "@characterFolderDeleted": {
+    "description": "Snack bar after deleting a character folder"
+  },
+  "characterFolderDepthLimit": "Les dossiers ne peuvent être imbriqués que sur {maxDepth} niveaux",
+  "@characterFolderDepthLimit": {
+    "description": "Shown when creating or moving a folder would exceed the depth limit",
+    "placeholders": {
+      "maxDepth": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "characterFolderDissolved": "Dossier dissous",
+  "@characterFolderDissolved": {
+    "description": "Snack bar after dissolving a character folder"
+  },
+  "characterFolderPathEmpty": "Aucun sous-dossier ici pour le moment",
+  "@characterFolderPathEmpty": {
+    "description": "Empty state inside folder path picker"
+  },
+  "characterFolderUseThisPath": "Utiliser ce dossier",
+  "@characterFolderUseThisPath": {
+    "description": "Confirm current folder path in the picker"
+  },
+  "characterLibraryExportProgress": "Export {processed} sur {total}",
+  "@characterLibraryExportProgress": {
+    "description": "Progress while exporting the character library",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryExportSummary": "{succeeded} exporté(s). {failed} échoué(s).",
+  "@characterLibraryExportSummary": {
+    "description": "Summary after library export",
+    "placeholders": {
+      "succeeded": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExportProgress": "Export rapide {processed} sur {total}",
+  "@characterLibraryFastPackExportProgress": {
+    "description": "Progress while exporting a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExportSummary": "{characters} personnages et {folders} dossiers exportés",
+  "@characterLibraryFastPackExportSummary": {
+    "description": "Summary after fast pack export",
+    "placeholders": {
+      "characters": {
+        "type": "int"
+      },
+      "folders": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExtractProgress": "Extraction des fichiers {processed} sur {total}",
+  "@characterLibraryFastPackExtractProgress": {
+    "description": "Progress while streaming files out of a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackImportProgress": "Import rapide {processed} sur {total}",
+  "@characterLibraryFastPackImportProgress": {
+    "description": "Progress while importing a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackImportSummary": "{created} créé(s). {updated} mis à jour. {failed} échoué(s).",
+  "@characterLibraryFastPackImportSummary": {
+    "description": "Summary after fast pack import",
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackOverwriteBody": "Les personnages avec le même id seront mis à jour. Les chats restent liés à ces personnages.",
+  "@characterLibraryFastPackOverwriteBody": {
+    "description": "Explains id overwrite behavior for fast pack import"
+  },
+  "characterLibraryFastPackOverwriteTitle": "Écraser les personnages correspondants ?",
+  "@characterLibraryFastPackOverwriteTitle": {
+    "description": "Confirm before fast pack import overwrites by id"
+  },
+  "characterLibraryFastPackPreparing": "Préparation…",
+  "@characterLibraryFastPackPreparing": {
+    "description": "Shown while opening a large character library pack before counted progress starts"
+  },
+  "characterLibraryFolderPickerUnavailable": "Cet appareil ne peut pas choisir un dossier. Importez plutôt les cartes en fichiers.",
+  "@characterLibraryFolderPickerUnavailable": {
+    "description": "Shown when directory picking is unavailable"
+  },
+  "characterLibraryImportProgress": "Import {processed} sur {total}",
+  "@characterLibraryImportProgress": {
+    "description": "Progress while importing a character folder",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryImportSummary": "{succeeded} importé(s). {failed} échoué(s). {skipped} ignoré(s).",
+  "@characterLibraryImportSummary": {
+    "description": "Summary after folder import",
+    "placeholders": {
+      "succeeded": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryManage": "Bibliothèque",
+  "@characterLibraryManage": {
+    "description": "Title for character library overflow menu"
+  },
+  "characterStatus": "Statut du personnage",
+  "@characterStatus": {
+    "description": "Built-in character status panel title"
+  },
+  "characterStatusAddField": "Ajouter un champ",
+  "@characterStatusAddField": {
+    "description": "Button to add a status field"
+  },
+  "characterStatusAutoDisableCard": "Préférer le statut de la carte s’il est présent",
+  "@characterStatusAutoDisableCard": {
+    "description": "Auto-disable builtin when card already has status"
+  },
+  "characterStatusAutoDisableCardHint": "Si cette carte contient déjà un bloc de statut, laissez la génération intégrée désactivée",
+  "@characterStatusAutoDisableCardHint": {
+    "description": "Subtitle for card status preference"
+  },
+  "characterStatusCardDetected": "Cette carte de personnage contient déjà un bloc de statut",
+  "@characterStatusCardDetected": {
+    "description": "Hint when opening a card that has Status_block"
+  },
+  "characterStatusDisabledHint": "Activez-le dans les paramètres pour mettre à jour le statut après chaque réponse.",
+  "@characterStatusDisabledHint": {
+    "description": "Panel body when feature disabled"
+  },
+  "characterStatusDisabledTitle": "Le statut du personnage est désactivé",
+  "@characterStatusDisabledTitle": {
+    "description": "Panel title when feature disabled"
+  },
+  "characterStatusEmpty": "Pas encore de statut. Il apparaît après la réponse du personnage.",
+  "@characterStatusEmpty": {
+    "description": "Empty state in status panel"
+  },
+  "characterStatusFieldLabel": "Nom du champ",
+  "@characterStatusFieldLabel": {
+    "description": "Dialog label for new status field"
+  },
+  "characterStatusFieldLocked": "Obligatoire",
+  "@characterStatusFieldLocked": {
+    "description": "Badge for undeletable name field"
+  },
+  "characterStatusFields": "Champs de statut",
+  "@characterStatusFields": {
+    "description": "Section title for configurable status fields"
+  },
+  "characterStatusGenerateFailed": "Impossible de générer le statut. Réessayez après la prochaine réponse.",
+  "@characterStatusGenerateFailed": {
+    "description": "Error when status generation fails"
+  },
+  "characterStatusInjectContext": "Inclure le statut dans le prochain prompt",
+  "@characterStatusInjectContext": {
+    "description": "Toggle to inject last status into LLM context"
+  },
+  "characterStatusInjectContextHint": "Aide l’IA à garder un statut cohérent d’un tour à l’autre",
+  "@characterStatusInjectContextHint": {
+    "description": "Subtitle for status context injection toggle"
+  },
+  "characterStatusPromptPlaceholders": "Espaces réservés : field_lines, character_lines, previous_status (chacun entre doubles accolades)",
+  "@characterStatusPromptPlaceholders": {
+    "description": "Help text for status prompt placeholders"
+  },
+  "characterStatusPromptTemplate": "Modèle de prompt",
+  "@characterStatusPromptTemplate": {
+    "description": "Settings section for status generation prompt"
+  },
+  "characterWorldRuntimeEnabled": "Publier dans Moments",
+  "@characterWorldRuntimeEnabled": {
+    "description": "Per-character switch to join the Moments world loop"
+  },
+  "characterWorldRuntimeEnabledHint": "Désactivé par défaut. Une fois activé, ce personnage peut se réveiller et publier dans Moments tout seul.",
+  "@characterWorldRuntimeEnabledHint": {
+    "description": "Helper under the per-character Moments world switch"
+  },
+  "charactersCopiedToFolder": "{count} personnage(s) copié(s)",
+  "@charactersCopiedToFolder": {
+    "description": "Snack bar after copying characters into a folder",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatLineHeightDescription": "Espace entre les lignes des paragraphes de chat normaux.",
+  "chatLineHeightTitle": "Interligne du chat",
+  "chatListItemStats": "{count} · {size} · {created} · {last}",
+  "@chatListItemStats": {
+    "description": "Secondary meta line under a home chat list item",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "42"
+      },
+      "size": {
+        "type": "String",
+        "example": "128.0 KB"
+      },
+      "created": {
+        "type": "String",
+        "example": "2024-11-01"
+      },
+      "last": {
+        "type": "String",
+        "example": "2024-11-08"
+      }
+    }
+  },
+  "chatParagraphSpacingDescription": "Espace entre les paragraphes de chat normaux.",
+  "chatParagraphSpacingTitle": "Espacement des paragraphes du chat",
+  "copyCharactersToFolder": "Copier vers un dossier",
+  "@copyCharactersToFolder": {
+    "description": "Title for copy characters path picker"
+  },
+  "copyToFolder": "Copier vers un dossier",
+  "@copyToFolder": {
+    "description": "Copy selected characters into a folder path"
+  },
+  "deleteCharacterFolder": "Supprimer le dossier",
+  "@deleteCharacterFolder": {
+    "description": "Delete a character folder, its subfolders, and characters inside"
+  },
+  "deleteCharacterFolderBody": "Supprimer « {name} » et ses sous-dossiers ? Les personnages à l’intérieur seront aussi supprimés.",
+  "@deleteCharacterFolderBody": {
+    "description": "Confirm deleting a character folder tree and its characters",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "deleteSelectedLibraryItems": "Supprimer la sélection",
+  "@deleteSelectedLibraryItems": {
+    "description": "Title for deleting selected characters and folders"
+  },
+  "deleteSelectedLibraryItemsConfirmation": "Supprimer {characterCount} personnage(s) et {folderCount} dossier(s) ? Le contenu des dossiers sera aussi supprimé. Cette action est irréversible.",
+  "@deleteSelectedLibraryItemsConfirmation": {
+    "description": "Confirmation body for bulk delete of characters and folders",
+    "placeholders": {
+      "characterCount": {
+        "type": "int",
+        "example": "3"
+      },
+      "folderCount": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "deleteStatusField": "Retirer le champ",
+  "@deleteStatusField": {
+    "description": "Action to delete a custom status field"
+  },
+  "deselectAllCharacters": "Tout désélectionner",
+  "@deselectAllCharacters": {
+    "description": "Clear the character multi-selection"
+  },
+  "enableCharacterStatus": "Générer le statut après les réponses",
+  "@enableCharacterStatus": {
+    "description": "Toggle for built-in status generation"
+  },
+  "enableCharacterStatusHint": "Après chaque message de l’IA, mettre à jour le statut des personnages présents",
+  "@enableCharacterStatusHint": {
+    "description": "Subtitle for status generation toggle"
+  },
+  "exportCharacterLibrary": "Exporter la bibliothèque de personnages",
+  "@exportCharacterLibrary": {
+    "description": "Export all character cards preserving folder structure"
+  },
+  "exportCharacterLibraryFastPack": "Export rapide du pack de bibliothèque",
+  "@exportCharacterLibraryFastPack": {
+    "description": "Export the character library as a single fast .ntchars file"
+  },
+  "importCharacterLibraryFastPack": "Import rapide du pack de bibliothèque",
+  "@importCharacterLibraryFastPack": {
+    "description": "Import a .ntchars character library pack"
+  },
+  "importCharacterLibraryStorageFull": "Pas assez d’espace libre pour ouvrir ce pack. Libérez de l’espace et réessayez.",
+  "@importCharacterLibraryStorageFull": {
+    "description": "Shown when picking a library pack fails because the device is out of space"
+  },
+  "importCharactersFromFolder": "Importer depuis un dossier",
+  "@importCharactersFromFolder": {
+    "description": "Recursively import character cards from a folder"
+  },
+  "libraryItemsSelected": "{count} sélectionné(s)",
+  "@libraryItemsSelected": {
+    "description": "Selected characters and/or folders count",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "manageCurrentCharacterFolder": "Ce dossier",
+  "@manageCurrentCharacterFolder": {
+    "description": "Section label for actions on the open character folder"
+  },
+  "markdownLineHeightDescription": "Espace entre les lignes dans les blocs de code et les messages HTML.",
+  "markdownLineHeightTitle": "Interligne Markdown/HTML",
+  "markdownParagraphSpacingDescription": "Espace supplémentaire pour les lignes vides dans les blocs de code et entre les paragraphes HTML.",
+  "markdownParagraphSpacingTitle": "Espacement des paragraphes Markdown/HTML",
+  "openCharacterStatusSettings": "Ouvrir les paramètres",
+  "@openCharacterStatusSettings": {
+    "description": "Button to open status settings"
+  },
+  "pinCharacterStatusPanel": "Épingler le panneau",
+  "@pinCharacterStatusPanel": {
+    "description": "Tooltip to keep status panel open"
+  },
+  "replyMaxChars": "Longueur maximale de réponse",
+  "@replyMaxChars": {
+    "description": "Maximum AI reply character count setting"
+  },
+  "replyMaxCharsDescription": "Demandez à l’IA de limiter les réponses à ce nombre de caractères. 0 le désactive. Les réponses trop longues peuvent être tronquées.",
+  "@replyMaxCharsDescription": {
+    "description": "Maximum AI reply character count description"
+  },
+  "replyMinChars": "Longueur minimale de réponse",
+  "@replyMinChars": {
+    "description": "Minimum AI reply character count setting"
+  },
+  "replyMinCharsDescription": "Demandez à l’IA d’écrire au moins ce nombre de caractères. 0 le désactive. Les réponses trop courtes peuvent être allongées automatiquement.",
+  "@replyMinCharsDescription": {
+    "description": "Minimum AI reply character count description"
+  },
+  "selectAllCharacters": "Tout sélectionner",
+  "@selectAllCharacters": {
+    "description": "Select all characters in the current character list filter"
+  },
+  "showCharacterStatus": "Statut du personnage",
+  "@showCharacterStatus": {
+    "description": "Chat composer button tooltip for status panel"
+  },
+  "unpinCharacterStatusPanel": "Désépingler le panneau",
+  "@unpinCharacterStatusPanel": {
+    "description": "Tooltip to allow status panel to auto-hide"
+  },
+  "momentsDraftSaveTitle": "Save draft?",
+  "@momentsDraftSaveTitle": {
+    "description": "Title asking whether to keep a moments compose draft"
+  },
+  "momentsDraftSaveMessage": "You have unpublished content. Save it as the only draft? It will restore the next time you post.",
+  "@momentsDraftSaveMessage": {
+    "description": "Explains single-slot moments draft on cancel"
+  },
+  "momentsDraftSave": "Save draft",
+  "@momentsDraftSave": {
+    "description": "Confirm saving moments compose draft"
+  },
+  "momentsDraftDiscard": "Discard",
+  "@momentsDraftDiscard": {
+    "description": "Discard moments compose content without saving a draft"
+  },
+  "searchChats": "Search chats",
+  "@searchChats": {
+    "description": "Hint for the chat list search field"
+  },
+  "noMatchingChats": "No matching chats",
+  "@noMatchingChats": {
+    "description": "Empty state when the chat list search has no hits"
   }
 }

@@ -311,8 +311,13 @@ class SettingsControlTile extends StatelessWidget {
                     ),
                   ),
                   if (trailing != null) ...[
-                    const SizedBox(width: 12),
-                    trailing!,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: trailing!,
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -518,11 +523,16 @@ class SettingsChoiceTile<T> extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            valueLabel,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: muted,
-                ),
+          Flexible(
+            child: Text(
+              valueLabel,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: muted,
+                  ),
+            ),
           ),
           const SizedBox(width: 4),
           Icon(Icons.chevron_right, color: muted, size: 20),
@@ -570,15 +580,18 @@ class SettingsValueTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (valueText.isNotEmpty) ...[
-            Text(
-              valueText,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: enabled
-                        ? scheme.onSurfaceVariant
-                        : Theme.of(context).disabledColor,
-                  ),
+            Flexible(
+              child: Text(
+                valueText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: enabled
+                          ? scheme.onSurfaceVariant
+                          : Theme.of(context).disabledColor,
+                    ),
+              ),
             ),
             const SizedBox(width: 4),
           ],

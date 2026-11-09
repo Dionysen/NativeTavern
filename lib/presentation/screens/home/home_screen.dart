@@ -13,6 +13,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
@@ -22,6 +23,7 @@ import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:native_tavern/presentation/widgets/common/intercept_pop_scope.dart';
+import 'package:native_tavern/presentation/widgets/common/list_search_field.dart';
 
 /// Home screen showing recent chats
 class HomeScreen extends ConsumerStatefulWidget {
@@ -35,6 +37,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     with WidgetsBindingObserver {
   bool _selectionMode = false;
   final Set<String> _selectedChatIds = {};
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounce;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -49,8 +54,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() => _searchQuery = value);
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      ref.read(pagedChatsProvider.notifier).setQuery(value);
+    });
+  }
+
+  void _clearSearch() {
+    _searchDebounce?.cancel();
+    _searchController.clear();
+    setState(() => _searchQuery = '');
+    ref.read(pagedChatsProvider.notifier).setQuery('');
   }
 
   @override
@@ -147,7 +170,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           title: Text(
             _selectionMode
                 ? l10n.chatsSelected(_selectedChatIds.length)
-                : l10n.appTitle,
+                : l10n.chats,
           ),
           actions: spacedAppBarActions([
             if (_selectionMode) ...[
@@ -176,16 +199,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ],
           ]),
         ),
-        body: _ChatListView(
-          selectionMode: _selectionMode,
-          selectedIds: _selectedChatIds,
-          onToggleSelect: _toggleChatSelection,
-          onEnterSelection: _enterSelectionMode,
+        body: Column(
+          children: [
+            ListSearchField(
+              controller: _searchController,
+              hintText: l10n.searchChats,
+              onChanged: _onSearchChanged,
+              suffix: _searchQuery.isEmpty
+                  ? null
+                  : ChromeIconButton(
+                      density: ChromeIconButtonDensity.compact,
+                      icon: const Icon(Icons.close),
+                      tooltip: l10n.clear,
+                      onPressed: _clearSearch,
+                    ),
+            ),
+            Expanded(
+              child: _ChatListView(
+                searchQuery: _searchQuery,
+                selectionMode: _selectionMode,
+                selectedIds: _selectedChatIds,
+                onToggleSelect: _toggleChatSelection,
+                onEnterSelection: _enterSelectionMode,
+              ),
+            ),
+          ],
         ),
         floatingActionButton: _selectionMode
             ? null
             : FloatingActionButton(
-                onPressed: () => context.push(AppRoutes.characters),
+                onPressed: () => context.openShell(AppRoutes.characters),
                 tooltip: l10n.newChat,
                 child: const Icon(Icons.add),
               ),
@@ -196,12 +239,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
 class _ChatListView extends ConsumerWidget {
   const _ChatListView({
+    required this.searchQuery,
     required this.selectionMode,
     required this.selectedIds,
     required this.onToggleSelect,
     required this.onEnterSelection,
   });
 
+  final String searchQuery;
   final bool selectionMode;
   final Set<String> selectedIds;
   final ValueChanged<String> onToggleSelect;
@@ -234,38 +279,43 @@ class _ChatListView extends ConsumerWidget {
       ),
       data: (chats) {
         if (chats.isEmpty) {
+          final searching = searchQuery.trim().isNotEmpty;
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.chat_bubble_outline,
+                  searching ? Icons.search_off : Icons.chat_bubble_outline,
                   size: 80,
                   color: AppTheme.textMuted,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  l10n.noChatsYet,
+                  searching ? l10n.noMatchingChats : l10n.noChatsYet,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: AppTheme.textSecondary,
                       ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  l10n.startNewConversation,
+                  searching
+                      ? l10n.tryDifferentSearchTerm
+                      : l10n.startNewConversation,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppTheme.textMuted,
                       ),
                 ),
-                const SizedBox(height: 24),
-                ZephyrChatChrome.withComposerShadow(
-                  context: context,
-                  child: ElevatedButton.icon(
-                    onPressed: () => context.push(AppRoutes.characters),
-                    icon: const Icon(Icons.people),
-                    label: Text(l10n.browseCharacters),
+                if (!searching) ...[
+                  const SizedBox(height: 24),
+                  ZephyrChatChrome.withComposerShadow(
+                    context: context,
+                    child: ElevatedButton.icon(
+                      onPressed: () => context.openShell(AppRoutes.characters),
+                      icon: const Icon(Icons.people),
+                      label: Text(l10n.browseCharacters),
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           );
@@ -411,7 +461,7 @@ class _ChatListTile extends ConsumerWidget {
             onToggleSelect(chat.id);
             return;
           }
-          context.push('/chat/${chat.id}');
+          context.openShell('/chat/${chat.id}');
         },
         onLongPress: () {
           if (selectionMode) {
@@ -423,7 +473,9 @@ class _ChatListTile extends ConsumerWidget {
         child: ColoredBox(
           color: selectionMode && selected
               ? scheme.primary.withValues(alpha: 0.12)
-              : Colors.transparent,
+              : GoRouterState.of(context).uri.path == '/chat/${chat.id}'
+                  ? scheme.primary.withValues(alpha: 0.08)
+                  : Colors.transparent,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 4, 10),
             child: Row(
@@ -657,7 +709,7 @@ class _ChatListTile extends ConsumerWidget {
 
     ref.invalidate(pagedChatsProvider);
     ref.invalidate(allChatsProvider);
-    context.push('/chat/$newChatId');
+    context.openShell('/chat/$newChatId');
   }
 
   Future<void> _showDeleteConfirmation(

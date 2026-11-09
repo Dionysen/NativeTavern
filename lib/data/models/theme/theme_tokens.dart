@@ -42,7 +42,9 @@ enum ThemePreset {
   /// Soft indigo night — periwinkle accent.
   midnight,
   /// Mauve dusk — dusty rose accent.
-  dusk;
+  dusk,
+  /// Cursor Dark — editor chrome from Cursor's dark theme.
+  cursorDark;
 }
 
 class ThemeTokens {
@@ -259,6 +261,21 @@ class ThemeTokens {
       secondaryAccent: 0xFF7EAEA0,
       tertiaryAccent: 0xFFD4A07A,
       cursor: 0xFFEDE6EA,
+    ),
+    // Cursor Dark — near-black chrome from Cursor's current dark UI
+    // (much deeper than Dark Modern's #1F1F1F / #313131 surfaces).
+    ThemePreset.cursorDark: ThemeTokens(
+      editorSurface: 0xFF141414,
+      sidebarSurface: 0xFF101010,
+      controlSurface: 0xFF232323,
+      border: 0xFF2A2A2A,
+      divider: 0xFF1C1C1C,
+      primaryText: 0xFFCCCCCC,
+      mutedText: 0xFF6E6E6E,
+      accent: 0xFF4D9DF4,
+      secondaryAccent: 0xFF6CB6FF,
+      tertiaryAccent: 0xFFD4B483,
+      cursor: 0xFFFFFFFF,
     ),
   };
 

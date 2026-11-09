@@ -28,15 +28,67 @@ class ChatRepository {
   }
 
   /// Loads a bounded page for the home chat list.
+  ///
+  /// [query] matches chat title, author note, character name, and group name.
+  /// Matching stays in SQL so unloaded pages are included.
   Future<List<models.Chat>> getChatsPage({
     int limit = 40,
     int offset = 0,
+    String query = '',
   }) async {
-    final rows = await (_db.select(_db.chats)
-          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])
-          ..limit(limit, offset: offset < 0 ? 0 : offset))
-        .get();
-    return rows.map(_chatFromRow).toList(growable: false);
+    final safeOffset = offset < 0 ? 0 : offset;
+    final normalized = query.trim();
+    if (normalized.isEmpty) {
+      final rows = await (_db.select(_db.chats)
+            ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])
+            ..limit(limit, offset: safeOffset))
+          .get();
+      return rows.map(_chatFromRow).toList(growable: false);
+    }
+
+    final pattern = _likeContains(normalized);
+    final idRows = await _db.customSelect(
+      '''
+      SELECT chats.id AS id
+      FROM chats
+      LEFT JOIN characters ON characters.id = chats.character_id
+      LEFT JOIN "groups" ON "groups".id = chats.group_id
+      WHERE chats.title LIKE ? ESCAPE '\\'
+         OR IFNULL(chats.author_note, '') LIKE ? ESCAPE '\\'
+         OR IFNULL(characters.name, '') LIKE ? ESCAPE '\\'
+         OR IFNULL("groups".name, '') LIKE ? ESCAPE '\\'
+      ORDER BY chats.updated_at DESC
+      LIMIT ? OFFSET ?
+      ''',
+      variables: [
+        Variable<String>(pattern),
+        Variable<String>(pattern),
+        Variable<String>(pattern),
+        Variable<String>(pattern),
+        Variable<int>(limit),
+        Variable<int>(safeOffset),
+      ],
+      readsFrom: {_db.chats, _db.characters, _db.groups},
+    ).get();
+    final ids =
+        idRows.map((row) => row.read<String>('id')).toList(growable: false);
+    if (ids.isEmpty) return const [];
+
+    final rows = await (_db.select(_db.chats)..where((t) => t.id.isIn(ids))).get();
+    final byId = {for (final row in rows) row.id: row};
+    return [
+      for (final id in ids)
+        if (byId[id] != null) _chatFromRow(byId[id]!),
+    ];
+  }
+
+  /// `%term%` with `%`, `_`, and `\` escaped for `LIKE ... ESCAPE '\'`.
+  static String _likeContains(String raw) {
+    final escaped = raw
+        .replaceAll(r'\', r'\\')
+        .replaceAll('%', r'\%')
+        .replaceAll('_', r'\_');
+    return '%$escaped%';
   }
 
   /// Get chats for a specific character

@@ -678,42 +678,39 @@ class AppLocalizationsKo extends AppLocalizations {
   String get unpinReplyChoicesPanel => '패널 고정 해제';
 
   @override
-  String get characterStatus => 'Character status';
+  String get characterStatus => '캐릭터 상태';
 
   @override
-  String get enableCharacterStatus => 'Generate status after replies';
+  String get enableCharacterStatus => '답장 후 상태 생성';
 
   @override
-  String get enableCharacterStatusHint =>
-      'After each AI message, update status for characters in the scene';
+  String get enableCharacterStatusHint => 'AI 메시지마다 장면에 있는 캐릭터 상태를 업데이트합니다';
 
   @override
-  String get characterStatusInjectContext => 'Include status in next prompt';
+  String get characterStatusInjectContext => '다음 프롬프트에 상태 포함';
 
   @override
   String get characterStatusInjectContextHint =>
-      'Helps the AI keep status consistent across turns';
+      'AI가 턴마다 상태를 일관되게 유지하는 데 도움이 됩니다';
 
   @override
-  String get characterStatusAutoDisableCard =>
-      'Prefer card status when present';
+  String get characterStatusAutoDisableCard => '카드에 상태가 있으면 카드 상태 우선';
 
   @override
   String get characterStatusAutoDisableCardHint =>
-      'If this character card already includes a status block, leave built-in generation off';
+      '이 캐릭터 카드에 이미 상태 블록이 있으면 내장 생성을 꺼 두세요';
 
   @override
-  String get characterStatusCardDetected =>
-      'This character card already includes a status block';
+  String get characterStatusCardDetected => '이 캐릭터 카드에는 이미 상태 블록이 있습니다';
 
   @override
-  String get characterStatusFields => 'Status fields';
+  String get characterStatusFields => '상태 필드';
 
   @override
-  String get characterStatusAddField => 'Add field';
+  String get characterStatusAddField => '필드 추가';
 
   @override
-  String get characterStatusFieldLabel => 'Field name';
+  String get characterStatusFieldLabel => '필드 이름';
 
   @override
   String get characterStatusFieldPrompt => 'Field prompt';
@@ -723,44 +720,42 @@ class AppLocalizationsKo extends AppLocalizations {
       'Optional. Tell the AI how to write this field.';
 
   @override
-  String get characterStatusFieldLocked => 'Required';
+  String get characterStatusFieldLocked => '필수';
 
   @override
-  String get characterStatusPromptTemplate => 'Prompt template';
+  String get characterStatusPromptTemplate => '프롬프트 템플릿';
 
   @override
   String get characterStatusPromptPlaceholders =>
-      'Placeholders: field_lines, character_lines, previous_status (each wrapped in double curly braces)';
+      '자리 표시자: field_lines, character_lines, previous_status(각각 이중 중괄호로 감쌈)';
 
   @override
-  String get characterStatusDisabledTitle => 'Character status is off';
+  String get characterStatusDisabledTitle => '캐릭터 상태가 꺼져 있습니다';
 
   @override
-  String get characterStatusDisabledHint =>
-      'Turn on in settings to update character status after each reply.';
+  String get characterStatusDisabledHint => '설정에서 켜면 답장마다 캐릭터 상태가 업데이트됩니다.';
 
   @override
-  String get openCharacterStatusSettings => 'Open settings';
+  String get openCharacterStatusSettings => '설정 열기';
 
   @override
   String get characterStatusGenerateFailed =>
-      'Could not generate status. Try again after the next reply.';
+      '상태를 생성하지 못했습니다. 다음 답장 후에 다시 시도하세요.';
 
   @override
-  String get characterStatusEmpty =>
-      'No status yet. It appears after the character replies.';
+  String get characterStatusEmpty => '아직 상태가 없습니다. 캐릭터가 답장하면 나타납니다.';
 
   @override
-  String get showCharacterStatus => 'Character status';
+  String get showCharacterStatus => '캐릭터 상태';
 
   @override
-  String get pinCharacterStatusPanel => 'Pin panel';
+  String get pinCharacterStatusPanel => '패널 고정';
 
   @override
-  String get unpinCharacterStatusPanel => 'Unpin panel';
+  String get unpinCharacterStatusPanel => '패널 고정 해제';
 
   @override
-  String get deleteStatusField => 'Remove field';
+  String get deleteStatusField => '필드 제거';
 
   @override
   String get createQuickReply => '빠른 답장 만들기';
@@ -1351,19 +1346,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String libraryItemsSelected(int count) {
-    return '$count selected';
+    return '$count개 선택됨';
   }
 
   @override
   String get deleteSelectedCharacters => '캐릭터 삭제';
 
   @override
-  String get deleteSelectedLibraryItems => 'Delete selected';
+  String get deleteSelectedLibraryItems => '선택 항목 삭제';
 
   @override
   String deleteSelectedLibraryItemsConfirmation(
       int characterCount, int folderCount) {
-    return 'Delete $characterCount character(s) and $folderCount folder(s)? Folder contents will also be deleted. This cannot be undone.';
+    return '캐릭터 $characterCount개와 폴더 $folderCount개를 삭제할까요? 폴더 내용도 삭제되며 되돌릴 수 없습니다.';
   }
 
   @override
@@ -1419,110 +1414,109 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String characterFolderContentsSummary(int characterCount, int folderCount) {
-    return '$characterCount character(s) · $folderCount folder(s)';
+    return '$characterCount개 캐릭터 · $folderCount개 폴더';
   }
 
   @override
   String characterFolderDepthLimit(int maxDepth) {
-    return 'Folders can only nest up to $maxDepth levels';
+    return '폴더는 최대 $maxDepth단계까지만 중첩할 수 있습니다';
   }
 
   @override
   String get charactersMovedToFolder => '캐릭터를 이동했습니다';
 
   @override
-  String get copyToFolder => 'Copy to folder';
+  String get copyToFolder => '폴더로 복사';
 
   @override
-  String get copyCharactersToFolder => 'Copy to folder';
+  String get copyCharactersToFolder => '폴더로 복사';
 
   @override
   String charactersCopiedToFolder(int count) {
-    return 'Copied $count character(s)';
+    return '캐릭터 $count개를 복사했습니다';
   }
 
   @override
-  String get characterFolderUseThisPath => 'Use this folder';
+  String get characterFolderUseThisPath => '이 폴더 사용';
 
   @override
-  String get characterFolderPathEmpty => 'No subfolders here yet';
+  String get characterFolderPathEmpty => '여기에는 아직 하위 폴더가 없습니다';
 
   @override
-  String get importCharactersFromFolder => 'Import from folder';
+  String get importCharactersFromFolder => '폴더에서 가져오기';
 
   @override
-  String get exportCharacterLibrary => 'Export character library';
+  String get exportCharacterLibrary => '캐릭터 라이브러리 내보내기';
 
   @override
-  String get exportCharacterLibraryFastPack => 'Quick export library pack';
+  String get exportCharacterLibraryFastPack => '라이브러리 팩 빠른 내보내기';
 
   @override
-  String get importCharacterLibraryFastPack => 'Quick import library pack';
+  String get importCharacterLibraryFastPack => '라이브러리 팩 빠른 가져오기';
 
   @override
   String get importCharacterLibraryStorageFull =>
-      'Not enough free storage to open this pack. Free some space and try again.';
+      '이 팩을 열 여유 공간이 부족합니다. 공간을 확보한 뒤 다시 시도하세요.';
 
   @override
-  String get characterLibraryFastPackOverwriteTitle =>
-      'Overwrite matching characters?';
+  String get characterLibraryFastPackOverwriteTitle => '일치하는 캐릭터를 덮어쓸까요?';
 
   @override
   String get characterLibraryFastPackOverwriteBody =>
-      'Characters with the same id will be updated. Chats stay linked to those characters.';
+      '같은 id의 캐릭터는 업데이트됩니다. 채팅은 해당 캐릭터에 연결된 채로 유지됩니다.';
 
   @override
-  String get characterLibraryFastPackPreparing => 'Preparing…';
+  String get characterLibraryFastPackPreparing => '준비 중…';
 
   @override
   String characterLibraryFastPackImportProgress(int processed, int total) {
-    return 'Quick importing $processed of $total';
+    return '빠른 가져오기 $processed/$total';
   }
 
   @override
   String characterLibraryFastPackExportProgress(int processed, int total) {
-    return 'Quick exporting $processed of $total';
+    return '빠른 내보내기 $processed/$total';
   }
 
   @override
   String characterLibraryFastPackExtractProgress(int processed, int total) {
-    return 'Extracting files $processed of $total';
+    return '파일 압축 해제 중 $processed/$total';
   }
 
   @override
   String characterLibraryFastPackImportSummary(
       int created, int updated, int failed) {
-    return 'Created $created. Updated $updated. Failed $failed.';
+    return '생성 $created. 업데이트 $updated. 실패 $failed.';
   }
 
   @override
   String characterLibraryFastPackExportSummary(int characters, int folders) {
-    return 'Exported $characters characters and $folders folders';
+    return '캐릭터 $characters개와 폴더 $folders개를 내보냈습니다';
   }
 
   @override
   String characterLibraryImportProgress(int processed, int total) {
-    return 'Importing $processed of $total';
+    return '가져오는 중 $processed/$total';
   }
 
   @override
   String characterLibraryImportSummary(int succeeded, int failed, int skipped) {
-    return 'Imported $succeeded. Failed $failed. Skipped $skipped.';
+    return '$succeeded개 가져옴. 실패 $failed개. 건너뜀 $skipped개.';
   }
 
   @override
   String characterLibraryExportProgress(int processed, int total) {
-    return 'Exporting $processed of $total';
+    return '내보내기 중 $processed/$total';
   }
 
   @override
   String characterLibraryExportSummary(int succeeded, int failed) {
-    return 'Exported $succeeded. Failed $failed.';
+    return '$succeeded개 내보냄. 실패 $failed개.';
   }
 
   @override
   String get characterLibraryFolderPickerUnavailable =>
-      'This device can’t pick a folder. Import cards as files instead.';
+      '이 기기에서는 폴더를 선택할 수 없습니다. 대신 파일로 카드를 가져오세요.';
 
   @override
   String get dissolveCharacterFolder => '폴더 해체';
@@ -1533,30 +1527,30 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get deleteCharacterFolder => 'Delete folder';
+  String get deleteCharacterFolder => '폴더 삭제';
 
   @override
   String deleteCharacterFolderBody(String name) {
-    return 'Delete \"$name\" and its subfolders? Characters inside will also be deleted.';
+    return '\"$name\"와(과) 하위 폴더를 삭제할까요? 안의 캐릭터도 삭제됩니다.';
   }
 
   @override
-  String get selectAllCharacters => 'Select all';
+  String get selectAllCharacters => '모두 선택';
 
   @override
-  String get deselectAllCharacters => 'Deselect all';
+  String get deselectAllCharacters => '모두 선택 해제';
 
   @override
-  String get characterFolderDeleted => 'Folder deleted';
+  String get characterFolderDeleted => '폴더가 삭제되었습니다';
 
   @override
-  String get characterFolderDissolved => 'Folder dissolved';
+  String get characterFolderDissolved => '폴더가 해체되었습니다';
 
   @override
-  String get characterLibraryManage => 'Library';
+  String get characterLibraryManage => '라이브러리';
 
   @override
-  String get manageCurrentCharacterFolder => 'This folder';
+  String get manageCurrentCharacterFolder => '이 폴더';
 
   @override
   String get renameCharacterFolder => '폴더 이름 바꾸기';
@@ -1854,18 +1848,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get maxTokensDescription => 'Maximum tokens to generate.';
 
   @override
-  String get replyMinChars => 'Minimum reply length';
+  String get replyMinChars => '최소 답장 길이';
 
   @override
   String get replyMinCharsDescription =>
-      'Ask the AI to write at least this many characters. 0 turns it off. Too-short replies may be expanded automatically.';
+      'AI가 적어도 이 글자 수만큼 쓰도록 요청합니다. 0이면 끔. 너무 짧은 답장은 자동으로 늘어날 수 있습니다.';
 
   @override
-  String get replyMaxChars => 'Maximum reply length';
+  String get replyMaxChars => '최대 답장 길이';
 
   @override
   String get replyMaxCharsDescription =>
-      'Ask the AI to keep replies at or below this many characters. 0 turns it off. Overlong replies may be trimmed.';
+      'AI가 이 글자 수 이하로 답하도록 요청합니다. 0이면 끔. 너무 긴 답장은 잘릴 수 있습니다.';
 
   @override
   String get seed => 'Seed';
@@ -4711,11 +4705,11 @@ class AppLocalizationsKo extends AppLocalizations {
       'When this is off, the feed stays still and characters do not post.';
 
   @override
-  String get characterWorldRuntimeEnabled => 'Post in Moments';
+  String get characterWorldRuntimeEnabled => '모먼트에 게시';
 
   @override
   String get characterWorldRuntimeEnabledHint =>
-      'Off by default. When on, this character can wake and post in Moments on their own.';
+      '기본값은 끔입니다. 켜면 이 캐릭터가 스스로 깨어나 모먼트에 게시할 수 있습니다.';
 
   @override
   String get momentsInChat => 'Use Moments in this chat';
@@ -7034,6 +7028,24 @@ class AppLocalizationsKo extends AppLocalizations {
   String get pageNotFound => 'Page not found';
 
   @override
+  String get emptySecondarySelectChat => 'Select a chat';
+
+  @override
+  String get emptySecondarySelectCharacter => 'Select a character';
+
+  @override
+  String get emptySecondarySelectPlay => 'Select something to play';
+
+  @override
+  String get emptySecondarySelectAiConfig => 'Select an AI setting';
+
+  @override
+  String get emptySecondarySelectAppearance => 'Select an appearance setting';
+
+  @override
+  String get emptySecondarySelectSetting => 'Select a setting';
+
+  @override
   String get goHome => 'Go home';
 
   @override
@@ -7122,32 +7134,29 @@ class AppLocalizationsKo extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get chatLineHeightTitle => 'Chat line spacing';
+  String get chatLineHeightTitle => '채팅 줄 간격';
 
   @override
-  String get chatLineHeightDescription =>
-      'Space between lines in normal chat paragraphs.';
+  String get chatLineHeightDescription => '일반 채팅 단락의 줄 간격입니다.';
 
   @override
-  String get chatParagraphSpacingTitle => 'Chat paragraph spacing';
+  String get chatParagraphSpacingTitle => '채팅 단락 간격';
 
   @override
-  String get chatParagraphSpacingDescription =>
-      'Space between normal chat paragraphs.';
+  String get chatParagraphSpacingDescription => '일반 채팅 단락 사이의 간격입니다.';
 
   @override
-  String get markdownLineHeightTitle => 'Markdown/HTML line spacing';
+  String get markdownLineHeightTitle => 'Markdown/HTML 줄 간격';
 
   @override
-  String get markdownLineHeightDescription =>
-      'Space between lines in code blocks and HTML messages.';
+  String get markdownLineHeightDescription => '코드 블록과 HTML 메시지의 줄 간격입니다.';
 
   @override
-  String get markdownParagraphSpacingTitle => 'Markdown/HTML paragraph spacing';
+  String get markdownParagraphSpacingTitle => 'Markdown/HTML 단락 간격';
 
   @override
   String get markdownParagraphSpacingDescription =>
-      'Extra space for blank lines in code blocks and between HTML paragraphs.';
+      '코드 블록 빈 줄과 HTML 단락 사이의 추가 간격입니다.';
 
   @override
   String get uiFontFamilyTitle => '글꼴';
@@ -7357,6 +7366,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get themePresetDusk => 'Dusk';
+
+  @override
+  String get themePresetCursorDark => 'Cursor Dark';
 
   @override
   String get tokenEditorSurface => 'App background';
@@ -7578,4 +7590,23 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get promptOwnedByCharacter => '캐릭터 카드에서 · 보기 전용';
+
+  @override
+  String get momentsDraftSaveTitle => 'Save draft?';
+
+  @override
+  String get momentsDraftSaveMessage =>
+      'You have unpublished content. Save it as the only draft? It will restore the next time you post.';
+
+  @override
+  String get momentsDraftSave => 'Save draft';
+
+  @override
+  String get momentsDraftDiscard => 'Discard';
+
+  @override
+  String get searchChats => 'Search chats';
+
+  @override
+  String get noMatchingChats => 'No matching chats';
 }

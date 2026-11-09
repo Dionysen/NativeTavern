@@ -7,6 +7,7 @@ import 'package:native_tavern/presentation/providers/font_library_provider.dart'
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/providers/theme_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/presentation/screens/settings/theme_settings_screen.dart';
 import 'package:native_tavern/presentation/widgets/settings/font_file_picker_row.dart';
 import 'package:native_tavern/presentation/widgets/settings/language_settings_tile.dart';
@@ -54,7 +55,7 @@ class _AppearanceScreenState extends ConsumerState<AppearanceScreen> {
                 icon: Icons.wallpaper,
                 title: l10n.backgrounds,
                 valueText: '',
-                onTap: () => context.push(AppRoutes.backgroundSettings),
+                onTap: () => context.openShell(AppRoutes.backgroundSettings),
               ),
               FontFilePickerRow(
                 icon: Icons.font_download_outlined,

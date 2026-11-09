@@ -34,6 +34,11 @@ add_definitions(-DUNICODE -D_UNICODE)
 # VS 2026 / MSVC 14.5x treats <experimental/coroutine> as a hard error
 # (STL1011). Several plugins still include it; silence until they migrate.
 add_definitions(-D_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
+# Chinese Windows defaults to code page 936; UTF-8 sources in plugins otherwise
+# trigger C4819. Force UTF-8 for all MSVC targets (including plugins).
+if(MSVC)
+  add_compile_options(/utf-8)
+endif()
 
 # Compilation settings that should be applied to most targets.
 #
@@ -76,6 +81,24 @@ unset(_flutter_inappwebview_windows_cmake)
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
 include(flutter/generated_plugins.cmake)
+
+# Third-party Windows plugin sources (and vendor headers they pull in) emit a
+# lot of MSVC noise. Keep /WX for our runner; silence known plugin chatter.
+if(MSVC)
+  if(TARGET flutter_inappwebview_windows_plugin)
+    target_compile_options(flutter_inappwebview_windows_plugin PRIVATE
+      /wd4244  # int64→int narrowing in plugin sources
+      /wd4458  # WebView2EnvironmentOptions.h hides class members
+    )
+  endif()
+  if(TARGET spine_flutter)
+    target_compile_definitions(spine_flutter PRIVATE
+      _CRT_SECURE_NO_WARNINGS
+      _CRT_NONSTDC_NO_WARNINGS
+    )
+    target_compile_options(spine_flutter PRIVATE /wd4244 /wd4996)
+  endif()
+endif()
 
 
 # === Installation ===

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/data/models/chat.dart';
 import 'package:native_tavern/data/models/long_term_memory.dart';
 import 'package:native_tavern/domain/services/long_term_memory_governance_service.dart';
@@ -450,7 +451,7 @@ class _MemoryInboxScreenState extends ConsumerState<MemoryInboxScreen> {
   void _openSource(LongTermMemory memory) {
     final chatId = memory.source.sourceChatId!;
     final messageId = memory.source.sourceMessageIds.first;
-    context.push(
+    context.openShell(
       '/chat/${Uri.encodeComponent(chatId)}'
       '?message=${Uri.encodeQueryComponent(messageId)}',
     );

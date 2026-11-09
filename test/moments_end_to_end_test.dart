@@ -17,6 +17,7 @@ import 'package:native_tavern/domain/services/llm_service.dart';
 import 'package:native_tavern/domain/services/moment_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
+import 'package:native_tavern/presentation/providers/moments_compose_draft_provider.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/screens/character/character_detail_screen.dart';
@@ -466,6 +467,11 @@ void main() {
               GoRoute(
                 path: AppRoutes.playMoments,
                 builder: (_, __) => const MomentsScreen(),
+              ),
+              GoRoute(
+                path: AppRoutes.playMomentsCompose,
+                onExit: (context) => confirmMomentsComposeLeave(context),
+                builder: (_, __) => const MomentsComposeScreen(),
               ),
             ],
             initialLocation: AppRoutes.playMoments,

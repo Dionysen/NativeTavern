@@ -1,4 +1,4 @@
-﻿{
+{
   "@@locale": "ko",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -6875,6 +6875,12 @@
   "numberedList": "Numbered list",
   "horizontalRule": "Horizontal rule",
   "pageNotFound": "Page not found",
+  "emptySecondarySelectChat": "Select a chat",
+  "emptySecondarySelectCharacter": "Select a character",
+  "emptySecondarySelectPlay": "Select something to play",
+  "emptySecondarySelectAiConfig": "Select an AI setting",
+  "emptySecondarySelectAppearance": "Select an appearance setting",
+  "emptySecondarySelectSetting": "Select a setting",
   "goHome": "Go home",
   "officialWebsite": "Official website",
   "mcpStreamableHttp": "Streamable HTTP",
@@ -6973,6 +6979,7 @@
   "themePresetEspresso": "Espresso",
   "themePresetMidnight": "Midnight",
   "themePresetDusk": "Dusk",
+  "themePresetCursorDark": "Cursor Dark",
   "tokenEditorSurface": "App background",
   "tokenSidebarSurface": "Panel background",
   "tokenControlSurface": "Buttons and fields",
@@ -7564,5 +7571,441 @@
   "unpinReplyChoicesPanel": "패널 고정 해제",
   "@unpinReplyChoicesPanel": {
     "description": "Tooltip to allow reply choices panel to auto-hide"
+  },
+  "characterFolderContentsSummary": "{characterCount}개 캐릭터 · {folderCount}개 폴더",
+  "@characterFolderContentsSummary": {
+    "description": "Character and child-folder counts on a folder tile",
+    "placeholders": {
+      "characterCount": {
+        "type": "int",
+        "example": "5"
+      },
+      "folderCount": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "characterFolderDeleted": "폴더가 삭제되었습니다",
+  "@characterFolderDeleted": {
+    "description": "Snack bar after deleting a character folder"
+  },
+  "characterFolderDepthLimit": "폴더는 최대 {maxDepth}단계까지만 중첩할 수 있습니다",
+  "@characterFolderDepthLimit": {
+    "description": "Shown when creating or moving a folder would exceed the depth limit",
+    "placeholders": {
+      "maxDepth": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "characterFolderDissolved": "폴더가 해체되었습니다",
+  "@characterFolderDissolved": {
+    "description": "Snack bar after dissolving a character folder"
+  },
+  "characterFolderPathEmpty": "여기에는 아직 하위 폴더가 없습니다",
+  "@characterFolderPathEmpty": {
+    "description": "Empty state inside folder path picker"
+  },
+  "characterFolderUseThisPath": "이 폴더 사용",
+  "@characterFolderUseThisPath": {
+    "description": "Confirm current folder path in the picker"
+  },
+  "characterLibraryExportProgress": "내보내기 중 {processed}/{total}",
+  "@characterLibraryExportProgress": {
+    "description": "Progress while exporting the character library",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryExportSummary": "{succeeded}개 내보냄. 실패 {failed}개.",
+  "@characterLibraryExportSummary": {
+    "description": "Summary after library export",
+    "placeholders": {
+      "succeeded": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExportProgress": "빠른 내보내기 {processed}/{total}",
+  "@characterLibraryFastPackExportProgress": {
+    "description": "Progress while exporting a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExportSummary": "캐릭터 {characters}개와 폴더 {folders}개를 내보냈습니다",
+  "@characterLibraryFastPackExportSummary": {
+    "description": "Summary after fast pack export",
+    "placeholders": {
+      "characters": {
+        "type": "int"
+      },
+      "folders": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExtractProgress": "파일 압축 해제 중 {processed}/{total}",
+  "@characterLibraryFastPackExtractProgress": {
+    "description": "Progress while streaming files out of a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackImportProgress": "빠른 가져오기 {processed}/{total}",
+  "@characterLibraryFastPackImportProgress": {
+    "description": "Progress while importing a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackImportSummary": "생성 {created}. 업데이트 {updated}. 실패 {failed}.",
+  "@characterLibraryFastPackImportSummary": {
+    "description": "Summary after fast pack import",
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackOverwriteBody": "같은 id의 캐릭터는 업데이트됩니다. 채팅은 해당 캐릭터에 연결된 채로 유지됩니다.",
+  "@characterLibraryFastPackOverwriteBody": {
+    "description": "Explains id overwrite behavior for fast pack import"
+  },
+  "characterLibraryFastPackOverwriteTitle": "일치하는 캐릭터를 덮어쓸까요?",
+  "@characterLibraryFastPackOverwriteTitle": {
+    "description": "Confirm before fast pack import overwrites by id"
+  },
+  "characterLibraryFastPackPreparing": "준비 중…",
+  "@characterLibraryFastPackPreparing": {
+    "description": "Shown while opening a large character library pack before counted progress starts"
+  },
+  "characterLibraryFolderPickerUnavailable": "이 기기에서는 폴더를 선택할 수 없습니다. 대신 파일로 카드를 가져오세요.",
+  "@characterLibraryFolderPickerUnavailable": {
+    "description": "Shown when directory picking is unavailable"
+  },
+  "characterLibraryImportProgress": "가져오는 중 {processed}/{total}",
+  "@characterLibraryImportProgress": {
+    "description": "Progress while importing a character folder",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryImportSummary": "{succeeded}개 가져옴. 실패 {failed}개. 건너뜀 {skipped}개.",
+  "@characterLibraryImportSummary": {
+    "description": "Summary after folder import",
+    "placeholders": {
+      "succeeded": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryManage": "라이브러리",
+  "@characterLibraryManage": {
+    "description": "Title for character library overflow menu"
+  },
+  "characterStatus": "캐릭터 상태",
+  "@characterStatus": {
+    "description": "Built-in character status panel title"
+  },
+  "characterStatusAddField": "필드 추가",
+  "@characterStatusAddField": {
+    "description": "Button to add a status field"
+  },
+  "characterStatusAutoDisableCard": "카드에 상태가 있으면 카드 상태 우선",
+  "@characterStatusAutoDisableCard": {
+    "description": "Auto-disable builtin when card already has status"
+  },
+  "characterStatusAutoDisableCardHint": "이 캐릭터 카드에 이미 상태 블록이 있으면 내장 생성을 꺼 두세요",
+  "@characterStatusAutoDisableCardHint": {
+    "description": "Subtitle for card status preference"
+  },
+  "characterStatusCardDetected": "이 캐릭터 카드에는 이미 상태 블록이 있습니다",
+  "@characterStatusCardDetected": {
+    "description": "Hint when opening a card that has Status_block"
+  },
+  "characterStatusDisabledHint": "설정에서 켜면 답장마다 캐릭터 상태가 업데이트됩니다.",
+  "@characterStatusDisabledHint": {
+    "description": "Panel body when feature disabled"
+  },
+  "characterStatusDisabledTitle": "캐릭터 상태가 꺼져 있습니다",
+  "@characterStatusDisabledTitle": {
+    "description": "Panel title when feature disabled"
+  },
+  "characterStatusEmpty": "아직 상태가 없습니다. 캐릭터가 답장하면 나타납니다.",
+  "@characterStatusEmpty": {
+    "description": "Empty state in status panel"
+  },
+  "characterStatusFieldLabel": "필드 이름",
+  "@characterStatusFieldLabel": {
+    "description": "Dialog label for new status field"
+  },
+  "characterStatusFieldLocked": "필수",
+  "@characterStatusFieldLocked": {
+    "description": "Badge for undeletable name field"
+  },
+  "characterStatusFields": "상태 필드",
+  "@characterStatusFields": {
+    "description": "Section title for configurable status fields"
+  },
+  "characterStatusGenerateFailed": "상태를 생성하지 못했습니다. 다음 답장 후에 다시 시도하세요.",
+  "@characterStatusGenerateFailed": {
+    "description": "Error when status generation fails"
+  },
+  "characterStatusInjectContext": "다음 프롬프트에 상태 포함",
+  "@characterStatusInjectContext": {
+    "description": "Toggle to inject last status into LLM context"
+  },
+  "characterStatusInjectContextHint": "AI가 턴마다 상태를 일관되게 유지하는 데 도움이 됩니다",
+  "@characterStatusInjectContextHint": {
+    "description": "Subtitle for status context injection toggle"
+  },
+  "characterStatusPromptPlaceholders": "자리 표시자: field_lines, character_lines, previous_status(각각 이중 중괄호로 감쌈)",
+  "@characterStatusPromptPlaceholders": {
+    "description": "Help text for status prompt placeholders"
+  },
+  "characterStatusPromptTemplate": "프롬프트 템플릿",
+  "@characterStatusPromptTemplate": {
+    "description": "Settings section for status generation prompt"
+  },
+  "characterWorldRuntimeEnabled": "모먼트에 게시",
+  "@characterWorldRuntimeEnabled": {
+    "description": "Per-character switch to join the Moments world loop"
+  },
+  "characterWorldRuntimeEnabledHint": "기본값은 끔입니다. 켜면 이 캐릭터가 스스로 깨어나 모먼트에 게시할 수 있습니다.",
+  "@characterWorldRuntimeEnabledHint": {
+    "description": "Helper under the per-character Moments world switch"
+  },
+  "charactersCopiedToFolder": "캐릭터 {count}개를 복사했습니다",
+  "@charactersCopiedToFolder": {
+    "description": "Snack bar after copying characters into a folder",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatLineHeightDescription": "일반 채팅 단락의 줄 간격입니다.",
+  "chatLineHeightTitle": "채팅 줄 간격",
+  "chatListItemStats": "{count} · {size} · {created} · {last}",
+  "@chatListItemStats": {
+    "description": "Secondary meta line under a home chat list item",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "42"
+      },
+      "size": {
+        "type": "String",
+        "example": "128.0 KB"
+      },
+      "created": {
+        "type": "String",
+        "example": "2024-11-01"
+      },
+      "last": {
+        "type": "String",
+        "example": "2024-11-08"
+      }
+    }
+  },
+  "chatParagraphSpacingDescription": "일반 채팅 단락 사이의 간격입니다.",
+  "chatParagraphSpacingTitle": "채팅 단락 간격",
+  "copyCharactersToFolder": "폴더로 복사",
+  "@copyCharactersToFolder": {
+    "description": "Title for copy characters path picker"
+  },
+  "copyToFolder": "폴더로 복사",
+  "@copyToFolder": {
+    "description": "Copy selected characters into a folder path"
+  },
+  "deleteCharacterFolder": "폴더 삭제",
+  "@deleteCharacterFolder": {
+    "description": "Delete a character folder, its subfolders, and characters inside"
+  },
+  "deleteCharacterFolderBody": "\"{name}\"와(과) 하위 폴더를 삭제할까요? 안의 캐릭터도 삭제됩니다.",
+  "@deleteCharacterFolderBody": {
+    "description": "Confirm deleting a character folder tree and its characters",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "deleteSelectedLibraryItems": "선택 항목 삭제",
+  "@deleteSelectedLibraryItems": {
+    "description": "Title for deleting selected characters and folders"
+  },
+  "deleteSelectedLibraryItemsConfirmation": "캐릭터 {characterCount}개와 폴더 {folderCount}개를 삭제할까요? 폴더 내용도 삭제되며 되돌릴 수 없습니다.",
+  "@deleteSelectedLibraryItemsConfirmation": {
+    "description": "Confirmation body for bulk delete of characters and folders",
+    "placeholders": {
+      "characterCount": {
+        "type": "int",
+        "example": "3"
+      },
+      "folderCount": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "deleteStatusField": "필드 제거",
+  "@deleteStatusField": {
+    "description": "Action to delete a custom status field"
+  },
+  "deselectAllCharacters": "모두 선택 해제",
+  "@deselectAllCharacters": {
+    "description": "Clear the character multi-selection"
+  },
+  "enableCharacterStatus": "답장 후 상태 생성",
+  "@enableCharacterStatus": {
+    "description": "Toggle for built-in status generation"
+  },
+  "enableCharacterStatusHint": "AI 메시지마다 장면에 있는 캐릭터 상태를 업데이트합니다",
+  "@enableCharacterStatusHint": {
+    "description": "Subtitle for status generation toggle"
+  },
+  "exportCharacterLibrary": "캐릭터 라이브러리 내보내기",
+  "@exportCharacterLibrary": {
+    "description": "Export all character cards preserving folder structure"
+  },
+  "exportCharacterLibraryFastPack": "라이브러리 팩 빠른 내보내기",
+  "@exportCharacterLibraryFastPack": {
+    "description": "Export the character library as a single fast .ntchars file"
+  },
+  "importCharacterLibraryFastPack": "라이브러리 팩 빠른 가져오기",
+  "@importCharacterLibraryFastPack": {
+    "description": "Import a .ntchars character library pack"
+  },
+  "importCharacterLibraryStorageFull": "이 팩을 열 여유 공간이 부족합니다. 공간을 확보한 뒤 다시 시도하세요.",
+  "@importCharacterLibraryStorageFull": {
+    "description": "Shown when picking a library pack fails because the device is out of space"
+  },
+  "importCharactersFromFolder": "폴더에서 가져오기",
+  "@importCharactersFromFolder": {
+    "description": "Recursively import character cards from a folder"
+  },
+  "libraryItemsSelected": "{count}개 선택됨",
+  "@libraryItemsSelected": {
+    "description": "Selected characters and/or folders count",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "manageCurrentCharacterFolder": "이 폴더",
+  "@manageCurrentCharacterFolder": {
+    "description": "Section label for actions on the open character folder"
+  },
+  "markdownLineHeightDescription": "코드 블록과 HTML 메시지의 줄 간격입니다.",
+  "markdownLineHeightTitle": "Markdown/HTML 줄 간격",
+  "markdownParagraphSpacingDescription": "코드 블록 빈 줄과 HTML 단락 사이의 추가 간격입니다.",
+  "markdownParagraphSpacingTitle": "Markdown/HTML 단락 간격",
+  "openCharacterStatusSettings": "설정 열기",
+  "@openCharacterStatusSettings": {
+    "description": "Button to open status settings"
+  },
+  "pinCharacterStatusPanel": "패널 고정",
+  "@pinCharacterStatusPanel": {
+    "description": "Tooltip to keep status panel open"
+  },
+  "replyMaxChars": "최대 답장 길이",
+  "@replyMaxChars": {
+    "description": "Maximum AI reply character count setting"
+  },
+  "replyMaxCharsDescription": "AI가 이 글자 수 이하로 답하도록 요청합니다. 0이면 끔. 너무 긴 답장은 잘릴 수 있습니다.",
+  "@replyMaxCharsDescription": {
+    "description": "Maximum AI reply character count description"
+  },
+  "replyMinChars": "최소 답장 길이",
+  "@replyMinChars": {
+    "description": "Minimum AI reply character count setting"
+  },
+  "replyMinCharsDescription": "AI가 적어도 이 글자 수만큼 쓰도록 요청합니다. 0이면 끔. 너무 짧은 답장은 자동으로 늘어날 수 있습니다.",
+  "@replyMinCharsDescription": {
+    "description": "Minimum AI reply character count description"
+  },
+  "selectAllCharacters": "모두 선택",
+  "@selectAllCharacters": {
+    "description": "Select all characters in the current character list filter"
+  },
+  "showCharacterStatus": "캐릭터 상태",
+  "@showCharacterStatus": {
+    "description": "Chat composer button tooltip for status panel"
+  },
+  "unpinCharacterStatusPanel": "패널 고정 해제",
+  "@unpinCharacterStatusPanel": {
+    "description": "Tooltip to allow status panel to auto-hide"
+  },
+  "momentsDraftSaveTitle": "Save draft?",
+  "@momentsDraftSaveTitle": {
+    "description": "Title asking whether to keep a moments compose draft"
+  },
+  "momentsDraftSaveMessage": "You have unpublished content. Save it as the only draft? It will restore the next time you post.",
+  "@momentsDraftSaveMessage": {
+    "description": "Explains single-slot moments draft on cancel"
+  },
+  "momentsDraftSave": "Save draft",
+  "@momentsDraftSave": {
+    "description": "Confirm saving moments compose draft"
+  },
+  "momentsDraftDiscard": "Discard",
+  "@momentsDraftDiscard": {
+    "description": "Discard moments compose content without saving a draft"
+  },
+  "searchChats": "Search chats",
+  "@searchChats": {
+    "description": "Hint for the chat list search field"
+  },
+  "noMatchingChats": "No matching chats",
+  "@noMatchingChats": {
+    "description": "Empty state when the chat list search has no hits"
   }
 }

@@ -13,6 +13,7 @@ import '../../providers/ai_preset_providers.dart';
 import '../../providers/instruct_providers.dart';
 import '../../providers/settings_providers.dart';
 import '../../router/app_router.dart';
+import '../../router/shell_navigation.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/settings/settings_widgets.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
@@ -134,7 +135,7 @@ class _AIConfigScreenState extends ConsumerState<AIConfigScreen> {
                       subtitle: l10n.fullControlOverSampling,
                       valueText: '',
                       showDivider: false,
-                      onTap: () => context.push(AppRoutes.advancedSettings),
+                      onTap: () => context.openShell(AppRoutes.advancedSettings),
                     ),
                   ],
                 ),

@@ -691,42 +691,42 @@ class AppLocalizationsVi extends AppLocalizations {
   String get unpinReplyChoicesPanel => 'Bỏ ghim bảng';
 
   @override
-  String get characterStatus => 'Character status';
+  String get characterStatus => 'Trạng thái nhân vật';
 
   @override
-  String get enableCharacterStatus => 'Generate status after replies';
+  String get enableCharacterStatus => 'Tạo trạng thái sau khi trả lời';
 
   @override
   String get enableCharacterStatusHint =>
-      'After each AI message, update status for characters in the scene';
+      'Sau mỗi tin nhắn AI, cập nhật trạng thái các nhân vật trong cảnh';
 
   @override
-  String get characterStatusInjectContext => 'Include status in next prompt';
+  String get characterStatusInjectContext =>
+      'Đưa trạng thái vào lời nhắc tiếp theo';
 
   @override
   String get characterStatusInjectContextHint =>
-      'Helps the AI keep status consistent across turns';
+      'Giúp AI giữ trạng thái nhất quán giữa các lượt';
 
   @override
-  String get characterStatusAutoDisableCard =>
-      'Prefer card status when present';
+  String get characterStatusAutoDisableCard => 'Ưu tiên trạng thái thẻ khi có';
 
   @override
   String get characterStatusAutoDisableCardHint =>
-      'If this character card already includes a status block, leave built-in generation off';
+      'Nếu thẻ nhân vật này đã có khối trạng thái, hãy để tắt tạo sẵn có';
 
   @override
   String get characterStatusCardDetected =>
-      'This character card already includes a status block';
+      'Thẻ nhân vật này đã có khối trạng thái';
 
   @override
-  String get characterStatusFields => 'Status fields';
+  String get characterStatusFields => 'Trường trạng thái';
 
   @override
-  String get characterStatusAddField => 'Add field';
+  String get characterStatusAddField => 'Thêm trường';
 
   @override
-  String get characterStatusFieldLabel => 'Field name';
+  String get characterStatusFieldLabel => 'Tên trường';
 
   @override
   String get characterStatusFieldPrompt => 'Field prompt';
@@ -736,44 +736,44 @@ class AppLocalizationsVi extends AppLocalizations {
       'Optional. Tell the AI how to write this field.';
 
   @override
-  String get characterStatusFieldLocked => 'Required';
+  String get characterStatusFieldLocked => 'Bắt buộc';
 
   @override
-  String get characterStatusPromptTemplate => 'Prompt template';
+  String get characterStatusPromptTemplate => 'Mẫu lời nhắc';
 
   @override
   String get characterStatusPromptPlaceholders =>
-      'Placeholders: field_lines, character_lines, previous_status (each wrapped in double curly braces)';
+      'Phần giữ chỗ: field_lines, character_lines, previous_status (mỗi cái trong ngoặc nhọn kép)';
 
   @override
-  String get characterStatusDisabledTitle => 'Character status is off';
+  String get characterStatusDisabledTitle => 'Trạng thái nhân vật đang tắt';
 
   @override
   String get characterStatusDisabledHint =>
-      'Turn on in settings to update character status after each reply.';
+      'Bật trong cài đặt để cập nhật trạng thái nhân vật sau mỗi lần trả lời.';
 
   @override
-  String get openCharacterStatusSettings => 'Open settings';
+  String get openCharacterStatusSettings => 'Mở cài đặt';
 
   @override
   String get characterStatusGenerateFailed =>
-      'Could not generate status. Try again after the next reply.';
+      'Không thể tạo trạng thái. Thử lại sau lần trả lời tiếp theo.';
 
   @override
   String get characterStatusEmpty =>
-      'No status yet. It appears after the character replies.';
+      'Chưa có trạng thái. Nó xuất hiện sau khi nhân vật trả lời.';
 
   @override
-  String get showCharacterStatus => 'Character status';
+  String get showCharacterStatus => 'Trạng thái nhân vật';
 
   @override
-  String get pinCharacterStatusPanel => 'Pin panel';
+  String get pinCharacterStatusPanel => 'Ghim bảng';
 
   @override
-  String get unpinCharacterStatusPanel => 'Unpin panel';
+  String get unpinCharacterStatusPanel => 'Bỏ ghim bảng';
 
   @override
-  String get deleteStatusField => 'Remove field';
+  String get deleteStatusField => 'Xóa trường';
 
   @override
   String get createQuickReply => 'Tạo trả lời nhanh';
@@ -1365,19 +1365,19 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String libraryItemsSelected(int count) {
-    return '$count selected';
+    return 'Đã chọn $count';
   }
 
   @override
   String get deleteSelectedCharacters => 'Xóa nhân vật';
 
   @override
-  String get deleteSelectedLibraryItems => 'Delete selected';
+  String get deleteSelectedLibraryItems => 'Xóa mục đã chọn';
 
   @override
   String deleteSelectedLibraryItemsConfirmation(
       int characterCount, int folderCount) {
-    return 'Delete $characterCount character(s) and $folderCount folder(s)? Folder contents will also be deleted. This cannot be undone.';
+    return 'Xóa $characterCount nhân vật và $folderCount thư mục? Nội dung thư mục cũng sẽ bị xóa. Không thể hoàn tác.';
   }
 
   @override
@@ -1433,110 +1433,110 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String characterFolderContentsSummary(int characterCount, int folderCount) {
-    return '$characterCount character(s) · $folderCount folder(s)';
+    return '$characterCount nhân vật · $folderCount thư mục';
   }
 
   @override
   String characterFolderDepthLimit(int maxDepth) {
-    return 'Folders can only nest up to $maxDepth levels';
+    return 'Thư mục chỉ có thể lồng tối đa $maxDepth cấp';
   }
 
   @override
   String get charactersMovedToFolder => 'Đã chuyển nhân vật';
 
   @override
-  String get copyToFolder => 'Copy to folder';
+  String get copyToFolder => 'Sao chép vào thư mục';
 
   @override
-  String get copyCharactersToFolder => 'Copy to folder';
+  String get copyCharactersToFolder => 'Sao chép vào thư mục';
 
   @override
   String charactersCopiedToFolder(int count) {
-    return 'Copied $count character(s)';
+    return 'Đã sao chép $count nhân vật';
   }
 
   @override
-  String get characterFolderUseThisPath => 'Use this folder';
+  String get characterFolderUseThisPath => 'Dùng thư mục này';
 
   @override
-  String get characterFolderPathEmpty => 'No subfolders here yet';
+  String get characterFolderPathEmpty => 'Chưa có thư mục con ở đây';
 
   @override
-  String get importCharactersFromFolder => 'Import from folder';
+  String get importCharactersFromFolder => 'Nhập từ thư mục';
 
   @override
-  String get exportCharacterLibrary => 'Export character library';
+  String get exportCharacterLibrary => 'Xuất thư viện nhân vật';
 
   @override
-  String get exportCharacterLibraryFastPack => 'Quick export library pack';
+  String get exportCharacterLibraryFastPack => 'Xuất nhanh gói thư viện';
 
   @override
-  String get importCharacterLibraryFastPack => 'Quick import library pack';
+  String get importCharacterLibraryFastPack => 'Nhập nhanh gói thư viện';
 
   @override
   String get importCharacterLibraryStorageFull =>
-      'Not enough free storage to open this pack. Free some space and try again.';
+      'Không đủ dung lượng trống để mở gói này. Hãy giải phóng dung lượng rồi thử lại.';
 
   @override
   String get characterLibraryFastPackOverwriteTitle =>
-      'Overwrite matching characters?';
+      'Ghi đè nhân vật trùng khớp?';
 
   @override
   String get characterLibraryFastPackOverwriteBody =>
-      'Characters with the same id will be updated. Chats stay linked to those characters.';
+      'Các nhân vật cùng id sẽ được cập nhật. Đoạn chat vẫn gắn với những nhân vật đó.';
 
   @override
-  String get characterLibraryFastPackPreparing => 'Preparing…';
+  String get characterLibraryFastPackPreparing => 'Đang chuẩn bị…';
 
   @override
   String characterLibraryFastPackImportProgress(int processed, int total) {
-    return 'Quick importing $processed of $total';
+    return 'Nhập nhanh $processed/$total';
   }
 
   @override
   String characterLibraryFastPackExportProgress(int processed, int total) {
-    return 'Quick exporting $processed of $total';
+    return 'Xuất nhanh $processed/$total';
   }
 
   @override
   String characterLibraryFastPackExtractProgress(int processed, int total) {
-    return 'Extracting files $processed of $total';
+    return 'Đang giải nén tệp $processed/$total';
   }
 
   @override
   String characterLibraryFastPackImportSummary(
       int created, int updated, int failed) {
-    return 'Created $created. Updated $updated. Failed $failed.';
+    return 'Đã tạo $created. Cập nhật $updated. Thất bại $failed.';
   }
 
   @override
   String characterLibraryFastPackExportSummary(int characters, int folders) {
-    return 'Exported $characters characters and $folders folders';
+    return 'Đã xuất $characters nhân vật và $folders thư mục';
   }
 
   @override
   String characterLibraryImportProgress(int processed, int total) {
-    return 'Importing $processed of $total';
+    return 'Đang nhập $processed/$total';
   }
 
   @override
   String characterLibraryImportSummary(int succeeded, int failed, int skipped) {
-    return 'Imported $succeeded. Failed $failed. Skipped $skipped.';
+    return 'Đã nhập $succeeded. Thất bại $failed. Đã bỏ qua $skipped.';
   }
 
   @override
   String characterLibraryExportProgress(int processed, int total) {
-    return 'Exporting $processed of $total';
+    return 'Đang xuất $processed/$total';
   }
 
   @override
   String characterLibraryExportSummary(int succeeded, int failed) {
-    return 'Exported $succeeded. Failed $failed.';
+    return 'Đã xuất $succeeded. Thất bại $failed.';
   }
 
   @override
   String get characterLibraryFolderPickerUnavailable =>
-      'This device can’t pick a folder. Import cards as files instead.';
+      'Thiết bị này không thể chọn thư mục. Hãy nhập thẻ dưới dạng tệp.';
 
   @override
   String get dissolveCharacterFolder => 'Giải tán thư mục';
@@ -1547,30 +1547,30 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get deleteCharacterFolder => 'Delete folder';
+  String get deleteCharacterFolder => 'Xóa thư mục';
 
   @override
   String deleteCharacterFolderBody(String name) {
-    return 'Delete \"$name\" and its subfolders? Characters inside will also be deleted.';
+    return 'Xóa \"$name\" và các thư mục con? Nhân vật bên trong cũng sẽ bị xóa.';
   }
 
   @override
-  String get selectAllCharacters => 'Select all';
+  String get selectAllCharacters => 'Chọn tất cả';
 
   @override
-  String get deselectAllCharacters => 'Deselect all';
+  String get deselectAllCharacters => 'Bỏ chọn tất cả';
 
   @override
-  String get characterFolderDeleted => 'Folder deleted';
+  String get characterFolderDeleted => 'Đã xóa thư mục';
 
   @override
-  String get characterFolderDissolved => 'Folder dissolved';
+  String get characterFolderDissolved => 'Đã giải tán thư mục';
 
   @override
-  String get characterLibraryManage => 'Library';
+  String get characterLibraryManage => 'Thư viện';
 
   @override
-  String get manageCurrentCharacterFolder => 'This folder';
+  String get manageCurrentCharacterFolder => 'Thư mục này';
 
   @override
   String get renameCharacterFolder => 'Đổi tên thư mục';
@@ -1873,18 +1873,18 @@ class AppLocalizationsVi extends AppLocalizations {
   String get maxTokensDescription => 'Maximum tokens to generate.';
 
   @override
-  String get replyMinChars => 'Minimum reply length';
+  String get replyMinChars => 'Độ dài trả lời tối thiểu';
 
   @override
   String get replyMinCharsDescription =>
-      'Ask the AI to write at least this many characters. 0 turns it off. Too-short replies may be expanded automatically.';
+      'Yêu cầu AI viết ít nhất số ký tự này. 0 để tắt. Câu trả lời quá ngắn có thể được mở rộng tự động.';
 
   @override
-  String get replyMaxChars => 'Maximum reply length';
+  String get replyMaxChars => 'Độ dài trả lời tối đa';
 
   @override
   String get replyMaxCharsDescription =>
-      'Ask the AI to keep replies at or below this many characters. 0 turns it off. Overlong replies may be trimmed.';
+      'Yêu cầu AI giữ câu trả lời không vượt quá số ký tự này. 0 để tắt. Câu trả lời quá dài có thể bị cắt.';
 
   @override
   String get seed => 'Seed';
@@ -4737,11 +4737,11 @@ class AppLocalizationsVi extends AppLocalizations {
       'When this is off, the feed stays still and characters do not post.';
 
   @override
-  String get characterWorldRuntimeEnabled => 'Post in Moments';
+  String get characterWorldRuntimeEnabled => 'Đăng trên Moments';
 
   @override
   String get characterWorldRuntimeEnabledHint =>
-      'Off by default. When on, this character can wake and post in Moments on their own.';
+      'Tắt theo mặc định. Khi bật, nhân vật này có thể tự thức dậy và đăng trên Moments.';
 
   @override
   String get momentsInChat => 'Use Moments in this chat';
@@ -7060,6 +7060,24 @@ class AppLocalizationsVi extends AppLocalizations {
   String get pageNotFound => 'Page not found';
 
   @override
+  String get emptySecondarySelectChat => 'Select a chat';
+
+  @override
+  String get emptySecondarySelectCharacter => 'Select a character';
+
+  @override
+  String get emptySecondarySelectPlay => 'Select something to play';
+
+  @override
+  String get emptySecondarySelectAiConfig => 'Select an AI setting';
+
+  @override
+  String get emptySecondarySelectAppearance => 'Select an appearance setting';
+
+  @override
+  String get emptySecondarySelectSetting => 'Select a setting';
+
+  @override
   String get goHome => 'Go home';
 
   @override
@@ -7150,32 +7168,32 @@ class AppLocalizationsVi extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get chatLineHeightTitle => 'Chat line spacing';
+  String get chatLineHeightTitle => 'Giãn dòng chat';
 
   @override
   String get chatLineHeightDescription =>
-      'Space between lines in normal chat paragraphs.';
+      'Khoảng cách giữa các dòng trong đoạn chat thông thường.';
 
   @override
-  String get chatParagraphSpacingTitle => 'Chat paragraph spacing';
+  String get chatParagraphSpacingTitle => 'Giãn đoạn chat';
 
   @override
   String get chatParagraphSpacingDescription =>
-      'Space between normal chat paragraphs.';
+      'Khoảng cách giữa các đoạn chat thông thường.';
 
   @override
-  String get markdownLineHeightTitle => 'Markdown/HTML line spacing';
+  String get markdownLineHeightTitle => 'Giãn dòng Markdown/HTML';
 
   @override
   String get markdownLineHeightDescription =>
-      'Space between lines in code blocks and HTML messages.';
+      'Khoảng cách giữa các dòng trong khối mã và tin nhắn HTML.';
 
   @override
-  String get markdownParagraphSpacingTitle => 'Markdown/HTML paragraph spacing';
+  String get markdownParagraphSpacingTitle => 'Giãn đoạn Markdown/HTML';
 
   @override
   String get markdownParagraphSpacingDescription =>
-      'Extra space for blank lines in code blocks and between HTML paragraphs.';
+      'Khoảng trống thêm cho dòng trống trong khối mã và giữa các đoạn HTML.';
 
   @override
   String get uiFontFamilyTitle => 'Phông chữ';
@@ -7388,6 +7406,9 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get themePresetDusk => 'Dusk';
+
+  @override
+  String get themePresetCursorDark => 'Cursor Dark';
 
   @override
   String get tokenEditorSurface => 'App background';
@@ -7615,4 +7636,23 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get promptOwnedByCharacter => 'Từ thẻ nhân vật · chỉ xem';
+
+  @override
+  String get momentsDraftSaveTitle => 'Save draft?';
+
+  @override
+  String get momentsDraftSaveMessage =>
+      'You have unpublished content. Save it as the only draft? It will restore the next time you post.';
+
+  @override
+  String get momentsDraftSave => 'Save draft';
+
+  @override
+  String get momentsDraftDiscard => 'Discard';
+
+  @override
+  String get searchChats => 'Search chats';
+
+  @override
+  String get noMatchingChats => 'No matching chats';
 }

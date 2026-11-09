@@ -9,6 +9,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/story_providers.dart';
 import 'package:native_tavern/presentation/providers/story_timeline_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/presentation/screens/play/story_models.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
@@ -47,7 +48,7 @@ class StoryScreen extends ConsumerWidget {
           ChromeIconButton(
             key: const Key('story-open-inbox'),
             tooltip: l10n.memoryInbox,
-            onPressed: () => context.push(AppRoutes.memoryInbox),
+            onPressed: () => context.openShell(AppRoutes.memoryInbox),
             icon: const Icon(Icons.inbox_outlined),
           ),
         ]),
@@ -93,7 +94,9 @@ class StoryScreen extends ConsumerWidget {
         searchFieldLabel: AppLocalizations.of(context).storySearch,
       ),
     );
-    if (selected != null && context.mounted) context.push(selected.chatPath);
+    if (selected != null && context.mounted) {
+      context.openShell(selected.chatPath);
+    }
   }
 }
 
@@ -381,7 +384,7 @@ class _StoryChapterTile extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           InkWell(
-            onTap: () => context.push(chapter.chatPath),
+            onTap: () => context.openShell(chapter.chatPath),
             borderRadius: BorderRadius.circular(4),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -436,7 +439,7 @@ class _StoryChapterTile extends ConsumerWidget {
               ),
               ChromeIconButton(
                 tooltip: l10n.storyViewSource,
-                onPressed: () => context.push(chapter.chatPath),
+                onPressed: () => context.openShell(chapter.chatPath),
                 icon: const Icon(Icons.history),
               ),
             ],
@@ -480,7 +483,7 @@ class _StoryChapterTile extends ConsumerWidget {
       chapter.title,
       direction,
     );
-    context.push(
+    context.openShell(
       Uri(
         path: '/chat/${chapter.chatId}',
         queryParameters: {'draft': draft},
@@ -536,7 +539,7 @@ class _StoryChapterTile extends ConsumerWidget {
               Text(AppLocalizations.of(context).storyForkCreated(branchName)),
         ),
       );
-      context.push(
+      context.openShell(
         Uri(
           path: '/chat/${result.chat.id}',
           queryParameters: {'draft': draft},

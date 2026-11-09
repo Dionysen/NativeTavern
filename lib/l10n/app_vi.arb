@@ -1,4 +1,4 @@
-﻿{
+{
   "@@locale": "vi",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -6875,6 +6875,12 @@
   "numberedList": "Numbered list",
   "horizontalRule": "Horizontal rule",
   "pageNotFound": "Page not found",
+  "emptySecondarySelectChat": "Select a chat",
+  "emptySecondarySelectCharacter": "Select a character",
+  "emptySecondarySelectPlay": "Select something to play",
+  "emptySecondarySelectAiConfig": "Select an AI setting",
+  "emptySecondarySelectAppearance": "Select an appearance setting",
+  "emptySecondarySelectSetting": "Select a setting",
   "goHome": "Go home",
   "officialWebsite": "Official website",
   "mcpStreamableHttp": "Streamable HTTP",
@@ -6973,6 +6979,7 @@
   "themePresetEspresso": "Espresso",
   "themePresetMidnight": "Midnight",
   "themePresetDusk": "Dusk",
+  "themePresetCursorDark": "Cursor Dark",
   "tokenEditorSurface": "App background",
   "tokenSidebarSurface": "Panel background",
   "tokenControlSurface": "Buttons and fields",
@@ -7564,5 +7571,441 @@
   "unpinReplyChoicesPanel": "Bỏ ghim bảng",
   "@unpinReplyChoicesPanel": {
     "description": "Tooltip to allow reply choices panel to auto-hide"
+  },
+  "characterFolderContentsSummary": "{characterCount} nhân vật · {folderCount} thư mục",
+  "@characterFolderContentsSummary": {
+    "description": "Character and child-folder counts on a folder tile",
+    "placeholders": {
+      "characterCount": {
+        "type": "int",
+        "example": "5"
+      },
+      "folderCount": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "characterFolderDeleted": "Đã xóa thư mục",
+  "@characterFolderDeleted": {
+    "description": "Snack bar after deleting a character folder"
+  },
+  "characterFolderDepthLimit": "Thư mục chỉ có thể lồng tối đa {maxDepth} cấp",
+  "@characterFolderDepthLimit": {
+    "description": "Shown when creating or moving a folder would exceed the depth limit",
+    "placeholders": {
+      "maxDepth": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "characterFolderDissolved": "Đã giải tán thư mục",
+  "@characterFolderDissolved": {
+    "description": "Snack bar after dissolving a character folder"
+  },
+  "characterFolderPathEmpty": "Chưa có thư mục con ở đây",
+  "@characterFolderPathEmpty": {
+    "description": "Empty state inside folder path picker"
+  },
+  "characterFolderUseThisPath": "Dùng thư mục này",
+  "@characterFolderUseThisPath": {
+    "description": "Confirm current folder path in the picker"
+  },
+  "characterLibraryExportProgress": "Đang xuất {processed}/{total}",
+  "@characterLibraryExportProgress": {
+    "description": "Progress while exporting the character library",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryExportSummary": "Đã xuất {succeeded}. Thất bại {failed}.",
+  "@characterLibraryExportSummary": {
+    "description": "Summary after library export",
+    "placeholders": {
+      "succeeded": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExportProgress": "Xuất nhanh {processed}/{total}",
+  "@characterLibraryFastPackExportProgress": {
+    "description": "Progress while exporting a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExportSummary": "Đã xuất {characters} nhân vật và {folders} thư mục",
+  "@characterLibraryFastPackExportSummary": {
+    "description": "Summary after fast pack export",
+    "placeholders": {
+      "characters": {
+        "type": "int"
+      },
+      "folders": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExtractProgress": "Đang giải nén tệp {processed}/{total}",
+  "@characterLibraryFastPackExtractProgress": {
+    "description": "Progress while streaming files out of a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackImportProgress": "Nhập nhanh {processed}/{total}",
+  "@characterLibraryFastPackImportProgress": {
+    "description": "Progress while importing a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackImportSummary": "Đã tạo {created}. Cập nhật {updated}. Thất bại {failed}.",
+  "@characterLibraryFastPackImportSummary": {
+    "description": "Summary after fast pack import",
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackOverwriteBody": "Các nhân vật cùng id sẽ được cập nhật. Đoạn chat vẫn gắn với những nhân vật đó.",
+  "@characterLibraryFastPackOverwriteBody": {
+    "description": "Explains id overwrite behavior for fast pack import"
+  },
+  "characterLibraryFastPackOverwriteTitle": "Ghi đè nhân vật trùng khớp?",
+  "@characterLibraryFastPackOverwriteTitle": {
+    "description": "Confirm before fast pack import overwrites by id"
+  },
+  "characterLibraryFastPackPreparing": "Đang chuẩn bị…",
+  "@characterLibraryFastPackPreparing": {
+    "description": "Shown while opening a large character library pack before counted progress starts"
+  },
+  "characterLibraryFolderPickerUnavailable": "Thiết bị này không thể chọn thư mục. Hãy nhập thẻ dưới dạng tệp.",
+  "@characterLibraryFolderPickerUnavailable": {
+    "description": "Shown when directory picking is unavailable"
+  },
+  "characterLibraryImportProgress": "Đang nhập {processed}/{total}",
+  "@characterLibraryImportProgress": {
+    "description": "Progress while importing a character folder",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryImportSummary": "Đã nhập {succeeded}. Thất bại {failed}. Đã bỏ qua {skipped}.",
+  "@characterLibraryImportSummary": {
+    "description": "Summary after folder import",
+    "placeholders": {
+      "succeeded": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryManage": "Thư viện",
+  "@characterLibraryManage": {
+    "description": "Title for character library overflow menu"
+  },
+  "characterStatus": "Trạng thái nhân vật",
+  "@characterStatus": {
+    "description": "Built-in character status panel title"
+  },
+  "characterStatusAddField": "Thêm trường",
+  "@characterStatusAddField": {
+    "description": "Button to add a status field"
+  },
+  "characterStatusAutoDisableCard": "Ưu tiên trạng thái thẻ khi có",
+  "@characterStatusAutoDisableCard": {
+    "description": "Auto-disable builtin when card already has status"
+  },
+  "characterStatusAutoDisableCardHint": "Nếu thẻ nhân vật này đã có khối trạng thái, hãy để tắt tạo sẵn có",
+  "@characterStatusAutoDisableCardHint": {
+    "description": "Subtitle for card status preference"
+  },
+  "characterStatusCardDetected": "Thẻ nhân vật này đã có khối trạng thái",
+  "@characterStatusCardDetected": {
+    "description": "Hint when opening a card that has Status_block"
+  },
+  "characterStatusDisabledHint": "Bật trong cài đặt để cập nhật trạng thái nhân vật sau mỗi lần trả lời.",
+  "@characterStatusDisabledHint": {
+    "description": "Panel body when feature disabled"
+  },
+  "characterStatusDisabledTitle": "Trạng thái nhân vật đang tắt",
+  "@characterStatusDisabledTitle": {
+    "description": "Panel title when feature disabled"
+  },
+  "characterStatusEmpty": "Chưa có trạng thái. Nó xuất hiện sau khi nhân vật trả lời.",
+  "@characterStatusEmpty": {
+    "description": "Empty state in status panel"
+  },
+  "characterStatusFieldLabel": "Tên trường",
+  "@characterStatusFieldLabel": {
+    "description": "Dialog label for new status field"
+  },
+  "characterStatusFieldLocked": "Bắt buộc",
+  "@characterStatusFieldLocked": {
+    "description": "Badge for undeletable name field"
+  },
+  "characterStatusFields": "Trường trạng thái",
+  "@characterStatusFields": {
+    "description": "Section title for configurable status fields"
+  },
+  "characterStatusGenerateFailed": "Không thể tạo trạng thái. Thử lại sau lần trả lời tiếp theo.",
+  "@characterStatusGenerateFailed": {
+    "description": "Error when status generation fails"
+  },
+  "characterStatusInjectContext": "Đưa trạng thái vào lời nhắc tiếp theo",
+  "@characterStatusInjectContext": {
+    "description": "Toggle to inject last status into LLM context"
+  },
+  "characterStatusInjectContextHint": "Giúp AI giữ trạng thái nhất quán giữa các lượt",
+  "@characterStatusInjectContextHint": {
+    "description": "Subtitle for status context injection toggle"
+  },
+  "characterStatusPromptPlaceholders": "Phần giữ chỗ: field_lines, character_lines, previous_status (mỗi cái trong ngoặc nhọn kép)",
+  "@characterStatusPromptPlaceholders": {
+    "description": "Help text for status prompt placeholders"
+  },
+  "characterStatusPromptTemplate": "Mẫu lời nhắc",
+  "@characterStatusPromptTemplate": {
+    "description": "Settings section for status generation prompt"
+  },
+  "characterWorldRuntimeEnabled": "Đăng trên Moments",
+  "@characterWorldRuntimeEnabled": {
+    "description": "Per-character switch to join the Moments world loop"
+  },
+  "characterWorldRuntimeEnabledHint": "Tắt theo mặc định. Khi bật, nhân vật này có thể tự thức dậy và đăng trên Moments.",
+  "@characterWorldRuntimeEnabledHint": {
+    "description": "Helper under the per-character Moments world switch"
+  },
+  "charactersCopiedToFolder": "Đã sao chép {count} nhân vật",
+  "@charactersCopiedToFolder": {
+    "description": "Snack bar after copying characters into a folder",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatLineHeightDescription": "Khoảng cách giữa các dòng trong đoạn chat thông thường.",
+  "chatLineHeightTitle": "Giãn dòng chat",
+  "chatListItemStats": "{count} · {size} · {created} · {last}",
+  "@chatListItemStats": {
+    "description": "Secondary meta line under a home chat list item",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "42"
+      },
+      "size": {
+        "type": "String",
+        "example": "128.0 KB"
+      },
+      "created": {
+        "type": "String",
+        "example": "2024-11-01"
+      },
+      "last": {
+        "type": "String",
+        "example": "2024-11-08"
+      }
+    }
+  },
+  "chatParagraphSpacingDescription": "Khoảng cách giữa các đoạn chat thông thường.",
+  "chatParagraphSpacingTitle": "Giãn đoạn chat",
+  "copyCharactersToFolder": "Sao chép vào thư mục",
+  "@copyCharactersToFolder": {
+    "description": "Title for copy characters path picker"
+  },
+  "copyToFolder": "Sao chép vào thư mục",
+  "@copyToFolder": {
+    "description": "Copy selected characters into a folder path"
+  },
+  "deleteCharacterFolder": "Xóa thư mục",
+  "@deleteCharacterFolder": {
+    "description": "Delete a character folder, its subfolders, and characters inside"
+  },
+  "deleteCharacterFolderBody": "Xóa \"{name}\" và các thư mục con? Nhân vật bên trong cũng sẽ bị xóa.",
+  "@deleteCharacterFolderBody": {
+    "description": "Confirm deleting a character folder tree and its characters",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "deleteSelectedLibraryItems": "Xóa mục đã chọn",
+  "@deleteSelectedLibraryItems": {
+    "description": "Title for deleting selected characters and folders"
+  },
+  "deleteSelectedLibraryItemsConfirmation": "Xóa {characterCount} nhân vật và {folderCount} thư mục? Nội dung thư mục cũng sẽ bị xóa. Không thể hoàn tác.",
+  "@deleteSelectedLibraryItemsConfirmation": {
+    "description": "Confirmation body for bulk delete of characters and folders",
+    "placeholders": {
+      "characterCount": {
+        "type": "int",
+        "example": "3"
+      },
+      "folderCount": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "deleteStatusField": "Xóa trường",
+  "@deleteStatusField": {
+    "description": "Action to delete a custom status field"
+  },
+  "deselectAllCharacters": "Bỏ chọn tất cả",
+  "@deselectAllCharacters": {
+    "description": "Clear the character multi-selection"
+  },
+  "enableCharacterStatus": "Tạo trạng thái sau khi trả lời",
+  "@enableCharacterStatus": {
+    "description": "Toggle for built-in status generation"
+  },
+  "enableCharacterStatusHint": "Sau mỗi tin nhắn AI, cập nhật trạng thái các nhân vật trong cảnh",
+  "@enableCharacterStatusHint": {
+    "description": "Subtitle for status generation toggle"
+  },
+  "exportCharacterLibrary": "Xuất thư viện nhân vật",
+  "@exportCharacterLibrary": {
+    "description": "Export all character cards preserving folder structure"
+  },
+  "exportCharacterLibraryFastPack": "Xuất nhanh gói thư viện",
+  "@exportCharacterLibraryFastPack": {
+    "description": "Export the character library as a single fast .ntchars file"
+  },
+  "importCharacterLibraryFastPack": "Nhập nhanh gói thư viện",
+  "@importCharacterLibraryFastPack": {
+    "description": "Import a .ntchars character library pack"
+  },
+  "importCharacterLibraryStorageFull": "Không đủ dung lượng trống để mở gói này. Hãy giải phóng dung lượng rồi thử lại.",
+  "@importCharacterLibraryStorageFull": {
+    "description": "Shown when picking a library pack fails because the device is out of space"
+  },
+  "importCharactersFromFolder": "Nhập từ thư mục",
+  "@importCharactersFromFolder": {
+    "description": "Recursively import character cards from a folder"
+  },
+  "libraryItemsSelected": "Đã chọn {count}",
+  "@libraryItemsSelected": {
+    "description": "Selected characters and/or folders count",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "manageCurrentCharacterFolder": "Thư mục này",
+  "@manageCurrentCharacterFolder": {
+    "description": "Section label for actions on the open character folder"
+  },
+  "markdownLineHeightDescription": "Khoảng cách giữa các dòng trong khối mã và tin nhắn HTML.",
+  "markdownLineHeightTitle": "Giãn dòng Markdown/HTML",
+  "markdownParagraphSpacingDescription": "Khoảng trống thêm cho dòng trống trong khối mã và giữa các đoạn HTML.",
+  "markdownParagraphSpacingTitle": "Giãn đoạn Markdown/HTML",
+  "openCharacterStatusSettings": "Mở cài đặt",
+  "@openCharacterStatusSettings": {
+    "description": "Button to open status settings"
+  },
+  "pinCharacterStatusPanel": "Ghim bảng",
+  "@pinCharacterStatusPanel": {
+    "description": "Tooltip to keep status panel open"
+  },
+  "replyMaxChars": "Độ dài trả lời tối đa",
+  "@replyMaxChars": {
+    "description": "Maximum AI reply character count setting"
+  },
+  "replyMaxCharsDescription": "Yêu cầu AI giữ câu trả lời không vượt quá số ký tự này. 0 để tắt. Câu trả lời quá dài có thể bị cắt.",
+  "@replyMaxCharsDescription": {
+    "description": "Maximum AI reply character count description"
+  },
+  "replyMinChars": "Độ dài trả lời tối thiểu",
+  "@replyMinChars": {
+    "description": "Minimum AI reply character count setting"
+  },
+  "replyMinCharsDescription": "Yêu cầu AI viết ít nhất số ký tự này. 0 để tắt. Câu trả lời quá ngắn có thể được mở rộng tự động.",
+  "@replyMinCharsDescription": {
+    "description": "Minimum AI reply character count description"
+  },
+  "selectAllCharacters": "Chọn tất cả",
+  "@selectAllCharacters": {
+    "description": "Select all characters in the current character list filter"
+  },
+  "showCharacterStatus": "Trạng thái nhân vật",
+  "@showCharacterStatus": {
+    "description": "Chat composer button tooltip for status panel"
+  },
+  "unpinCharacterStatusPanel": "Bỏ ghim bảng",
+  "@unpinCharacterStatusPanel": {
+    "description": "Tooltip to allow status panel to auto-hide"
+  },
+  "momentsDraftSaveTitle": "Save draft?",
+  "@momentsDraftSaveTitle": {
+    "description": "Title asking whether to keep a moments compose draft"
+  },
+  "momentsDraftSaveMessage": "You have unpublished content. Save it as the only draft? It will restore the next time you post.",
+  "@momentsDraftSaveMessage": {
+    "description": "Explains single-slot moments draft on cancel"
+  },
+  "momentsDraftSave": "Save draft",
+  "@momentsDraftSave": {
+    "description": "Confirm saving moments compose draft"
+  },
+  "momentsDraftDiscard": "Discard",
+  "@momentsDraftDiscard": {
+    "description": "Discard moments compose content without saving a draft"
+  },
+  "searchChats": "Search chats",
+  "@searchChats": {
+    "description": "Hint for the chat list search field"
+  },
+  "noMatchingChats": "No matching chats",
+  "@noMatchingChats": {
+    "description": "Empty state when the chat list search has no hits"
   }
 }

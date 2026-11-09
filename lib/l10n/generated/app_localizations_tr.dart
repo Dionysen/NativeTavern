@@ -692,42 +692,41 @@ class AppLocalizationsTr extends AppLocalizations {
   String get unpinReplyChoicesPanel => 'Panel sabitlemeyi kaldır';
 
   @override
-  String get characterStatus => 'Character status';
+  String get characterStatus => 'Karakter durumu';
 
   @override
-  String get enableCharacterStatus => 'Generate status after replies';
+  String get enableCharacterStatus => 'Yanıtlardan sonra durum oluştur';
 
   @override
   String get enableCharacterStatusHint =>
-      'After each AI message, update status for characters in the scene';
+      'Her YZ mesajından sonra sahnedeki karakterlerin durumunu güncelle';
 
   @override
-  String get characterStatusInjectContext => 'Include status in next prompt';
+  String get characterStatusInjectContext => 'Durumu sonraki istemde dahil et';
 
   @override
   String get characterStatusInjectContextHint =>
-      'Helps the AI keep status consistent across turns';
+      'YZ’nin turlar boyunca durumu tutarlı tutmasına yardımcı olur';
 
   @override
-  String get characterStatusAutoDisableCard =>
-      'Prefer card status when present';
+  String get characterStatusAutoDisableCard => 'Varsa kart durumunu tercih et';
 
   @override
   String get characterStatusAutoDisableCardHint =>
-      'If this character card already includes a status block, leave built-in generation off';
+      'Bu karakter kartında zaten durum bloğu varsa yerleşik üretimi kapalı bırakın';
 
   @override
   String get characterStatusCardDetected =>
-      'This character card already includes a status block';
+      'Bu karakter kartında zaten bir durum bloğu var';
 
   @override
-  String get characterStatusFields => 'Status fields';
+  String get characterStatusFields => 'Durum alanları';
 
   @override
-  String get characterStatusAddField => 'Add field';
+  String get characterStatusAddField => 'Alan ekle';
 
   @override
-  String get characterStatusFieldLabel => 'Field name';
+  String get characterStatusFieldLabel => 'Alan adı';
 
   @override
   String get characterStatusFieldPrompt => 'Field prompt';
@@ -737,44 +736,44 @@ class AppLocalizationsTr extends AppLocalizations {
       'Optional. Tell the AI how to write this field.';
 
   @override
-  String get characterStatusFieldLocked => 'Required';
+  String get characterStatusFieldLocked => 'Zorunlu';
 
   @override
-  String get characterStatusPromptTemplate => 'Prompt template';
+  String get characterStatusPromptTemplate => 'İstem şablonu';
 
   @override
   String get characterStatusPromptPlaceholders =>
-      'Placeholders: field_lines, character_lines, previous_status (each wrapped in double curly braces)';
+      'Yer tutucular: field_lines, character_lines, previous_status (her biri çift süslü parantez içinde)';
 
   @override
-  String get characterStatusDisabledTitle => 'Character status is off';
+  String get characterStatusDisabledTitle => 'Karakter durumu kapalı';
 
   @override
   String get characterStatusDisabledHint =>
-      'Turn on in settings to update character status after each reply.';
+      'Her yanıttan sonra karakter durumunu güncellemek için ayarlardan açın.';
 
   @override
-  String get openCharacterStatusSettings => 'Open settings';
+  String get openCharacterStatusSettings => 'Ayarları aç';
 
   @override
   String get characterStatusGenerateFailed =>
-      'Could not generate status. Try again after the next reply.';
+      'Durum oluşturulamadı. Bir sonraki yanıttan sonra yeniden deneyin.';
 
   @override
   String get characterStatusEmpty =>
-      'No status yet. It appears after the character replies.';
+      'Henüz durum yok. Karakter yanıtladıktan sonra görünür.';
 
   @override
-  String get showCharacterStatus => 'Character status';
+  String get showCharacterStatus => 'Karakter durumu';
 
   @override
-  String get pinCharacterStatusPanel => 'Pin panel';
+  String get pinCharacterStatusPanel => 'Paneli sabitle';
 
   @override
-  String get unpinCharacterStatusPanel => 'Unpin panel';
+  String get unpinCharacterStatusPanel => 'Paneli sabitlemeyi kaldır';
 
   @override
-  String get deleteStatusField => 'Remove field';
+  String get deleteStatusField => 'Alanı kaldır';
 
   @override
   String get createQuickReply => 'Hızlı Yanıt Oluştur';
@@ -1366,19 +1365,19 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String libraryItemsSelected(int count) {
-    return '$count selected';
+    return '$count seçildi';
   }
 
   @override
   String get deleteSelectedCharacters => 'Karakterleri sil';
 
   @override
-  String get deleteSelectedLibraryItems => 'Delete selected';
+  String get deleteSelectedLibraryItems => 'Seçilenleri sil';
 
   @override
   String deleteSelectedLibraryItemsConfirmation(
       int characterCount, int folderCount) {
-    return 'Delete $characterCount character(s) and $folderCount folder(s)? Folder contents will also be deleted. This cannot be undone.';
+    return '$characterCount karakter ve $folderCount klasör silinsin mi? Klasör içerikleri de silinir. Bu geri alınamaz.';
   }
 
   @override
@@ -1434,110 +1433,112 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String characterFolderContentsSummary(int characterCount, int folderCount) {
-    return '$characterCount character(s) · $folderCount folder(s)';
+    return '$characterCount karakter · $folderCount klasör';
   }
 
   @override
   String characterFolderDepthLimit(int maxDepth) {
-    return 'Folders can only nest up to $maxDepth levels';
+    return 'Klasörler en fazla $maxDepth düzey iç içe olabilir';
   }
 
   @override
   String get charactersMovedToFolder => 'Karakterler taşındı';
 
   @override
-  String get copyToFolder => 'Copy to folder';
+  String get copyToFolder => 'Klasöre kopyala';
 
   @override
-  String get copyCharactersToFolder => 'Copy to folder';
+  String get copyCharactersToFolder => 'Klasöre kopyala';
 
   @override
   String charactersCopiedToFolder(int count) {
-    return 'Copied $count character(s)';
+    return '$count karakter kopyalandı';
   }
 
   @override
-  String get characterFolderUseThisPath => 'Use this folder';
+  String get characterFolderUseThisPath => 'Bu klasörü kullan';
 
   @override
-  String get characterFolderPathEmpty => 'No subfolders here yet';
+  String get characterFolderPathEmpty => 'Burada henüz alt klasör yok';
 
   @override
-  String get importCharactersFromFolder => 'Import from folder';
+  String get importCharactersFromFolder => 'Klasörden içe aktar';
 
   @override
-  String get exportCharacterLibrary => 'Export character library';
+  String get exportCharacterLibrary => 'Karakter kitaplığını dışa aktar';
 
   @override
-  String get exportCharacterLibraryFastPack => 'Quick export library pack';
+  String get exportCharacterLibraryFastPack =>
+      'Kitaplık paketini hızlı dışa aktar';
 
   @override
-  String get importCharacterLibraryFastPack => 'Quick import library pack';
+  String get importCharacterLibraryFastPack =>
+      'Kitaplık paketini hızlı içe aktar';
 
   @override
   String get importCharacterLibraryStorageFull =>
-      'Not enough free storage to open this pack. Free some space and try again.';
+      'Bu paketi açmak için yeterli boş alan yok. Yer açıp yeniden deneyin.';
 
   @override
   String get characterLibraryFastPackOverwriteTitle =>
-      'Overwrite matching characters?';
+      'Eşleşen karakterlerin üzerine yazılsın mı?';
 
   @override
   String get characterLibraryFastPackOverwriteBody =>
-      'Characters with the same id will be updated. Chats stay linked to those characters.';
+      'Aynı id’ye sahip karakterler güncellenir. Sohbetler bu karakterlere bağlı kalır.';
 
   @override
-  String get characterLibraryFastPackPreparing => 'Preparing…';
+  String get characterLibraryFastPackPreparing => 'Hazırlanıyor…';
 
   @override
   String characterLibraryFastPackImportProgress(int processed, int total) {
-    return 'Quick importing $processed of $total';
+    return 'Hızlı içe aktarma $processed/$total';
   }
 
   @override
   String characterLibraryFastPackExportProgress(int processed, int total) {
-    return 'Quick exporting $processed of $total';
+    return 'Hızlı dışa aktarma $processed/$total';
   }
 
   @override
   String characterLibraryFastPackExtractProgress(int processed, int total) {
-    return 'Extracting files $processed of $total';
+    return 'Dosyalar çıkarılıyor $processed/$total';
   }
 
   @override
   String characterLibraryFastPackImportSummary(
       int created, int updated, int failed) {
-    return 'Created $created. Updated $updated. Failed $failed.';
+    return '$created oluşturuldu. $updated güncellendi. $failed başarısız.';
   }
 
   @override
   String characterLibraryFastPackExportSummary(int characters, int folders) {
-    return 'Exported $characters characters and $folders folders';
+    return '$characters karakter ve $folders klasör dışa aktarıldı';
   }
 
   @override
   String characterLibraryImportProgress(int processed, int total) {
-    return 'Importing $processed of $total';
+    return 'İçe aktarılıyor $processed/$total';
   }
 
   @override
   String characterLibraryImportSummary(int succeeded, int failed, int skipped) {
-    return 'Imported $succeeded. Failed $failed. Skipped $skipped.';
+    return '$succeeded içe aktarıldı. $failed başarısız. $skipped atlandı.';
   }
 
   @override
   String characterLibraryExportProgress(int processed, int total) {
-    return 'Exporting $processed of $total';
+    return 'Dışa aktarılıyor $processed/$total';
   }
 
   @override
   String characterLibraryExportSummary(int succeeded, int failed) {
-    return 'Exported $succeeded. Failed $failed.';
+    return '$succeeded dışa aktarıldı. $failed başarısız.';
   }
 
   @override
   String get characterLibraryFolderPickerUnavailable =>
-      'This device can’t pick a folder. Import cards as files instead.';
+      'Bu cihaz klasör seçemiyor. Kartları dosya olarak içe aktarın.';
 
   @override
   String get dissolveCharacterFolder => 'Klasörü dağıt';
@@ -1548,30 +1549,30 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get deleteCharacterFolder => 'Delete folder';
+  String get deleteCharacterFolder => 'Klasörü sil';
 
   @override
   String deleteCharacterFolderBody(String name) {
-    return 'Delete \"$name\" and its subfolders? Characters inside will also be deleted.';
+    return '\"$name\" ve alt klasörleri silinsin mi? İçindeki karakterler de silinir.';
   }
 
   @override
-  String get selectAllCharacters => 'Select all';
+  String get selectAllCharacters => 'Tümünü seç';
 
   @override
-  String get deselectAllCharacters => 'Deselect all';
+  String get deselectAllCharacters => 'Tüm seçimi kaldır';
 
   @override
-  String get characterFolderDeleted => 'Folder deleted';
+  String get characterFolderDeleted => 'Klasör silindi';
 
   @override
-  String get characterFolderDissolved => 'Folder dissolved';
+  String get characterFolderDissolved => 'Klasör dağıtıldı';
 
   @override
-  String get characterLibraryManage => 'Library';
+  String get characterLibraryManage => 'Kitaplık';
 
   @override
-  String get manageCurrentCharacterFolder => 'This folder';
+  String get manageCurrentCharacterFolder => 'Bu klasör';
 
   @override
   String get renameCharacterFolder => 'Klasörü yeniden adlandır';
@@ -1875,18 +1876,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get maxTokensDescription => 'Maximum tokens to generate.';
 
   @override
-  String get replyMinChars => 'Minimum reply length';
+  String get replyMinChars => 'Minimum yanıt uzunluğu';
 
   @override
   String get replyMinCharsDescription =>
-      'Ask the AI to write at least this many characters. 0 turns it off. Too-short replies may be expanded automatically.';
+      'YZ’den en az bu kadar karakter yazmasını isteyin. 0 kapatır. Çok kısa yanıtlar otomatik uzatılabilir.';
 
   @override
-  String get replyMaxChars => 'Maximum reply length';
+  String get replyMaxChars => 'Maksimum yanıt uzunluğu';
 
   @override
   String get replyMaxCharsDescription =>
-      'Ask the AI to keep replies at or below this many characters. 0 turns it off. Overlong replies may be trimmed.';
+      'YZ’den yanıtları en fazla bu kadar karakter tutmasını isteyin. 0 kapatır. Çok uzun yanıtlar kısaltılabilir.';
 
   @override
   String get seed => 'Seed';
@@ -4739,11 +4740,11 @@ class AppLocalizationsTr extends AppLocalizations {
       'When this is off, the feed stays still and characters do not post.';
 
   @override
-  String get characterWorldRuntimeEnabled => 'Post in Moments';
+  String get characterWorldRuntimeEnabled => 'Moments’ta paylaş';
 
   @override
   String get characterWorldRuntimeEnabledHint =>
-      'Off by default. When on, this character can wake and post in Moments on their own.';
+      'Varsayılan olarak kapalı. Açıldığında bu karakter kendi kendine uyanıp Moments’ta paylaşabilir.';
 
   @override
   String get momentsInChat => 'Use Moments in this chat';
@@ -7062,6 +7063,24 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pageNotFound => 'Page not found';
 
   @override
+  String get emptySecondarySelectChat => 'Select a chat';
+
+  @override
+  String get emptySecondarySelectCharacter => 'Select a character';
+
+  @override
+  String get emptySecondarySelectPlay => 'Select something to play';
+
+  @override
+  String get emptySecondarySelectAiConfig => 'Select an AI setting';
+
+  @override
+  String get emptySecondarySelectAppearance => 'Select an appearance setting';
+
+  @override
+  String get emptySecondarySelectSetting => 'Select a setting';
+
+  @override
   String get goHome => 'Go home';
 
   @override
@@ -7153,32 +7172,32 @@ class AppLocalizationsTr extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get chatLineHeightTitle => 'Chat line spacing';
+  String get chatLineHeightTitle => 'Sohbet satır aralığı';
 
   @override
   String get chatLineHeightDescription =>
-      'Space between lines in normal chat paragraphs.';
+      'Normal sohbet paragraflarındaki satır aralığı.';
 
   @override
-  String get chatParagraphSpacingTitle => 'Chat paragraph spacing';
+  String get chatParagraphSpacingTitle => 'Sohbet paragraf aralığı';
 
   @override
   String get chatParagraphSpacingDescription =>
-      'Space between normal chat paragraphs.';
+      'Normal sohbet paragrafları arasındaki boşluk.';
 
   @override
-  String get markdownLineHeightTitle => 'Markdown/HTML line spacing';
+  String get markdownLineHeightTitle => 'Markdown/HTML satır aralığı';
 
   @override
   String get markdownLineHeightDescription =>
-      'Space between lines in code blocks and HTML messages.';
+      'Kod blokları ve HTML mesajlarındaki satır aralığı.';
 
   @override
-  String get markdownParagraphSpacingTitle => 'Markdown/HTML paragraph spacing';
+  String get markdownParagraphSpacingTitle => 'Markdown/HTML paragraf aralığı';
 
   @override
   String get markdownParagraphSpacingDescription =>
-      'Extra space for blank lines in code blocks and between HTML paragraphs.';
+      'Kod bloklarındaki boş satırlar ve HTML paragrafları arasındaki ekstra boşluk.';
 
   @override
   String get uiFontFamilyTitle => 'Yazı tipi';
@@ -7393,6 +7412,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get themePresetDusk => 'Dusk';
+
+  @override
+  String get themePresetCursorDark => 'Cursor Dark';
 
   @override
   String get tokenEditorSurface => 'App background';
@@ -7621,4 +7643,23 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get promptOwnedByCharacter =>
       'Karakter kartından · yalnızca görüntüle';
+
+  @override
+  String get momentsDraftSaveTitle => 'Save draft?';
+
+  @override
+  String get momentsDraftSaveMessage =>
+      'You have unpublished content. Save it as the only draft? It will restore the next time you post.';
+
+  @override
+  String get momentsDraftSave => 'Save draft';
+
+  @override
+  String get momentsDraftDiscard => 'Discard';
+
+  @override
+  String get searchChats => 'Search chats';
+
+  @override
+  String get noMatchingChats => 'No matching chats';
 }

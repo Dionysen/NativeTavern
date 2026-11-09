@@ -15,6 +15,7 @@ import 'package:native_tavern/presentation/widgets/character/character_library_o
 import 'package:native_tavern/presentation/widgets/character/character_tag_filter_sheet.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
@@ -22,6 +23,7 @@ import 'package:native_tavern/presentation/widgets/common/character_avatar_image
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
+import 'package:native_tavern/presentation/widgets/common/list_search_field.dart';
 import 'package:native_tavern/data/models/character_sort_option.dart';
 import 'character_library_app_bar.dart';
 import 'character_library_selection.dart';
@@ -874,44 +876,39 @@ class _SearchBar extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final sortActive = sortOption != CharacterSortOption.modifiedAtDesc;
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: TextField(
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          hintText: l10n.searchCharacters,
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (showFolderScopeToggle)
-                ChromeIconButton(
-                  icon: Icon(
-                    searchEntireLibrary
-                        ? Icons.public
-                        : Icons.folder_outlined,
-                  ),
-                  isSelected: searchEntireLibrary,
-                  tooltip: searchEntireLibrary
-                      ? l10n.characterSearchScopeGlobal
-                      : l10n.characterSearchScopeFolder,
-                  onPressed: onToggleSearchScope,
-                ),
-              ChromeIconButton(
-                icon: const Icon(Icons.sort),
-                isSelected: sortActive,
-                tooltip: l10n.sortBy,
-                onPressed: onOpenSort,
+    return ListSearchField(
+      hintText: l10n.searchCharacters,
+      onChanged: onChanged,
+      suffix: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showFolderScopeToggle)
+            ChromeIconButton(
+              density: ChromeIconButtonDensity.compact,
+              icon: Icon(
+                searchEntireLibrary ? Icons.public : Icons.folder_outlined,
               ),
-              ChromeIconButton(
-                icon: const Icon(Icons.filter_list),
-                isSelected: tagFilterActive,
-                tooltip: l10n.filterByTags,
-                onPressed: onOpenTagFilter,
-              ),
-            ],
+              isSelected: searchEntireLibrary,
+              tooltip: searchEntireLibrary
+                  ? l10n.characterSearchScopeGlobal
+                  : l10n.characterSearchScopeFolder,
+              onPressed: onToggleSearchScope,
+            ),
+          ChromeIconButton(
+            density: ChromeIconButtonDensity.compact,
+            icon: const Icon(Icons.sort),
+            isSelected: sortActive,
+            tooltip: l10n.sortBy,
+            onPressed: onOpenSort,
           ),
-        ),
+          ChromeIconButton(
+            density: ChromeIconButtonDensity.compact,
+            icon: const Icon(Icons.filter_list),
+            isSelected: tagFilterActive,
+            tooltip: l10n.filterByTags,
+            onPressed: onOpenTagFilter,
+          ),
+        ],
       ),
     );
   }
@@ -1175,6 +1172,8 @@ class _CharacterSimpleListTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final selected = interaction.selectedIds.contains(character.id);
+    final openInDetail =
+        GoRouterState.of(context).uri.path == '/characters/${character.id}';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -1187,47 +1186,54 @@ class _CharacterSimpleListTile extends ConsumerWidget {
               interaction.onToggleSelect(character.id);
               return;
             }
-            context.push('/characters/${character.id}');
+            context.openShell('/characters/${character.id}');
           },
           onLongPress: () => interaction.handleLongPress(character.id),
           onSecondaryTap: interaction.selectionMode
               ? () => interaction.onToggleSelect(character.id)
               : () => _showCharacterActionMenu(context, ref, character),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 4, 0),
-            child: Row(
-              children: [
-                if (interaction.selectionMode) ...[
-                  Icon(
-                    selected ? Icons.check_circle : Icons.circle_outlined,
-                    color: selected ? scheme.primary : scheme.outline,
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                _buildAvatar(context),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    character.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                ),
-                if (!interaction.selectionMode)
-                  AdaptiveActionMenuButton<String>(
-                    tooltip: l10n.moreOptions,
-                    title: character.name,
-                    density: ChromeIconButtonDensity.compact,
-                    itemBuilder: _characterActionItems,
-                    onSelected: (value) => _handleCharacterAction(
-                      context,
-                      ref,
-                      character,
-                      value,
+          child: ColoredBox(
+            color: interaction.selectionMode && selected
+                ? scheme.primary.withValues(alpha: 0.12)
+                : openInDetail
+                    ? scheme.primary.withValues(alpha: 0.08)
+                    : Colors.transparent,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 4, 0),
+              child: Row(
+                children: [
+                  if (interaction.selectionMode) ...[
+                    Icon(
+                      selected ? Icons.check_circle : Icons.circle_outlined,
+                      color: selected ? scheme.primary : scheme.outline,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  _buildAvatar(context),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      character.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ),
-              ],
+                  if (!interaction.selectionMode)
+                    AdaptiveActionMenuButton<String>(
+                      tooltip: l10n.moreOptions,
+                      title: character.name,
+                      density: ChromeIconButtonDensity.compact,
+                      itemBuilder: _characterActionItems,
+                      onSelected: (value) => _handleCharacterAction(
+                        context,
+                        ref,
+                        character,
+                        value,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -1445,7 +1451,7 @@ Future<void> _startCharacterChat(
     final chatId =
         await ref.read(activeChatProvider.notifier).createChat(character.id);
     if (chatId != null && context.mounted) {
-      context.push('/chat/$chatId');
+      context.openShell('/chat/$chatId');
     } else if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.error)),
@@ -1553,15 +1559,23 @@ class _CharacterGridCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = interaction.selectedIds.contains(character.id);
+    final openInDetail =
+        GoRouterState.of(context).uri.path == '/characters/${character.id}';
+    final scheme = Theme.of(context).colorScheme;
     return Card(
       clipBehavior: Clip.antiAlias,
+      color: interaction.selectionMode && selected
+          ? scheme.primary.withValues(alpha: 0.12)
+          : openInDetail
+              ? scheme.primary.withValues(alpha: 0.08)
+              : null,
       child: InkWell(
         onTap: () {
           if (interaction.selectionMode) {
             interaction.onToggleSelect(character.id);
             return;
           }
-          context.push('/characters/${character.id}');
+          context.openShell('/characters/${character.id}');
         },
         onLongPress: () => interaction.handleLongPress(character.id),
         onSecondaryTap: interaction.selectionMode
@@ -1673,15 +1687,23 @@ class _CharacterCompactGridCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = interaction.selectedIds.contains(character.id);
+    final openInDetail =
+        GoRouterState.of(context).uri.path == '/characters/${character.id}';
+    final scheme = Theme.of(context).colorScheme;
     return Card(
       clipBehavior: Clip.antiAlias,
+      color: interaction.selectionMode && selected
+          ? scheme.primary.withValues(alpha: 0.12)
+          : openInDetail
+              ? scheme.primary.withValues(alpha: 0.08)
+              : null,
       child: InkWell(
         onTap: () {
           if (interaction.selectionMode) {
             interaction.onToggleSelect(character.id);
             return;
           }
-          context.push('/characters/${character.id}');
+          context.openShell('/characters/${character.id}');
         },
         onLongPress: () => interaction.handleLongPress(character.id),
         onSecondaryTap: interaction.selectionMode
@@ -1806,6 +1828,8 @@ class _CharacterListTile extends ConsumerWidget {
         ? character.description
         : l10n.description;
     final selected = interaction.selectedIds.contains(character.id);
+    final openInDetail =
+        GoRouterState.of(context).uri.path == '/characters/${character.id}';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -1816,13 +1840,19 @@ class _CharacterListTile extends ConsumerWidget {
             interaction.onToggleSelect(character.id);
             return;
           }
-          context.push('/characters/${character.id}');
+          context.openShell('/characters/${character.id}');
         },
         onLongPress: () => interaction.handleLongPress(character.id),
         onSecondaryTap: interaction.selectionMode
             ? () => interaction.onToggleSelect(character.id)
             : () => _showCharacterActionMenu(context, ref, character),
-        child: Padding(
+        child: ColoredBox(
+          color: interaction.selectionMode && selected
+              ? scheme.primary.withValues(alpha: 0.12)
+              : openInDetail
+                  ? scheme.primary.withValues(alpha: 0.08)
+                  : Colors.transparent,
+          child: Padding(
           // Matching vertical insets: title top == tags bottom.
           padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
           child: Row(
@@ -1905,6 +1935,7 @@ class _CharacterListTile extends ConsumerWidget {
                   ),
                 ),
             ],
+          ),
           ),
         ),
       ),

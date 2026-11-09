@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:native_tavern/presentation/widgets/common/app_viewport.dart';
+import 'package:native_tavern/presentation/widgets/common/desktop_layout.dart';
 
 /// Moves custom full-screen page actions to UIKit's preferred physical edge.
 class AdaptiveScaffold extends StatefulWidget {
@@ -56,14 +57,20 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold>
   @override
   Widget build(BuildContext context) {
     final layout = WindowLayoutScope.maybeOf(context);
-    final edge = layout?.verticalBarEdge;
-    final sharedBar = layout != null && layout.barWidth > 0;
+    // In wide three-pane, chat sits in the secondary column — use a normal
+    // in-pane AppBar (no iOS shared vertical-bar chrome, no back-to-list).
+    final threePane = ThreePaneScope.isActive(context);
+    final edge = threePane ? null : layout?.verticalBarEdge;
+    final sharedBar =
+        !threePane && layout != null && layout.barWidth > 0;
     final barWidth = sharedBar ? layout.barWidth : 56.0;
     final canPop = ModalRoute.of(context)?.canPop ?? false;
-    final leading = widget.appBar.leading ??
-        (widget.appBar.automaticallyImplyLeading && canPop
-            ? const BackButton()
-            : null);
+    final leading = threePane
+        ? null
+        : widget.appBar.leading ??
+            (widget.appBar.automaticallyImplyLeading && canPop
+                ? const BackButton()
+                : null);
 
     Widget controls() => ColoredBox(
           color: Theme.of(context).colorScheme.surface,
@@ -86,6 +93,16 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold>
           ),
         );
 
+    final topAppBar = threePane
+        ? AppBar(
+            title: widget.appBar.title,
+            actions: widget.appBar.actions,
+            backgroundColor: widget.appBar.backgroundColor,
+            foregroundColor: widget.appBar.foregroundColor,
+            automaticallyImplyLeading: false,
+          )
+        : widget.appBar;
+
     return AnimatedBuilder(
       animation: _hideController,
       builder: (context, _) {
@@ -96,13 +113,13 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold>
           appBar: edge == null
               ? PreferredSize(
                   preferredSize: Size.fromHeight(
-                    widget.appBar.preferredSize.height * visibleFactor,
+                    topAppBar.preferredSize.height * visibleFactor,
                   ),
                   child: ClipRect(
                     child: Align(
                       alignment: Alignment.bottomCenter,
                       heightFactor: visibleFactor,
-                      child: widget.appBar,
+                      child: topAppBar,
                     ),
                   ),
                 )

@@ -44,6 +44,7 @@ import 'package:native_tavern/presentation/providers/tts_providers.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/data/models/regex_script.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
@@ -333,12 +334,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _openReplyChoicesSettings() {
     _setChoicePanelVisible(false);
-    context.push(AppRoutes.replyChoices);
+    context.openShell(AppRoutes.replyChoices);
   }
 
   void _openCharacterStatusSettings() {
     _setStatusPanelVisible(false);
-    context.push(AppRoutes.characterStatus);
+    context.openShell(AppRoutes.characterStatus);
   }
 
   Future<void> _refreshReplyChoices() async {
@@ -1002,7 +1003,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         break;
 
       case 'bg':
-        context.push(AppRoutes.backgroundSettings);
+        context.openShell(AppRoutes.backgroundSettings);
         break;
 
       case 'impersonate':
@@ -1843,7 +1844,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               case 'character':
                 final characterId = chatState.character?.id;
                 if (characterId != null) {
-                  context.push('/characters/$characterId');
+                  context.openShell('/characters/$characterId');
                 }
                 break;
               case 'statistics':
@@ -1964,7 +1965,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       avatar = Tooltip(
         message: l10n.viewCharacter,
         child: GestureDetector(
-          onTap: () => context.push('/characters/$characterId'),
+          onTap: () => context.openShell('/characters/$characterId'),
           child: avatar,
         ),
       );
@@ -2759,7 +2760,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       return;
     }
     ref.invalidate(allChatsProvider);
-    context.push('/chat/$newChatId');
+    context.openShell('/chat/$newChatId');
   }
 
   Future<void> _branchChatFromMessage(String messageId) async {
@@ -2777,7 +2778,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l10n.branchChatCreated)),
     );
-    context.push('/chat/$newChatId');
+    context.openShell('/chat/$newChatId');
   }
 
   Future<void> _showDeleteConfirmation(String messageId) async {
@@ -4335,7 +4336,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     return Tooltip(
       message: l10n.viewCharacter,
       child: GestureDetector(
-        onTap: () => context.push('/characters/$characterId'),
+        onTap: () => context.openShell('/characters/$characterId'),
         child: avatar,
       ),
     );

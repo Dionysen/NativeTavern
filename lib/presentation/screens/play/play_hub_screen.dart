@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/presentation/widgets/play/ai_play_feature_gate.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 
@@ -34,7 +35,7 @@ class PlayHubScreen extends ConsumerWidget {
                     AiPlayFeature.moments,
                   );
                   if (enabled && context.mounted) {
-                    context.push(AppRoutes.playMoments);
+                    context.openShell(AppRoutes.playMoments);
                   }
                 },
               ),
@@ -50,7 +51,7 @@ class PlayHubScreen extends ConsumerWidget {
                     AiPlayFeature.story,
                   );
                   if (enabled && context.mounted) {
-                    context.push(AppRoutes.playStory);
+                    context.openShell(AppRoutes.playStory);
                   }
                 },
               ),
@@ -59,16 +60,16 @@ class PlayHubScreen extends ConsumerWidget {
                 icon: Icons.public_outlined,
                 title: l10n.worldInfo,
                 valueText: '',
-                onTap: () => context.push(AppRoutes.worldInfo),
-              ),
+                onTap: () => context.openShell(AppRoutes.worldInfo),
+                              ),
               SettingsValueTile(
                 key: const Key('play-hub-data-bank'),
                 icon: Icons.library_books_outlined,
                 title: l10n.dataBank,
                 valueText: '',
                 showDivider: false,
-                onTap: () => context.push(AppRoutes.dataBank),
-              ),
+                onTap: () => context.openShell(AppRoutes.dataBank),
+                              ),
             ],
           ),
         ],

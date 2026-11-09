@@ -688,42 +688,41 @@ class AppLocalizationsTh extends AppLocalizations {
   String get unpinReplyChoicesPanel => 'เลิกปักหมุดแผง';
 
   @override
-  String get characterStatus => 'Character status';
+  String get characterStatus => 'สถานะตัวละคร';
 
   @override
-  String get enableCharacterStatus => 'Generate status after replies';
+  String get enableCharacterStatus => 'สร้างสถานะหลังตอบ';
 
   @override
   String get enableCharacterStatusHint =>
-      'After each AI message, update status for characters in the scene';
+      'หลังข้อความ AI แต่ละครั้ง ให้อัปเดตสถานะตัวละครในฉาก';
 
   @override
-  String get characterStatusInjectContext => 'Include status in next prompt';
+  String get characterStatusInjectContext => 'ใส่สถานะในพรอมต์ถัดไป';
 
   @override
   String get characterStatusInjectContextHint =>
-      'Helps the AI keep status consistent across turns';
+      'ช่วยให้ AI รักษาสถานะให้สอดคล้องกันในแต่ละเทิร์น';
 
   @override
-  String get characterStatusAutoDisableCard =>
-      'Prefer card status when present';
+  String get characterStatusAutoDisableCard => 'ใช้สถานะจากการ์ดเมื่อมีอยู่';
 
   @override
   String get characterStatusAutoDisableCardHint =>
-      'If this character card already includes a status block, leave built-in generation off';
+      'ถ้าการ์ดตัวละครนี้มีบล็อกสถานะอยู่แล้ว ให้ปิดการสร้างในตัวไว้';
 
   @override
   String get characterStatusCardDetected =>
-      'This character card already includes a status block';
+      'การ์ดตัวละครนี้มีบล็อกสถานะอยู่แล้ว';
 
   @override
-  String get characterStatusFields => 'Status fields';
+  String get characterStatusFields => 'ฟิลด์สถานะ';
 
   @override
-  String get characterStatusAddField => 'Add field';
+  String get characterStatusAddField => 'เพิ่มฟิลด์';
 
   @override
-  String get characterStatusFieldLabel => 'Field name';
+  String get characterStatusFieldLabel => 'ชื่อฟิลด์';
 
   @override
   String get characterStatusFieldPrompt => 'Field prompt';
@@ -733,44 +732,43 @@ class AppLocalizationsTh extends AppLocalizations {
       'Optional. Tell the AI how to write this field.';
 
   @override
-  String get characterStatusFieldLocked => 'Required';
+  String get characterStatusFieldLocked => 'จำเป็น';
 
   @override
-  String get characterStatusPromptTemplate => 'Prompt template';
+  String get characterStatusPromptTemplate => 'เทมเพลตพรอมต์';
 
   @override
   String get characterStatusPromptPlaceholders =>
-      'Placeholders: field_lines, character_lines, previous_status (each wrapped in double curly braces)';
+      'ตัวยึดตำแหน่ง: field_lines, character_lines, previous_status (แต่ละอันอยู่ในวงเล็บปีกกาคู่)';
 
   @override
-  String get characterStatusDisabledTitle => 'Character status is off';
+  String get characterStatusDisabledTitle => 'สถานะตัวละครปิดอยู่';
 
   @override
   String get characterStatusDisabledHint =>
-      'Turn on in settings to update character status after each reply.';
+      'เปิดในการตั้งค่าเพื่ออัปเดตสถานะตัวละครหลังทุกคำตอบ';
 
   @override
-  String get openCharacterStatusSettings => 'Open settings';
+  String get openCharacterStatusSettings => 'เปิดการตั้งค่า';
 
   @override
   String get characterStatusGenerateFailed =>
-      'Could not generate status. Try again after the next reply.';
+      'สร้างสถานะไม่ได้ ลองอีกครั้งหลังคำตอบถัดไป';
 
   @override
-  String get characterStatusEmpty =>
-      'No status yet. It appears after the character replies.';
+  String get characterStatusEmpty => 'ยังไม่มีสถานะ จะแสดงหลังจากตัวละครตอบ';
 
   @override
-  String get showCharacterStatus => 'Character status';
+  String get showCharacterStatus => 'สถานะตัวละคร';
 
   @override
-  String get pinCharacterStatusPanel => 'Pin panel';
+  String get pinCharacterStatusPanel => 'ปักหมุดแผง';
 
   @override
-  String get unpinCharacterStatusPanel => 'Unpin panel';
+  String get unpinCharacterStatusPanel => 'เลิกปักหมุดแผง';
 
   @override
-  String get deleteStatusField => 'Remove field';
+  String get deleteStatusField => 'ลบฟิลด์';
 
   @override
   String get createQuickReply => 'สร้างการตอบกลับด่วน';
@@ -1362,19 +1360,19 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String libraryItemsSelected(int count) {
-    return '$count selected';
+    return 'เลือกแล้ว $count';
   }
 
   @override
   String get deleteSelectedCharacters => 'ลบตัวละคร';
 
   @override
-  String get deleteSelectedLibraryItems => 'Delete selected';
+  String get deleteSelectedLibraryItems => 'ลบรายการที่เลือก';
 
   @override
   String deleteSelectedLibraryItemsConfirmation(
       int characterCount, int folderCount) {
-    return 'Delete $characterCount character(s) and $folderCount folder(s)? Folder contents will also be deleted. This cannot be undone.';
+    return 'ลบตัวละคร $characterCount และโฟลเดอร์ $folderCount หรือไม่? เนื้อหาในโฟลเดอร์จะถูกลบด้วย และยกเลิกไม่ได้';
   }
 
   @override
@@ -1430,110 +1428,110 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String characterFolderContentsSummary(int characterCount, int folderCount) {
-    return '$characterCount character(s) · $folderCount folder(s)';
+    return '$characterCount ตัวละคร · $folderCount โฟลเดอร์';
   }
 
   @override
   String characterFolderDepthLimit(int maxDepth) {
-    return 'Folders can only nest up to $maxDepth levels';
+    return 'โฟลเดอร์ซ้อนได้ไม่เกิน $maxDepth ระดับ';
   }
 
   @override
   String get charactersMovedToFolder => 'ย้ายตัวละครแล้ว';
 
   @override
-  String get copyToFolder => 'Copy to folder';
+  String get copyToFolder => 'คัดลอกไปยังโฟลเดอร์';
 
   @override
-  String get copyCharactersToFolder => 'Copy to folder';
+  String get copyCharactersToFolder => 'คัดลอกไปยังโฟลเดอร์';
 
   @override
   String charactersCopiedToFolder(int count) {
-    return 'Copied $count character(s)';
+    return 'คัดลอกตัวละครแล้ว $count';
   }
 
   @override
-  String get characterFolderUseThisPath => 'Use this folder';
+  String get characterFolderUseThisPath => 'ใช้โฟลเดอร์นี้';
 
   @override
-  String get characterFolderPathEmpty => 'No subfolders here yet';
+  String get characterFolderPathEmpty => 'ยังไม่มีโฟลเดอร์ย่อยที่นี่';
 
   @override
-  String get importCharactersFromFolder => 'Import from folder';
+  String get importCharactersFromFolder => 'นำเข้าจากโฟลเดอร์';
 
   @override
-  String get exportCharacterLibrary => 'Export character library';
+  String get exportCharacterLibrary => 'ส่งออกคลังตัวละคร';
 
   @override
-  String get exportCharacterLibraryFastPack => 'Quick export library pack';
+  String get exportCharacterLibraryFastPack => 'ส่งออกแพ็กคลังแบบด่วน';
 
   @override
-  String get importCharacterLibraryFastPack => 'Quick import library pack';
+  String get importCharacterLibraryFastPack => 'นำเข้าแพ็กคลังแบบด่วน';
 
   @override
   String get importCharacterLibraryStorageFull =>
-      'Not enough free storage to open this pack. Free some space and try again.';
+      'พื้นที่ว่างไม่พอที่จะเปิดแพ็กนี้ โปรดเคลียร์พื้นที่แล้วลองใหม่';
 
   @override
   String get characterLibraryFastPackOverwriteTitle =>
-      'Overwrite matching characters?';
+      'เขียนทับตัวละครที่ตรงกันหรือไม่?';
 
   @override
   String get characterLibraryFastPackOverwriteBody =>
-      'Characters with the same id will be updated. Chats stay linked to those characters.';
+      'ตัวละครที่มี id เดียวกันจะถูกอัปเดต แชทยังผูกกับตัวละครเหล่านั้น';
 
   @override
-  String get characterLibraryFastPackPreparing => 'Preparing…';
+  String get characterLibraryFastPackPreparing => 'กำลังเตรียม…';
 
   @override
   String characterLibraryFastPackImportProgress(int processed, int total) {
-    return 'Quick importing $processed of $total';
+    return 'นำเข้าด่วน $processed จาก $total';
   }
 
   @override
   String characterLibraryFastPackExportProgress(int processed, int total) {
-    return 'Quick exporting $processed of $total';
+    return 'ส่งออกด่วน $processed จาก $total';
   }
 
   @override
   String characterLibraryFastPackExtractProgress(int processed, int total) {
-    return 'Extracting files $processed of $total';
+    return 'กำลังแตกไฟล์ $processed จาก $total';
   }
 
   @override
   String characterLibraryFastPackImportSummary(
       int created, int updated, int failed) {
-    return 'Created $created. Updated $updated. Failed $failed.';
+    return 'สร้าง $created อัปเดต $updated ล้มเหลว $failed';
   }
 
   @override
   String characterLibraryFastPackExportSummary(int characters, int folders) {
-    return 'Exported $characters characters and $folders folders';
+    return 'ส่งออกตัวละคร $characters และโฟลเดอร์ $folders แล้ว';
   }
 
   @override
   String characterLibraryImportProgress(int processed, int total) {
-    return 'Importing $processed of $total';
+    return 'กำลังนำเข้า $processed จาก $total';
   }
 
   @override
   String characterLibraryImportSummary(int succeeded, int failed, int skipped) {
-    return 'Imported $succeeded. Failed $failed. Skipped $skipped.';
+    return 'นำเข้าแล้ว $succeeded ล้มเหลว $failed ข้าม $skipped';
   }
 
   @override
   String characterLibraryExportProgress(int processed, int total) {
-    return 'Exporting $processed of $total';
+    return 'กำลังส่งออก $processed จาก $total';
   }
 
   @override
   String characterLibraryExportSummary(int succeeded, int failed) {
-    return 'Exported $succeeded. Failed $failed.';
+    return 'ส่งออกแล้ว $succeeded ล้มเหลว $failed';
   }
 
   @override
   String get characterLibraryFolderPickerUnavailable =>
-      'This device can’t pick a folder. Import cards as files instead.';
+      'อุปกรณ์นี้เลือกโฟลเดอร์ไม่ได้ ให้นำเข้าการ์ดเป็นไฟล์แทน';
 
   @override
   String get dissolveCharacterFolder => 'ยุบโฟลเดอร์';
@@ -1544,30 +1542,30 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deleteCharacterFolder => 'Delete folder';
+  String get deleteCharacterFolder => 'ลบโฟลเดอร์';
 
   @override
   String deleteCharacterFolderBody(String name) {
-    return 'Delete \"$name\" and its subfolders? Characters inside will also be deleted.';
+    return 'ลบ \"$name\" และโฟลเดอร์ย่อยหรือไม่? ตัวละครข้างในจะถูกลบด้วย';
   }
 
   @override
-  String get selectAllCharacters => 'Select all';
+  String get selectAllCharacters => 'เลือกทั้งหมด';
 
   @override
-  String get deselectAllCharacters => 'Deselect all';
+  String get deselectAllCharacters => 'ยกเลิกการเลือกทั้งหมด';
 
   @override
-  String get characterFolderDeleted => 'Folder deleted';
+  String get characterFolderDeleted => 'ลบโฟลเดอร์แล้ว';
 
   @override
-  String get characterFolderDissolved => 'Folder dissolved';
+  String get characterFolderDissolved => 'ยุบโฟลเดอร์แล้ว';
 
   @override
-  String get characterLibraryManage => 'Library';
+  String get characterLibraryManage => 'คลัง';
 
   @override
-  String get manageCurrentCharacterFolder => 'This folder';
+  String get manageCurrentCharacterFolder => 'โฟลเดอร์นี้';
 
   @override
   String get renameCharacterFolder => 'เปลี่ยนชื่อโฟลเดอร์';
@@ -1869,18 +1867,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get maxTokensDescription => 'Maximum tokens to generate.';
 
   @override
-  String get replyMinChars => 'Minimum reply length';
+  String get replyMinChars => 'ความยาวคำตอบต่ำสุด';
 
   @override
   String get replyMinCharsDescription =>
-      'Ask the AI to write at least this many characters. 0 turns it off. Too-short replies may be expanded automatically.';
+      'ขอให้ AI เขียนอย่างน้อยจำนวนตัวอักษรนี้ ใส่ 0 เพื่อปิด คำตอบที่สั้นเกินไปอาจถูกขยายอัตโนมัติ';
 
   @override
-  String get replyMaxChars => 'Maximum reply length';
+  String get replyMaxChars => 'ความยาวคำตอบสูงสุด';
 
   @override
   String get replyMaxCharsDescription =>
-      'Ask the AI to keep replies at or below this many characters. 0 turns it off. Overlong replies may be trimmed.';
+      'ขอให้ AI ตอบไม่เกินจำนวนตัวอักษรนี้ ใส่ 0 เพื่อปิด คำตอบที่ยาวเกินไปอาจถูกตัด';
 
   @override
   String get seed => 'Seed';
@@ -4733,11 +4731,11 @@ class AppLocalizationsTh extends AppLocalizations {
       'When this is off, the feed stays still and characters do not post.';
 
   @override
-  String get characterWorldRuntimeEnabled => 'Post in Moments';
+  String get characterWorldRuntimeEnabled => 'โพสต์ใน Moments';
 
   @override
   String get characterWorldRuntimeEnabledHint =>
-      'Off by default. When on, this character can wake and post in Moments on their own.';
+      'ปิดไว้เป็นค่าเริ่มต้น เมื่อเปิด ตัวละครนี้สามารถตื่นและโพสต์ใน Moments ได้เอง';
 
   @override
   String get momentsInChat => 'Use Moments in this chat';
@@ -7056,6 +7054,24 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pageNotFound => 'Page not found';
 
   @override
+  String get emptySecondarySelectChat => 'Select a chat';
+
+  @override
+  String get emptySecondarySelectCharacter => 'Select a character';
+
+  @override
+  String get emptySecondarySelectPlay => 'Select something to play';
+
+  @override
+  String get emptySecondarySelectAiConfig => 'Select an AI setting';
+
+  @override
+  String get emptySecondarySelectAppearance => 'Select an appearance setting';
+
+  @override
+  String get emptySecondarySelectSetting => 'Select a setting';
+
+  @override
   String get goHome => 'Go home';
 
   @override
@@ -7146,32 +7162,31 @@ class AppLocalizationsTh extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get chatLineHeightTitle => 'Chat line spacing';
+  String get chatLineHeightTitle => 'ระยะห่างบรรทัดแชท';
 
   @override
   String get chatLineHeightDescription =>
-      'Space between lines in normal chat paragraphs.';
+      'ระยะห่างระหว่างบรรทัดในย่อหน้าแชทปกติ';
 
   @override
-  String get chatParagraphSpacingTitle => 'Chat paragraph spacing';
+  String get chatParagraphSpacingTitle => 'ระยะห่างย่อหน้าแชท';
 
   @override
-  String get chatParagraphSpacingDescription =>
-      'Space between normal chat paragraphs.';
+  String get chatParagraphSpacingDescription => 'ระยะห่างระหว่างย่อหน้าแชทปกติ';
 
   @override
-  String get markdownLineHeightTitle => 'Markdown/HTML line spacing';
+  String get markdownLineHeightTitle => 'ระยะห่างบรรทัด Markdown/HTML';
 
   @override
   String get markdownLineHeightDescription =>
-      'Space between lines in code blocks and HTML messages.';
+      'ระยะห่างระหว่างบรรทัดในบล็อกโค้ดและข้อความ HTML';
 
   @override
-  String get markdownParagraphSpacingTitle => 'Markdown/HTML paragraph spacing';
+  String get markdownParagraphSpacingTitle => 'ระยะห่างย่อหน้า Markdown/HTML';
 
   @override
   String get markdownParagraphSpacingDescription =>
-      'Extra space for blank lines in code blocks and between HTML paragraphs.';
+      'ระยะเพิ่มสำหรับบรรทัดว่างในบล็อกโค้ดและระหว่างย่อหน้า HTML';
 
   @override
   String get uiFontFamilyTitle => 'ฟอนต์';
@@ -7382,6 +7397,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get themePresetDusk => 'Dusk';
+
+  @override
+  String get themePresetCursorDark => 'Cursor Dark';
 
   @override
   String get tokenEditorSurface => 'App background';
@@ -7607,4 +7625,23 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get promptOwnedByCharacter => 'จากการ์ดตัวละคร · ดูอย่างเดียว';
+
+  @override
+  String get momentsDraftSaveTitle => 'Save draft?';
+
+  @override
+  String get momentsDraftSaveMessage =>
+      'You have unpublished content. Save it as the only draft? It will restore the next time you post.';
+
+  @override
+  String get momentsDraftSave => 'Save draft';
+
+  @override
+  String get momentsDraftDiscard => 'Discard';
+
+  @override
+  String get searchChats => 'Search chats';
+
+  @override
+  String get noMatchingChats => 'No matching chats';
 }

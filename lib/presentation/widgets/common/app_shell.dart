@@ -7,6 +7,8 @@ import 'package:native_tavern/presentation/providers/character_folder_providers.
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/app_viewport.dart';
+import 'package:native_tavern/presentation/widgets/common/desktop_caption.dart';
+import 'package:native_tavern/presentation/widgets/common/desktop_layout.dart';
 import 'package:native_tavern/presentation/widgets/common/intercept_pop_scope.dart';
 
 /// Main navigation follows the system's bar edge or the available width.
@@ -75,13 +77,26 @@ class AppShell extends ConsumerWidget {
           final windowLayout = WindowLayoutScope.maybeOf(context);
           final edge = windowLayout?.supportsVerticalBars == true
               ? windowLayout?.verticalBarEdge
-              : constraints.maxWidth >= 600
+              : DesktopLayout.useRail(constraints.maxWidth)
                   ? VerticalBarEdge.left
                   : null;
           final railWidth =
               windowLayout?.barWidth != null && windowLayout!.barWidth > 0
                   ? windowLayout.barWidth
-                  : 96.0;
+                  : DesktopLayout.railWidth;
+          // Native shared-bar layouts (iOS) must keep exact rail geometry; only
+          // width-based desktop rails get three-pane divider/tint chrome.
+          final contentWidth = edge == null
+              ? constraints.maxWidth
+              : constraints.maxWidth - railWidth - DesktopLayout.railDividerWidth;
+          final threePane = DesktopLayout.useThreePane(contentWidth);
+          final desktopThreePaneChrome =
+              threePane && windowLayout?.supportsVerticalBars != true;
+          final showBottomNav = edge == null &&
+              AppRoutes.isShellTabHub(GoRouterState.of(context).uri);
+          final scheme = Theme.of(context).colorScheme;
+          final dividerColor =
+              Theme.of(context).dividerColor.withValues(alpha: 0.5);
           return Scaffold(
             // Keep the routed child in the same element slot as bars move.
             body: Row(
@@ -90,25 +105,47 @@ class AppShell extends ConsumerWidget {
                 SizedBox(
                   width: edge == VerticalBarEdge.left ? railWidth : 0,
                   child: edge == VerticalBarEdge.left
-                      ? _AppNavigation(
-                          vertical: true,
-                          navigationShell: navigationShell,
+                      ? ColoredBox(
+                          color: desktopThreePaneChrome
+                              ? scheme.surfaceContainerLowest
+                              : scheme.surface,
+                          child: _AppNavigation(
+                            vertical: true,
+                            navigationShell: navigationShell,
+                          ),
                         )
                       : null,
                 ),
+                if (desktopThreePaneChrome && edge == VerticalBarEdge.left)
+                  VerticalDivider(
+                    width: 1,
+                    thickness: 1,
+                    color: dividerColor,
+                  ),
                 Expanded(child: body),
+                if (desktopThreePaneChrome && edge == VerticalBarEdge.right)
+                  VerticalDivider(
+                    width: 1,
+                    thickness: 1,
+                    color: dividerColor,
+                  ),
                 SizedBox(
                   width: edge == VerticalBarEdge.right ? railWidth : 0,
                   child: edge == VerticalBarEdge.right
-                      ? _AppNavigation(
-                          vertical: true,
-                          navigationShell: navigationShell,
+                      ? ColoredBox(
+                          color: desktopThreePaneChrome
+                              ? scheme.surfaceContainerLowest
+                              : scheme.surface,
+                          child: _AppNavigation(
+                            vertical: true,
+                            navigationShell: navigationShell,
+                          ),
                         )
                       : null,
                 ),
               ],
             ),
-            bottomNavigationBar: edge == null
+            bottomNavigationBar: showBottomNav
                 ? _AppNavigation(
                     vertical: false,
                     navigationShell: navigationShell,
@@ -215,45 +252,56 @@ class _AppNavigation extends StatelessWidget {
     }
     final layout = WindowLayoutScope.maybeOf(context);
     final sharedBar = layout != null && layout.barWidth > 0;
-    return ColoredBox(
-      color: Theme.of(context).colorScheme.surface,
-      child: Padding(
-        padding: sharedBar ? layout.barPadding : EdgeInsets.zero,
-        child: SafeArea(
-          top: !sharedBar,
-          bottom: !sharedBar,
-          left: !sharedBar,
-          right: !sharedBar,
-          child: LayoutBuilder(
-            builder: (context, constraints) => SingleChildScrollView(
-              child: SizedBox(
-                height: math.max(
-                    constraints.maxHeight,
-                    destinations.length *
-                            96 *
-                            MediaQuery.textScalerOf(context).scale(1) +
-                        16),
-                child: NavigationRail(
-                  minWidth: sharedBar ? layout.barWidth : 96,
-                  groupAlignment: -1,
-                  labelType: NavigationRailLabelType.all,
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: (index) =>
-                      _onItemTapped(context, index),
-                  destinations: [
-                    for (final destination in destinations)
-                      NavigationRailDestination(
-                        icon: destination.icon,
-                        selectedIcon: destination.selectedIcon,
-                        padding: sharedBar ? EdgeInsets.zero : null,
-                        label: Text(destination.label,
-                            textAlign: TextAlign.center),
-                      ),
-                  ],
+    return Padding(
+      padding: sharedBar ? layout.barPadding : EdgeInsets.zero,
+      child: SafeArea(
+        top: !sharedBar,
+        bottom: !sharedBar,
+        left: !sharedBar,
+        right: !sharedBar,
+        child: Column(
+          children: [
+            if (DesktopCaptionScope.isActive(context))
+              const SizedBox(height: kToolbarHeight),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) => SingleChildScrollView(
+                  child: SizedBox(
+                    height: math.max(
+                        constraints.maxHeight,
+                        destinations.length *
+                                88 *
+                                MediaQuery.textScalerOf(context).scale(1) +
+                            16),
+                    child: NavigationRail(
+                      minWidth:
+                          sharedBar ? layout.barWidth : DesktopLayout.railWidth,
+                      backgroundColor: Colors.transparent,
+                      groupAlignment: -1,
+                      labelType: NavigationRailLabelType.all,
+                      selectedIndex: selectedIndex,
+                      onDestinationSelected: (index) =>
+                          _onItemTapped(context, index),
+                      destinations: [
+                        for (final destination in destinations)
+                          NavigationRailDestination(
+                            icon: destination.icon,
+                            selectedIcon: destination.selectedIcon,
+                            padding: sharedBar ? EdgeInsets.zero : null,
+                            label: Text(
+                              destination.label,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );

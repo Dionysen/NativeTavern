@@ -7167,6 +7167,12 @@
   "numberedList": "编号列表",
   "horizontalRule": "分隔线",
   "pageNotFound": "页面未找到",
+  "emptySecondarySelectChat": "选择一个聊天",
+  "emptySecondarySelectCharacter": "选择一个角色",
+  "emptySecondarySelectPlay": "选择要打开的内容",
+  "emptySecondarySelectAiConfig": "选择一项 AI 设置",
+  "emptySecondarySelectAppearance": "选择一项外观设置",
+  "emptySecondarySelectSetting": "选择一项设置",
   "goHome": "返回首页",
   "officialWebsite": "官方网站",
   "mcpStreamableHttp": "可流式传输 HTTP",
@@ -7300,6 +7306,7 @@
   "themePresetEspresso": "咖啡",
   "themePresetMidnight": "午夜",
   "themePresetDusk": "暮色",
+  "themePresetCursorDark": "Cursor 深色",
   "tokenEditorSurface": "应用背景",
   "tokenSidebarSurface": "面板背景",
   "tokenControlSurface": "按钮和输入框",
@@ -7501,5 +7508,29 @@
   "promptOwnedByCharacter": "聊天时会使用角色卡里的内容",
   "@promptOwnedByCharacter": {
     "description": "Label for character-owned prompt sections in the manager"
+  },
+  "momentsDraftSaveTitle": "存入草稿？",
+  "@momentsDraftSaveTitle": {
+    "description": "Title asking whether to keep a moments compose draft"
+  },
+  "momentsDraftSaveMessage": "还有未发布的内容。草稿箱只能保留一份，下次发布时会自动恢复。",
+  "@momentsDraftSaveMessage": {
+    "description": "Explains single-slot moments draft on cancel"
+  },
+  "momentsDraftSave": "存草稿",
+  "@momentsDraftSave": {
+    "description": "Confirm saving moments compose draft"
+  },
+  "momentsDraftDiscard": "不保存",
+  "@momentsDraftDiscard": {
+    "description": "Discard moments compose content without saving a draft"
+  },
+  "searchChats": "搜索聊天",
+  "@searchChats": {
+    "description": "Hint for the chat list search field"
+  },
+  "noMatchingChats": "没有匹配的聊天",
+  "@noMatchingChats": {
+    "description": "Empty state when the chat list search has no hits"
   }
 }

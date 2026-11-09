@@ -698,42 +698,43 @@ class AppLocalizationsFr extends AppLocalizations {
   String get unpinReplyChoicesPanel => 'Désépingler le panneau';
 
   @override
-  String get characterStatus => 'Character status';
+  String get characterStatus => 'Statut du personnage';
 
   @override
-  String get enableCharacterStatus => 'Generate status after replies';
+  String get enableCharacterStatus => 'Générer le statut après les réponses';
 
   @override
   String get enableCharacterStatusHint =>
-      'After each AI message, update status for characters in the scene';
+      'Après chaque message de l’IA, mettre à jour le statut des personnages présents';
 
   @override
-  String get characterStatusInjectContext => 'Include status in next prompt';
+  String get characterStatusInjectContext =>
+      'Inclure le statut dans le prochain prompt';
 
   @override
   String get characterStatusInjectContextHint =>
-      'Helps the AI keep status consistent across turns';
+      'Aide l’IA à garder un statut cohérent d’un tour à l’autre';
 
   @override
   String get characterStatusAutoDisableCard =>
-      'Prefer card status when present';
+      'Préférer le statut de la carte s’il est présent';
 
   @override
   String get characterStatusAutoDisableCardHint =>
-      'If this character card already includes a status block, leave built-in generation off';
+      'Si cette carte contient déjà un bloc de statut, laissez la génération intégrée désactivée';
 
   @override
   String get characterStatusCardDetected =>
-      'This character card already includes a status block';
+      'Cette carte de personnage contient déjà un bloc de statut';
 
   @override
-  String get characterStatusFields => 'Status fields';
+  String get characterStatusFields => 'Champs de statut';
 
   @override
-  String get characterStatusAddField => 'Add field';
+  String get characterStatusAddField => 'Ajouter un champ';
 
   @override
-  String get characterStatusFieldLabel => 'Field name';
+  String get characterStatusFieldLabel => 'Nom du champ';
 
   @override
   String get characterStatusFieldPrompt => 'Field prompt';
@@ -743,44 +744,45 @@ class AppLocalizationsFr extends AppLocalizations {
       'Optional. Tell the AI how to write this field.';
 
   @override
-  String get characterStatusFieldLocked => 'Required';
+  String get characterStatusFieldLocked => 'Obligatoire';
 
   @override
-  String get characterStatusPromptTemplate => 'Prompt template';
+  String get characterStatusPromptTemplate => 'Modèle de prompt';
 
   @override
   String get characterStatusPromptPlaceholders =>
-      'Placeholders: field_lines, character_lines, previous_status (each wrapped in double curly braces)';
+      'Espaces réservés : field_lines, character_lines, previous_status (chacun entre doubles accolades)';
 
   @override
-  String get characterStatusDisabledTitle => 'Character status is off';
+  String get characterStatusDisabledTitle =>
+      'Le statut du personnage est désactivé';
 
   @override
   String get characterStatusDisabledHint =>
-      'Turn on in settings to update character status after each reply.';
+      'Activez-le dans les paramètres pour mettre à jour le statut après chaque réponse.';
 
   @override
-  String get openCharacterStatusSettings => 'Open settings';
+  String get openCharacterStatusSettings => 'Ouvrir les paramètres';
 
   @override
   String get characterStatusGenerateFailed =>
-      'Could not generate status. Try again after the next reply.';
+      'Impossible de générer le statut. Réessayez après la prochaine réponse.';
 
   @override
   String get characterStatusEmpty =>
-      'No status yet. It appears after the character replies.';
+      'Pas encore de statut. Il apparaît après la réponse du personnage.';
 
   @override
-  String get showCharacterStatus => 'Character status';
+  String get showCharacterStatus => 'Statut du personnage';
 
   @override
-  String get pinCharacterStatusPanel => 'Pin panel';
+  String get pinCharacterStatusPanel => 'Épingler le panneau';
 
   @override
-  String get unpinCharacterStatusPanel => 'Unpin panel';
+  String get unpinCharacterStatusPanel => 'Désépingler le panneau';
 
   @override
-  String get deleteStatusField => 'Remove field';
+  String get deleteStatusField => 'Retirer le champ';
 
   @override
   String get createQuickReply => 'Créer une réponse rapide';
@@ -1372,19 +1374,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String libraryItemsSelected(int count) {
-    return '$count selected';
+    return '$count sélectionné(s)';
   }
 
   @override
   String get deleteSelectedCharacters => 'Supprimer les personnages';
 
   @override
-  String get deleteSelectedLibraryItems => 'Delete selected';
+  String get deleteSelectedLibraryItems => 'Supprimer la sélection';
 
   @override
   String deleteSelectedLibraryItemsConfirmation(
       int characterCount, int folderCount) {
-    return 'Delete $characterCount character(s) and $folderCount folder(s)? Folder contents will also be deleted. This cannot be undone.';
+    return 'Supprimer $characterCount personnage(s) et $folderCount dossier(s) ? Le contenu des dossiers sera aussi supprimé. Cette action est irréversible.';
   }
 
   @override
@@ -1440,110 +1442,114 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String characterFolderContentsSummary(int characterCount, int folderCount) {
-    return '$characterCount character(s) · $folderCount folder(s)';
+    return '$characterCount personnage(s) · $folderCount dossier(s)';
   }
 
   @override
   String characterFolderDepthLimit(int maxDepth) {
-    return 'Folders can only nest up to $maxDepth levels';
+    return 'Les dossiers ne peuvent être imbriqués que sur $maxDepth niveaux';
   }
 
   @override
   String get charactersMovedToFolder => 'Personnages déplacés';
 
   @override
-  String get copyToFolder => 'Copy to folder';
+  String get copyToFolder => 'Copier vers un dossier';
 
   @override
-  String get copyCharactersToFolder => 'Copy to folder';
+  String get copyCharactersToFolder => 'Copier vers un dossier';
 
   @override
   String charactersCopiedToFolder(int count) {
-    return 'Copied $count character(s)';
+    return '$count personnage(s) copié(s)';
   }
 
   @override
-  String get characterFolderUseThisPath => 'Use this folder';
+  String get characterFolderUseThisPath => 'Utiliser ce dossier';
 
   @override
-  String get characterFolderPathEmpty => 'No subfolders here yet';
+  String get characterFolderPathEmpty =>
+      'Aucun sous-dossier ici pour le moment';
 
   @override
-  String get importCharactersFromFolder => 'Import from folder';
+  String get importCharactersFromFolder => 'Importer depuis un dossier';
 
   @override
-  String get exportCharacterLibrary => 'Export character library';
+  String get exportCharacterLibrary =>
+      'Exporter la bibliothèque de personnages';
 
   @override
-  String get exportCharacterLibraryFastPack => 'Quick export library pack';
+  String get exportCharacterLibraryFastPack =>
+      'Export rapide du pack de bibliothèque';
 
   @override
-  String get importCharacterLibraryFastPack => 'Quick import library pack';
+  String get importCharacterLibraryFastPack =>
+      'Import rapide du pack de bibliothèque';
 
   @override
   String get importCharacterLibraryStorageFull =>
-      'Not enough free storage to open this pack. Free some space and try again.';
+      'Pas assez d’espace libre pour ouvrir ce pack. Libérez de l’espace et réessayez.';
 
   @override
   String get characterLibraryFastPackOverwriteTitle =>
-      'Overwrite matching characters?';
+      'Écraser les personnages correspondants ?';
 
   @override
   String get characterLibraryFastPackOverwriteBody =>
-      'Characters with the same id will be updated. Chats stay linked to those characters.';
+      'Les personnages avec le même id seront mis à jour. Les chats restent liés à ces personnages.';
 
   @override
-  String get characterLibraryFastPackPreparing => 'Preparing…';
+  String get characterLibraryFastPackPreparing => 'Préparation…';
 
   @override
   String characterLibraryFastPackImportProgress(int processed, int total) {
-    return 'Quick importing $processed of $total';
+    return 'Import rapide $processed sur $total';
   }
 
   @override
   String characterLibraryFastPackExportProgress(int processed, int total) {
-    return 'Quick exporting $processed of $total';
+    return 'Export rapide $processed sur $total';
   }
 
   @override
   String characterLibraryFastPackExtractProgress(int processed, int total) {
-    return 'Extracting files $processed of $total';
+    return 'Extraction des fichiers $processed sur $total';
   }
 
   @override
   String characterLibraryFastPackImportSummary(
       int created, int updated, int failed) {
-    return 'Created $created. Updated $updated. Failed $failed.';
+    return '$created créé(s). $updated mis à jour. $failed échoué(s).';
   }
 
   @override
   String characterLibraryFastPackExportSummary(int characters, int folders) {
-    return 'Exported $characters characters and $folders folders';
+    return '$characters personnages et $folders dossiers exportés';
   }
 
   @override
   String characterLibraryImportProgress(int processed, int total) {
-    return 'Importing $processed of $total';
+    return 'Import $processed sur $total';
   }
 
   @override
   String characterLibraryImportSummary(int succeeded, int failed, int skipped) {
-    return 'Imported $succeeded. Failed $failed. Skipped $skipped.';
+    return '$succeeded importé(s). $failed échoué(s). $skipped ignoré(s).';
   }
 
   @override
   String characterLibraryExportProgress(int processed, int total) {
-    return 'Exporting $processed of $total';
+    return 'Export $processed sur $total';
   }
 
   @override
   String characterLibraryExportSummary(int succeeded, int failed) {
-    return 'Exported $succeeded. Failed $failed.';
+    return '$succeeded exporté(s). $failed échoué(s).';
   }
 
   @override
   String get characterLibraryFolderPickerUnavailable =>
-      'This device can’t pick a folder. Import cards as files instead.';
+      'Cet appareil ne peut pas choisir un dossier. Importez plutôt les cartes en fichiers.';
 
   @override
   String get dissolveCharacterFolder => 'Dissoudre le dossier';
@@ -1554,30 +1560,30 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get deleteCharacterFolder => 'Delete folder';
+  String get deleteCharacterFolder => 'Supprimer le dossier';
 
   @override
   String deleteCharacterFolderBody(String name) {
-    return 'Delete \"$name\" and its subfolders? Characters inside will also be deleted.';
+    return 'Supprimer « $name » et ses sous-dossiers ? Les personnages à l’intérieur seront aussi supprimés.';
   }
 
   @override
-  String get selectAllCharacters => 'Select all';
+  String get selectAllCharacters => 'Tout sélectionner';
 
   @override
-  String get deselectAllCharacters => 'Deselect all';
+  String get deselectAllCharacters => 'Tout désélectionner';
 
   @override
-  String get characterFolderDeleted => 'Folder deleted';
+  String get characterFolderDeleted => 'Dossier supprimé';
 
   @override
-  String get characterFolderDissolved => 'Folder dissolved';
+  String get characterFolderDissolved => 'Dossier dissous';
 
   @override
-  String get characterLibraryManage => 'Library';
+  String get characterLibraryManage => 'Bibliothèque';
 
   @override
-  String get manageCurrentCharacterFolder => 'This folder';
+  String get manageCurrentCharacterFolder => 'Ce dossier';
 
   @override
   String get renameCharacterFolder => 'Renommer le dossier';
@@ -1883,18 +1889,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get maxTokensDescription => 'Maximum tokens to generate.';
 
   @override
-  String get replyMinChars => 'Minimum reply length';
+  String get replyMinChars => 'Longueur minimale de réponse';
 
   @override
   String get replyMinCharsDescription =>
-      'Ask the AI to write at least this many characters. 0 turns it off. Too-short replies may be expanded automatically.';
+      'Demandez à l’IA d’écrire au moins ce nombre de caractères. 0 le désactive. Les réponses trop courtes peuvent être allongées automatiquement.';
 
   @override
-  String get replyMaxChars => 'Maximum reply length';
+  String get replyMaxChars => 'Longueur maximale de réponse';
 
   @override
   String get replyMaxCharsDescription =>
-      'Ask the AI to keep replies at or below this many characters. 0 turns it off. Overlong replies may be trimmed.';
+      'Demandez à l’IA de limiter les réponses à ce nombre de caractères. 0 le désactive. Les réponses trop longues peuvent être tronquées.';
 
   @override
   String get seed => 'Seed';
@@ -4748,11 +4754,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'When this is off, the feed stays still and characters do not post.';
 
   @override
-  String get characterWorldRuntimeEnabled => 'Post in Moments';
+  String get characterWorldRuntimeEnabled => 'Publier dans Moments';
 
   @override
   String get characterWorldRuntimeEnabledHint =>
-      'Off by default. When on, this character can wake and post in Moments on their own.';
+      'Désactivé par défaut. Une fois activé, ce personnage peut se réveiller et publier dans Moments tout seul.';
 
   @override
   String get momentsInChat => 'Use Moments in this chat';
@@ -7071,6 +7077,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pageNotFound => 'Page not found';
 
   @override
+  String get emptySecondarySelectChat => 'Select a chat';
+
+  @override
+  String get emptySecondarySelectCharacter => 'Select a character';
+
+  @override
+  String get emptySecondarySelectPlay => 'Select something to play';
+
+  @override
+  String get emptySecondarySelectAiConfig => 'Select an AI setting';
+
+  @override
+  String get emptySecondarySelectAppearance => 'Select an appearance setting';
+
+  @override
+  String get emptySecondarySelectSetting => 'Select a setting';
+
+  @override
   String get goHome => 'Go home';
 
   @override
@@ -7162,32 +7186,33 @@ class AppLocalizationsFr extends AppLocalizations {
       'Size of text in settings and the rest of the interface.';
 
   @override
-  String get chatLineHeightTitle => 'Chat line spacing';
+  String get chatLineHeightTitle => 'Interligne du chat';
 
   @override
   String get chatLineHeightDescription =>
-      'Space between lines in normal chat paragraphs.';
+      'Espace entre les lignes des paragraphes de chat normaux.';
 
   @override
-  String get chatParagraphSpacingTitle => 'Chat paragraph spacing';
+  String get chatParagraphSpacingTitle => 'Espacement des paragraphes du chat';
 
   @override
   String get chatParagraphSpacingDescription =>
-      'Space between normal chat paragraphs.';
+      'Espace entre les paragraphes de chat normaux.';
 
   @override
-  String get markdownLineHeightTitle => 'Markdown/HTML line spacing';
+  String get markdownLineHeightTitle => 'Interligne Markdown/HTML';
 
   @override
   String get markdownLineHeightDescription =>
-      'Space between lines in code blocks and HTML messages.';
+      'Espace entre les lignes dans les blocs de code et les messages HTML.';
 
   @override
-  String get markdownParagraphSpacingTitle => 'Markdown/HTML paragraph spacing';
+  String get markdownParagraphSpacingTitle =>
+      'Espacement des paragraphes Markdown/HTML';
 
   @override
   String get markdownParagraphSpacingDescription =>
-      'Extra space for blank lines in code blocks and between HTML paragraphs.';
+      'Espace supplémentaire pour les lignes vides dans les blocs de code et entre les paragraphes HTML.';
 
   @override
   String get uiFontFamilyTitle => 'Police';
@@ -7404,6 +7429,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get themePresetDusk => 'Dusk';
+
+  @override
+  String get themePresetCursorDark => 'Cursor Dark';
 
   @override
   String get tokenEditorSurface => 'App background';
@@ -7633,4 +7661,23 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get promptOwnedByCharacter =>
       'Depuis la carte personnage · lecture seule';
+
+  @override
+  String get momentsDraftSaveTitle => 'Save draft?';
+
+  @override
+  String get momentsDraftSaveMessage =>
+      'You have unpublished content. Save it as the only draft? It will restore the next time you post.';
+
+  @override
+  String get momentsDraftSave => 'Save draft';
+
+  @override
+  String get momentsDraftDiscard => 'Discard';
+
+  @override
+  String get searchChats => 'Search chats';
+
+  @override
+  String get noMatchingChats => 'No matching chats';
 }

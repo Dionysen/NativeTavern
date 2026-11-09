@@ -48,7 +48,10 @@ import 'package:native_tavern/presentation/screens/play/story_screen.dart';
 import 'package:native_tavern/presentation/screens/groups/groups_screen.dart';
 import 'package:native_tavern/presentation/screens/groups/group_detail_screen.dart';
 import 'package:native_tavern/presentation/screens/tags/tags_screen.dart';
+import 'package:native_tavern/presentation/providers/moments_compose_draft_provider.dart';
 import 'package:native_tavern/presentation/widgets/common/app_shell.dart';
+import 'package:native_tavern/presentation/widgets/common/master_detail_branch.dart';
+import 'package:native_tavern/presentation/router/shell_stack_page.dart';
 
 /// Route paths
 abstract class AppRoutes {
@@ -80,6 +83,7 @@ abstract class AppRoutes {
   static const play = '/play';
   static const playStory = '/play/story';
   static const playMoments = '/play/moments';
+  static const playMomentsCompose = '/play/moments/compose';
   static const worldInfo = '/world-info';
   static const groups = '/groups';
   static const groupDetail = '/groups/:id';
@@ -113,6 +117,71 @@ abstract class AppRoutes {
       const {home, characters, play, worldInfo, aiConfig, appearance, settings}
           .contains(uri.path) ||
       RegExp(r'^/chat/[^/]+$').hasMatch(uri.path);
+
+  /// Top-level shell tab hubs. Bottom navigation stays visible only here;
+  /// secondary pages (chat, character detail, settings children, …) hide it.
+  static bool isShellTabHub(Uri uri) => const {
+        home,
+        characters,
+        play,
+        aiConfig,
+        appearance,
+        settings,
+      }.contains(uri.path);
+
+  /// Root overlay used when bottom navigation opens a former full-screen page.
+  static const stackPath = '/stack';
+
+  /// Pages that bottom navigation must push above the shell so the selected
+  /// tab stays put. [worldInfo] stays in the play branch, as it did before.
+  static bool opensOnRootInBottomNav(String location) {
+    final path = Uri.tryParse(location)?.path ?? location;
+    if (_bottomNavRootPaths.contains(path)) return true;
+    if (RegExp(r'^/chat/[^/]+$').hasMatch(path)) return true;
+    final character = RegExp(r'^/characters/([^/]+)$').firstMatch(path);
+    return character != null && character.group(1) != 'new';
+  }
+
+  static String bottomStackLocation(String location) {
+    final normalized = location.startsWith('/') ? location : '/$location';
+    return Uri(path: stackPath, queryParameters: {'to': normalized}).toString();
+  }
+
+  static const _bottomNavRootPaths = {
+    playStory,
+    playMoments,
+    playMomentsCompose,
+    dataBank,
+    advancedSettings,
+    promptManager,
+    aiPresets,
+    backgroundSettings,
+    themeSettings,
+    personas,
+    quickReplies,
+    replyChoices,
+    characterStatus,
+    memoryInbox,
+    rpgScenarioEditor,
+    ttsSettings,
+    sttSettings,
+    translationSettings,
+    imageGenSettings,
+    spriteSettings,
+    capabilityDiagnostics,
+    mcpSettings,
+    toolCallingSettings,
+    storageManagement,
+    regexSettings,
+    variablesSettings,
+    logitBiasSettings,
+    cfgScaleSettings,
+    tokenizerSettings,
+    vectorStorageSettings,
+    statistics,
+    cloudBackupSettings,
+    backupSettings,
+  };
 }
 
 /// Navigation keys for nested navigation
@@ -125,90 +194,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
     routes: [
-      // Keep shell tabs alive so switching chats ↔ characters does not
-      // remount and re-decode thousands of avatar tiles.
-      StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) =>
-            AppShell(navigationShell: navigationShell),
-        branches: [
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.home,
-                name: 'home',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: HomeScreen(),
-                ),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.characters,
-                name: 'characters',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: CharacterListScreen(),
-                ),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.play,
-                name: 'play',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: PlayHubScreen(),
-                ),
-              ),
-              GoRoute(
-                path: AppRoutes.worldInfo,
-                name: 'worldInfo',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: WorldInfoScreen(),
-                ),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.aiConfig,
-                name: 'aiConfig',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: AIConfigScreen(),
-                ),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.appearance,
-                name: 'appearance',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: AppearanceScreen(),
-                ),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.settings,
-                name: 'settings',
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: SettingsScreen(),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      // Full-screen routes (outside shell)
-      // NOTE: More specific routes must come BEFORE wildcard routes
-      // /characters/new must come before /characters/:id
+      // Full-screen character editors must stay on the root navigator and be
+      // registered before the shell so /characters/new is not captured by :id.
       GoRoute(
         path: AppRoutes.characterCreate,
         name: 'characterCreate',
@@ -224,26 +211,522 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return CharacterEditorScreen(characterId: id);
         },
       ),
-      GoRoute(
-        path: AppRoutes.characterDetail,
-        name: 'characterDetail',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) {
-          final id = state.pathParameters['id']!;
-          return CharacterDetailScreen(characterId: id);
-        },
+      // Keep shell tabs alive so switching chats ↔ characters does not
+      // remount and re-decode thousands of avatar tiles.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            AppShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              ShellRoute(
+                builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.home,
+                  primary: const HomeScreen(),
+                  detail: state.uri.path == AppRoutes.home ? null : child,
+                  emptyLabel:
+                      AppLocalizations.of(context).emptySecondarySelectChat,
+                ),
+                routes: [
+                  GoRoute(
+                    path: AppRoutes.home,
+                    name: 'home',
+                    pageBuilder: (context, state) => const NoTransitionPage(
+                      child: MasterDetailPlaceholder(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.chat,
+                    name: 'chat',
+                    pageBuilder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      return shellDetailPage(
+                        state: state,
+                        hubPath: AppRoutes.home,
+                        child: ChatScreen(
+                          chatId: id,
+                          initialMessageId: state.uri.queryParameters['message'],
+                          initialDraft: state.uri.queryParameters['draft'],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              ShellRoute(
+                builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.characters,
+                  primary: const CharacterListScreen(),
+                  detail:
+                      state.uri.path == AppRoutes.characters ? null : child,
+                  emptyLabel: AppLocalizations.of(context)
+                      .emptySecondarySelectCharacter,
+                ),
+                routes: [
+                  GoRoute(
+                    path: AppRoutes.characters,
+                    name: 'characters',
+                    pageBuilder: (context, state) => const NoTransitionPage(
+                      child: MasterDetailPlaceholder(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.characterDetail,
+                    name: 'characterDetail',
+                    // Avoid treating /characters/new as a detail id if that
+                    // path is ever matched here before the root create route.
+                    redirect: (context, state) {
+                      final id = state.pathParameters['id'];
+                      if (id == 'new') return AppRoutes.characterCreate;
+                      return null;
+                    },
+                    pageBuilder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      return shellDetailPage(
+                        state: state,
+                        hubPath: AppRoutes.characters,
+                        child: CharacterDetailScreen(characterId: id),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              ShellRoute(
+                builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.play,
+                  primary: const PlayHubScreen(),
+                  detail: state.uri.path == AppRoutes.play ? null : child,
+                  emptyLabel:
+                      AppLocalizations.of(context).emptySecondarySelectPlay,
+                ),
+                routes: [
+                  GoRoute(
+                    path: AppRoutes.play,
+                    name: 'play',
+                    pageBuilder: (context, state) => const NoTransitionPage(
+                      child: MasterDetailPlaceholder(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.playMoments,
+                    name: 'playMoments',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.play,
+                      child: const MomentsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.playMomentsCompose,
+                    name: 'playMomentsCompose',
+                    onExit: (context) => confirmMomentsComposeLeave(context),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.play,
+                      child: const MomentsComposeScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.playStory,
+                    name: 'playStory',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.play,
+                      child: StoryScreen(
+                        initialChatId: state.uri.queryParameters['chat'],
+                      ),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.worldInfo,
+                    name: 'worldInfo',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.play,
+                      child: const WorldInfoScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.dataBank,
+                    name: 'dataBank',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.play,
+                      child: const DataBankScreen(),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              ShellRoute(
+                builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.aiConfig,
+                  primary: const AIConfigScreen(),
+                  detail: state.uri.path == AppRoutes.aiConfig ? null : child,
+                  emptyLabel:
+                      AppLocalizations.of(context).emptySecondarySelectAiConfig,
+                ),
+                routes: [
+                  GoRoute(
+                    path: AppRoutes.aiConfig,
+                    name: 'aiConfig',
+                    pageBuilder: (context, state) => const NoTransitionPage(
+                      child: MasterDetailPlaceholder(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.advancedSettings,
+                    name: 'advancedSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.aiConfig,
+                      child: const AdvancedSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.promptManager,
+                    name: 'promptManager',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.aiConfig,
+                      child: const PromptManagerScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.aiPresets,
+                    name: 'aiPresets',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.aiConfig,
+                      child: const AIPresetsScreen(),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              ShellRoute(
+                builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.appearance,
+                  primary: const AppearanceScreen(),
+                  detail:
+                      state.uri.path == AppRoutes.appearance ? null : child,
+                  emptyLabel: AppLocalizations.of(context)
+                      .emptySecondarySelectAppearance,
+                ),
+                routes: [
+                  GoRoute(
+                    path: AppRoutes.appearance,
+                    name: 'appearance',
+                    pageBuilder: (context, state) => const NoTransitionPage(
+                      child: MasterDetailPlaceholder(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.backgroundSettings,
+                    name: 'backgroundSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.appearance,
+                      child: const BackgroundSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.themeSettings,
+                    name: 'themeSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.appearance,
+                      child: const AppearanceScreen(),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              ShellRoute(
+                builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.settings,
+                  primary: const SettingsScreen(),
+                  detail: state.uri.path == AppRoutes.settings ? null : child,
+                  emptyLabel:
+                      AppLocalizations.of(context).emptySecondarySelectSetting,
+                ),
+                routes: [
+                  GoRoute(
+                    path: AppRoutes.settings,
+                    name: 'settings',
+                    pageBuilder: (context, state) => const NoTransitionPage(
+                      child: MasterDetailPlaceholder(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.personas,
+                    name: 'personas',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const PersonasScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.quickReplies,
+                    name: 'quickReplies',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const QuickReplyScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.replyChoices,
+                    name: 'replyChoices',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const ChatChoiceSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.characterStatus,
+                    name: 'characterStatus',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const StatusBlockSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.memoryInbox,
+                    name: 'memoryInbox',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const MemoryInboxScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.rpgScenarioEditor,
+                    name: 'rpgScenarioEditor',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const RpgScenarioEditorScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.ttsSettings,
+                    name: 'ttsSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const TTSSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.sttSettings,
+                    name: 'sttSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const STTSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.translationSettings,
+                    name: 'translationSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const TranslationSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.imageGenSettings,
+                    name: 'imageGenSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const ImageGenSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.spriteSettings,
+                    name: 'spriteSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const SpriteSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.capabilityDiagnostics,
+                    name: 'capabilityDiagnostics',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const CapabilityDiagnosticsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.mcpSettings,
+                    name: 'mcpSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const McpSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.toolCallingSettings,
+                    name: 'toolCallingSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const ToolCallingSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.storageManagement,
+                    name: 'storageManagement',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const StorageManagementScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.regexSettings,
+                    name: 'regexSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const RegexSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.variablesSettings,
+                    name: 'variablesSettings',
+                    pageBuilder: (context, state) {
+                      final chatId = state.uri.queryParameters['chatId'];
+                      return shellDetailPage(
+                        state: state,
+                        hubPath: AppRoutes.settings,
+                        child: VariablesSettingsScreen(chatId: chatId),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: AppRoutes.logitBiasSettings,
+                    name: 'logitBiasSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const LogitBiasSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.cfgScaleSettings,
+                    name: 'cfgScaleSettings',
+                    pageBuilder: (context, state) {
+                      final characterId =
+                          state.uri.queryParameters['characterId'];
+                      final chatId = state.uri.queryParameters['chatId'];
+                      return shellDetailPage(
+                        state: state,
+                        hubPath: AppRoutes.settings,
+                        child: CFGScaleSettingsScreen(
+                          characterId: characterId,
+                          chatId: chatId,
+                        ),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: AppRoutes.tokenizerSettings,
+                    name: 'tokenizerSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const TokenizerSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.vectorStorageSettings,
+                    name: 'vectorStorageSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const VectorStorageSettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.statistics,
+                    name: 'statistics',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const StatisticsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.cloudBackupSettings,
+                    name: 'cloudBackupSettings',
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const CloudBackupScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.backupSettings,
+                    name: 'backupSettings',
+                    redirect: (context, state) =>
+                        AppRoutes.cloudBackupSettings,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
+      // Full-screen routes (outside shell). Bottom navigation pushes former
+      // root pages here so the shell tab does not change.
       GoRoute(
-        path: AppRoutes.chat,
-        name: 'chat',
+        path: AppRoutes.stackPath,
+        name: 'bottomStack',
         parentNavigatorKey: _rootNavigatorKey,
+        onExit: (context) {
+          final to = GoRouter.of(context)
+              .routeInformationProvider
+              .value
+              .uri
+              .queryParameters['to'];
+          if (to != null &&
+              Uri.parse(to).path == AppRoutes.playMomentsCompose) {
+            return confirmMomentsComposeLeave(context);
+          }
+          return true;
+        },
         builder: (context, state) {
-          final id = state.pathParameters['id']!;
-          return ChatScreen(
-            chatId: id,
-            initialMessageId: state.uri.queryParameters['message'],
-            initialDraft: state.uri.queryParameters['draft'],
-          );
+          final to = state.uri.queryParameters['to'];
+          if (to == null || to.isEmpty) return const SizedBox.shrink();
+          return buildBottomStackPage(to);
         },
       ),
       GoRoute(
@@ -251,42 +734,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'import',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const ImportScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.personas,
-        name: 'personas',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const PersonasScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.promptManager,
-        name: 'promptManager',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const PromptManagerScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.advancedSettings,
-        name: 'advancedSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const AdvancedSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.quickReplies,
-        name: 'quickReplies',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const QuickReplyScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.replyChoices,
-        name: 'replyChoices',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const ChatChoiceSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.characterStatus,
-        name: 'characterStatus',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const StatusBlockSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.settingsPush,
@@ -299,30 +746,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'appearancePush',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const AppearanceScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.backgroundSettings,
-        name: 'backgroundSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const BackgroundSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.themeSettings,
-        name: 'themeSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const AppearanceScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.statistics,
-        name: 'statistics',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const StatisticsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.aiPresets,
-        name: 'aiPresets',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const AIPresetsScreen(),
       ),
       GoRoute(
         path: AppRoutes.chatStatistics,
@@ -355,12 +778,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const TagsScreen(),
       ),
       GoRoute(
-        path: AppRoutes.spriteSettings,
-        name: 'spriteSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const SpriteSettingsScreen(),
-      ),
-      GoRoute(
         path: AppRoutes.characterSprites,
         name: 'characterSprites',
         parentNavigatorKey: _rootNavigatorKey,
@@ -380,148 +797,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: AppRoutes.ttsSettings,
-        name: 'ttsSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const TTSSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.sttSettings,
-        name: 'sttSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const STTSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.translationSettings,
-        name: 'translationSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const TranslationSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.imageGenSettings,
-        name: 'imageGenSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const ImageGenSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.regexSettings,
-        name: 'regexSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const RegexSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.variablesSettings,
-        name: 'variablesSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) {
-          final chatId = state.uri.queryParameters['chatId'];
-          return VariablesSettingsScreen(chatId: chatId);
-        },
-      ),
-      GoRoute(
-        path: AppRoutes.backupSettings,
-        name: 'backupSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        redirect: (context, state) => AppRoutes.cloudBackupSettings,
-      ),
-      GoRoute(
-        path: AppRoutes.cloudBackupSettings,
-        name: 'cloudBackupSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const CloudBackupScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.logitBiasSettings,
-        name: 'logitBiasSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const LogitBiasSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.cfgScaleSettings,
-        name: 'cfgScaleSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) {
-          final characterId = state.uri.queryParameters['characterId'];
-          final chatId = state.uri.queryParameters['chatId'];
-          return CFGScaleSettingsScreen(
-            characterId: characterId,
-            chatId: chatId,
-          );
-        },
-      ),
-      GoRoute(
         path: AppRoutes.logprobsSettings,
         name: 'logprobsSettings',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const LogprobsSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.tokenizerSettings,
-        name: 'tokenizerSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const TokenizerSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.vectorStorageSettings,
-        name: 'vectorStorageSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const VectorStorageSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.memoryInbox,
-        name: 'memoryInbox',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const MemoryInboxScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.capabilityDiagnostics,
-        name: 'capabilityDiagnostics',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const CapabilityDiagnosticsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.mcpSettings,
-        name: 'mcpSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const McpSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.toolCallingSettings,
-        name: 'toolCallingSettings',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const ToolCallingSettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.playStory,
-        name: 'playStory',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => StoryScreen(
-          initialChatId: state.uri.queryParameters['chat'],
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.playMoments,
-        name: 'playMoments',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const MomentsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.dataBank,
-        name: 'dataBank',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const DataBankScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.rpgScenarioEditor,
-        name: 'rpgScenarioEditor',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const RpgScenarioEditorScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.storageManagement,
-        name: 'storageManagement',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const StorageManagementScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

@@ -661,7 +661,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 25;
 
   @override
   MigrationStrategy get migration {
@@ -674,6 +674,7 @@ class AppDatabase extends _$AppDatabase {
         await _createV17Indexes();
         await _createV18Indexes();
         await _ensureCharacterFolderTables();
+        await _createChatListIndexes();
       },
       onUpgrade: (Migrator m, int from, int to) async {
         if (from > to) {
@@ -698,6 +699,7 @@ class AppDatabase extends _$AppDatabase {
             await _ensureCharacterFriendshipsTable();
             await _ensureOperationLogsTable();
             await _ensureCharacterFolderTables();
+            await _createChatListIndexes();
             return;
           }
 
@@ -839,6 +841,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 24) {
             await _ensureCharacterFolderTables();
+          }
+          if (from < 25) {
+            await _createChatListIndexes();
           }
         });
       },
@@ -1359,6 +1364,18 @@ class AppDatabase extends _$AppDatabase {
       'CREATE INDEX IF NOT EXISTS character_friendships_right_idx '
       'ON character_friendships (right_id)',
     );
+  }
+
+  Future<void> _createChatListIndexes() async {
+    const statements = [
+      'CREATE INDEX IF NOT EXISTS chats_updated_at_idx '
+          'ON chats (updated_at)',
+      'CREATE INDEX IF NOT EXISTS messages_chat_timestamp_idx '
+          'ON messages (chat_id, timestamp)',
+    ];
+    for (final statement in statements) {
+      await customStatement(statement);
+    }
   }
 
   Future<void> _createV17Indexes() async {
