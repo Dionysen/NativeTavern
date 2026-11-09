@@ -66,11 +66,12 @@ void main() {
               body: SizedBox(
                 width: width,
                 height: 800,
-                child: MasterDetailBranch(
-                  primary: const Text('PRIMARY'),
-                  detail: detail,
-                  emptyLabel: 'EMPTY',
-                ),
+              child: MasterDetailBranch(
+                hubPath: '/',
+                primary: const Text('PRIMARY'),
+                detail: detail,
+                emptyLabel: 'EMPTY',
+              ),
               ),
             ),
           ),
@@ -164,6 +165,7 @@ void main() {
                 width: width,
                 height: 800,
                 child: MasterDetailBranch(
+                  hubPath: '/',
                   primary: const SizedBox.expand(
                     key: ValueKey('primary-pane'),
                     child: Text('PRIMARY'),
@@ -227,6 +229,7 @@ void main() {
                 width: width,
                 height: 800,
                 child: MasterDetailBranch(
+                  hubPath: '/',
                   primary: SizedBox.expand(
                     key: ValueKey(paneKey),
                     child: Text(paneKey),

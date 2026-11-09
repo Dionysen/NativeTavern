@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:native_tavern/presentation/providers/desktop_layout_providers.dart';
 import 'package:native_tavern/presentation/widgets/common/desktop_layout.dart';
 import 'package:native_tavern/presentation/widgets/common/empty_secondary_pane.dart';
@@ -19,6 +20,9 @@ class MasterDetailPlaceholder extends StatelessWidget {
 /// [primary] only — same stack feel as before. When both mins fit it shows
 /// primary + resizable divider + secondary with surface steps.
 ///
+/// Detail pages should wrap with [ShellHubBackEnabler] so single-pane AppBars
+/// can imply a leading back to [hubPath] after a three-pane `go` + resize.
+///
 /// Primary pane width is shared via [primaryPaneWidthProvider] so every tab
 /// keeps the same divider position.
 ///
@@ -28,10 +32,14 @@ class MasterDetailPlaceholder extends StatelessWidget {
 class MasterDetailBranch extends ConsumerStatefulWidget {
   const MasterDetailBranch({
     super.key,
+    required this.hubPath,
     required this.primary,
     required this.detail,
     required this.emptyLabel,
   });
+
+  /// Shell tab hub location (e.g. `/settings`) used for synthetic back.
+  final String hubPath;
 
   final Widget primary;
 
@@ -96,8 +104,6 @@ class _MasterDetailBranchState extends ConsumerState<MasterDetailBranch> {
                   final startX = _dragStartGlobalX;
                   final startWidth = _dragStartWidth;
                   if (startX == null || startWidth == null) return;
-                  // Anchor to drag-start geometry so multiple pointer updates
-                  // between frames stay in sync with the pointer.
                   final next = DesktopLayout.clampPrimaryPaneWidth(
                     desired: startWidth + (globalX - startX),
                     contentWidth: contentWidth,
@@ -119,6 +125,106 @@ class _MasterDetailBranchState extends ConsumerState<MasterDetailBranch> {
       },
     );
   }
+}
+
+/// Installs a [LocalHistoryEntry] on the page route in single-pane mode so
+/// AppBar can imply a leading back (with correct title inset) when GoRouter
+/// used `go` and cannot pop — e.g. after resizing from three-pane.
+///
+/// No-ops while [ThreePaneScope] is active (list pane already visible).
+class ShellHubBackEnabler extends StatefulWidget {
+  const ShellHubBackEnabler({
+    super.key,
+    required this.hubPath,
+    required this.child,
+  });
+
+  final String hubPath;
+  final Widget child;
+
+  @override
+  State<ShellHubBackEnabler> createState() => _ShellHubBackEnablerState();
+}
+
+class _ShellHubBackEnablerState extends State<ShellHubBackEnabler> {
+  ModalRoute<dynamic>? _route;
+  LocalHistoryEntry? _entry;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(covariant ShellHubBackEnabler oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.hubPath != widget.hubPath) {
+      _clearEntry();
+      _sync();
+    }
+  }
+
+  @override
+  void dispose() {
+    _clearEntry();
+    super.dispose();
+  }
+
+  void _clearEntry() {
+    final entry = _entry;
+    final route = _route;
+    _entry = null;
+    _route = null;
+    if (entry != null && route != null && route.isActive) {
+      route.removeLocalHistoryEntry(entry);
+    }
+  }
+
+  void _sync() {
+    final route = ModalRoute.of(context);
+    final wantsSynthetic = !ThreePaneScope.isActive(context) &&
+        route != null &&
+        route.isFirst;
+
+    if (!wantsSynthetic) {
+      _clearEntry();
+      return;
+    }
+
+    if (_entry != null && identical(_route, route)) {
+      return;
+    }
+
+    _clearEntry();
+    _route = route;
+    _entry = LocalHistoryEntry(
+      onRemove: () {
+        _entry = null;
+        if (!context.mounted) return;
+        context.go(widget.hubPath);
+      },
+    );
+    route!.addLocalHistoryEntry(_entry!);
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
+/// Shell detail [NoTransitionPage] with [ShellHubBackEnabler] for AppBar back.
+NoTransitionPage<void> shellDetailPage({
+  required GoRouterState state,
+  required String hubPath,
+  required Widget child,
+}) {
+  return NoTransitionPage<void>(
+    key: state.pageKey,
+    child: ShellHubBackEnabler(
+      hubPath: hubPath,
+      child: child,
+    ),
+  );
 }
 
 class _PaneResizeHandle extends StatelessWidget {

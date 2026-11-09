@@ -51,6 +51,7 @@ import 'package:native_tavern/presentation/screens/tags/tags_screen.dart';
 import 'package:native_tavern/presentation/providers/moments_compose_draft_provider.dart';
 import 'package:native_tavern/presentation/widgets/common/app_shell.dart';
 import 'package:native_tavern/presentation/widgets/common/master_detail_branch.dart';
+import 'package:native_tavern/presentation/router/shell_stack_page.dart';
 
 /// Route paths
 abstract class AppRoutes {
@@ -127,6 +128,60 @@ abstract class AppRoutes {
         appearance,
         settings,
       }.contains(uri.path);
+
+  /// Root overlay used when bottom navigation opens a former full-screen page.
+  static const stackPath = '/stack';
+
+  /// Pages that bottom navigation must push above the shell so the selected
+  /// tab stays put. [worldInfo] stays in the play branch, as it did before.
+  static bool opensOnRootInBottomNav(String location) {
+    final path = Uri.tryParse(location)?.path ?? location;
+    if (_bottomNavRootPaths.contains(path)) return true;
+    if (RegExp(r'^/chat/[^/]+$').hasMatch(path)) return true;
+    final character = RegExp(r'^/characters/([^/]+)$').firstMatch(path);
+    return character != null && character.group(1) != 'new';
+  }
+
+  static String bottomStackLocation(String location) {
+    final normalized = location.startsWith('/') ? location : '/$location';
+    return Uri(path: stackPath, queryParameters: {'to': normalized}).toString();
+  }
+
+  static const _bottomNavRootPaths = {
+    playStory,
+    playMoments,
+    playMomentsCompose,
+    dataBank,
+    advancedSettings,
+    promptManager,
+    aiPresets,
+    backgroundSettings,
+    themeSettings,
+    personas,
+    quickReplies,
+    replyChoices,
+    characterStatus,
+    memoryInbox,
+    rpgScenarioEditor,
+    ttsSettings,
+    sttSettings,
+    translationSettings,
+    imageGenSettings,
+    spriteSettings,
+    capabilityDiagnostics,
+    mcpSettings,
+    toolCallingSettings,
+    storageManagement,
+    regexSettings,
+    variablesSettings,
+    logitBiasSettings,
+    cfgScaleSettings,
+    tokenizerSettings,
+    vectorStorageSettings,
+    statistics,
+    cloudBackupSettings,
+    backupSettings,
+  };
 }
 
 /// Navigation keys for nested navigation
@@ -166,6 +221,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               ShellRoute(
                 builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.home,
                   primary: const HomeScreen(),
                   detail: state.uri.path == AppRoutes.home ? null : child,
                   emptyLabel:
@@ -184,7 +240,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     name: 'chat',
                     pageBuilder: (context, state) {
                       final id = state.pathParameters['id']!;
-                      return NoTransitionPage(
+                      return shellDetailPage(
+                        state: state,
+                        hubPath: AppRoutes.home,
                         child: ChatScreen(
                           chatId: id,
                           initialMessageId: state.uri.queryParameters['message'],
@@ -201,6 +259,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               ShellRoute(
                 builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.characters,
                   primary: const CharacterListScreen(),
                   detail:
                       state.uri.path == AppRoutes.characters ? null : child,
@@ -227,7 +286,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     },
                     pageBuilder: (context, state) {
                       final id = state.pathParameters['id']!;
-                      return NoTransitionPage(
+                      return shellDetailPage(
+                        state: state,
+                        hubPath: AppRoutes.characters,
                         child: CharacterDetailScreen(characterId: id),
                       );
                     },
@@ -240,6 +301,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               ShellRoute(
                 builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.play,
                   primary: const PlayHubScreen(),
                   detail: state.uri.path == AppRoutes.play ? null : child,
                   emptyLabel:
@@ -256,22 +318,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.playMoments,
                     name: 'playMoments',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: MomentsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.play,
+                      child: const MomentsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.playMomentsCompose,
                     name: 'playMomentsCompose',
                     onExit: (context) => confirmMomentsComposeLeave(context),
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: MomentsComposeScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.play,
+                      child: const MomentsComposeScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.playStory,
                     name: 'playStory',
-                    pageBuilder: (context, state) => NoTransitionPage(
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.play,
                       child: StoryScreen(
                         initialChatId: state.uri.queryParameters['chat'],
                       ),
@@ -280,15 +348,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.worldInfo,
                     name: 'worldInfo',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: WorldInfoScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.play,
+                      child: const WorldInfoScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.dataBank,
                     name: 'dataBank',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: DataBankScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.play,
+                      child: const DataBankScreen(),
                     ),
                   ),
                 ],
@@ -299,6 +371,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               ShellRoute(
                 builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.aiConfig,
                   primary: const AIConfigScreen(),
                   detail: state.uri.path == AppRoutes.aiConfig ? null : child,
                   emptyLabel:
@@ -315,22 +388,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.advancedSettings,
                     name: 'advancedSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: AdvancedSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.aiConfig,
+                      child: const AdvancedSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.promptManager,
                     name: 'promptManager',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: PromptManagerScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.aiConfig,
+                      child: const PromptManagerScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.aiPresets,
                     name: 'aiPresets',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: AIPresetsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.aiConfig,
+                      child: const AIPresetsScreen(),
                     ),
                   ),
                 ],
@@ -341,6 +420,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               ShellRoute(
                 builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.appearance,
                   primary: const AppearanceScreen(),
                   detail:
                       state.uri.path == AppRoutes.appearance ? null : child,
@@ -358,15 +438,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.backgroundSettings,
                     name: 'backgroundSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: BackgroundSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.appearance,
+                      child: const BackgroundSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.themeSettings,
                     name: 'themeSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: AppearanceScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.appearance,
+                      child: const AppearanceScreen(),
                     ),
                   ),
                 ],
@@ -377,6 +461,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               ShellRoute(
                 builder: (context, state, child) => MasterDetailBranch(
+                  hubPath: AppRoutes.settings,
                   primary: const SettingsScreen(),
                   detail: state.uri.path == AppRoutes.settings ? null : child,
                   emptyLabel:
@@ -393,113 +478,145 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.personas,
                     name: 'personas',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: PersonasScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const PersonasScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.quickReplies,
                     name: 'quickReplies',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: QuickReplyScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const QuickReplyScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.replyChoices,
                     name: 'replyChoices',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: ChatChoiceSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const ChatChoiceSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.characterStatus,
                     name: 'characterStatus',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: StatusBlockSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const StatusBlockSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.memoryInbox,
                     name: 'memoryInbox',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: MemoryInboxScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const MemoryInboxScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.rpgScenarioEditor,
                     name: 'rpgScenarioEditor',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: RpgScenarioEditorScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const RpgScenarioEditorScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.ttsSettings,
                     name: 'ttsSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: TTSSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const TTSSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.sttSettings,
                     name: 'sttSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: STTSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const STTSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.translationSettings,
                     name: 'translationSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: TranslationSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const TranslationSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.imageGenSettings,
                     name: 'imageGenSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: ImageGenSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const ImageGenSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.spriteSettings,
                     name: 'spriteSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: SpriteSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const SpriteSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.capabilityDiagnostics,
                     name: 'capabilityDiagnostics',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: CapabilityDiagnosticsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const CapabilityDiagnosticsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.mcpSettings,
                     name: 'mcpSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: McpSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const McpSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.toolCallingSettings,
                     name: 'toolCallingSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: ToolCallingSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const ToolCallingSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.storageManagement,
                     name: 'storageManagement',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: StorageManagementScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const StorageManagementScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.regexSettings,
                     name: 'regexSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: RegexSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const RegexSettingsScreen(),
                     ),
                   ),
                   GoRoute(
@@ -507,7 +624,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     name: 'variablesSettings',
                     pageBuilder: (context, state) {
                       final chatId = state.uri.queryParameters['chatId'];
-                      return NoTransitionPage(
+                      return shellDetailPage(
+                        state: state,
+                        hubPath: AppRoutes.settings,
                         child: VariablesSettingsScreen(chatId: chatId),
                       );
                     },
@@ -515,8 +634,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.logitBiasSettings,
                     name: 'logitBiasSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: LogitBiasSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const LogitBiasSettingsScreen(),
                     ),
                   ),
                   GoRoute(
@@ -526,7 +647,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                       final characterId =
                           state.uri.queryParameters['characterId'];
                       final chatId = state.uri.queryParameters['chatId'];
-                      return NoTransitionPage(
+                      return shellDetailPage(
+                        state: state,
+                        hubPath: AppRoutes.settings,
                         child: CFGScaleSettingsScreen(
                           characterId: characterId,
                           chatId: chatId,
@@ -537,29 +660,37 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.tokenizerSettings,
                     name: 'tokenizerSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: TokenizerSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const TokenizerSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.vectorStorageSettings,
                     name: 'vectorStorageSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: VectorStorageSettingsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const VectorStorageSettingsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.statistics,
                     name: 'statistics',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: StatisticsScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const StatisticsScreen(),
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.cloudBackupSettings,
                     name: 'cloudBackupSettings',
-                    pageBuilder: (context, state) => const NoTransitionPage(
-                      child: CloudBackupScreen(),
+                    pageBuilder: (context, state) => shellDetailPage(
+                      state: state,
+                      hubPath: AppRoutes.settings,
+                      child: const CloudBackupScreen(),
                     ),
                   ),
                   GoRoute(
@@ -574,7 +705,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      // Full-screen routes (outside shell)
+      // Full-screen routes (outside shell). Bottom navigation pushes former
+      // root pages here so the shell tab does not change.
+      GoRoute(
+        path: AppRoutes.stackPath,
+        name: 'bottomStack',
+        parentNavigatorKey: _rootNavigatorKey,
+        onExit: (context) {
+          final to = GoRouter.of(context)
+              .routeInformationProvider
+              .value
+              .uri
+              .queryParameters['to'];
+          if (to != null &&
+              Uri.parse(to).path == AppRoutes.playMomentsCompose) {
+            return confirmMomentsComposeLeave(context);
+          }
+          return true;
+        },
+        builder: (context, state) {
+          final to = state.uri.queryParameters['to'];
+          if (to == null || to.isEmpty) return const SizedBox.shrink();
+          return buildBottomStackPage(to);
+        },
+      ),
       GoRoute(
         path: AppRoutes.import_,
         name: 'import',
