@@ -8,6 +8,8 @@ class MainFlutterWindow: NSWindow {
     let windowFrame = self.frame
     self.contentViewController = flutterViewController
     self.setFrame(windowFrame, display: true)
+    // Match Windows/Linux: phone-like floor so desktop can preview mobile UI.
+    self.contentMinSize = NSSize(width: 360, height: 640)
 
     RegisterGeneratedPlugins(registry: flutterViewController)
     registerSystemFontsChannel(flutterViewController)
