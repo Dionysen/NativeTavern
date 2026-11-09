@@ -1,4 +1,4 @@
-﻿{
+{
   "@@locale": "nl",
   "appTitle": "NativeTavern",
   "@appTitle": {
@@ -7564,5 +7564,417 @@
   "unpinReplyChoicesPanel": "Paneel losmaken",
   "@unpinReplyChoicesPanel": {
     "description": "Tooltip to allow reply choices panel to auto-hide"
+  },
+  "characterFolderContentsSummary": "{characterCount} personage(s) · {folderCount} map(pen)",
+  "@characterFolderContentsSummary": {
+    "description": "Character and child-folder counts on a folder tile",
+    "placeholders": {
+      "characterCount": {
+        "type": "int",
+        "example": "5"
+      },
+      "folderCount": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "characterFolderDeleted": "Map verwijderd",
+  "@characterFolderDeleted": {
+    "description": "Snack bar after deleting a character folder"
+  },
+  "characterFolderDepthLimit": "Mappen kunnen maximaal {maxDepth} niveaus diep genest worden",
+  "@characterFolderDepthLimit": {
+    "description": "Shown when creating or moving a folder would exceed the depth limit",
+    "placeholders": {
+      "maxDepth": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "characterFolderDissolved": "Map ontbonden",
+  "@characterFolderDissolved": {
+    "description": "Snack bar after dissolving a character folder"
+  },
+  "characterFolderPathEmpty": "Hier zijn nog geen submappen",
+  "@characterFolderPathEmpty": {
+    "description": "Empty state inside folder path picker"
+  },
+  "characterFolderUseThisPath": "Deze map gebruiken",
+  "@characterFolderUseThisPath": {
+    "description": "Confirm current folder path in the picker"
+  },
+  "characterLibraryExportProgress": "Exporteren {processed} van {total}",
+  "@characterLibraryExportProgress": {
+    "description": "Progress while exporting the character library",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryExportSummary": "{succeeded} geëxporteerd. {failed} mislukt.",
+  "@characterLibraryExportSummary": {
+    "description": "Summary after library export",
+    "placeholders": {
+      "succeeded": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExportProgress": "Snel exporteren {processed} van {total}",
+  "@characterLibraryFastPackExportProgress": {
+    "description": "Progress while exporting a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExportSummary": "{characters} personages en {folders} mappen geëxporteerd",
+  "@characterLibraryFastPackExportSummary": {
+    "description": "Summary after fast pack export",
+    "placeholders": {
+      "characters": {
+        "type": "int"
+      },
+      "folders": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackExtractProgress": "Bestanden uitpakken {processed} van {total}",
+  "@characterLibraryFastPackExtractProgress": {
+    "description": "Progress while streaming files out of a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackImportProgress": "Snel importeren {processed} van {total}",
+  "@characterLibraryFastPackImportProgress": {
+    "description": "Progress while importing a .ntchars pack",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackImportSummary": "{created} aangemaakt. {updated} bijgewerkt. {failed} mislukt.",
+  "@characterLibraryFastPackImportSummary": {
+    "description": "Summary after fast pack import",
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryFastPackOverwriteBody": "Personages met dezelfde id worden bijgewerkt. Chats blijven aan die personages gekoppeld.",
+  "@characterLibraryFastPackOverwriteBody": {
+    "description": "Explains id overwrite behavior for fast pack import"
+  },
+  "characterLibraryFastPackOverwriteTitle": "Overeenkomende personages overschrijven?",
+  "@characterLibraryFastPackOverwriteTitle": {
+    "description": "Confirm before fast pack import overwrites by id"
+  },
+  "characterLibraryFastPackPreparing": "Voorbereiden…",
+  "@characterLibraryFastPackPreparing": {
+    "description": "Shown while opening a large character library pack before counted progress starts"
+  },
+  "characterLibraryFolderPickerUnavailable": "Dit apparaat kan geen map kiezen. Importeer kaarten in plaats daarvan als bestanden.",
+  "@characterLibraryFolderPickerUnavailable": {
+    "description": "Shown when directory picking is unavailable"
+  },
+  "characterLibraryImportProgress": "Importeren {processed} van {total}",
+  "@characterLibraryImportProgress": {
+    "description": "Progress while importing a character folder",
+    "placeholders": {
+      "processed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryImportSummary": "{succeeded} geïmporteerd. {failed} mislukt. {skipped} overgeslagen.",
+  "@characterLibraryImportSummary": {
+    "description": "Summary after folder import",
+    "placeholders": {
+      "succeeded": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLibraryManage": "Bibliotheek",
+  "@characterLibraryManage": {
+    "description": "Title for character library overflow menu"
+  },
+  "characterStatus": "Personagestatus",
+  "@characterStatus": {
+    "description": "Built-in character status panel title"
+  },
+  "characterStatusAddField": "Veld toevoegen",
+  "@characterStatusAddField": {
+    "description": "Button to add a status field"
+  },
+  "characterStatusAutoDisableCard": "Kaartstatus verkiezen indien aanwezig",
+  "@characterStatusAutoDisableCard": {
+    "description": "Auto-disable builtin when card already has status"
+  },
+  "characterStatusAutoDisableCardHint": "Als deze personagekaart al een statusblok bevat, laat ingebouwde generatie uit",
+  "@characterStatusAutoDisableCardHint": {
+    "description": "Subtitle for card status preference"
+  },
+  "characterStatusCardDetected": "Deze personagekaart bevat al een statusblok",
+  "@characterStatusCardDetected": {
+    "description": "Hint when opening a card that has Status_block"
+  },
+  "characterStatusDisabledHint": "Zet dit aan in Instellingen om de personagestatus na elk antwoord bij te werken.",
+  "@characterStatusDisabledHint": {
+    "description": "Panel body when feature disabled"
+  },
+  "characterStatusDisabledTitle": "Personagestatus is uit",
+  "@characterStatusDisabledTitle": {
+    "description": "Panel title when feature disabled"
+  },
+  "characterStatusEmpty": "Nog geen status. Verschijnt nadat het personage antwoordt.",
+  "@characterStatusEmpty": {
+    "description": "Empty state in status panel"
+  },
+  "characterStatusFieldLabel": "Veldnaam",
+  "@characterStatusFieldLabel": {
+    "description": "Dialog label for new status field"
+  },
+  "characterStatusFieldLocked": "Verplicht",
+  "@characterStatusFieldLocked": {
+    "description": "Badge for undeletable name field"
+  },
+  "characterStatusFields": "Statusvelden",
+  "@characterStatusFields": {
+    "description": "Section title for configurable status fields"
+  },
+  "characterStatusGenerateFailed": "Status kon niet worden gegenereerd. Probeer opnieuw na het volgende antwoord.",
+  "@characterStatusGenerateFailed": {
+    "description": "Error when status generation fails"
+  },
+  "characterStatusInjectContext": "Status opnemen in volgende prompt",
+  "@characterStatusInjectContext": {
+    "description": "Toggle to inject last status into LLM context"
+  },
+  "characterStatusInjectContextHint": "Helpt de AI de status consistent te houden over beurten heen",
+  "@characterStatusInjectContextHint": {
+    "description": "Subtitle for status context injection toggle"
+  },
+  "characterStatusPromptPlaceholders": "Plaatshouders: field_lines, character_lines, previous_status (elk tussen dubbele accolades)",
+  "@characterStatusPromptPlaceholders": {
+    "description": "Help text for status prompt placeholders"
+  },
+  "characterStatusPromptTemplate": "Promptsjabloon",
+  "@characterStatusPromptTemplate": {
+    "description": "Settings section for status generation prompt"
+  },
+  "characterWorldRuntimeEnabled": "Posten in Moments",
+  "@characterWorldRuntimeEnabled": {
+    "description": "Per-character switch to join the Moments world loop"
+  },
+  "characterWorldRuntimeEnabledHint": "Standaard uit. Als dit aan staat, kan dit personage zelf wakker worden en in Moments posten.",
+  "@characterWorldRuntimeEnabledHint": {
+    "description": "Helper under the per-character Moments world switch"
+  },
+  "charactersCopiedToFolder": "{count} personage(s) gekopieerd",
+  "@charactersCopiedToFolder": {
+    "description": "Snack bar after copying characters into a folder",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "chatLineHeightDescription": "Ruimte tussen regels in normale chatalinea’s.",
+  "chatLineHeightTitle": "Chatregelafstand",
+  "chatListItemStats": "{count} · {size} · {created} · {last}",
+  "@chatListItemStats": {
+    "description": "Secondary meta line under a home chat list item",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "42"
+      },
+      "size": {
+        "type": "String",
+        "example": "128.0 KB"
+      },
+      "created": {
+        "type": "String",
+        "example": "2024-11-01"
+      },
+      "last": {
+        "type": "String",
+        "example": "2024-11-08"
+      }
+    }
+  },
+  "chatParagraphSpacingDescription": "Ruimte tussen normale chatalinea’s.",
+  "chatParagraphSpacingTitle": "Chatalinea-afstand",
+  "copyCharactersToFolder": "Kopiëren naar map",
+  "@copyCharactersToFolder": {
+    "description": "Title for copy characters path picker"
+  },
+  "copyToFolder": "Kopiëren naar map",
+  "@copyToFolder": {
+    "description": "Copy selected characters into a folder path"
+  },
+  "deleteCharacterFolder": "Map verwijderen",
+  "@deleteCharacterFolder": {
+    "description": "Delete a character folder, its subfolders, and characters inside"
+  },
+  "deleteCharacterFolderBody": "\"{name}\" en de submappen verwijderen? Personages erin worden ook verwijderd.",
+  "@deleteCharacterFolderBody": {
+    "description": "Confirm deleting a character folder tree and its characters",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Favorites"
+      }
+    }
+  },
+  "deleteSelectedLibraryItems": "Selectie verwijderen",
+  "@deleteSelectedLibraryItems": {
+    "description": "Title for deleting selected characters and folders"
+  },
+  "deleteSelectedLibraryItemsConfirmation": "{characterCount} personage(s) en {folderCount} map(pen) verwijderen? Mapinhoud wordt ook verwijderd. Dit kan niet ongedaan worden gemaakt.",
+  "@deleteSelectedLibraryItemsConfirmation": {
+    "description": "Confirmation body for bulk delete of characters and folders",
+    "placeholders": {
+      "characterCount": {
+        "type": "int",
+        "example": "3"
+      },
+      "folderCount": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "deleteStatusField": "Veld verwijderen",
+  "@deleteStatusField": {
+    "description": "Action to delete a custom status field"
+  },
+  "deselectAllCharacters": "Alles deselecteren",
+  "@deselectAllCharacters": {
+    "description": "Clear the character multi-selection"
+  },
+  "enableCharacterStatus": "Status genereren na antwoorden",
+  "@enableCharacterStatus": {
+    "description": "Toggle for built-in status generation"
+  },
+  "enableCharacterStatusHint": "Werk na elk AI-bericht de status bij van personages in de scène",
+  "@enableCharacterStatusHint": {
+    "description": "Subtitle for status generation toggle"
+  },
+  "exportCharacterLibrary": "Personagebibliotheek exporteren",
+  "@exportCharacterLibrary": {
+    "description": "Export all character cards preserving folder structure"
+  },
+  "exportCharacterLibraryFastPack": "Bibliotheekpakket snel exporteren",
+  "@exportCharacterLibraryFastPack": {
+    "description": "Export the character library as a single fast .ntchars file"
+  },
+  "importCharacterLibraryFastPack": "Bibliotheekpakket snel importeren",
+  "@importCharacterLibraryFastPack": {
+    "description": "Import a .ntchars character library pack"
+  },
+  "importCharacterLibraryStorageFull": "Niet genoeg vrije opslag om dit pakket te openen. Maak ruimte vrij en probeer opnieuw.",
+  "@importCharacterLibraryStorageFull": {
+    "description": "Shown when picking a library pack fails because the device is out of space"
+  },
+  "importCharactersFromFolder": "Importeren uit map",
+  "@importCharactersFromFolder": {
+    "description": "Recursively import character cards from a folder"
+  },
+  "libraryItemsSelected": "{count} geselecteerd",
+  "@libraryItemsSelected": {
+    "description": "Selected characters and/or folders count",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "manageCurrentCharacterFolder": "Deze map",
+  "@manageCurrentCharacterFolder": {
+    "description": "Section label for actions on the open character folder"
+  },
+  "markdownLineHeightDescription": "Ruimte tussen regels in codeblokken en HTML-berichten.",
+  "markdownLineHeightTitle": "Markdown/HTML-regelafstand",
+  "markdownParagraphSpacingDescription": "Extra ruimte voor lege regels in codeblokken en tussen HTML-alinea’s.",
+  "markdownParagraphSpacingTitle": "Markdown/HTML-alinea-afstand",
+  "openCharacterStatusSettings": "Instellingen openen",
+  "@openCharacterStatusSettings": {
+    "description": "Button to open status settings"
+  },
+  "pinCharacterStatusPanel": "Paneel vastzetten",
+  "@pinCharacterStatusPanel": {
+    "description": "Tooltip to keep status panel open"
+  },
+  "replyMaxChars": "Maximale antwoordlengte",
+  "@replyMaxChars": {
+    "description": "Maximum AI reply character count setting"
+  },
+  "replyMaxCharsDescription": "Vraag de AI antwoorden tot dit aantal tekens te houden. 0 schakelt het uit. Te lange antwoorden kunnen worden ingekort.",
+  "@replyMaxCharsDescription": {
+    "description": "Maximum AI reply character count description"
+  },
+  "replyMinChars": "Minimale antwoordlengte",
+  "@replyMinChars": {
+    "description": "Minimum AI reply character count setting"
+  },
+  "replyMinCharsDescription": "Vraag de AI minstens dit aantal tekens te schrijven. 0 schakelt het uit. Te korte antwoorden kunnen automatisch worden uitgebreid.",
+  "@replyMinCharsDescription": {
+    "description": "Minimum AI reply character count description"
+  },
+  "selectAllCharacters": "Alles selecteren",
+  "@selectAllCharacters": {
+    "description": "Select all characters in the current character list filter"
+  },
+  "showCharacterStatus": "Personagestatus",
+  "@showCharacterStatus": {
+    "description": "Chat composer button tooltip for status panel"
+  },
+  "unpinCharacterStatusPanel": "Paneel losmaken",
+  "@unpinCharacterStatusPanel": {
+    "description": "Tooltip to allow status panel to auto-hide"
   }
 }

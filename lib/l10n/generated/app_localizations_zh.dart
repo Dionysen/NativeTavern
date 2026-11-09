@@ -8634,7 +8634,21 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   }
 
   @override
+  String libraryItemsSelected(int count) {
+    return '已選擇 $count 項';
+  }
+
+  @override
   String get deleteSelectedCharacters => '刪除角色';
+
+  @override
+  String get deleteSelectedLibraryItems => '刪除所選';
+
+  @override
+  String deleteSelectedLibraryItemsConfirmation(
+      int characterCount, int folderCount) {
+    return '確定刪除選中的 $characterCount 個角色和 $folderCount 個資料夾嗎？資料夾裡的內容也會被刪除，此操作無法撤銷。';
+  }
 
   @override
   String deleteSelectedCharactersConfirmation(int count) {
@@ -8701,12 +8715,130 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get charactersMovedToFolder => '已移動角色';
 
   @override
+  String get copyToFolder => '複製到資料夾';
+
+  @override
+  String get copyCharactersToFolder => '複製到資料夾';
+
+  @override
+  String charactersCopiedToFolder(int count) {
+    return '已複製 $count 個角色';
+  }
+
+  @override
+  String get characterFolderUseThisPath => '使用此資料夾';
+
+  @override
+  String get characterFolderPathEmpty => '這裡還沒有子資料夾';
+
+  @override
+  String get importCharactersFromFolder => '從資料夾匯入';
+
+  @override
+  String get exportCharacterLibrary => '匯出角色庫';
+
+  @override
+  String get exportCharacterLibraryFastPack => '快速匯出角色庫包';
+
+  @override
+  String get importCharacterLibraryFastPack => '快速匯入角色庫包';
+
+  @override
+  String get importCharacterLibraryStorageFull =>
+      '手機空間不夠，打不開這個角色庫包。請先騰出一些空間再試。';
+
+  @override
+  String get characterLibraryFastPackOverwriteTitle => '覆蓋相同角色？';
+
+  @override
+  String get characterLibraryFastPackOverwriteBody =>
+      '包裡和本地 id 相同的角色會被更新，對應聊天仍會留在這些角色上。';
+
+  @override
+  String get characterLibraryFastPackPreparing => '正在準備…';
+
+  @override
+  String characterLibraryFastPackImportProgress(int processed, int total) {
+    return '正在快速匯入 $processed/$total';
+  }
+
+  @override
+  String characterLibraryFastPackExportProgress(int processed, int total) {
+    return '正在快速匯出 $processed/$total';
+  }
+
+  @override
+  String characterLibraryFastPackExtractProgress(int processed, int total) {
+    return '正在解壓檔案 $processed/$total';
+  }
+
+  @override
+  String characterLibraryFastPackImportSummary(
+      int created, int updated, int failed) {
+    return '新建 $created，更新 $updated，失敗 $failed';
+  }
+
+  @override
+  String characterLibraryFastPackExportSummary(int characters, int folders) {
+    return '已匯出 $characters 個角色、$folders 個資料夾';
+  }
+
+  @override
+  String characterLibraryImportProgress(int processed, int total) {
+    return '正在匯入 $processed/$total';
+  }
+
+  @override
+  String characterLibraryImportSummary(int succeeded, int failed, int skipped) {
+    return '已匯入 $succeeded，失敗 $failed，跳過 $skipped';
+  }
+
+  @override
+  String characterLibraryExportProgress(int processed, int total) {
+    return '正在匯出 $processed/$total';
+  }
+
+  @override
+  String characterLibraryExportSummary(int succeeded, int failed) {
+    return '已匯出 $succeeded，失敗 $failed';
+  }
+
+  @override
+  String get characterLibraryFolderPickerUnavailable => '目前裝置無法選擇資料夾，請改用檔案匯入。';
+
+  @override
   String get dissolveCharacterFolder => '解散資料夾';
 
   @override
   String dissolveCharacterFolderBody(String name) {
     return '解散「$name」？角色會保留在庫中，不會被刪除。';
   }
+
+  @override
+  String get deleteCharacterFolder => '刪除資料夾';
+
+  @override
+  String deleteCharacterFolderBody(String name) {
+    return '刪除「$name」及其子資料夾？裡面的角色也會被刪除。';
+  }
+
+  @override
+  String get selectAllCharacters => '全選';
+
+  @override
+  String get deselectAllCharacters => '取消全選';
+
+  @override
+  String get characterFolderDeleted => '已刪除資料夾';
+
+  @override
+  String get characterFolderDissolved => '已解散資料夾';
+
+  @override
+  String get characterLibraryManage => '角色庫';
+
+  @override
+  String get manageCurrentCharacterFolder => '目前資料夾';
 
   @override
   String get renameCharacterFolder => '重新命名資料夾';
