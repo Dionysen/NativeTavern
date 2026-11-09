@@ -2,8 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:native_tavern/presentation/providers/desktop_layout_providers.dart';
+import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/widgets/common/desktop_caption.dart';
 import 'package:native_tavern/presentation/widgets/common/desktop_layout.dart';
 import 'package:native_tavern/presentation/widgets/common/empty_secondary_pane.dart';
+
+/// The window's caption buttons sit on the right pane. The middle pane keeps
+/// its own action inset so import and group buttons stay at that pane's edge.
+Widget _withoutCaptionInset(BuildContext context, Widget child) {
+  if (!DesktopCaptionScope.isActive(context)) return child;
+  final theme = Theme.of(context);
+  return Theme(
+    data: theme.copyWith(
+      appBarTheme: theme.appBarTheme.copyWith(
+        actionsPadding: const EdgeInsetsDirectional.only(
+          end: ChromeControls.appBarActionsEndPadding,
+        ),
+      ),
+    ),
+    child: child,
+  );
+}
 
 /// Blank page for hub routes under a [ShellRoute]. Not used to detect emptiness
 /// anymore — callers pass [detail] as null when the location is the hub.
@@ -90,7 +109,7 @@ class _MasterDetailBranchState extends ConsumerState<MasterDetailBranch> {
                 color: scheme.surfaceContainerLow,
                 child: SizedBox(
                   width: primaryWidth,
-                  child: widget.primary,
+                  child: _withoutCaptionInset(context, widget.primary),
                 ),
               ),
               _PaneResizeHandle(
@@ -149,6 +168,7 @@ class ShellHubBackEnabler extends StatefulWidget {
 class _ShellHubBackEnablerState extends State<ShellHubBackEnabler> {
   ModalRoute<dynamic>? _route;
   LocalHistoryEntry? _entry;
+  bool _syncQueued = false;
 
   /// [LocalHistoryEntry.onRemove] runs for a real back pop and for
   /// [ModalRoute.removeLocalHistoryEntry]. Only the pop should leave the page.
@@ -157,15 +177,14 @@ class _ShellHubBackEnablerState extends State<ShellHubBackEnabler> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _sync();
+    _scheduleSync();
   }
 
   @override
   void didUpdateWidget(covariant ShellHubBackEnabler oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.hubPath != widget.hubPath) {
-      _clearEntry();
-      _sync();
+      _scheduleSync();
     }
   }
 
@@ -187,7 +206,19 @@ class _ShellHubBackEnablerState extends State<ShellHubBackEnabler> {
     }
   }
 
-  void _sync() {
+  /// [LocalHistoryEntry] notifies the router. Doing that from
+  /// [didChangeDependencies] marks [Router] dirty while it is already building.
+  void _scheduleSync() {
+    if (_syncQueued) return;
+    _syncQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncQueued = false;
+      if (!mounted) return;
+      _syncNow();
+    });
+  }
+
+  void _syncNow() {
     final route = ModalRoute.of(context);
     final wantsSynthetic = !ThreePaneScope.isActive(context) &&
         route != null &&
@@ -211,7 +242,7 @@ class _ShellHubBackEnablerState extends State<ShellHubBackEnabler> {
         context.go(widget.hubPath);
       },
     );
-    route!.addLocalHistoryEntry(_entry!);
+    route.addLocalHistoryEntry(_entry!);
   }
 
   @override

@@ -2,32 +2,56 @@
 #define RUNNER_FLUTTER_WINDOW_H_
 
 #include <flutter/dart_project.h>
+#include <flutter/encodable_value.h>
 #include <flutter/flutter_view_controller.h>
+#include <flutter/method_channel.h>
+#include <flutter/method_result.h>
 
 #include <memory>
 
 #include "win32_window.h"
 
-// A window that does nothing but host a Flutter view.
+// A window that hosts a Flutter view and an immersive caption: the client area
+// includes the title band, while min / max / close stay real window buttons.
 class FlutterWindow : public Win32Window {
  public:
-  // Creates a new FlutterWindow hosting a Flutter view running |project|.
   explicit FlutterWindow(const flutter::DartProject& project);
   virtual ~FlutterWindow();
 
  protected:
-  // Win32Window:
   bool OnCreate() override;
   void OnDestroy() override;
   LRESULT MessageHandler(HWND window, UINT const message, WPARAM const wparam,
                          LPARAM const lparam) noexcept override;
 
  private:
-  // The project to run.
-  flutter::DartProject project_;
+  friend LRESULT CALLBACK CaptionChildProc(HWND hwnd, UINT message,
+                                            WPARAM wparam, LPARAM lparam);
 
-  // The Flutter instance hosted by this window.
+  void EnsureChildHook();
+  void HandleWindowMethod(
+      const flutter::MethodCall<flutter::EncodableValue>& call,
+      std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
+  // Screen-coordinate hit test for resize borders and caption buttons.
+  LRESULT CaptionHitTest(LPARAM lparam);
+  void ApplyMaximizedClientArea(HWND window, LPARAM lparam) const;
+  void NotifyZoomed() noexcept;
+  void StartDragging();
+  int FrameBorder();
+
+  flutter::DartProject project_;
   std::unique_ptr<flutter::FlutterViewController> flutter_controller_;
+  std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> channel_;
+
+  RECT minimize_rect_{};
+  RECT maximize_rect_{};
+  RECT close_rect_{};
+  bool caption_rects_valid_ = false;
+
+  HWND child_hwnd_ = nullptr;
+  WNDPROC original_child_proc_ = nullptr;
+  bool zoomed_ = false;
+  bool zoomed_reported_ = false;
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

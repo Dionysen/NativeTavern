@@ -170,7 +170,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           title: Text(
             _selectionMode
                 ? l10n.chatsSelected(_selectedChatIds.length)
-                : l10n.appTitle,
+                : l10n.chats,
           ),
           actions: spacedAppBarActions([
             if (_selectionMode) ...[

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/app_viewport.dart';
+import 'package:native_tavern/presentation/widgets/common/desktop_caption.dart';
 import 'package:native_tavern/presentation/widgets/common/desktop_layout.dart';
 
 /// Main navigation follows the system's bar edge or the available width.
@@ -226,41 +227,49 @@ class _AppNavigation extends StatelessWidget {
         bottom: !sharedBar,
         left: !sharedBar,
         right: !sharedBar,
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            child: SizedBox(
-              height: math.max(
-                  constraints.maxHeight,
-                  destinations.length *
-                          88 *
-                          MediaQuery.textScalerOf(context).scale(1) +
-                      16),
-              child: NavigationRail(
-                minWidth:
-                    sharedBar ? layout.barWidth : DesktopLayout.railWidth,
-                backgroundColor: Colors.transparent,
-                groupAlignment: -1,
-                labelType: NavigationRailLabelType.all,
-                selectedIndex: selectedIndex,
-                onDestinationSelected: (index) =>
-                    _onItemTapped(context, index),
-                destinations: [
-                  for (final destination in destinations)
-                    NavigationRailDestination(
-                      icon: destination.icon,
-                      selectedIcon: destination.selectedIcon,
-                      padding: sharedBar ? EdgeInsets.zero : null,
-                      label: Text(
-                        destination.label,
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+        child: Column(
+          children: [
+            if (DesktopCaptionScope.isActive(context))
+              const SizedBox(height: kToolbarHeight),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) => SingleChildScrollView(
+                  child: SizedBox(
+                    height: math.max(
+                        constraints.maxHeight,
+                        destinations.length *
+                                88 *
+                                MediaQuery.textScalerOf(context).scale(1) +
+                            16),
+                    child: NavigationRail(
+                      minWidth:
+                          sharedBar ? layout.barWidth : DesktopLayout.railWidth,
+                      backgroundColor: Colors.transparent,
+                      groupAlignment: -1,
+                      labelType: NavigationRailLabelType.all,
+                      selectedIndex: selectedIndex,
+                      onDestinationSelected: (index) =>
+                          _onItemTapped(context, index),
+                      destinations: [
+                        for (final destination in destinations)
+                          NavigationRailDestination(
+                            icon: destination.icon,
+                            selectedIcon: destination.selectedIcon,
+                            padding: sharedBar ? EdgeInsets.zero : null,
+                            label: Text(
+                              destination.label,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                      ],
                     ),
-                ],
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
