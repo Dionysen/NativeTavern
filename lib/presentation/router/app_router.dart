@@ -116,6 +116,17 @@ abstract class AppRoutes {
       const {home, characters, play, worldInfo, aiConfig, appearance, settings}
           .contains(uri.path) ||
       RegExp(r'^/chat/[^/]+$').hasMatch(uri.path);
+
+  /// Top-level shell tab hubs. Bottom navigation stays visible only here;
+  /// secondary pages (chat, character detail, settings children, …) hide it.
+  static bool isShellTabHub(Uri uri) => const {
+        home,
+        characters,
+        play,
+        aiConfig,
+        appearance,
+        settings,
+      }.contains(uri.path);
 }
 
 /// Navigation keys for nested navigation

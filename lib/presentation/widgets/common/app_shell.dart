@@ -44,6 +44,8 @@ class AppShell extends StatelessWidget {
         final threePane = DesktopLayout.useThreePane(contentWidth);
         final desktopThreePaneChrome =
             threePane && windowLayout?.supportsVerticalBars != true;
+        final showBottomNav = edge == null &&
+            AppRoutes.isShellTabHub(GoRouterState.of(context).uri);
         final scheme = Theme.of(context).colorScheme;
         final dividerColor =
             Theme.of(context).dividerColor.withValues(alpha: 0.5);
@@ -95,7 +97,7 @@ class AppShell extends StatelessWidget {
               ),
             ],
           ),
-          bottomNavigationBar: edge == null
+          bottomNavigationBar: showBottomNav
               ? _AppNavigation(
                   vertical: false,
                   navigationShell: navigationShell,
