@@ -224,21 +224,69 @@ class ImageGenSettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          // Negative prompt
+          // Scene prompt layers (SillyTavern-style)
           SettingsSection(
-            icon: Icons.settings_outlined,
-            title: AppLocalizations.of(context)!.negativePrompt,
+            icon: Icons.layers_outlined,
+            title: '场景提示词',
             children: [
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: TextField(
                   controller: TextEditingController(
-                      text: settings.defaultNegativePrompt),
+                    text: settings.commonPromptPrefix.isEmpty
+                        ? settings.effectiveCommonPromptPrefix
+                        : settings.commonPromptPrefix,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: '质量前缀',
+                    hintText: '可用 {prompt} 包住场景标签',
+                    border: OutlineInputBorder(),
+                    alignLabelWithHint: true,
+                  ),
+                  maxLines: 3,
+                  enabled: settings.enabled,
+                  onChanged: (value) {
+                    ref
+                        .read(imageGenSettingsProvider.notifier)
+                        .setCommonPromptPrefix(value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: TextField(
+                  controller: TextEditingController(
+                    text: settings.personaAppearancePrefix,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: '主角外貌标签',
+                    hintText: '例如 1boy, short black hair, brown eyes',
+                    border: OutlineInputBorder(),
+                    alignLabelWithHint: true,
+                  ),
+                  maxLines: 2,
+                  enabled: settings.enabled,
+                  onChanged: (value) {
+                    ref
+                        .read(imageGenSettingsProvider.notifier)
+                        .setPersonaAppearancePrefix(value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: TextField(
+                  controller: TextEditingController(
+                    text: settings.defaultNegativePrompt?.isNotEmpty == true
+                        ? settings.defaultNegativePrompt
+                        : settings.effectiveNegativePrompt,
+                  ),
                   decoration: InputDecoration(
                     labelText:
                         AppLocalizations.of(context)!.defaultNegativePrompt,
                     hintText: AppLocalizations.of(context)!.enterTermsToAvoid,
                     border: const OutlineInputBorder(),
+                    alignLabelWithHint: true,
                   ),
                   maxLines: 3,
                   enabled: settings.enabled,
@@ -246,6 +294,29 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                     ref
                         .read(imageGenSettingsProvider.notifier)
                         .setDefaultNegativePrompt(value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: TextField(
+                  controller: TextEditingController(
+                    text: settings.llmImagePromptInstruction.isEmpty
+                        ? settings.effectiveLlmImagePromptInstruction
+                        : settings.llmImagePromptInstruction,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'AI 写 tag 的说明',
+                    hintText: '要求只输出逗号分隔的 Danbooru tag',
+                    border: OutlineInputBorder(),
+                    alignLabelWithHint: true,
+                  ),
+                  maxLines: 6,
+                  enabled: settings.enabled,
+                  onChanged: (value) {
+                    ref
+                        .read(imageGenSettingsProvider.notifier)
+                        .setLlmImagePromptInstruction(value);
                   },
                 ),
               ),

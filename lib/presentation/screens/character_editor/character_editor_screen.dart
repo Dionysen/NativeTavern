@@ -35,6 +35,7 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _personalityController = TextEditingController();
+  final _sdAppearanceController = TextEditingController();
   final _scenarioController = TextEditingController();
   final _firstMessageController = TextEditingController();
   final _exampleMessagesController = TextEditingController();
@@ -69,6 +70,7 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
     _nameController.dispose();
     _descriptionController.dispose();
     _personalityController.dispose();
+    _sdAppearanceController.dispose();
     _scenarioController.dispose();
     _firstMessageController.dispose();
     _exampleMessagesController.dispose();
@@ -99,6 +101,7 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
         _nameController.text = character.name;
         _descriptionController.text = character.description;
         _personalityController.text = character.personality;
+        _sdAppearanceController.text = character.sdAppearance;
         _scenarioController.text = character.scenario;
         _firstMessageController.text = character.firstMessage;
         _exampleMessagesController.text = character.exampleMessages;
@@ -195,22 +198,24 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
 
       if (_character != null) {
         // Update existing character
-        character = _character!.copyWith(
-          name: name,
-          description: _descriptionController.text,
-          personality: _personalityController.text,
-          scenario: _scenarioController.text,
-          firstMessage: _firstMessageController.text,
-          alternateGreetings: alternateGreetings,
-          exampleMessages: _exampleMessagesController.text,
-          systemPrompt: _systemPromptController.text,
-          postHistoryInstructions: _postHistoryController.text,
-          creatorNotes: _creatorNotesController.text,
-          tags: tags,
-          creator: _creatorController.text,
-          version: _versionController.text,
-          modifiedAt: now,
-        );
+        character = _character!
+            .copyWith(
+              name: name,
+              description: _descriptionController.text,
+              personality: _personalityController.text,
+              scenario: _scenarioController.text,
+              firstMessage: _firstMessageController.text,
+              alternateGreetings: alternateGreetings,
+              exampleMessages: _exampleMessagesController.text,
+              systemPrompt: _systemPromptController.text,
+              postHistoryInstructions: _postHistoryController.text,
+              creatorNotes: _creatorNotesController.text,
+              tags: tags,
+              creator: _creatorController.text,
+              version: _versionController.text,
+              modifiedAt: now,
+            )
+            .withSdAppearance(_sdAppearanceController.text);
         character = await repo.updateCharacter(character);
         if (previousName != null &&
             previousName != character.name &&
@@ -241,7 +246,7 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
           version: _versionController.text,
           createdAt: now,
           modifiedAt: now,
-        );
+        ).withSdAppearance(_sdAppearanceController.text);
         character = await repo.createCharacter(character);
       }
 
@@ -444,6 +449,20 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
               alignLabelWithHint: true,
             ),
             maxLines: 4,
+          ),
+          const SizedBox(height: 16),
+
+          // SD appearance tags for ComfyUI / image generation
+          TextFormField(
+            controller: _sdAppearanceController,
+            decoration: const InputDecoration(
+              labelText: '出图外貌标签',
+              hintText: '固定外貌，例如 1girl, silver hair, blue eyes, black dress',
+              border: OutlineInputBorder(),
+              alignLabelWithHint: true,
+              helperText: '出图时自动带上；不要写剧情动作',
+            ),
+            maxLines: 3,
           ),
           const SizedBox(height: 16),
 

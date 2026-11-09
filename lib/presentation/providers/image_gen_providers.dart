@@ -62,9 +62,13 @@ class ImageGenSettingsNotifier extends StateNotifier<ImageGenSettings> {
   }
 
   void setProvider(ImageGenProvider provider) {
-    // Also update the default model and clear custom endpoint when provider changes
     // When switching providers, don't reset the apiEndpoint - each provider has its own
-    state = state.copyWith(provider: provider);
+    var next = state.copyWith(provider: provider);
+    // ComfyUI / NoobAI scene defaults (V-pred friendly CFG & portrait size).
+    if (provider == ImageGenProvider.comfyui) {
+      next = next.withComfyUiSceneDefaults();
+    }
+    state = next;
     _saveSettings();
   }
 
@@ -118,6 +122,21 @@ class ImageGenSettingsNotifier extends StateNotifier<ImageGenSettings> {
 
   void setDefaultNegativePrompt(String? negativePrompt) {
     state = state.copyWith(defaultNegativePrompt: negativePrompt);
+    _saveSettings();
+  }
+
+  void setCommonPromptPrefix(String value) {
+    state = state.copyWith(commonPromptPrefix: value);
+    _saveSettings();
+  }
+
+  void setPersonaAppearancePrefix(String value) {
+    state = state.copyWith(personaAppearancePrefix: value);
+    _saveSettings();
+  }
+
+  void setLlmImagePromptInstruction(String value) {
+    state = state.copyWith(llmImagePromptInstruction: value);
     _saveSettings();
   }
 
@@ -350,15 +369,21 @@ class FetchedModelsState {
 class FetchedModelsNotifier extends StateNotifier<FetchedModelsState> {
   final ImageGenerationService _service;
   final ImageGenSettings _settings;
+  final void Function(List<String> models)? onModelsResolved;
 
-  FetchedModelsNotifier(this._service, this._settings)
-      : super(const FetchedModelsState()) {
+  FetchedModelsNotifier(
+    this._service,
+    this._settings, {
+    this.onModelsResolved,
+  }) : super(const FetchedModelsState()) {
     // Auto-fetch models on initialization if provider supports it
     if (_settings.provider.supportsFetchingModels) {
       fetchModels();
     } else {
       // Use default models immediately for providers that don't support fetching
-      state = FetchedModelsState(models: _settings.provider.defaultModels);
+      final models = _settings.provider.defaultModels;
+      state = FetchedModelsState(models: models);
+      if (models.isNotEmpty) onModelsResolved?.call(models);
     }
   }
 
@@ -371,7 +396,9 @@ class FetchedModelsNotifier extends StateNotifier<FetchedModelsState> {
     if (!_settings.provider.supportsFetchingModels) {
       // Provider doesn't support fetching, use default models
       debugPrint('  Using default models: ${_settings.provider.defaultModels}');
-      state = FetchedModelsState(models: _settings.provider.defaultModels);
+      final models = _settings.provider.defaultModels;
+      state = FetchedModelsState(models: models);
+      if (models.isNotEmpty) onModelsResolved?.call(models);
       return;
     }
 
@@ -381,20 +408,27 @@ class FetchedModelsNotifier extends StateNotifier<FetchedModelsState> {
       debugPrint('  Calling service.fetchModels()...');
       final models = await _service.fetchModels();
       debugPrint('  Fetched models: $models');
+      if (!mounted) return;
 
       if (models != null && models.isNotEmpty) {
         state = FetchedModelsState(models: models);
+        onModelsResolved?.call(models);
       } else {
         // Fall back to default models
         debugPrint('  No models returned, using defaults');
-        state = FetchedModelsState(models: _settings.provider.defaultModels);
+        final defaults = _settings.provider.defaultModels;
+        state = FetchedModelsState(models: defaults);
+        if (defaults.isNotEmpty) onModelsResolved?.call(defaults);
       }
     } catch (e) {
       debugPrint('  Error fetching models: $e');
+      if (!mounted) return;
+      final defaults = _settings.provider.defaultModels;
       state = FetchedModelsState(
-        models: _settings.provider.defaultModels,
+        models: defaults,
         error: e.toString(),
       );
+      if (defaults.isNotEmpty) onModelsResolved?.call(defaults);
     }
   }
 
@@ -421,7 +455,19 @@ final fetchedModelsProvider =
     apiEndpoints: apiEndpoints,
   );
 
-  return FetchedModelsNotifier(service, settings);
+  return FetchedModelsNotifier(
+    service,
+    settings,
+    onModelsResolved: (models) {
+      final current = ref.read(imageGenSettingsProvider);
+      if (current.provider != provider) return;
+      if (models.isEmpty) return;
+      // Persist a real checkpoint when settings still have the empty default.
+      if (current.model.isEmpty || !models.contains(current.model)) {
+        ref.read(imageGenSettingsProvider.notifier).setModel(models.first);
+      }
+    },
+  );
 });
 
 /// Provider for available models - combines fetched and default models

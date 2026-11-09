@@ -248,6 +248,26 @@ class Character {
     return _parseTalkativeness(extensions['talkativeness']);
   }
 
+  /// SillyTavern-style fixed appearance tags for image generation.
+  /// Stored in [extensions] so card import/export stays lossless.
+  static const sdAppearanceExtensionKey = 'sd_prompt_prefix';
+
+  String get sdAppearance {
+    final value = extensions[sdAppearanceExtensionKey];
+    return value is String ? value.trim() : '';
+  }
+
+  Character withSdAppearance(String value) {
+    final next = Map<String, dynamic>.from(extensions);
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      next.remove(sdAppearanceExtensionKey);
+    } else {
+      next[sdAppearanceExtensionKey] = trimmed;
+    }
+    return copyWith(extensions: next);
+  }
+
   /// Extensions map with first-class depth_prompt/talkativeness merged
   /// back in for SillyTavern-compatible export
   Map<String, dynamic> extensionsForExport() {

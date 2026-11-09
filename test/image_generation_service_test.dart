@@ -69,4 +69,57 @@ void main() {
       expect(settings.effectiveEndpoint, 'http://localhost:7860');
     });
   });
+
+  group('ComfyUiWorkflow', () {
+    test('maps app sampler ids to ComfyUI names', () {
+      expect(ComfyUiWorkflow.samplerName('euler_a'), 'euler_ancestral');
+      expect(ComfyUiWorkflow.samplerName('dpmpp_2m'), 'dpmpp_2m');
+      expect(ComfyUiWorkflow.samplerName('k_euler_ancestral'), 'euler_ancestral');
+    });
+
+    test('falls back unknown schedulers to normal', () {
+      expect(ComfyUiWorkflow.schedulerName('karras'), 'karras');
+      expect(ComfyUiWorkflow.schedulerName('weird'), 'normal');
+    });
+
+    test('adds v-prediction nodes for NoobAI V-pred checkpoints', () {
+      final workflow = ComfyUiWorkflow.buildTxt2Img(
+        ckptName: 'NoobAI-XL-Vpred-v1.0.safetensors',
+        prompt: '1girl',
+        negativePrompt: 'lowres',
+        width: 768,
+        height: 768,
+        steps: 16,
+        cfg: 4.5,
+        seed: 1,
+        samplerName: 'euler',
+        scheduler: 'normal',
+      );
+
+      expect(workflow['2']?['class_type'], 'ModelSamplingDiscrete');
+      expect(workflow['3']?['class_type'], 'RescaleCFG');
+      expect(workflow['7']?['inputs']?['model'], ['3', 0]);
+      expect(workflow['1']?['inputs']?['ckpt_name'],
+          'NoobAI-XL-Vpred-v1.0.safetensors');
+    });
+
+    test('keeps a plain graph for non v-pred checkpoints', () {
+      final workflow = ComfyUiWorkflow.buildTxt2Img(
+        ckptName: 'v1-5-pruned-emaonly.safetensors',
+        prompt: 'cat',
+        negativePrompt: '',
+        width: 512,
+        height: 512,
+        steps: 20,
+        cfg: 7,
+        seed: 2,
+        samplerName: 'euler',
+        scheduler: 'normal',
+      );
+
+      expect(workflow.containsKey('2'), isFalse);
+      expect(workflow.containsKey('3'), isFalse);
+      expect(workflow['7']?['inputs']?['model'], ['1', 0]);
+    });
+  });
 }

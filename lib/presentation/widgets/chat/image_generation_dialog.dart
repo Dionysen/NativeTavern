@@ -15,6 +15,12 @@ class ImageGenerationDialog extends ConsumerStatefulWidget {
   
   /// Optional character name for context
   final String? characterName;
+
+  /// Fixed character appearance tags (not rewritten by the LLM).
+  final String? characterAppearance;
+
+  /// Fixed user/persona appearance tags.
+  final String? personaAppearance;
   
   /// The generation mode
   final ImageGenMode mode;
@@ -26,6 +32,8 @@ class ImageGenerationDialog extends ConsumerStatefulWidget {
     super.key,
     required this.basePrompt,
     this.characterName,
+    this.characterAppearance,
+    this.personaAppearance,
     this.mode = ImageGenMode.free,
     this.autoCompose = false,
   });
@@ -38,6 +46,8 @@ class ImageGenerationDialog extends ConsumerStatefulWidget {
     BuildContext context, {
     required String basePrompt,
     String? characterName,
+    String? characterAppearance,
+    String? personaAppearance,
     ImageGenMode mode = ImageGenMode.free,
     bool autoCompose = false,
   }) {
@@ -47,6 +57,8 @@ class ImageGenerationDialog extends ConsumerStatefulWidget {
       builder: (context) => ImageGenerationDialog(
         basePrompt: basePrompt,
         characterName: characterName,
+        characterAppearance: characterAppearance,
+        personaAppearance: personaAppearance,
         mode: mode,
         autoCompose: autoCompose,
       ),
@@ -67,9 +79,10 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
   @override
   void initState() {
     super.initState();
+    final settings = ref.read(imageGenSettingsProvider);
     _promptController = TextEditingController(text: _buildInitialPrompt());
     _negativePromptController = TextEditingController(
-      text: ref.read(imageGenSettingsProvider).defaultNegativePrompt ?? '',
+      text: settings.effectiveNegativePrompt,
     );
     if (widget.autoCompose) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -365,10 +378,14 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
       final sceneText = widget.basePrompt.trim().isEmpty
           ? _promptController.text
           : widget.basePrompt;
+      final settings = ref.read(imageGenSettingsProvider);
       final generated = await ref.read(llmServiceProvider).generate(
             _composer.composeMessages(
               sceneText: sceneText,
               characterName: widget.characterName,
+              instruction: settings.effectiveLlmImagePromptInstruction,
+              characterAppearance: widget.characterAppearance,
+              personaAppearance: widget.personaAppearance,
             ),
             config,
           );
@@ -422,18 +439,35 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
     };
 
     try {
+      final availableModels = ref.read(availableModelsProvider);
+      final selectedModel = availableModels.contains(settings.model)
+          ? settings.model
+          : (availableModels.isNotEmpty ? availableModels.first : settings.model);
+      if (selectedModel.isNotEmpty && selectedModel != settings.model) {
+        ref.read(imageGenSettingsProvider.notifier).setModel(selectedModel);
+      }
+
+      final sceneTags = _promptController.text.trim();
+      final assembled = _composer.assembleFinalPrompt(
+        sceneTags: sceneTags,
+        commonPrefix: settings.effectiveCommonPromptPrefix,
+        characterAppearance: widget.characterAppearance,
+        personaAppearance: widget.personaAppearance,
+      );
+
       final result = await service.generate(ImageGenRequest(
-        prompt: _promptController.text,
+        prompt: assembled,
         negativePrompt: _negativePromptController.text.isNotEmpty
             ? _negativePromptController.text
-            : null,
+            : settings.effectiveNegativePrompt,
         width: settings.defaultWidth,
         height: settings.defaultHeight,
         steps: settings.defaultSteps,
         cfgScale: settings.defaultCfgScale,
         sampler: settings.defaultSampler,
+        scheduler: settings.defaultScheduler,
         mode: widget.mode,
-        model: settings.model, // Use currently selected model
+        model: selectedModel,
       ));
 
       if (mounted) {

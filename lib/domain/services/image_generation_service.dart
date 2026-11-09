@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:archive/archive.dart';
 import 'package:native_tavern/domain/services/ai_data_sharing_consent_service.dart';
 import 'package:native_tavern/domain/services/external_call_audit_service.dart';
+import 'package:native_tavern/domain/services/image_prompt_composer.dart';
 
 /// Image Generation Provider types (channels, not models)
 enum ImageGenProvider {
@@ -184,6 +185,15 @@ class ImageGenSettings {
   final String defaultScheduler;
   final String? defaultNegativePrompt;
 
+  /// Quality wrapper; use `{prompt}` for scene + appearance tags.
+  final String commonPromptPrefix;
+
+  /// Fixed user/protagonist appearance tags (persona layer).
+  final String personaAppearancePrefix;
+
+  /// System instruction for LLM → Danbooru tag conversion.
+  final String llmImagePromptInstruction;
+
   // NovelAI specific
   final bool novelaiAnlasGuard;
   final bool novelaiSm;
@@ -208,6 +218,9 @@ class ImageGenSettings {
     this.defaultSampler = 'euler_a',
     this.defaultScheduler = 'karras',
     this.defaultNegativePrompt,
+    this.commonPromptPrefix = '',
+    this.personaAppearancePrefix = '',
+    this.llmImagePromptInstruction = '',
     // NovelAI
     this.novelaiAnlasGuard = true,
     this.novelaiSm = false,
@@ -223,6 +236,21 @@ class ImageGenSettings {
   String? get apiKey => apiKeys[provider.id];
   String? get apiEndpoint => apiEndpoints[provider.id];
   String get model => models[provider.id] ?? provider.defaultModel;
+
+  String get effectiveCommonPromptPrefix => commonPromptPrefix.trim().isEmpty
+      ? ImagePromptComposer.defaultCommonPrefix
+      : commonPromptPrefix.trim();
+
+  String get effectiveNegativePrompt {
+    final configured = defaultNegativePrompt?.trim();
+    if (configured != null && configured.isNotEmpty) return configured;
+    return ImagePromptComposer.defaultNegativePrompt;
+  }
+
+  String get effectiveLlmImagePromptInstruction =>
+      llmImagePromptInstruction.trim().isEmpty
+          ? ImagePromptComposer.defaultLlmInstruction
+          : llmImagePromptInstruction.trim();
 
   /// Get the effective API endpoint for current provider
   String get effectiveEndpoint {
@@ -272,6 +300,9 @@ class ImageGenSettings {
     String? defaultSampler,
     String? defaultScheduler,
     String? defaultNegativePrompt,
+    String? commonPromptPrefix,
+    String? personaAppearancePrefix,
+    String? llmImagePromptInstruction,
     bool? novelaiAnlasGuard,
     bool? novelaiSm,
     bool? novelaiSmDyn,
@@ -294,6 +325,11 @@ class ImageGenSettings {
       defaultScheduler: defaultScheduler ?? this.defaultScheduler,
       defaultNegativePrompt:
           defaultNegativePrompt ?? this.defaultNegativePrompt,
+      commonPromptPrefix: commonPromptPrefix ?? this.commonPromptPrefix,
+      personaAppearancePrefix:
+          personaAppearancePrefix ?? this.personaAppearancePrefix,
+      llmImagePromptInstruction:
+          llmImagePromptInstruction ?? this.llmImagePromptInstruction,
       novelaiAnlasGuard: novelaiAnlasGuard ?? this.novelaiAnlasGuard,
       novelaiSm: novelaiSm ?? this.novelaiSm,
       novelaiSmDyn: novelaiSmDyn ?? this.novelaiSmDyn,
@@ -346,6 +382,9 @@ class ImageGenSettings {
         'defaultSampler': defaultSampler,
         'defaultScheduler': defaultScheduler,
         'defaultNegativePrompt': defaultNegativePrompt,
+        'commonPromptPrefix': commonPromptPrefix,
+        'personaAppearancePrefix': personaAppearancePrefix,
+        'llmImagePromptInstruction': llmImagePromptInstruction,
         'novelaiAnlasGuard': novelaiAnlasGuard,
         'novelaiSm': novelaiSm,
         'novelaiSmDyn': novelaiSmDyn,
@@ -400,6 +439,10 @@ class ImageGenSettings {
       defaultSampler: json['defaultSampler'] as String? ?? 'euler_a',
       defaultScheduler: json['defaultScheduler'] as String? ?? 'karras',
       defaultNegativePrompt: json['defaultNegativePrompt'] as String?,
+      commonPromptPrefix: json['commonPromptPrefix'] as String? ?? '',
+      personaAppearancePrefix: json['personaAppearancePrefix'] as String? ?? '',
+      llmImagePromptInstruction:
+          json['llmImagePromptInstruction'] as String? ?? '',
       novelaiAnlasGuard: json['novelaiAnlasGuard'] as bool? ?? true,
       novelaiSm: json['novelaiSm'] as bool? ?? false,
       novelaiSmDyn: json['novelaiSmDyn'] as bool? ?? false,
@@ -407,6 +450,21 @@ class ImageGenSettings {
       novelaiVarietyBoost: json['novelaiVarietyBoost'] as bool? ?? false,
       openaiStyle: json['openaiStyle'] as String? ?? 'vivid',
       openaiQuality: json['openaiQuality'] as String? ?? 'standard',
+    );
+  }
+
+  /// Sensible NoobAI / ComfyUI scene defaults (V-pred friendly).
+  ImageGenSettings withComfyUiSceneDefaults() {
+    return copyWith(
+      defaultWidth: 832,
+      defaultHeight: 1216,
+      defaultSteps: 16,
+      defaultCfgScale: 4.5,
+      defaultSampler: 'euler',
+      defaultScheduler: 'normal',
+      defaultNegativePrompt: effectiveNegativePrompt,
+      commonPromptPrefix: effectiveCommonPromptPrefix,
+      llmImagePromptInstruction: effectiveLlmImagePromptInstruction,
     );
   }
 }
@@ -738,6 +796,21 @@ class ImageGenerationService {
   /// Fetch available checkpoints from ComfyUI
   Future<List<String>> _fetchComfyUIModels() async {
     final endpoint = _settings.effectiveEndpoint;
+
+    // Prefer the dedicated models API; fall back to node object_info.
+    try {
+      final response = await _dio.get<List<dynamic>>(
+        '$endpoint/models/checkpoints',
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final names = response.data!
+            .map((e) => e.toString())
+            .where((name) => name.isNotEmpty)
+            .toList();
+        if (names.isNotEmpty) return names;
+      }
+    } catch (_) {}
+
     final response = await _dio.get<Map<String, dynamic>>(
       '$endpoint/object_info/CheckpointLoaderSimple',
     );
@@ -847,46 +920,73 @@ class ImageGenerationService {
   }) async {
     if (!_settings.enabled) return null;
 
-    final model = request.model ?? _settings.model;
+    var model = (request.model ?? _settings.model).trim();
+    if (model.isEmpty && _settings.provider.supportsFetchingModels) {
+      final fetched = await fetchModels();
+      if (fetched != null && fetched.isNotEmpty) {
+        model = fetched.first;
+        _settings = _settings.withModel(model);
+      }
+    }
+    final resolvedRequest =
+        model.isEmpty || request.model == model
+            ? request
+            : ImageGenRequest(
+                prompt: request.prompt,
+                negativePrompt: request.negativePrompt,
+                width: request.width,
+                height: request.height,
+                steps: request.steps,
+                cfgScale: request.cfgScale,
+                sampler: request.sampler,
+                scheduler: request.scheduler,
+                model: model,
+                seed: request.seed,
+                batchSize: request.batchSize,
+                mode: request.mode,
+              );
 
     try {
       debugPrint('Image Generation [${_settings.provider.displayName}]');
       debugPrint('  Model configured: ${model.isNotEmpty}');
+      if (model.isNotEmpty) debugPrint('  Model: $model');
       debugPrint('  Prompt length: ${request.prompt.length}');
       debugPrint('  Size: ${request.width}x${request.height}');
       debugPrint('  Endpoint provider: ${_settings.provider.id}');
 
       switch (_settings.provider) {
         case ImageGenProvider.openai:
-          return await _generateOpenAI(request, model,
+          return await _generateOpenAI(resolvedRequest, model,
               cancelToken: cancelToken);
         case ImageGenProvider.openaiChat:
           return await _generateOpenAIChat(
-            request,
+            resolvedRequest,
             model,
             cancelToken: cancelToken,
           );
         case ImageGenProvider.gemini:
-          return await _generateGemini(request, model,
+          return await _generateGemini(resolvedRequest, model,
               cancelToken: cancelToken);
         case ImageGenProvider.novelai:
-          return await _generateNovelAI(request, model,
+          return await _generateNovelAI(resolvedRequest, model,
               cancelToken: cancelToken);
         case ImageGenProvider.pollinations:
           return await _generatePollinations(
-            request,
+            resolvedRequest,
             model,
             cancelToken: cancelToken,
           );
         case ImageGenProvider.automatic1111:
-          return await _generateAutomatic1111(request,
+          return await _generateAutomatic1111(resolvedRequest,
               cancelToken: cancelToken);
         case ImageGenProvider.comfyui:
-          return await _generateComfyUI(request, cancelToken: cancelToken);
+          return await _generateComfyUI(resolvedRequest,
+              cancelToken: cancelToken);
       }
-    } catch (error) {
-      debugPrint('Image generation error: ${error.runtimeType}');
-      onError?.call('Image generation failed');
+    } catch (error, stack) {
+      debugPrint('Image generation error: $error');
+      debugPrint('$stack');
+      onError?.call(error.toString());
       return null;
     }
   }
@@ -1559,14 +1659,155 @@ class ImageGenerationService {
     );
   }
 
-  /// Generate image using ComfyUI (placeholder)
+  /// Generate image using a local ComfyUI server.
+  ///
+  /// Flow matches the ComfyUI HTTP API client:
+  /// `POST /prompt` → poll `GET /history/{id}` → `GET /view`.
   Future<ImageGenResult?> _generateComfyUI(
     ImageGenRequest request, {
     CancelToken? cancelToken,
   }) async {
-    // ComfyUI requires workflow-based generation
-    throw UnimplementedError(
-        'ComfyUI generation requires workflow configuration');
+    final endpoint = _settings.effectiveEndpoint;
+    final ckpt = (request.model ?? _settings.model).trim();
+    if (ckpt.isEmpty) {
+      throw Exception('ComfyUI checkpoint is not configured');
+    }
+
+    final seed = (request.seed != null && request.seed! >= 0)
+        ? request.seed!
+        : math.Random().nextInt(1 << 31);
+    final negative = request.negativePrompt?.trim().isNotEmpty == true
+        ? request.negativePrompt!.trim()
+        : _settings.effectiveNegativePrompt;
+    final sampler = ComfyUiWorkflow.samplerName(request.sampler);
+    final scheduler = ComfyUiWorkflow.schedulerName(
+      request.scheduler ?? _settings.defaultScheduler,
+    );
+    final workflow = ComfyUiWorkflow.buildTxt2Img(
+      ckptName: ckpt,
+      prompt: request.prompt,
+      negativePrompt: negative,
+      width: request.width,
+      height: request.height,
+      steps: request.steps,
+      cfg: request.cfgScale,
+      seed: seed,
+      samplerName: sampler,
+      scheduler: scheduler,
+    );
+
+    onProgress?.call(0.1);
+
+    final submit = await _dio.post<Map<String, dynamic>>(
+      '$endpoint/prompt',
+      cancelToken: cancelToken,
+      options: Options(headers: {'Content-Type': 'application/json'}),
+      data: {'prompt': workflow},
+    );
+    if (submit.statusCode != 200 || submit.data == null) {
+      throw Exception('ComfyUI /prompt failed: ${submit.statusCode}');
+    }
+    final promptId = submit.data!['prompt_id'] as String?;
+    if (promptId == null || promptId.isEmpty) {
+      throw Exception('ComfyUI /prompt returned no prompt_id');
+    }
+    final nodeErrors = submit.data!['node_errors'];
+    if (nodeErrors is Map && nodeErrors.isNotEmpty) {
+      throw Exception('ComfyUI workflow error: $nodeErrors');
+    }
+
+    onProgress?.call(0.2);
+
+    Map<String, dynamic>? historyEntry;
+    const maxAttempts = 600; // ~5 min at 500ms
+    for (var attempt = 0; attempt < maxAttempts; attempt++) {
+      if (cancelToken?.isCancelled == true) {
+        throw DioException(
+          requestOptions: RequestOptions(path: '$endpoint/history/$promptId'),
+          type: DioExceptionType.cancel,
+          message: 'ComfyUI generation cancelled',
+        );
+      }
+      final hist = await _dio.get<Map<String, dynamic>>(
+        '$endpoint/history/$promptId',
+        cancelToken: cancelToken,
+      );
+      final entry = hist.data?[promptId];
+      if (entry is Map<String, dynamic>) {
+        historyEntry = entry;
+        break;
+      }
+      onProgress?.call(0.2 + 0.6 * (attempt / maxAttempts));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    }
+    if (historyEntry == null) {
+      throw Exception('ComfyUI timed out waiting for prompt $promptId');
+    }
+
+    final status = historyEntry['status'] as Map<String, dynamic>?;
+    if (status?['status_str'] == 'error' || status?['completed'] == false) {
+      throw Exception('ComfyUI execution failed: ${status ?? historyEntry}');
+    }
+
+    final imagesMeta = <Map<String, dynamic>>[];
+    final outputs = historyEntry['outputs'];
+    if (outputs is Map) {
+      for (final nodeOut in outputs.values) {
+        if (nodeOut is! Map) continue;
+        final images = nodeOut['images'];
+        if (images is! List) continue;
+        for (final image in images) {
+          if (image is Map<String, dynamic>) {
+            imagesMeta.add(image);
+          } else if (image is Map) {
+            imagesMeta.add(Map<String, dynamic>.from(image));
+          }
+        }
+      }
+    }
+    if (imagesMeta.isEmpty) {
+      throw Exception('ComfyUI finished with no images');
+    }
+
+    onProgress?.call(0.9);
+
+    final images = <Uint8List>[];
+    for (final image in imagesMeta) {
+      final filename = image['filename'] as String?;
+      if (filename == null || filename.isEmpty) continue;
+      final response = await _dio.get<List<int>>(
+        '$endpoint/view',
+        cancelToken: cancelToken,
+        options: Options(responseType: ResponseType.bytes),
+        queryParameters: {
+          'filename': filename,
+          'subfolder': image['subfolder'] ?? '',
+          'type': image['type'] ?? 'output',
+        },
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        images.add(Uint8List.fromList(response.data!));
+      }
+    }
+    if (images.isEmpty) {
+      throw Exception('ComfyUI /view returned no image bytes');
+    }
+
+    onProgress?.call(1.0);
+
+    return ImageGenResult(
+      images: images,
+      prompt: request.prompt,
+      seed: seed,
+      format: 'png',
+      metadata: {
+        'provider': 'comfyui',
+        'prompt_id': promptId,
+        'ckpt_name': ckpt,
+        'sampler': sampler,
+        'scheduler': scheduler,
+      },
+    );
   }
 
   /// Extract image URLs from AI response text (base feature for all channels)
@@ -1745,5 +1986,153 @@ class ImageGenerationService {
 
   void dispose() {
     _dio.close();
+  }
+}
+
+/// Built-in ComfyUI API workflow helpers (txt2img).
+abstract final class ComfyUiWorkflow {
+  /// Map app sampler ids to ComfyUI KSampler names.
+  static String samplerName(String sampler) {
+    const map = <String, String>{
+      'euler': 'euler',
+      'euler_a': 'euler_ancestral',
+      'heun': 'heun',
+      'dpm_2': 'dpm_2',
+      'dpm_2_a': 'dpm_2_ancestral',
+      'lms': 'lms',
+      'dpm_fast': 'dpm_fast',
+      'dpm_adaptive': 'dpm_adaptive',
+      'dpmpp_2s_a': 'dpmpp_2s_ancestral',
+      'dpmpp_sde': 'dpmpp_sde',
+      'dpmpp_2m': 'dpmpp_2m',
+      'ddim': 'ddim',
+      'plms': 'lms',
+      'uni_pc': 'uni_pc',
+      'k_euler': 'euler',
+      'k_euler_ancestral': 'euler_ancestral',
+      'k_dpmpp_2m': 'dpmpp_2m',
+      'k_dpmpp_2s_ancestral': 'dpmpp_2s_ancestral',
+      'k_dpmpp_sde': 'dpmpp_sde',
+    };
+    return map[sampler] ?? sampler;
+  }
+
+  static String schedulerName(String scheduler) {
+    const allowed = {
+      'simple',
+      'sgm_uniform',
+      'karras',
+      'exponential',
+      'ddim_uniform',
+      'beta',
+      'normal',
+      'linear_quadratic',
+      'kl_optimal',
+    };
+    return allowed.contains(scheduler) ? scheduler : 'normal';
+  }
+
+  static bool looksLikeVPrediction(String ckptName) {
+    final lower = ckptName.toLowerCase();
+    return lower.contains('vpred') ||
+        lower.contains('v-pred') ||
+        lower.contains('v_pred') ||
+        lower.contains('v_prediction');
+  }
+
+  /// Built-in txt2img graph. V-prediction checkpoints (e.g. NoobAI V-pred)
+  /// get ModelSamplingDiscrete + RescaleCFG, matching the local ComfyUI scripts.
+  static Map<String, dynamic> buildTxt2Img({
+    required String ckptName,
+    required String prompt,
+    required String negativePrompt,
+    required int width,
+    required int height,
+    required int steps,
+    required double cfg,
+    required int seed,
+    required String samplerName,
+    required String scheduler,
+  }) {
+    final vPred = looksLikeVPrediction(ckptName);
+    final modelRef = vPred ? <dynamic>['3', 0] : <dynamic>['1', 0];
+
+    final workflow = <String, dynamic>{
+      '1': {
+        'class_type': 'CheckpointLoaderSimple',
+        'inputs': {'ckpt_name': ckptName},
+      },
+      '4': {
+        'class_type': 'CLIPTextEncode',
+        'inputs': {
+          'clip': ['1', 1],
+          'text': prompt,
+        },
+      },
+      '5': {
+        'class_type': 'CLIPTextEncode',
+        'inputs': {
+          'clip': ['1', 1],
+          'text': negativePrompt,
+        },
+      },
+      '6': {
+        'class_type': 'EmptyLatentImage',
+        'inputs': {
+          'width': width,
+          'height': height,
+          'batch_size': 1,
+        },
+      },
+      '7': {
+        'class_type': 'KSampler',
+        'inputs': {
+          'model': modelRef,
+          'seed': seed,
+          'steps': steps,
+          'cfg': cfg,
+          'sampler_name': samplerName,
+          'scheduler': scheduler,
+          'positive': ['4', 0],
+          'negative': ['5', 0],
+          'latent_image': ['6', 0],
+          'denoise': 1.0,
+        },
+      },
+      '8': {
+        'class_type': 'VAEDecode',
+        'inputs': {
+          'samples': ['7', 0],
+          'vae': ['1', 2],
+        },
+      },
+      '9': {
+        'class_type': 'SaveImage',
+        'inputs': {
+          'images': ['8', 0],
+          'filename_prefix': 'NativeTavern',
+        },
+      },
+    };
+
+    if (vPred) {
+      workflow['2'] = {
+        'class_type': 'ModelSamplingDiscrete',
+        'inputs': {
+          'model': ['1', 0],
+          'sampling': 'v_prediction',
+          'zsnr': true,
+        },
+      };
+      workflow['3'] = {
+        'class_type': 'RescaleCFG',
+        'inputs': {
+          'model': ['2', 0],
+          'multiplier': 0.7,
+        },
+      };
+    }
+
+    return workflow;
   }
 }

@@ -72,6 +72,7 @@ import 'package:native_tavern/presentation/providers/image_gen_providers.dart';
 import 'package:native_tavern/presentation/widgets/chat/image_generation_dialog.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/domain/services/image_generation_service.dart';
+import 'package:native_tavern/domain/services/image_prompt_composer.dart';
 import 'package:native_tavern/presentation/widgets/chat/visual_novel_message_view.dart';
 import 'package:native_tavern/presentation/widgets/chat/tts_playback_controls.dart';
 import 'package:native_tavern/presentation/widgets/chat/tool_activity_panel.dart';
@@ -1089,17 +1090,70 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       return;
     }
 
+    final arg = (argument ?? '').trim();
+    final modeKey = arg.toLowerCase();
+    // `/sd`, `/sd last`, `/sd story` → scene from the latest assistant message.
+    if (arg.isEmpty || modeKey == 'last' || modeKey == 'story') {
+      final chatState = ref.read(activeChatProvider);
+      final lastAssistant =
+          chatState.messages.reversed.cast<ChatMessage?>().firstWhere(
+                (message) => message?.role == MessageRole.assistant,
+                orElse: () => null,
+              );
+      if (lastAssistant == null || lastAssistant.content.trim().isEmpty) {
+        _showCommandError(l10n.noImageGenerated);
+        return;
+      }
+      final result = await ImageGenerationDialog.show(
+        context,
+        basePrompt: lastAssistant.content,
+        characterName: chatState.character?.name,
+        characterAppearance: chatState.character?.sdAppearance,
+        personaAppearance: settings.personaAppearancePrefix,
+        mode: ImageGenMode.lastMessage,
+        autoCompose: true,
+      );
+      if (result != null && result.images.isNotEmpty && mounted) {
+        await _attachGeneratedImagesToNewMessage(result);
+      }
+      return;
+    }
+
     final request = ref.read(parseImagineCommandProvider)(
-      '/imagine ${argument ?? ''}',
+      '/imagine $arg',
     );
     if (request == null) {
       _showCommandError(SlashCommands.imagine.usage);
       return;
     }
 
+    final chatState = ref.read(activeChatProvider);
+    const composer = ImagePromptComposer();
+    final assembled = composer.assembleFinalPrompt(
+      sceneTags: request.prompt,
+      commonPrefix: settings.effectiveCommonPromptPrefix,
+      characterAppearance: chatState.character?.sdAppearance,
+      personaAppearance: settings.personaAppearancePrefix,
+    );
+    final layered = ImageGenRequest(
+      prompt: assembled,
+      negativePrompt:
+          request.negativePrompt ?? settings.effectiveNegativePrompt,
+      width: request.width,
+      height: request.height,
+      steps: request.steps,
+      cfgScale: request.cfgScale,
+      sampler: request.sampler,
+      scheduler: request.scheduler,
+      model: request.model ?? settings.model,
+      seed: request.seed,
+      batchSize: request.batchSize,
+      mode: request.mode,
+    );
+
     _showSnackBar(l10n.imageGeneration);
     final result =
-        await ref.read(imageGenStateProvider.notifier).generate(request);
+        await ref.read(imageGenStateProvider.notifier).generate(layered);
     if (!mounted) return;
     if (result == null || result.images.isEmpty) {
       final error = ref.read(imageGenStateProvider).error;
@@ -1111,7 +1165,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final attachments = await _saveGeneratedImages(result);
       await ref.read(activeChatProvider.notifier).addLocalMessage(
             role: MessageRole.user,
-            content: request.prompt,
+            content: layered.prompt,
             attachments: attachments,
           );
       _showSnackBar('${l10n.generationComplete} (${attachments.length})');
@@ -2607,10 +2661,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               (message) => message?.role == MessageRole.assistant,
               orElse: () => null,
             );
+    final settings = ref.read(imageGenSettingsProvider);
     final result = await ImageGenerationDialog.show(
       context,
       basePrompt: typed.isNotEmpty ? typed : (lastAssistant?.content ?? ''),
       characterName: chatState.character?.name,
+      characterAppearance: chatState.character?.sdAppearance,
+      personaAppearance: settings.personaAppearancePrefix,
       mode: ImageGenMode.free,
       autoCompose: typed.isEmpty,
     );
@@ -2639,10 +2696,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ChatMessage message,
     Character? character,
   ) async {
+    final settings = ref.read(imageGenSettingsProvider);
     final result = await ImageGenerationDialog.show(
       context,
       basePrompt: message.content,
       characterName: character?.name,
+      characterAppearance: character?.sdAppearance,
+      personaAppearance: settings.personaAppearancePrefix,
       mode: message.role == MessageRole.assistant
           ? ImageGenMode.lastMessage
           : ImageGenMode.free,
