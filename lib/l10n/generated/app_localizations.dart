@@ -13504,6 +13504,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Filled from the character card when you chat'**
   String get promptOwnedByCharacter;
+
+  /// Title asking whether to keep a moments compose draft
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft?'**
+  String get momentsDraftSaveTitle;
+
+  /// Explains single-slot moments draft on cancel
+  ///
+  /// In en, this message translates to:
+  /// **'You have unpublished content. Save it as the only draft? It will restore the next time you post.'**
+  String get momentsDraftSaveMessage;
+
+  /// Confirm saving moments compose draft
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft'**
+  String get momentsDraftSave;
+
+  /// Discard moments compose content without saving a draft
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get momentsDraftDiscard;
 }
 
 class _AppLocalizationsDelegate

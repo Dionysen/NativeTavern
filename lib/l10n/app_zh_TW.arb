@@ -7708,5 +7708,21 @@
   "selectAllCharacters": "全選",
   "@selectAllCharacters": {
     "description": "Select all characters in the current character list filter"
+  },
+  "momentsDraftSaveTitle": "存入草稿？",
+  "@momentsDraftSaveTitle": {
+    "description": "Title asking whether to keep a moments compose draft"
+  },
+  "momentsDraftSaveMessage": "還有未發佈的內容。草稿箱只能保留一份，下次發佈時會自動恢復。",
+  "@momentsDraftSaveMessage": {
+    "description": "Explains single-slot moments draft on cancel"
+  },
+  "momentsDraftSave": "存草稿",
+  "@momentsDraftSave": {
+    "description": "Confirm saving moments compose draft"
+  },
+  "momentsDraftDiscard": "不儲存",
+  "@momentsDraftDiscard": {
+    "description": "Discard moments compose content without saving a draft"
   }
 }

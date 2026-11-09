@@ -7583,4 +7583,17 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get promptOwnedByCharacter => '캐릭터 카드에서 · 보기 전용';
+
+  @override
+  String get momentsDraftSaveTitle => 'Save draft?';
+
+  @override
+  String get momentsDraftSaveMessage =>
+      'You have unpublished content. Save it as the only draft? It will restore the next time you post.';
+
+  @override
+  String get momentsDraftSave => 'Save draft';
+
+  @override
+  String get momentsDraftDiscard => 'Discard';
 }

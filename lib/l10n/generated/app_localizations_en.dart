@@ -7629,4 +7629,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get promptOwnedByCharacter =>
       'Filled from the character card when you chat';
+
+  @override
+  String get momentsDraftSaveTitle => 'Save draft?';
+
+  @override
+  String get momentsDraftSaveMessage =>
+      'You have unpublished content. Save it as the only draft? It will restore the next time you post.';
+
+  @override
+  String get momentsDraftSave => 'Save draft';
+
+  @override
+  String get momentsDraftDiscard => 'Discard';
 }

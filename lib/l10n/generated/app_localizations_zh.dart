@@ -7330,6 +7330,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get promptOwnedByCharacter => '聊天时会使用角色卡里的内容';
+
+  @override
+  String get momentsDraftSaveTitle => '存入草稿？';
+
+  @override
+  String get momentsDraftSaveMessage => '还有未发布的内容。草稿箱只能保留一份，下次发布时会自动恢复。';
+
+  @override
+  String get momentsDraftSave => '存草稿';
+
+  @override
+  String get momentsDraftDiscard => '不保存';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -14660,4 +14672,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get promptOwnedByCharacter => '聊天時會使用角色卡裡的內容';
+
+  @override
+  String get momentsDraftSaveTitle => '存入草稿？';
+
+  @override
+  String get momentsDraftSaveMessage => '還有未發佈的內容。草稿箱只能保留一份，下次發佈時會自動恢復。';
+
+  @override
+  String get momentsDraftSave => '存草稿';
+
+  @override
+  String get momentsDraftDiscard => '不儲存';
 }

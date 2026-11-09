@@ -18,8 +18,10 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/data/models/persona.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
+import 'package:native_tavern/presentation/providers/moments_compose_draft_provider.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
+import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
@@ -88,33 +90,12 @@ class MomentsScreen extends ConsumerWidget {
                     palette: palette,
                     topInset: topInset,
                     initialCoverPath: coverPath,
-                    onCompose: () => _compose(context, ref, selfName),
+                    onCompose: () => context.openShell(AppRoutes.playMomentsCompose),
                   );
                 },
               ),
       ),
     );
-  }
-
-  Future<void> _compose(
-    BuildContext context,
-    WidgetRef ref,
-    String selfName,
-  ) async {
-    final draft = await Navigator.of(context).push<_ComposeDraft>(
-      MaterialPageRoute(builder: (_) => const _MomentsComposePage()),
-    );
-    if (draft == null || !context.mounted) return;
-    final service = ref.read(momentServiceProvider);
-    final imagePath = draft.imagePath == null
-        ? null
-        : await service.importImage(draft.imagePath!);
-    await service.publishPlayerPost(
-      body: draft.body,
-      imagePath: imagePath,
-      authorName: selfName,
-    );
-    ref.invalidate(pagedMomentFeedProvider);
   }
 
   static Character? authorOf(List<Character> characters, MomentPost post) {
@@ -1235,23 +1216,32 @@ class _Initial extends StatelessWidget {
   }
 }
 
-class _ComposeDraft {
-  const _ComposeDraft({required this.body, this.imagePath});
-
-  final String body;
-  final String? imagePath;
-}
-
-class _MomentsComposePage extends StatefulWidget {
-  const _MomentsComposePage();
+/// Full-page moments composer. Owned by go_router so play-hub switches can
+/// replace it (auto-cancel) instead of stacking above the shell child.
+class MomentsComposeScreen extends ConsumerStatefulWidget {
+  const MomentsComposeScreen({super.key});
 
   @override
-  State<_MomentsComposePage> createState() => _MomentsComposePageState();
+  ConsumerState<MomentsComposeScreen> createState() =>
+      _MomentsComposeScreenState();
 }
 
-class _MomentsComposePageState extends State<_MomentsComposePage> {
-  final _controller = TextEditingController();
+class _MomentsComposeScreenState extends ConsumerState<MomentsComposeScreen> {
+  late final TextEditingController _controller;
   String? _imagePath;
+
+  @override
+  void initState() {
+    super.initState();
+    final draft = ref.read(momentsComposeDraftProvider);
+    _controller = TextEditingController(text: draft?.body ?? '');
+    _imagePath = draft?.imagePath;
+    // Drop a stale file path that no longer exists on disk.
+    final path = _imagePath;
+    if (path != null && path.isNotEmpty && !File(path).existsSync()) {
+      _imagePath = null;
+    }
+  }
 
   @override
   void dispose() {
@@ -1259,12 +1249,66 @@ class _MomentsComposePageState extends State<_MomentsComposePage> {
     super.dispose();
   }
 
-  bool get _canSend => _controller.text.trim().isNotEmpty || _imagePath != null;
+  bool get _hasContent =>
+      _controller.text.trim().isNotEmpty ||
+      (_imagePath != null && _imagePath!.isNotEmpty);
+
+  bool get _canSend => _hasContent;
+
+  /// Keep the single draft slot in sync while editing so leave guards
+  /// ([confirmMomentsComposeLeave] / [GoRoute.onExit]) see current content.
+  void _syncDraftSlot() {
+    final drafts = ref.read(momentsComposeDraftProvider.notifier);
+    if (_hasContent) {
+      drafts.save(body: _controller.text, imagePath: _imagePath);
+    } else {
+      drafts.clear();
+    }
+  }
+
+  void _leave() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(AppRoutes.playMoments);
+    }
+  }
+
+  Future<void> _submit() async {
+    if (!_canSend) return;
+    final l10n = AppLocalizations.of(context);
+    final persona = ref.read(activePersonaProvider).asData?.value;
+    final selfName = _personaName(persona, l10n.momentsAuthorMe);
+    final service = ref.read(momentServiceProvider);
+
+    // Clear first so onExit does not re-prompt after a successful publish.
+    await ref.read(momentsComposeDraftProvider.notifier).clear();
+
+    final imagePath = _imagePath == null
+        ? null
+        : await service.importImage(_imagePath!);
+    await service.publishPlayerPost(
+      body: _controller.text.trim(),
+      imagePath: imagePath,
+      authorName: selfName,
+    );
+    ref.invalidate(pagedMomentFeedProvider);
+    if (mounted) _leave();
+  }
+
+  Future<void> _pickPhoto() async {
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (image == null || !mounted) return;
+    setState(() => _imagePath = image.path);
+    _syncDraftSlot();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final palette = _MomentsPalette.of(context);
+    // Leave confirmation (cancel / back / hub switches) is owned by
+    // GoRoute.onExit → confirmMomentsComposeLeave.
     return Scaffold(
       backgroundColor: palette.cell,
       body: Column(
@@ -1278,7 +1322,7 @@ class _MomentsComposePageState extends State<_MomentsComposePage> {
                 child: Row(
                   children: [
                     TextButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: _leave,
                       child: Text(l10n.cancel),
                     ),
                     const Spacer(),
@@ -1308,7 +1352,10 @@ class _MomentsComposePageState extends State<_MomentsComposePage> {
                   key: const Key('moments-compose-body'),
                   controller: _controller,
                   maxLines: 6,
-                  onChanged: (_) => setState(() {}),
+                  onChanged: (_) {
+                    setState(() {});
+                    _syncDraftSlot();
+                  },
                   decoration: InputDecoration(
                     hintText: l10n.momentsComposeHint,
                     border: InputBorder.none,
@@ -1355,20 +1402,6 @@ class _MomentsComposePageState extends State<_MomentsComposePage> {
         ],
       ),
     );
-  }
-
-  void _submit() {
-    if (!_canSend) return;
-    Navigator.pop(
-      context,
-      _ComposeDraft(body: _controller.text.trim(), imagePath: _imagePath),
-    );
-  }
-
-  Future<void> _pickPhoto() async {
-    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (image == null || !mounted) return;
-    setState(() => _imagePath = image.path);
   }
 }
 

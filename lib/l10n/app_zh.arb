@@ -7506,5 +7506,21 @@
   "promptOwnedByCharacter": "聊天时会使用角色卡里的内容",
   "@promptOwnedByCharacter": {
     "description": "Label for character-owned prompt sections in the manager"
+  },
+  "momentsDraftSaveTitle": "存入草稿？",
+  "@momentsDraftSaveTitle": {
+    "description": "Title asking whether to keep a moments compose draft"
+  },
+  "momentsDraftSaveMessage": "还有未发布的内容。草稿箱只能保留一份，下次发布时会自动恢复。",
+  "@momentsDraftSaveMessage": {
+    "description": "Explains single-slot moments draft on cancel"
+  },
+  "momentsDraftSave": "存草稿",
+  "@momentsDraftSave": {
+    "description": "Confirm saving moments compose draft"
+  },
+  "momentsDraftDiscard": "不保存",
+  "@momentsDraftDiscard": {
+    "description": "Discard moments compose content without saving a draft"
   }
 }

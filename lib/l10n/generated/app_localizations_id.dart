@@ -7636,4 +7636,17 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get promptOwnedByCharacter => 'Dari kartu karakter · hanya lihat';
+
+  @override
+  String get momentsDraftSaveTitle => 'Save draft?';
+
+  @override
+  String get momentsDraftSaveMessage =>
+      'You have unpublished content. Save it as the only draft? It will restore the next time you post.';
+
+  @override
+  String get momentsDraftSave => 'Save draft';
+
+  @override
+  String get momentsDraftDiscard => 'Discard';
 }

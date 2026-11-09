@@ -48,6 +48,7 @@ import 'package:native_tavern/presentation/screens/play/story_screen.dart';
 import 'package:native_tavern/presentation/screens/groups/groups_screen.dart';
 import 'package:native_tavern/presentation/screens/groups/group_detail_screen.dart';
 import 'package:native_tavern/presentation/screens/tags/tags_screen.dart';
+import 'package:native_tavern/presentation/providers/moments_compose_draft_provider.dart';
 import 'package:native_tavern/presentation/widgets/common/app_shell.dart';
 import 'package:native_tavern/presentation/widgets/common/master_detail_branch.dart';
 
@@ -81,6 +82,7 @@ abstract class AppRoutes {
   static const play = '/play';
   static const playStory = '/play/story';
   static const playMoments = '/play/moments';
+  static const playMomentsCompose = '/play/moments/compose';
   static const worldInfo = '/world-info';
   static const groups = '/groups';
   static const groupDetail = '/groups/:id';
@@ -245,6 +247,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     name: 'playMoments',
                     pageBuilder: (context, state) => const NoTransitionPage(
                       child: MomentsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.playMomentsCompose,
+                    name: 'playMomentsCompose',
+                    onExit: (context) => confirmMomentsComposeLeave(context),
+                    pageBuilder: (context, state) => const NoTransitionPage(
+                      child: MomentsComposeScreen(),
                     ),
                   ),
                   GoRoute(

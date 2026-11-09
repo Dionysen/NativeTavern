@@ -7983,5 +7983,21 @@
   "unpinCharacterStatusPanel": "Paneli sabitlemeyi kaldır",
   "@unpinCharacterStatusPanel": {
     "description": "Tooltip to allow status panel to auto-hide"
+  },
+  "momentsDraftSaveTitle": "Save draft?",
+  "@momentsDraftSaveTitle": {
+    "description": "Title asking whether to keep a moments compose draft"
+  },
+  "momentsDraftSaveMessage": "You have unpublished content. Save it as the only draft? It will restore the next time you post.",
+  "@momentsDraftSaveMessage": {
+    "description": "Explains single-slot moments draft on cancel"
+  },
+  "momentsDraftSave": "Save draft",
+  "@momentsDraftSave": {
+    "description": "Confirm saving moments compose draft"
+  },
+  "momentsDraftDiscard": "Discard",
+  "@momentsDraftDiscard": {
+    "description": "Discard moments compose content without saving a draft"
   }
 }
