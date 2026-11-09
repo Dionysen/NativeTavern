@@ -22,6 +22,7 @@ import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer
 import 'package:native_tavern/presentation/widgets/regex/character_regex_section.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
+import 'package:native_tavern/presentation/widgets/common/desktop_layout.dart';
 
 /// Character detail screen
 class CharacterDetailScreen extends ConsumerWidget {
@@ -394,6 +395,8 @@ class _CharacterDetailContentState
                 expandedHeight: expandedHeight,
                 pinned: true,
                 stretch: true,
+                automaticallyImplyLeading:
+                    !ThreePaneScope.isActive(context),
                 // Collapsed toolbar title: AppBar lays this out between leading
                 // and actions, so it never overlaps Live2D / edit / overflow.
                 centerTitle: true,

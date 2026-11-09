@@ -1166,6 +1166,8 @@ class _CharacterSimpleListTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final selected = interaction.selectedIds.contains(character.id);
+    final openInDetail =
+        GoRouterState.of(context).uri.path == '/characters/${character.id}';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -1184,41 +1186,48 @@ class _CharacterSimpleListTile extends ConsumerWidget {
           onSecondaryTap: interaction.selectionMode
               ? () => interaction.onToggleSelect(character.id)
               : () => _showCharacterActionMenu(context, ref, character),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 4, 0),
-            child: Row(
-              children: [
-                if (interaction.selectionMode) ...[
-                  Icon(
-                    selected ? Icons.check_circle : Icons.circle_outlined,
-                    color: selected ? scheme.primary : scheme.outline,
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                _buildAvatar(context),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    character.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                ),
-                if (!interaction.selectionMode)
-                  AdaptiveActionMenuButton<String>(
-                    tooltip: l10n.moreOptions,
-                    title: character.name,
-                    density: ChromeIconButtonDensity.compact,
-                    itemBuilder: _characterActionItems,
-                    onSelected: (value) => _handleCharacterAction(
-                      context,
-                      ref,
-                      character,
-                      value,
+          child: ColoredBox(
+            color: interaction.selectionMode && selected
+                ? scheme.primary.withValues(alpha: 0.12)
+                : openInDetail
+                    ? scheme.primary.withValues(alpha: 0.08)
+                    : Colors.transparent,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 4, 0),
+              child: Row(
+                children: [
+                  if (interaction.selectionMode) ...[
+                    Icon(
+                      selected ? Icons.check_circle : Icons.circle_outlined,
+                      color: selected ? scheme.primary : scheme.outline,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  _buildAvatar(context),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      character.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ),
-              ],
+                  if (!interaction.selectionMode)
+                    AdaptiveActionMenuButton<String>(
+                      tooltip: l10n.moreOptions,
+                      title: character.name,
+                      density: ChromeIconButtonDensity.compact,
+                      itemBuilder: _characterActionItems,
+                      onSelected: (value) => _handleCharacterAction(
+                        context,
+                        ref,
+                        character,
+                        value,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -1543,8 +1552,16 @@ class _CharacterGridCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = interaction.selectedIds.contains(character.id);
+    final openInDetail =
+        GoRouterState.of(context).uri.path == '/characters/${character.id}';
+    final scheme = Theme.of(context).colorScheme;
     return Card(
       clipBehavior: Clip.antiAlias,
+      color: interaction.selectionMode && selected
+          ? scheme.primary.withValues(alpha: 0.12)
+          : openInDetail
+              ? scheme.primary.withValues(alpha: 0.08)
+              : null,
       child: InkWell(
         onTap: () {
           if (interaction.selectionMode) {
@@ -1663,8 +1680,16 @@ class _CharacterCompactGridCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = interaction.selectedIds.contains(character.id);
+    final openInDetail =
+        GoRouterState.of(context).uri.path == '/characters/${character.id}';
+    final scheme = Theme.of(context).colorScheme;
     return Card(
       clipBehavior: Clip.antiAlias,
+      color: interaction.selectionMode && selected
+          ? scheme.primary.withValues(alpha: 0.12)
+          : openInDetail
+              ? scheme.primary.withValues(alpha: 0.08)
+              : null,
       child: InkWell(
         onTap: () {
           if (interaction.selectionMode) {
@@ -1796,6 +1821,8 @@ class _CharacterListTile extends ConsumerWidget {
         ? character.description
         : l10n.description;
     final selected = interaction.selectedIds.contains(character.id);
+    final openInDetail =
+        GoRouterState.of(context).uri.path == '/characters/${character.id}';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -1812,7 +1839,13 @@ class _CharacterListTile extends ConsumerWidget {
         onSecondaryTap: interaction.selectionMode
             ? () => interaction.onToggleSelect(character.id)
             : () => _showCharacterActionMenu(context, ref, character),
-        child: Padding(
+        child: ColoredBox(
+          color: interaction.selectionMode && selected
+              ? scheme.primary.withValues(alpha: 0.12)
+              : openInDetail
+                  ? scheme.primary.withValues(alpha: 0.08)
+                  : Colors.transparent,
+          child: Padding(
           // Matching vertical insets: title top == tags bottom.
           padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
           child: Row(
@@ -1895,6 +1928,7 @@ class _CharacterListTile extends ConsumerWidget {
                   ),
                 ),
             ],
+          ),
           ),
         ),
       ),

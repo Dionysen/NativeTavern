@@ -12485,6 +12485,42 @@ abstract class AppLocalizations {
   /// **'Page not found'**
   String get pageNotFound;
 
+  /// No description provided for @emptySecondarySelectChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a chat'**
+  String get emptySecondarySelectChat;
+
+  /// No description provided for @emptySecondarySelectCharacter.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a character'**
+  String get emptySecondarySelectCharacter;
+
+  /// No description provided for @emptySecondarySelectPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Select something to play'**
+  String get emptySecondarySelectPlay;
+
+  /// No description provided for @emptySecondarySelectAiConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an AI setting'**
+  String get emptySecondarySelectAiConfig;
+
+  /// No description provided for @emptySecondarySelectAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an appearance setting'**
+  String get emptySecondarySelectAppearance;
+
+  /// No description provided for @emptySecondarySelectSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a setting'**
+  String get emptySecondarySelectSetting;
+
   /// No description provided for @goHome.
   ///
   /// In en, this message translates to:

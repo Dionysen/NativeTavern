@@ -6785,6 +6785,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pageNotFound => '页面未找到';
 
   @override
+  String get emptySecondarySelectChat => '选择一个聊天';
+
+  @override
+  String get emptySecondarySelectCharacter => '选择一个角色';
+
+  @override
+  String get emptySecondarySelectPlay => '选择要打开的内容';
+
+  @override
+  String get emptySecondarySelectAiConfig => '选择一项 AI 设置';
+
+  @override
+  String get emptySecondarySelectAppearance => '选择一项外观设置';
+
+  @override
+  String get emptySecondarySelectSetting => '选择一项设置';
+
+  @override
   String get goHome => '返回首页';
 
   @override
@@ -14094,6 +14112,24 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get pageNotFound => '找不到頁面';
+
+  @override
+  String get emptySecondarySelectChat => '選擇一個聊天';
+
+  @override
+  String get emptySecondarySelectCharacter => '選擇一個角色';
+
+  @override
+  String get emptySecondarySelectPlay => '選擇要開啟的內容';
+
+  @override
+  String get emptySecondarySelectAiConfig => '選擇一項 AI 設定';
+
+  @override
+  String get emptySecondarySelectAppearance => '選擇一項外觀設定';
+
+  @override
+  String get emptySecondarySelectSetting => '選擇一項設定';
 
   @override
   String get goHome => '返回首頁';

@@ -7054,6 +7054,24 @@ class AppLocalizationsHi extends AppLocalizations {
   String get pageNotFound => 'Page not found';
 
   @override
+  String get emptySecondarySelectChat => 'Select a chat';
+
+  @override
+  String get emptySecondarySelectCharacter => 'Select a character';
+
+  @override
+  String get emptySecondarySelectPlay => 'Select something to play';
+
+  @override
+  String get emptySecondarySelectAiConfig => 'Select an AI setting';
+
+  @override
+  String get emptySecondarySelectAppearance => 'Select an appearance setting';
+
+  @override
+  String get emptySecondarySelectSetting => 'Select a setting';
+
+  @override
   String get goHome => 'Go home';
 
   @override

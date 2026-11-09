@@ -423,7 +423,9 @@ class _ChatListTile extends ConsumerWidget {
         child: ColoredBox(
           color: selectionMode && selected
               ? scheme.primary.withValues(alpha: 0.12)
-              : Colors.transparent,
+              : GoRouterState.of(context).uri.path == '/chat/${chat.id}'
+                  ? scheme.primary.withValues(alpha: 0.08)
+                  : Colors.transparent,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 4, 10),
             child: Row(
