@@ -9,6 +9,7 @@
         android:label="Native Tavern"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:appCategory="productivity"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"

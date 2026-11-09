@@ -424,6 +424,9 @@ Future<void> exportCharacterLibraryFastPack(
   final fileName = CharacterLibraryPackService.suggestedFileName();
   final isMobile = Platform.isAndroid || Platform.isIOS;
 
+  // Mobile needs a real filesystem path first; the system "Save as" dialog
+  // (SAF / Files) only accepts bytes after the pack is built.
+  // Desktop can pick the destination path up front.
   String? outputPath;
   if (isMobile) {
     final tempDir = await getTemporaryDirectory();
@@ -471,12 +474,21 @@ Future<void> exportCharacterLibraryFastPack(
     Navigator.of(context, rootNavigator: true).pop();
 
     if (isMobile) {
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(result.path)],
-          subject: l10n.exportCharacterLibraryFastPack,
-        ),
+      final localSave = await _saveExportedPackLocally(
+        context: context,
+        l10n: l10n,
+        sourcePath: result.path,
+        fileName: fileName,
       );
+      // Cancelled save dialog → still offer system share as a fallback.
+      if (localSave == false && context.mounted) {
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(result.path)],
+            subject: l10n.exportCharacterLibraryFastPack,
+          ),
+        );
+      }
     }
 
     if (!context.mounted) return;
@@ -498,5 +510,43 @@ Future<void> exportCharacterLibraryFastPack(
     );
   } finally {
     progress.dispose();
+  }
+}
+
+/// Opens the system save dialog so the user can put the pack in Downloads /
+/// Files / SD card.
+///
+/// Returns `true` when saved, `false` when the user cancelled (share fallback
+/// is OK), and `null` when saving failed (already surfaced to the user).
+Future<bool?> _saveExportedPackLocally({
+  required BuildContext context,
+  required AppLocalizations l10n,
+  required String sourcePath,
+  required String fileName,
+}) async {
+  try {
+    final bytes = await File(sourcePath).readAsBytes();
+    if (!context.mounted) return null;
+    final savedPath = await FilePicker.platform.saveFile(
+      dialogTitle: l10n.exportCharacterLibraryFastPack,
+      fileName: fileName,
+      type: FileType.custom,
+      allowedExtensions: [CharacterLibraryPackService.fileExtension],
+      bytes: bytes,
+    );
+    return savedPath != null;
+  } on PlatformException catch (e) {
+    if (!context.mounted) return null;
+    final message = _isStorageFullPickerError(e)
+        ? l10n.importCharacterLibraryStorageFull
+        : '${l10n.error}: ${e.message ?? e.code}';
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    return null;
+  } catch (e) {
+    if (!context.mounted) return null;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${l10n.error}: $e')),
+    );
+    return null;
   }
 }
