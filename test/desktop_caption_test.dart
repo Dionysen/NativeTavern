@@ -22,4 +22,23 @@ void main() {
     expect(find.byTooltip('Minimize'), findsNothing);
     expect(find.byTooltip('最小化'), findsNothing);
   });
+
+  testWidgets('scope exposes title-bar metrics when forced active',
+      (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: DesktopCaptionScope(
+          active: true,
+          titleBarHeight: 52,
+          leadingInset: 78,
+          child: Scaffold(body: Text('chrome')),
+        ),
+      ),
+    );
+
+    final ctx = tester.element(find.text('chrome'));
+    expect(DesktopCaptionScope.isActive(ctx), isTrue);
+    expect(DesktopCaptionScope.titleBarHeightOf(ctx), 52);
+    expect(DesktopCaptionScope.leadingInsetOf(ctx), 78);
+  });
 }

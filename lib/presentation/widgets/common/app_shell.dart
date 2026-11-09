@@ -97,7 +97,13 @@ class AppShell extends ConsumerWidget {
           final scheme = Theme.of(context).colorScheme;
           final dividerColor =
               Theme.of(context).dividerColor.withValues(alpha: 0.5);
-          return Scaffold(
+          final captionActive = DesktopCaptionScope.isActive(context);
+          final trafficLightInset = DesktopCaptionScope.leadingInsetOf(context);
+          // Left rail absorbs macOS traffic lights; otherwise clear them.
+          final clearTrafficLights = captionActive &&
+              trafficLightInset > 0 &&
+              edge != VerticalBarEdge.left;
+          final scaffold = Scaffold(
             // Keep the routed child in the same element slot as bars move.
             body: Row(
               textDirection: TextDirection.ltr,
@@ -151,6 +157,16 @@ class AppShell extends ConsumerWidget {
                     navigationShell: navigationShell,
                   )
                 : null,
+          );
+          if (!clearTrafficLights) return scaffold;
+          final media = MediaQuery.of(context);
+          return MediaQuery(
+            data: media.copyWith(
+              padding: media.padding.copyWith(
+                left: math.max(media.padding.left, trafficLightInset),
+              ),
+            ),
+            child: scaffold,
           );
         },
       ),
@@ -252,17 +268,20 @@ class _AppNavigation extends StatelessWidget {
     }
     final layout = WindowLayoutScope.maybeOf(context);
     final sharedBar = layout != null && layout.barWidth > 0;
+    final captionActive = DesktopCaptionScope.isActive(context);
+    // Immersive caption owns the top inset (traffic lights / Win buttons).
+    // SafeArea(top) would double-pad once the view draws under the title bar.
     return Padding(
       padding: sharedBar ? layout.barPadding : EdgeInsets.zero,
       child: SafeArea(
-        top: !sharedBar,
+        top: !sharedBar && !captionActive,
         bottom: !sharedBar,
         left: !sharedBar,
         right: !sharedBar,
         child: Column(
           children: [
-            if (DesktopCaptionScope.isActive(context))
-              const SizedBox(height: kToolbarHeight),
+            if (captionActive)
+              SizedBox(height: DesktopCaptionScope.titleBarHeightOf(context)),
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) => SingleChildScrollView(

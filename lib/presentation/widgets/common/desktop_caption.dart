@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -5,37 +7,60 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 
-/// Windows immersive caption. Inactive on every other platform, and inactive
-/// in tests, because the runner must answer [immersiveTitleBar] first.
+/// Desktop immersive caption. Inactive on mobile/web, and inactive in tests,
+/// because the runner must answer [immersiveTitleBar] first.
+///
+/// Windows draws min/max/close. macOS keeps native traffic lights and only
+/// extends content under the transparent title bar (Zephyr-style).
 class DesktopCaptionScope extends InheritedWidget {
   const DesktopCaptionScope({
     super.key,
     required this.active,
+    this.titleBarHeight = kToolbarHeight,
+    this.leadingInset = 0,
     required super.child,
   });
 
   final bool active;
 
-  static bool isActive(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<DesktopCaptionScope>();
-    return scope?.active ?? false;
+  /// Height of the draggable caption strip (and rail top spacer).
+  final double titleBarHeight;
+
+  /// macOS: clear the traffic lights before toolbar controls in that strip.
+  final double leadingInset;
+
+  static DesktopCaptionScope? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<DesktopCaptionScope>();
   }
+
+  static bool isActive(BuildContext context) => maybeOf(context)?.active ?? false;
+
+  static double titleBarHeightOf(BuildContext context) =>
+      maybeOf(context)?.titleBarHeight ?? kToolbarHeight;
+
+  static double leadingInsetOf(BuildContext context) =>
+      maybeOf(context)?.leadingInset ?? 0;
 
   @override
   bool updateShouldNotify(DesktopCaptionScope oldWidget) =>
-      active != oldWidget.active;
+      active != oldWidget.active ||
+      titleBarHeight != oldWidget.titleBarHeight ||
+      leadingInset != oldWidget.leadingInset;
 }
 
 abstract final class DesktopCaptionMetrics {
   static const double buttonWidth = 46;
   static const double stripWidth = buttonWidth * 3;
+
+  /// Fallback until the macOS runner reports real traffic-light frames.
+  static const double macOSTrafficLightInset = 80;
 }
 
-/// Turns the top toolbar band into the window title bar on Windows.
+/// Turns the top toolbar band into the window title bar on Windows/macOS.
 ///
-/// Min, max, and close stay system buttons (reported back to the window) so
-/// snap layouts keep working. Empty space in the band drags the window.
+/// On Windows, min/max/close stay Flutter buttons (reported back to the
+/// window) so snap layouts keep working. On macOS, traffic lights stay native.
+/// Empty space in the band drags the window on both platforms.
 class DesktopCaptionHost extends StatefulWidget {
   const DesktopCaptionHost({super.key, required this.child});
 
@@ -55,6 +80,8 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
 
   bool _active = false;
   bool _maximized = false;
+  double _titleBarHeight = kToolbarHeight;
+  double _leadingInset = 0;
   int? _pointer;
   Offset? _down;
   bool _dragging = false;
@@ -64,11 +91,18 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
   bool get _windows =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.windows;
 
+  bool get _macOS =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
+
+  bool get _desktopCaption => _windows || _macOS;
+
   @override
   void initState() {
     super.initState();
-    if (!_windows) return;
-    _channel.setMethodCallHandler(_onMethodCall);
+    if (!_desktopCaption) return;
+    if (_windows) {
+      _channel.setMethodCallHandler(_onMethodCall);
+    }
     _enable();
   }
 
@@ -90,11 +124,36 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
     try {
       final enabled = await _channel.invokeMethod<bool>('immersiveTitleBar');
       if (!mounted || enabled != true) return;
+      if (_macOS) {
+        await _syncMacOSMetrics();
+      }
+      if (!mounted) return;
       setState(() => _active = true);
-      _scheduleReport();
+      if (_windows) _scheduleReport();
     } on MissingPluginException {
       // Widget tests and runners without the caption hook keep the system bar.
     } catch (_) {}
+  }
+
+  Future<void> _syncMacOSMetrics() async {
+    try {
+      final metrics = await _channel.invokeMapMethod<String, dynamic>('metrics');
+      if (metrics == null || !mounted) return;
+      final centerY = (metrics['centerY'] as num?)?.toDouble();
+      final leading = (metrics['leading'] as num?)?.toDouble();
+      // Keep AppBar/rail alignment on [kToolbarHeight]; only grow if native
+      // traffic lights sit lower than the Material toolbar center.
+      if (centerY != null && centerY > 0) {
+        _titleBarHeight = math.max(kToolbarHeight, centerY * 2);
+      }
+      if (leading != null && leading > 0) {
+        _leadingInset = leading;
+      } else {
+        _leadingInset = DesktopCaptionMetrics.macOSTrafficLightInset;
+      }
+    } catch (_) {
+      _leadingInset = DesktopCaptionMetrics.macOSTrafficLightInset;
+    }
   }
 
   void _scheduleReport() {
@@ -159,7 +218,7 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
   }
 
   void _onPointerDown(PointerDownEvent event) {
-    if (!_active || event.position.dy >= kToolbarHeight) return;
+    if (!_active || event.position.dy >= _titleBarHeight) return;
     if (event.buttons != kPrimaryButton) return;
     if (_onControl(event.position)) return;
     _pointer = event.pointer;
@@ -217,12 +276,12 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_windows) {
+    if (!_desktopCaption) {
       return DesktopCaptionScope(active: false, child: widget.child);
     }
 
     final theme = Theme.of(context);
-    final themed = _active
+    final themed = _active && _windows
         ? theme.copyWith(
             appBarTheme: theme.appBarTheme.copyWith(
               actionsPadding: const EdgeInsetsDirectional.only(
@@ -235,6 +294,8 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
 
     return DesktopCaptionScope(
       active: _active,
+      titleBarHeight: _titleBarHeight,
+      leadingInset: _macOS && _active ? _leadingInset : 0,
       child: Theme(
         data: themed,
         child: Stack(
@@ -248,7 +309,7 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
               onPointerCancel: _onPointerCancel,
               child: widget.child,
             ),
-            if (_active)
+            if (_active && _windows)
               Positioned(
                 top: 0,
                 right: 0,
@@ -257,6 +318,7 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
                   maximizeKey: _maximizeKey,
                   closeKey: _closeKey,
                   maximized: _maximized,
+                  height: _titleBarHeight,
                   onReport: _scheduleReport,
                   onMinimize: () => _invoke('minimize'),
                   onMaximize: () => _invoke('toggleMaximize'),
@@ -276,6 +338,7 @@ class _CaptionButtons extends StatefulWidget {
     required this.maximizeKey,
     required this.closeKey,
     required this.maximized,
+    required this.height,
     required this.onReport,
     required this.onMinimize,
     required this.onMaximize,
@@ -286,6 +349,7 @@ class _CaptionButtons extends StatefulWidget {
   final GlobalKey maximizeKey;
   final GlobalKey closeKey;
   final bool maximized;
+  final double height;
   final VoidCallback onReport;
   final VoidCallback onMinimize;
   final VoidCallback onMaximize;
@@ -324,6 +388,7 @@ class _CaptionButtonsState extends State<_CaptionButtons> {
             tooltip:
                 _captionLabel(context, hans: '最小化', hant: '最小化', en: 'Minimize'),
             color: color,
+            height: widget.height,
             onPressed: widget.onMinimize,
           ),
           _CaptionButton(
@@ -334,6 +399,7 @@ class _CaptionButtonsState extends State<_CaptionButtons> {
                 : _captionLabel(
                     context, hans: '最大化', hant: '最大化', en: 'Maximize'),
             color: color,
+            height: widget.height,
             onPressed: widget.onMaximize,
           ),
           _CaptionButton(
@@ -342,6 +408,7 @@ class _CaptionButtonsState extends State<_CaptionButtons> {
             tooltip:
                 _captionLabel(context, hans: '关闭', hant: '關閉', en: 'Close'),
             color: color,
+            height: widget.height,
             onPressed: widget.onClose,
           ),
         ],
@@ -356,6 +423,7 @@ class _CaptionButton extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.color,
+    required this.height,
     required this.onPressed,
   });
 
@@ -363,6 +431,7 @@ class _CaptionButton extends StatelessWidget {
   final IconData icon;
   final String tooltip;
   final Color color;
+  final double height;
   final VoidCallback onPressed;
 
   @override
@@ -373,7 +442,7 @@ class _CaptionButton extends StatelessWidget {
       child: SizedBox(
         key: buttonKey,
         width: DesktopCaptionMetrics.buttonWidth,
-        height: kToolbarHeight,
+        height: height,
         child: InkWell(
           onTap: onPressed,
           child: Icon(icon, size: 16, color: color),
