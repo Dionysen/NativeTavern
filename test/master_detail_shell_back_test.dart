@@ -142,4 +142,65 @@ void main() {
     expect(router.routeInformationProvider.value.uri.path, '/settings');
     expect(find.text('HUB'), findsOneWidget);
   });
+
+  testWidgets(
+      'resize from single-pane detail to three-pane keeps the detail route',
+      (tester) async {
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    late GoRouter router;
+    router = GoRouter(
+      initialLocation: '/settings/personas',
+      routes: [
+        ShellRoute(
+          builder: (context, state, child) => ProviderScope(
+            child: MasterDetailBranch(
+              hubPath: '/settings',
+              primary: Scaffold(
+                appBar: AppBar(title: const Text('Settings')),
+                body: const Text('HUB'),
+              ),
+              detail: state.uri.path == '/settings' ? null : child,
+              emptyLabel: 'EMPTY',
+            ),
+          ),
+          routes: [
+            GoRoute(
+              path: '/settings',
+              builder: (_, __) => const SizedBox.shrink(),
+            ),
+            GoRoute(
+              path: '/settings/personas',
+              builder: (_, __) => ShellHubBackEnabler(
+                hubPath: '/settings',
+                child: Scaffold(
+                  appBar: AppBar(title: const Text('Personas')),
+                  body: const Text('DETAIL'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    tester.view.physicalSize = const Size(390, 800);
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpAndSettle();
+
+    expect(find.text('DETAIL'), findsOneWidget);
+    expect(find.byType(BackButton), findsOneWidget);
+
+    final threePaneWidth = DesktopLayout.threePaneContentMinWidth + 80;
+    tester.view.physicalSize = Size(threePaneWidth, 800);
+    await tester.pumpAndSettle();
+
+    expect(router.routeInformationProvider.value.uri.path, '/settings/personas');
+    expect(find.text('HUB'), findsOneWidget);
+    expect(find.text('DETAIL'), findsOneWidget);
+    expect(find.byType(BackButton), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }

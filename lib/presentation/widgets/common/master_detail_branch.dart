@@ -150,6 +150,10 @@ class _ShellHubBackEnablerState extends State<ShellHubBackEnabler> {
   ModalRoute<dynamic>? _route;
   LocalHistoryEntry? _entry;
 
+  /// [LocalHistoryEntry.onRemove] runs for a real back pop and for
+  /// [ModalRoute.removeLocalHistoryEntry]. Only the pop should leave the page.
+  bool _droppingEntry = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -177,7 +181,9 @@ class _ShellHubBackEnablerState extends State<ShellHubBackEnabler> {
     _entry = null;
     _route = null;
     if (entry != null && route != null && route.isActive) {
+      _droppingEntry = true;
       route.removeLocalHistoryEntry(entry);
+      _droppingEntry = false;
     }
   }
 
@@ -201,7 +207,7 @@ class _ShellHubBackEnablerState extends State<ShellHubBackEnabler> {
     _entry = LocalHistoryEntry(
       onRemove: () {
         _entry = null;
-        if (!context.mounted) return;
+        if (_droppingEntry || !context.mounted) return;
         context.go(widget.hubPath);
       },
     );
