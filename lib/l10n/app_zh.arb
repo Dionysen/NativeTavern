@@ -7298,6 +7298,7 @@
   "themePresetEspresso": "咖啡",
   "themePresetMidnight": "午夜",
   "themePresetDusk": "暮色",
+  "themePresetCursorDark": "Cursor 深色",
   "tokenEditorSurface": "应用背景",
   "tokenSidebarSurface": "面板背景",
   "tokenControlSurface": "按钮和输入框",

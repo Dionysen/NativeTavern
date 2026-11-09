@@ -7097,6 +7097,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get themePresetDusk => '暮色';
 
   @override
+  String get themePresetCursorDark => 'Cursor 深色';
+
+  @override
   String get tokenEditorSurface => '应用背景';
 
   @override
@@ -14404,6 +14407,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get themePresetDusk => '暮色';
+
+  @override
+  String get themePresetCursorDark => 'Cursor 深色';
 
   @override
   String get tokenEditorSurface => '應用背景';

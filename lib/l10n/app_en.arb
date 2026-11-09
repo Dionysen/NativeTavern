@@ -7746,6 +7746,7 @@
   "themePresetEspresso": "Espresso",
   "themePresetMidnight": "Midnight",
   "themePresetDusk": "Dusk",
+  "themePresetCursorDark": "Cursor Dark",
   "tokenEditorSurface": "App background",
   "tokenSidebarSurface": "Panel background",
   "tokenControlSurface": "Buttons and fields",

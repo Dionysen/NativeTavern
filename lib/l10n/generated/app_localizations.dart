@@ -13073,6 +13073,12 @@ abstract class AppLocalizations {
   /// **'Dusk'**
   String get themePresetDusk;
 
+  /// No description provided for @themePresetCursorDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Cursor Dark'**
+  String get themePresetCursorDark;
+
   /// No description provided for @tokenEditorSurface.
   ///
   /// In en, this message translates to:

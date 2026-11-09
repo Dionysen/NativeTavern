@@ -7387,6 +7387,9 @@ class AppLocalizationsMs extends AppLocalizations {
   String get themePresetDusk => 'Dusk';
 
   @override
+  String get themePresetCursorDark => 'Cursor Dark';
+
+  @override
   String get tokenEditorSurface => 'App background';
 
   @override

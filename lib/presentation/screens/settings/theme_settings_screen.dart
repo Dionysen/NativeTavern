@@ -560,6 +560,7 @@ String _packTitle(AppLocalizations l10n, ThemeColorPack pack) {
     ThemePreset.espresso => l10n.themePresetEspresso,
     ThemePreset.midnight => l10n.themePresetMidnight,
     ThemePreset.dusk => l10n.themePresetDusk,
+    ThemePreset.cursorDark => l10n.themePresetCursorDark,
   };
 }
 
