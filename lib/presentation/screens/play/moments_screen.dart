@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gal/gal.dart';
 import 'package:native_tavern/data/models/character.dart';
@@ -572,7 +573,7 @@ class _MomentRowState extends ConsumerState<_MomentRow> {
   void _openAuthor() {
     final post = widget.item.post;
     if (post.origin != MomentPostOrigin.character) return;
-    context.push('/characters/${post.authorId}');
+    context.openShell('/characters/${post.authorId}');
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/data/models/group.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
@@ -313,7 +314,7 @@ class _GroupCard extends ConsumerWidget {
       );
       return;
     }
-    context.push('/chat/$chatId');
+    context.openShell('/chat/$chatId');
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {

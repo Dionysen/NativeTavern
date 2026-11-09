@@ -15,6 +15,7 @@ import 'package:native_tavern/presentation/widgets/character/character_library_o
 import 'package:native_tavern/presentation/widgets/character/character_tag_filter_sheet.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
@@ -1180,7 +1181,7 @@ class _CharacterSimpleListTile extends ConsumerWidget {
               interaction.onToggleSelect(character.id);
               return;
             }
-            context.push('/characters/${character.id}');
+            context.openShell('/characters/${character.id}');
           },
           onLongPress: () => interaction.handleLongPress(character.id),
           onSecondaryTap: interaction.selectionMode
@@ -1444,7 +1445,7 @@ Future<void> _startCharacterChat(
     final chatId =
         await ref.read(activeChatProvider.notifier).createChat(character.id);
     if (chatId != null && context.mounted) {
-      context.push('/chat/$chatId');
+      context.openShell('/chat/$chatId');
     } else if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.error)),
@@ -1568,7 +1569,7 @@ class _CharacterGridCard extends ConsumerWidget {
             interaction.onToggleSelect(character.id);
             return;
           }
-          context.push('/characters/${character.id}');
+          context.openShell('/characters/${character.id}');
         },
         onLongPress: () => interaction.handleLongPress(character.id),
         onSecondaryTap: interaction.selectionMode
@@ -1696,7 +1697,7 @@ class _CharacterCompactGridCard extends ConsumerWidget {
             interaction.onToggleSelect(character.id);
             return;
           }
-          context.push('/characters/${character.id}');
+          context.openShell('/characters/${character.id}');
         },
         onLongPress: () => interaction.handleLongPress(character.id),
         onSecondaryTap: interaction.selectionMode
@@ -1833,7 +1834,7 @@ class _CharacterListTile extends ConsumerWidget {
             interaction.onToggleSelect(character.id);
             return;
           }
-          context.push('/characters/${character.id}');
+          context.openShell('/characters/${character.id}');
         },
         onLongPress: () => interaction.handleLongPress(character.id),
         onSecondaryTap: interaction.selectionMode

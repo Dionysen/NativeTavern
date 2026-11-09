@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/data/models/chat.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/regex_script.dart';
@@ -406,7 +407,7 @@ class _VisualNovelMessageViewState
         avatar = Tooltip(
           message: l10n.viewCharacter,
           child: GestureDetector(
-            onTap: () => context.push('/characters/$characterId'),
+            onTap: () => context.openShell('/characters/$characterId'),
             child: avatar,
           ),
         );

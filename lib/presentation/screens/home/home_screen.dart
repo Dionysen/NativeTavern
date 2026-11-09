@@ -13,6 +13,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
@@ -185,7 +186,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         floatingActionButton: _selectionMode
             ? null
             : FloatingActionButton(
-                onPressed: () => context.push(AppRoutes.characters),
+                onPressed: () => context.openShell(AppRoutes.characters),
                 tooltip: l10n.newChat,
                 child: const Icon(Icons.add),
               ),
@@ -261,7 +262,7 @@ class _ChatListView extends ConsumerWidget {
                 ZephyrChatChrome.withComposerShadow(
                   context: context,
                   child: ElevatedButton.icon(
-                    onPressed: () => context.push(AppRoutes.characters),
+                    onPressed: () => context.openShell(AppRoutes.characters),
                     icon: const Icon(Icons.people),
                     label: Text(l10n.browseCharacters),
                   ),
@@ -411,7 +412,7 @@ class _ChatListTile extends ConsumerWidget {
             onToggleSelect(chat.id);
             return;
           }
-          context.push('/chat/${chat.id}');
+          context.openShell('/chat/${chat.id}');
         },
         onLongPress: () {
           if (selectionMode) {
@@ -659,7 +660,7 @@ class _ChatListTile extends ConsumerWidget {
 
     ref.invalidate(pagedChatsProvider);
     ref.invalidate(allChatsProvider);
-    context.push('/chat/$newChatId');
+    context.openShell('/chat/$newChatId');
   }
 
   Future<void> _showDeleteConfirmation(
