@@ -32,15 +32,18 @@ class AppShell extends StatelessWidget {
             : DesktopLayout.useRail(constraints.maxWidth)
                 ? VerticalBarEdge.left
                 : null;
-        final threePane = DesktopLayout.useThreePane(constraints.maxWidth);
-        // Native shared-bar layouts (iOS) must keep exact rail geometry; only
-        // width-based desktop rails get three-pane divider/tint chrome.
-        final desktopThreePaneChrome =
-            threePane && windowLayout?.supportsVerticalBars != true;
         final railWidth =
             windowLayout?.barWidth != null && windowLayout!.barWidth > 0
                 ? windowLayout.barWidth
-                : 96.0;
+                : DesktopLayout.railWidth;
+        // Native shared-bar layouts (iOS) must keep exact rail geometry; only
+        // width-based desktop rails get three-pane divider/tint chrome.
+        final contentWidth = edge == null
+            ? constraints.maxWidth
+            : constraints.maxWidth - railWidth - DesktopLayout.railDividerWidth;
+        final threePane = DesktopLayout.useThreePane(contentWidth);
+        final desktopThreePaneChrome =
+            threePane && windowLayout?.supportsVerticalBars != true;
         final scheme = Theme.of(context).colorScheme;
         final dividerColor =
             Theme.of(context).dividerColor.withValues(alpha: 0.5);
@@ -227,11 +230,12 @@ class _AppNavigation extends StatelessWidget {
               height: math.max(
                   constraints.maxHeight,
                   destinations.length *
-                          96 *
+                          88 *
                           MediaQuery.textScalerOf(context).scale(1) +
                       16),
               child: NavigationRail(
-                minWidth: sharedBar ? layout.barWidth : 96,
+                minWidth:
+                    sharedBar ? layout.barWidth : DesktopLayout.railWidth,
                 backgroundColor: Colors.transparent,
                 groupAlignment: -1,
                 labelType: NavigationRailLabelType.all,
@@ -244,8 +248,12 @@ class _AppNavigation extends StatelessWidget {
                       icon: destination.icon,
                       selectedIcon: destination.selectedIcon,
                       padding: sharedBar ? EdgeInsets.zero : null,
-                      label: Text(destination.label,
-                          textAlign: TextAlign.center),
+                      label: Text(
+                        destination.label,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                 ],
               ),
