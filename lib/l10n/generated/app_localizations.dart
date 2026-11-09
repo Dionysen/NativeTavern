@@ -13528,6 +13528,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Discard'**
   String get momentsDraftDiscard;
+
+  /// Hint for the chat list search field
+  ///
+  /// In en, this message translates to:
+  /// **'Search chats'**
+  String get searchChats;
+
+  /// Empty state when the chat list search has no hits
+  ///
+  /// In en, this message translates to:
+  /// **'No matching chats'**
+  String get noMatchingChats;
 }
 
 class _AppLocalizationsDelegate

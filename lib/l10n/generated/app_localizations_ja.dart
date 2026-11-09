@@ -7599,4 +7599,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get momentsDraftDiscard => 'Discard';
+
+  @override
+  String get searchChats => 'Search chats';
+
+  @override
+  String get noMatchingChats => 'No matching chats';
 }

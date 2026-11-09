@@ -7342,6 +7342,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get momentsDraftDiscard => '不保存';
+
+  @override
+  String get searchChats => '搜索聊天';
+
+  @override
+  String get noMatchingChats => '没有匹配的聊天';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -14684,4 +14690,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get momentsDraftDiscard => '不儲存';
+
+  @override
+  String get searchChats => '搜尋聊天';
+
+  @override
+  String get noMatchingChats => '沒有相符的聊天';
 }

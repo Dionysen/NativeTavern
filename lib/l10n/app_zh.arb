@@ -7522,5 +7522,13 @@
   "momentsDraftDiscard": "不保存",
   "@momentsDraftDiscard": {
     "description": "Discard moments compose content without saving a draft"
+  },
+  "searchChats": "搜索聊天",
+  "@searchChats": {
+    "description": "Hint for the chat list search field"
+  },
+  "noMatchingChats": "没有匹配的聊天",
+  "@noMatchingChats": {
+    "description": "Empty state when the chat list search has no hits"
   }
 }

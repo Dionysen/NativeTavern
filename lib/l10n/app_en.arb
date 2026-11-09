@@ -7970,5 +7970,13 @@
   "momentsDraftDiscard": "Discard",
   "@momentsDraftDiscard": {
     "description": "Discard moments compose content without saving a draft"
+  },
+  "searchChats": "Search chats",
+  "@searchChats": {
+    "description": "Hint for the chat list search field"
+  },
+  "noMatchingChats": "No matching chats",
+  "@noMatchingChats": {
+    "description": "Empty state when the chat list search has no hits"
   }
 }

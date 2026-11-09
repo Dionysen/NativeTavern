@@ -4399,28 +4399,41 @@ class PagedChatsNotifier extends AutoDisposeAsyncNotifier<List<Chat>> {
   int _offset = 0;
   bool _hasMore = true;
   bool _loadingMore = false;
+  String _query = '';
+
+  String get query => _query;
 
   @override
   Future<List<Chat>> build() async {
     _offset = 0;
     _hasMore = true;
-    final page = await ref.read(chatRepositoryProvider).getChatsPage(
-          limit: _pageSize,
-          offset: 0,
-        );
+    final page = await _fetchPage(offset: 0);
     _offset = page.length;
     _hasMore = page.length == _pageSize;
     return page;
+  }
+
+  /// Replaces the list with the first page matching [query].
+  Future<void> setQuery(String query) async {
+    final next = query.trim();
+    if (next == _query && state.hasValue) return;
+    _query = next;
+    _offset = 0;
+    _hasMore = true;
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final page = await _fetchPage(offset: 0);
+      _offset = page.length;
+      _hasMore = page.length == _pageSize;
+      return page;
+    });
   }
 
   Future<void> loadMore() async {
     if (_loadingMore || !_hasMore || !state.hasValue) return;
     _loadingMore = true;
     try {
-      final page = await ref.read(chatRepositoryProvider).getChatsPage(
-            limit: _pageSize,
-            offset: _offset,
-          );
+      final page = await _fetchPage(offset: _offset);
       final current = state.valueOrNull ?? const <Chat>[];
       state = AsyncData([...current, ...page]);
       _offset += page.length;
@@ -4430,6 +4443,14 @@ class PagedChatsNotifier extends AutoDisposeAsyncNotifier<List<Chat>> {
     } finally {
       _loadingMore = false;
     }
+  }
+
+  Future<List<Chat>> _fetchPage({required int offset}) {
+    return ref.read(chatRepositoryProvider).getChatsPage(
+          limit: _pageSize,
+          offset: offset,
+          query: _query,
+        );
   }
 }
 

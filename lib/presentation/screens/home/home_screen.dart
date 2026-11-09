@@ -36,6 +36,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     with WidgetsBindingObserver {
   bool _selectionMode = false;
   final Set<String> _selectedChatIds = {};
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounce;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -50,8 +53,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() => _searchQuery = value);
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      ref.read(pagedChatsProvider.notifier).setQuery(value);
+    });
+  }
+
+  void _clearSearch() {
+    _searchDebounce?.cancel();
+    _searchController.clear();
+    setState(() => _searchQuery = '');
+    ref.read(pagedChatsProvider.notifier).setQuery('');
   }
 
   @override
@@ -177,11 +198,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ],
           ]),
         ),
-        body: _ChatListView(
-          selectionMode: _selectionMode,
-          selectedIds: _selectedChatIds,
-          onToggleSelect: _toggleChatSelection,
-          onEnterSelection: _enterSelectionMode,
+        body: Column(
+          children: [
+            _ChatSearchField(
+              controller: _searchController,
+              showClear: _searchQuery.isNotEmpty,
+              onChanged: _onSearchChanged,
+              onClear: _clearSearch,
+            ),
+            Expanded(
+              child: _ChatListView(
+                searchQuery: _searchQuery,
+                selectionMode: _selectionMode,
+                selectedIds: _selectedChatIds,
+                onToggleSelect: _toggleChatSelection,
+                onEnterSelection: _enterSelectionMode,
+              ),
+            ),
+          ],
         ),
         floatingActionButton: _selectionMode
             ? null
@@ -195,14 +229,54 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 }
 
+class _ChatSearchField extends StatelessWidget {
+  const _ChatSearchField({
+    required this.controller,
+    required this.showClear,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  final TextEditingController controller;
+  final bool showClear;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      child: TextField(
+        controller: controller,
+        onChanged: onChanged,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: l10n.searchChats,
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: showClear
+              ? ChromeIconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: l10n.clear,
+                  onPressed: onClear,
+                )
+              : null,
+        ),
+      ),
+    );
+  }
+}
+
 class _ChatListView extends ConsumerWidget {
   const _ChatListView({
+    required this.searchQuery,
     required this.selectionMode,
     required this.selectedIds,
     required this.onToggleSelect,
     required this.onEnterSelection,
   });
 
+  final String searchQuery;
   final bool selectionMode;
   final Set<String> selectedIds;
   final ValueChanged<String> onToggleSelect;
@@ -235,38 +309,43 @@ class _ChatListView extends ConsumerWidget {
       ),
       data: (chats) {
         if (chats.isEmpty) {
+          final searching = searchQuery.trim().isNotEmpty;
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.chat_bubble_outline,
+                  searching ? Icons.search_off : Icons.chat_bubble_outline,
                   size: 80,
                   color: AppTheme.textMuted,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  l10n.noChatsYet,
+                  searching ? l10n.noMatchingChats : l10n.noChatsYet,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: AppTheme.textSecondary,
                       ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  l10n.startNewConversation,
+                  searching
+                      ? l10n.tryDifferentSearchTerm
+                      : l10n.startNewConversation,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppTheme.textMuted,
                       ),
                 ),
-                const SizedBox(height: 24),
-                ZephyrChatChrome.withComposerShadow(
-                  context: context,
-                  child: ElevatedButton.icon(
-                    onPressed: () => context.openShell(AppRoutes.characters),
-                    icon: const Icon(Icons.people),
-                    label: Text(l10n.browseCharacters),
+                if (!searching) ...[
+                  const SizedBox(height: 24),
+                  ZephyrChatChrome.withComposerShadow(
+                    context: context,
+                    child: ElevatedButton.icon(
+                      onPressed: () => context.openShell(AppRoutes.characters),
+                      icon: const Icon(Icons.people),
+                      label: Text(l10n.browseCharacters),
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           );
