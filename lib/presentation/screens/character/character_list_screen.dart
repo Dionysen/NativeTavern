@@ -23,6 +23,7 @@ import 'package:native_tavern/presentation/widgets/common/character_avatar_image
 import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
+import 'package:native_tavern/presentation/widgets/common/list_search_field.dart';
 import 'package:native_tavern/presentation/widgets/common/intercept_pop_scope.dart';
 import 'character_view_mode.dart';
 
@@ -875,38 +876,32 @@ class _SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: TextField(
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          hintText: l10n.searchCharacters,
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (showFolderScopeToggle)
-                ChromeIconButton(
-                  icon: Icon(
-                    searchEntireLibrary
-                        ? Icons.public
-                        : Icons.folder_outlined,
-                  ),
-                  isSelected: searchEntireLibrary,
-                  tooltip: searchEntireLibrary
-                      ? l10n.characterSearchScopeGlobal
-                      : l10n.characterSearchScopeFolder,
-                  onPressed: onToggleSearchScope,
-                ),
-              ChromeIconButton(
-                icon: const Icon(Icons.filter_list),
-                isSelected: tagFilterActive,
-                tooltip: l10n.filterByTags,
-                onPressed: onOpenTagFilter,
+    return ListSearchField(
+      hintText: l10n.searchCharacters,
+      onChanged: onChanged,
+      suffix: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showFolderScopeToggle)
+            ChromeIconButton(
+              density: ChromeIconButtonDensity.compact,
+              icon: Icon(
+                searchEntireLibrary ? Icons.public : Icons.folder_outlined,
               ),
-            ],
+              isSelected: searchEntireLibrary,
+              tooltip: searchEntireLibrary
+                  ? l10n.characterSearchScopeGlobal
+                  : l10n.characterSearchScopeFolder,
+              onPressed: onToggleSearchScope,
+            ),
+          ChromeIconButton(
+            density: ChromeIconButtonDensity.compact,
+            icon: const Icon(Icons.filter_list),
+            isSelected: tagFilterActive,
+            tooltip: l10n.filterByTags,
+            onPressed: onOpenTagFilter,
           ),
-        ),
+        ],
       ),
     );
   }

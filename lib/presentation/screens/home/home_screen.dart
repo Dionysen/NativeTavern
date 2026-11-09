@@ -23,6 +23,7 @@ import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:native_tavern/presentation/widgets/common/intercept_pop_scope.dart';
+import 'package:native_tavern/presentation/widgets/common/list_search_field.dart';
 
 /// Home screen showing recent chats
 class HomeScreen extends ConsumerStatefulWidget {
@@ -200,11 +201,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         ),
         body: Column(
           children: [
-            _ChatSearchField(
+            ListSearchField(
               controller: _searchController,
-              showClear: _searchQuery.isNotEmpty,
+              hintText: l10n.searchChats,
               onChanged: _onSearchChanged,
-              onClear: _clearSearch,
+              suffix: _searchQuery.isEmpty
+                  ? null
+                  : ChromeIconButton(
+                      density: ChromeIconButtonDensity.compact,
+                      icon: const Icon(Icons.close),
+                      tooltip: l10n.clear,
+                      onPressed: _clearSearch,
+                    ),
             ),
             Expanded(
               child: _ChatListView(
@@ -224,44 +232,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 tooltip: l10n.newChat,
                 child: const Icon(Icons.add),
               ),
-      ),
-    );
-  }
-}
-
-class _ChatSearchField extends StatelessWidget {
-  const _ChatSearchField({
-    required this.controller,
-    required this.showClear,
-    required this.onChanged,
-    required this.onClear,
-  });
-
-  final TextEditingController controller;
-  final bool showClear;
-  final ValueChanged<String> onChanged;
-  final VoidCallback onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-      child: TextField(
-        controller: controller,
-        onChanged: onChanged,
-        textInputAction: TextInputAction.search,
-        decoration: InputDecoration(
-          hintText: l10n.searchChats,
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: showClear
-              ? ChromeIconButton(
-                  icon: const Icon(Icons.close),
-                  tooltip: l10n.clear,
-                  onPressed: onClear,
-                )
-              : null,
-        ),
       ),
     );
   }
