@@ -1274,15 +1274,12 @@ class _MomentsComposePageState extends State<_MomentsComposePage> {
             child: SizedBox(
               width: MediaQuery.sizeOf(context).width,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
+                padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
                 child: Row(
                   children: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        l10n.cancel,
-                        style: TextStyle(color: palette.text),
-                      ),
+                      child: Text(l10n.cancel),
                     ),
                     const Spacer(),
                     FilledButton(
@@ -1290,13 +1287,11 @@ class _MomentsComposePageState extends State<_MomentsComposePage> {
                       onPressed: _canSend ? _submit : null,
                       style: FilledButton.styleFrom(
                         backgroundColor: const Color(0xFF07C160),
-                        disabledBackgroundColor: const Color(0xFFB5E5C8),
+                        disabledBackgroundColor:
+                            const Color(0xFF07C160).withValues(alpha: 0.35),
                         foregroundColor: Colors.white,
-                        minimumSize: const Size(64, 32),
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+                        disabledForegroundColor:
+                            Colors.white.withValues(alpha: 0.7),
                       ),
                       child: Text(l10n.momentsCompose),
                     ),
