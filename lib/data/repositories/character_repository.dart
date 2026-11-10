@@ -660,17 +660,22 @@ class CharacterRepository {
     return count.length;
   }
 
-  /// Load built-in characters from PNG assets (with embedded character data)
+  /// Load built-in characters from PNG assets under [assets/characters/images/].
+  /// Drop SillyTavern-style PNGs there to ship more built-in cards later.
   Future<void> loadBuiltInCharacters() async {
     try {
-      final builtInCharacterFiles = [
-        'assets/characters/images/image_generation_assistant.png',
-        'assets/characters/images/xiaohongshu_copywriter.png',
-        'assets/characters/images/coding_assistant.png',
-        'assets/characters/images/cultivation_survival_game.png',
-        'assets/characters/images/marvel_crisis_manager.png',
-        'assets/characters/images/hyrule_adventure_quest.png',
-      ];
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      final builtInCharacterFiles = manifest
+          .listAssets()
+          .where((path) => path.startsWith('assets/characters/images/'))
+          .where((path) => path.toLowerCase().endsWith('.png'))
+          .toList()
+        ..sort();
+
+      if (builtInCharacterFiles.isEmpty) {
+        debugPrint('No built-in character PNGs under assets/characters/images/');
+        return;
+      }
 
       for (final assetPath in builtInCharacterFiles) {
         try {
