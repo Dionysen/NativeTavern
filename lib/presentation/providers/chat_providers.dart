@@ -1669,6 +1669,79 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     state = state.copyWith(messages: updatedMessages);
   }
 
+  /// Currently loaded chat id, if any.
+  String? get activeChatId => state.chat?.id;
+
+  /// Primary character for the active chat.
+  Character? get activeCharacter => state.character;
+
+  /// Whether [chatId] is the chat currently loaded in memory.
+  bool isShowingChat(String chatId) => state.chat?.id == chatId;
+
+  /// Snapshot of the active chat state for callers that cannot use `ref` after
+  /// an await (e.g. image-gen completion after leaving the screen).
+  ActiveChatState get snapshot => state;
+
+  /// Resolve a message from the active list or the repository.
+  ///
+  /// Used by in-chat image generation so completion can finish after the user
+  /// leaves the screen (or switches chats) without leaving a stuck placeholder.
+  Future<ChatMessage?> resolveMessageById(String messageId) async {
+    final messageIndex = state.messages.indexWhere((m) => m.id == messageId);
+    if (messageIndex >= 0) return state.messages[messageIndex];
+    return _chatRepository.getMessage(messageId);
+  }
+
+  /// Persist a message update even if it is no longer in the active chat list.
+  Future<void> persistMessageUpdate(ChatMessage message) async {
+    await _chatRepository.updateMessage(message);
+    final messageIndex = state.messages.indexWhere((m) => m.id == message.id);
+    if (messageIndex < 0) return;
+    final updatedMessages = List<ChatMessage>.from(state.messages);
+    updatedMessages[messageIndex] = message;
+    state = state.copyWith(messages: updatedMessages);
+  }
+
+  /// Delete a message even if it is no longer in the active chat list.
+  Future<void> persistMessageDelete(String messageId) async {
+    await _chatRepository.deleteMessage(messageId);
+    if (!state.messages.any((m) => m.id == messageId)) return;
+    state = state.copyWith(
+      messages: state.messages.where((m) => m.id != messageId).toList(),
+    );
+  }
+
+  /// Drop orphaned `pendingImageGen` flags after a chat reload.
+  ///
+  /// Call only when no image generation is currently running; otherwise an
+  /// in-flight placeholder would be cleared too early.
+  Future<void> clearStalePendingImageGens() async {
+    final stale = state.messages.where((m) => m.isPendingImageGen).toList();
+    if (stale.isEmpty) return;
+
+    final updatedMessages = List<ChatMessage>.from(state.messages);
+    for (final message in stale) {
+      final cleared = Map<String, dynamic>.from(message.metadata)
+        ..remove(ChatMessage.pendingImageGenMetadataKey)
+        ..remove(ChatMessage.pendingImageGenAspectMetadataKey)
+        ..remove(ChatMessage.pendingImageGenCountMetadataKey);
+      final isDedicatedEmptyImageBubble = message.isGeneratedImage &&
+          message.content.trim().isEmpty &&
+          message.attachments.isEmpty;
+      final index = updatedMessages.indexWhere((m) => m.id == message.id);
+      if (index < 0) continue;
+      if (isDedicatedEmptyImageBubble) {
+        await _chatRepository.deleteMessage(message.id);
+        updatedMessages.removeAt(index);
+      } else {
+        final updated = message.copyWith(metadata: cleared);
+        await _chatRepository.updateMessage(updated);
+        updatedMessages[index] = updated;
+      }
+    }
+    state = state.copyWith(messages: updatedMessages);
+  }
+
   /// Add a local message without triggering an LLM response.
   Future<ChatMessage?> addLocalMessage({
     required MessageRole role,

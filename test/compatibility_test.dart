@@ -133,6 +133,25 @@ void main() {
           as Map<String, dynamic>;
     });
 
+    test('detects Eldoria.json as standalone world info', () {
+      expect(WorldInfoImport.looksLikeWorldInfoJson(json), isTrue);
+      expect(
+        WorldInfoImport.looksLikeWorldInfoJson({
+          'spec': 'chara_card_v3',
+          'data': {
+            'name': 'Hero',
+            'first_mes': 'Hi',
+            'character_book': {
+              'entries': [
+                {'keys': ['a'], 'content': 'b'},
+              ],
+            },
+          },
+        }),
+        isFalse,
+      );
+    });
+
     test('parses all entries with behavioral fields preserved', () {
       final entries = WorldInfoImport.parseEntries(json, 'wi-test');
 

@@ -208,6 +208,9 @@ class ChatMessage {
   /// Optional aspect ratio (width/height) for the pending placeholder tile.
   static const pendingImageGenAspectMetadataKey = 'pendingImageGenAspect';
 
+  /// How many placeholder tiles are still generating (attach multi-image strip).
+  static const pendingImageGenCountMetadataKey = 'pendingImageGenCount';
+
   final String id;
   final String chatId;
   final MessageRole role;
@@ -273,6 +276,13 @@ class ChatMessage {
     final raw = metadata[pendingImageGenAspectMetadataKey];
     if (raw is num && raw > 0) return raw.toDouble();
     return 1.0;
+  }
+
+  /// Remaining placeholder slots while images are generating (defaults to 1).
+  int get pendingImageGenCount {
+    final raw = metadata[pendingImageGenCountMetadataKey];
+    if (raw is num && raw > 0) return raw.round().clamp(1, 4);
+    return isPendingImageGen ? 1 : 0;
   }
 
   ChatMessage copyWith({

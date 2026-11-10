@@ -947,8 +947,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Future<List<ChatAttachment>> _saveGeneratedImages(
-    ImageGenResult result,
-  ) async {
+    ImageGenResult result, {
+    int? width,
+    int? height,
+  }) async {
     final appDocDir = await getApplicationDocumentsDirectory();
     final imagesDir = Directory(p.join(appDocDir.path, 'chat_images'));
     if (!await imagesDir.exists()) {
@@ -967,6 +969,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           path: filePath,
           mimeType: 'image/${result.format}',
           sizeBytes: imageBytes.length,
+          width: width,
+          height: height,
         ),
       );
     }
@@ -1198,6 +1202,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         _preserveScrollAfterOlderMessagesLoaded();
       } else if (loadingFinished) {
         _scrollToBottomImmediate(force: true);
+        _reconcileStalePendingImageGens();
       } else if (messageCountChanged) {
         // Soft pin: follow only when already near bottom / not dragging.
         _scrollToBottomImmediate();
@@ -2427,6 +2432,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
+  /// Clear stuck "Generating..." tiles when reopening a chat with no live job.
+  void _reconcileStalePendingImageGens() {
+    if (!mounted) return;
+    if (_generatingQuickImage || ref.read(imageGenStateProvider).isGenerating) {
+      return;
+    }
+    final hasPending = ref
+        .read(activeChatProvider)
+        .messages
+        .any((message) => message.isPendingImageGen);
+    if (!hasPending) return;
+    unawaited(ref.read(activeChatProvider.notifier).clearStalePendingImageGens());
+  }
+
   /// Picture this character line without blocking the chat UI.
   /// Makes [ImageGenSettings.imagesPerReply] pictures (compose once, then loop).
   Future<void> _generateImageFromMessage(ChatMessage source) async {
@@ -2450,10 +2469,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       return;
     }
 
+    // Capture providers before awaits so completion survives leaving the screen.
+    final chatNotifier = ref.read(activeChatProvider.notifier);
+    final imageGenNotifier = ref.read(imageGenStateProvider.notifier);
+    final settingsNotifier = ref.read(imageGenSettingsProvider.notifier);
+    final availableModels = ref.read(availableModelsProvider);
     final chatState = ref.read(activeChatProvider);
     final speaker =
         chatState.characterForMessage(source) ?? chatState.character;
     final imageCount = settings.imagesPerReply.clamp(1, 4);
+    final attachMode = settings.displayMode == ImageGenDisplayMode.attach;
+    final noImageGenerated = l10n.noImageGenerated;
+    final ownerChatId = widget.chatId;
+    final selectedModel = availableModels.contains(settings.model)
+        ? settings.model
+        : (availableModels.isNotEmpty
+            ? availableModels.first
+            : settings.model);
+    if (selectedModel.isNotEmpty && selectedModel != settings.model) {
+      settingsNotifier.setModel(selectedModel);
+    }
 
     setState(() => _generatingQuickImage = true);
 
@@ -2464,9 +2499,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         characterName: speaker?.name,
         characterAppearance: speaker?.sdAppearance,
       );
-      if (!mounted) return;
       if (sceneTags.trim().isEmpty) {
-        _showSnackBar(l10n.noImageGenerated);
+        if (mounted) _showSnackBar(noImageGenerated);
         return;
       }
 
@@ -2477,15 +2511,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         characterAppearance: speaker?.sdAppearance,
         personaAppearance: settings.personaAppearancePrefix,
       );
-      final availableModels = ref.read(availableModelsProvider);
-      final selectedModel = availableModels.contains(settings.model)
-          ? settings.model
-          : (availableModels.isNotEmpty
-              ? availableModels.first
-              : settings.model);
-      if (selectedModel.isNotEmpty && selectedModel != settings.model) {
-        ref.read(imageGenSettingsProvider.notifier).setModel(selectedModel);
-      }
 
       final request = ImageGenRequest(
         prompt: assembled,
@@ -2500,25 +2525,46 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         model: selectedModel,
       );
 
-      for (var i = 0; i < imageCount; i++) {
-        if (!mounted) return;
-        final placeholder = await _createImageGenPlaceholder(
+      // Attach mode: one strip with N slots. Separate: one bubble per image.
+      _ImageGenPlaceholder? attachPlaceholder;
+      if (attachMode) {
+        attachPlaceholder = await _createImageGenPlaceholder(
+          chatNotifier: chatNotifier,
+          displayMode: settings.displayMode,
           character: speaker,
           sourceMessage: source,
           width: settings.defaultWidth,
           height: settings.defaultHeight,
+          pendingCount: imageCount,
         );
+        if (attachPlaceholder == null) return;
+      }
+
+      for (var i = 0; i < imageCount; i++) {
+        // Separate bubbles must stay on the chat that started generation.
+        if (!attachMode && !chatNotifier.isShowingChat(ownerChatId)) {
+          break;
+        }
+        final placeholder = attachMode
+            ? attachPlaceholder!
+            : await _createImageGenPlaceholder(
+                chatNotifier: chatNotifier,
+                displayMode: settings.displayMode,
+                character: speaker,
+                sourceMessage: source,
+                width: settings.defaultWidth,
+                height: settings.defaultHeight,
+                pendingCount: 1,
+              );
         if (placeholder == null) continue;
 
         try {
-          final result =
-              await ref.read(imageGenStateProvider.notifier).generate(request);
-          if (!mounted) return;
+          final result = await imageGenNotifier.generate(request);
           if (result == null || result.images.isEmpty) {
-            final error = ref.read(imageGenStateProvider).error;
             await _failImageGenPlaceholder(
               placeholder,
-              error ?? l10n.noImageGenerated,
+              noImageGenerated,
+              chatNotifier: chatNotifier,
             );
             break;
           }
@@ -2526,16 +2572,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             placeholder,
             result,
             character: speaker,
+            request: request,
+            remainingPending: attachMode ? (imageCount - i - 1) : 0,
+            chatNotifier: chatNotifier,
           );
         } catch (error) {
-          if (mounted) {
-            await _failImageGenPlaceholder(placeholder, '$error');
-          }
+          await _failImageGenPlaceholder(
+            placeholder,
+            '$error',
+            chatNotifier: chatNotifier,
+          );
           break;
         }
       }
     } finally {
-      if (mounted) setState(() => _generatingQuickImage = false);
+      if (mounted) {
+        setState(() => _generatingQuickImage = false);
+      } else {
+        _generatingQuickImage = false;
+      }
     }
   }
 
@@ -2580,25 +2635,30 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       return;
     }
     final l10n = AppLocalizations.of(context);
+    final chatNotifier = ref.read(activeChatProvider.notifier);
+    final imageGenNotifier = ref.read(imageGenStateProvider.notifier);
+    final noImageGenerated = l10n.noImageGenerated;
+    final displayMode = ref.read(imageGenSettingsProvider).displayMode;
     final placeholder = await _createImageGenPlaceholder(
+      chatNotifier: chatNotifier,
+      displayMode: displayMode,
       character: character,
       sourceMessage: sourceMessage,
       width: request.width,
       height: request.height,
+      pendingCount: 1,
     );
     if (placeholder == null) return;
 
     setState(() => _generatingQuickImage = true);
 
     try {
-      final result =
-          await ref.read(imageGenStateProvider.notifier).generate(request);
-      if (!mounted) return;
+      final result = await imageGenNotifier.generate(request);
       if (result == null || result.images.isEmpty) {
-        final error = ref.read(imageGenStateProvider).error;
         await _failImageGenPlaceholder(
           placeholder,
-          error ?? l10n.noImageGenerated,
+          noImageGenerated,
+          chatNotifier: chatNotifier,
         );
         return;
       }
@@ -2606,36 +2666,48 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         placeholder,
         result,
         character: character,
+        request: request,
+        remainingPending: 0,
+        chatNotifier: chatNotifier,
       );
     } catch (error) {
-      if (mounted) {
-        await _failImageGenPlaceholder(placeholder, '$error');
-      }
+      await _failImageGenPlaceholder(
+        placeholder,
+        '$error',
+        chatNotifier: chatNotifier,
+      );
     } finally {
-      if (mounted) setState(() => _generatingQuickImage = false);
+      if (mounted) {
+        setState(() => _generatingQuickImage = false);
+      } else {
+        _generatingQuickImage = false;
+      }
     }
   }
 
   /// Creates an in-chat placeholder for async image generation.
   Future<_ImageGenPlaceholder?> _createImageGenPlaceholder({
+    required ActiveChatNotifier chatNotifier,
+    required ImageGenDisplayMode displayMode,
     Character? character,
     ChatMessage? sourceMessage,
     required int width,
     required int height,
+    int pendingCount = 1,
   }) async {
-    final chatState = ref.read(activeChatProvider);
+    final chatState = chatNotifier.snapshot;
     final speaker = character ?? chatState.character;
-    final displayMode = ref.read(imageGenSettingsProvider).displayMode;
-    final notifier = ref.read(activeChatProvider.notifier);
     final aspect = height > 0 ? width / height : 1.0;
+    final count = pendingCount.clamp(1, 4);
 
     if (displayMode == ImageGenDisplayMode.attach) {
       final attachTarget = _resolveAttachTarget(sourceMessage, chatState);
       if (attachTarget != null) {
         final metadata = Map<String, dynamic>.from(attachTarget.metadata)
           ..[ChatMessage.pendingImageGenMetadataKey] = true
-          ..[ChatMessage.pendingImageGenAspectMetadataKey] = aspect;
-        await notifier.patchMessage(attachTarget.id, metadata: metadata);
+          ..[ChatMessage.pendingImageGenAspectMetadataKey] = aspect
+          ..[ChatMessage.pendingImageGenCountMetadataKey] = count;
+        await chatNotifier.patchMessage(attachTarget.id, metadata: metadata);
         return _ImageGenPlaceholder(
           messageId: attachTarget.id,
           attachMode: true,
@@ -2643,7 +2715,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         );
       }
 
-      final created = await notifier.addLocalMessage(
+      final created = await chatNotifier.addLocalMessage(
         role: MessageRole.assistant,
         content: '',
         characterId: speaker?.id,
@@ -2654,6 +2726,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ChatMessage.generatedImageLayoutAttach,
           ChatMessage.pendingImageGenMetadataKey: true,
           ChatMessage.pendingImageGenAspectMetadataKey: aspect,
+          ChatMessage.pendingImageGenCountMetadataKey: count,
         },
       );
       if (created == null) return null;
@@ -2664,7 +2737,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       );
     }
 
-    final created = await notifier.addLocalMessage(
+    final created = await chatNotifier.addLocalMessage(
       role: MessageRole.assistant,
       content: '',
       characterId: speaker?.id,
@@ -2673,6 +2746,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ChatMessage.generatedImageMetadataKey: true,
         ChatMessage.pendingImageGenMetadataKey: true,
         ChatMessage.pendingImageGenAspectMetadataKey: aspect,
+        ChatMessage.pendingImageGenCountMetadataKey: count,
       },
     );
     if (created == null) return null;
@@ -2687,39 +2761,66 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _ImageGenPlaceholder placeholder,
     ImageGenResult result, {
     Character? character,
+    required ImageGenRequest request,
+    required int remainingPending,
+    required ActiveChatNotifier chatNotifier,
   }) async {
-    final l10n = AppLocalizations.of(context);
+    final failSavePrefix = mounted
+        ? AppLocalizations.of(context).failedToSaveImage
+        : null;
+    final generationCompleteLabel =
+        mounted ? AppLocalizations.of(context).generationComplete : null;
+    final noImageGenerated = mounted
+        ? AppLocalizations.of(context).noImageGenerated
+        : 'No image generated';
     try {
-      final attachments = await _saveGeneratedImages(result);
+      final attachments = await _saveGeneratedImages(
+        result,
+        width: request.width,
+        height: request.height,
+      );
       if (attachments.isEmpty) {
-        await _failImageGenPlaceholder(placeholder, l10n.noImageGenerated);
+        await _failImageGenPlaceholder(
+          placeholder,
+          noImageGenerated,
+          chatNotifier: chatNotifier,
+        );
         return;
       }
 
-      final notifier = ref.read(activeChatProvider.notifier);
-      final chatState = ref.read(activeChatProvider);
-      final messageIndex =
-          chatState.messages.indexWhere((m) => m.id == placeholder.messageId);
-      if (messageIndex < 0) return;
-      final message = chatState.messages[messageIndex];
-      final cleared = _metadataWithoutPending(message.metadata);
+      final message =
+          await chatNotifier.resolveMessageById(placeholder.messageId);
+      if (message == null) return;
 
       if (placeholder.attachMode) {
-        await notifier.patchMessage(
-          placeholder.messageId,
-          attachments: [...message.attachments, ...attachments],
-          metadata: cleared,
+        final nextAttachments = [...message.attachments, ...attachments];
+        final metadata = remainingPending > 0
+            ? (Map<String, dynamic>.from(message.metadata)
+              ..[ChatMessage.pendingImageGenMetadataKey] = true
+              ..[ChatMessage.pendingImageGenAspectMetadataKey] =
+                  message.pendingImageGenAspect
+              ..[ChatMessage.pendingImageGenCountMetadataKey] =
+                  remainingPending.clamp(1, 4))
+            : _metadataWithoutPending(message.metadata);
+        await chatNotifier.persistMessageUpdate(
+          message.copyWith(
+            attachments: nextAttachments,
+            metadata: metadata,
+          ),
         );
       } else {
         // First image replaces the placeholder bubble; extras get new bubbles.
-        await notifier.patchMessage(
-          placeholder.messageId,
-          attachments: [attachments.first],
-          metadata: cleared,
+        await chatNotifier.persistMessageUpdate(
+          message.copyWith(
+            attachments: [attachments.first],
+            metadata: _metadataWithoutPending(message.metadata),
+          ),
         );
-        final speaker = character ?? chatState.character;
+        final speaker = character ?? chatNotifier.activeCharacter;
         for (final attachment in attachments.skip(1)) {
-          await notifier.addLocalMessage(
+          // Only append extra bubbles while this chat is still active.
+          if (!chatNotifier.isShowingChat(message.chatId)) break;
+          await chatNotifier.addLocalMessage(
             role: MessageRole.assistant,
             content: '',
             attachments: [attachment],
@@ -2732,31 +2833,33 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         }
       }
 
-      _showSnackBar('${l10n.generationComplete} (${attachments.length})');
+      if (mounted && generationCompleteLabel != null) {
+        _showSnackBar('$generationCompleteLabel (${attachments.length})');
+      }
     } catch (error) {
+      final message = failSavePrefix != null
+          ? failSavePrefix('$error')
+          : 'Failed to save image: $error';
       await _failImageGenPlaceholder(
         placeholder,
-        l10n.failedToSaveImage('$error'),
+        message,
+        chatNotifier: chatNotifier,
       );
     }
   }
 
   Future<void> _failImageGenPlaceholder(
     _ImageGenPlaceholder placeholder,
-    String error,
-  ) async {
-    final notifier = ref.read(activeChatProvider.notifier);
-    final chatState = ref.read(activeChatProvider);
-    final messageIndex =
-        chatState.messages.indexWhere((m) => m.id == placeholder.messageId);
-    if (messageIndex >= 0) {
-      final message = chatState.messages[messageIndex];
+    String error, {
+    required ActiveChatNotifier chatNotifier,
+  }) async {
+    final message = await chatNotifier.resolveMessageById(placeholder.messageId);
+    if (message != null) {
       if (placeholder.dedicatedBubble && message.attachments.isEmpty) {
-        await notifier.deleteMessage(placeholder.messageId);
+        await chatNotifier.persistMessageDelete(placeholder.messageId);
       } else {
-        await notifier.patchMessage(
-          placeholder.messageId,
-          metadata: _metadataWithoutPending(message.metadata),
+        await chatNotifier.persistMessageUpdate(
+          message.copyWith(metadata: _metadataWithoutPending(message.metadata)),
         );
       }
     }
@@ -2766,7 +2869,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Map<String, dynamic> _metadataWithoutPending(Map<String, dynamic> metadata) {
     final next = Map<String, dynamic>.from(metadata)
       ..remove(ChatMessage.pendingImageGenMetadataKey)
-      ..remove(ChatMessage.pendingImageGenAspectMetadataKey);
+      ..remove(ChatMessage.pendingImageGenAspectMetadataKey)
+      ..remove(ChatMessage.pendingImageGenCountMetadataKey);
     return next;
   }
 
@@ -4256,9 +4360,10 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     final showOwnAvatar = isUser ? showUserAvatar : showCharacterAvatar;
     final isGeneratedImage = widget.message.isGeneratedImage;
     final isPendingImageGen = widget.message.isPendingImageGen;
-    final isEdgeToEdgeGeneratedImage = isGeneratedImage &&
+    final isSeparateGeneratedImageBubble = isGeneratedImage &&
         !widget.message.isAttachedGeneratedImage &&
-        !isPendingImageGen;
+        widget.message.content.trim().isEmpty;
+    final isEdgeToEdgeGeneratedImage = isSeparateGeneratedImageBubble;
     final bubbleShape = ZephyrChatChrome.messageBubbleShape(
       isUser: isUser,
       radius: context.appChatBubbleCornerRadius,
@@ -4311,9 +4416,9 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                   DataBankCitationPreview(
                     message: widget.message,
                   ),
-                // Attach-mode pictures sit at the end of the reply.
-                if (widget.message.hasAttachments) _buildAttachments(),
-                if (isPendingImageGen) _buildImageGenPlaceholder(),
+                // Pictures + pending slots share one layout so size/position match.
+                if (widget.message.hasAttachments || isPendingImageGen)
+                  _buildMessageImages(),
               ],
             ),
     );
@@ -4331,6 +4436,19 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
             child: frostedBubble,
           )
         : frostedBubble;
+    // Dedicated image bubbles stay compact instead of stretching full width.
+    final sizedBubble = isSeparateGeneratedImageBubble
+        ? Align(
+            alignment:
+                isUser ? Alignment.centerRight : Alignment.centerLeft,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: _separateGeneratedImageMaxWidth,
+              ),
+              child: clippedBubble,
+            ),
+          )
+        : clippedBubble;
 
     final bubbleColumn = Column(
       crossAxisAlignment:
@@ -4343,7 +4461,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
           onLongPress: _contentSelectionArmed
               ? null
               : () => _showMessageOptions(context),
-          child: clippedBubble,
+          child: sizedBubble,
         ),
         if ((hasSwipes || widget.onQuickImagine != null) &&
             !widget.isGenerating)
@@ -4559,121 +4677,161 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     );
   }
 
-  /// Pending image-generation tile with live progress.
-  Widget _buildImageGenPlaceholder() {
+  static const double _separateGeneratedImageMaxWidth = 220;
+  static const double _attachedImageStripHeight = 168;
+
+  /// Attachments and pending image-gen slots in one shared layout.
+  Widget _buildMessageImages() {
+    final attachments = widget.message.attachments;
+    final pendingCount =
+        widget.message.isPendingImageGen ? widget.message.pendingImageGenCount : 0;
+    final separateBubble = widget.message.isGeneratedImage &&
+        !widget.message.isAttachedGeneratedImage &&
+        widget.message.content.trim().isEmpty;
+
+    if (separateBubble) {
+      return _buildSeparateGeneratedImages(
+        attachments: attachments,
+        pendingCount: pendingCount,
+      );
+    }
+
+    return _buildAttachedImageStrip(
+      attachments,
+      pendingCount: pendingCount,
+      pendingAspect: widget.message.pendingImageGenAspect,
+    );
+  }
+
+  /// Compact dedicated image bubble (completed and/or pending).
+  Widget _buildSeparateGeneratedImages({
+    required List<ChatAttachment> attachments,
+    required int pendingCount,
+  }) {
+    final pendingAspect = widget.message.pendingImageGenAspect.clamp(0.55, 1.6);
+    final tiles = <Widget>[
+      for (var i = 0; i < attachments.length; i++)
+        Builder(
+          builder: (context) {
+            final attachment = attachments[i];
+            final aspect = (attachment.width != null &&
+                    attachment.height != null &&
+                    attachment.height! > 0)
+                ? (attachment.width! / attachment.height!).clamp(0.55, 1.6)
+                : pendingAspect;
+            return GestureDetector(
+              onTap: () => _showImagePreview(
+                attachment,
+                gallery: attachments,
+                initialIndex: i,
+              ),
+              child: AspectRatio(
+                aspectRatio: aspect,
+                child: Image.file(
+                  File(attachment.path),
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: AppTheme.darkBackground,
+                    child: const Icon(
+                      Icons.broken_image,
+                      color: AppTheme.textMuted,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      for (var i = 0; i < pendingCount; i++)
+        AspectRatio(
+          aspectRatio: pendingAspect,
+          child: _buildPendingImageTile(compact: true),
+        ),
+    ];
+    if (tiles.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: tiles,
+    );
+  }
+
+  Widget _buildPendingImageTile({bool compact = false}) {
     final genState = ref.watch(imageGenStateProvider);
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final radius = context.appChatBubbleCornerRadius;
-    final aspect = widget.message.pendingImageGenAspect.clamp(0.55, 1.6);
-    final hasContentAbove = widget.message.content.trim().isNotEmpty ||
-        widget.message.hasReasoning ||
-        widget.message.hasAttachments;
     final progress =
         genState.isGenerating && genState.progress > 0 ? genState.progress : null;
     final percent = genState.isGenerating
         ? '${(genState.progress * 100).clamp(0, 100).round()}%'
         : l10n.generating;
+    final indicatorSize = compact ? 22.0 : 28.0;
 
-    return Padding(
-      padding: EdgeInsets.only(top: hasContentAbove ? 8 : 0),
-      child: AspectRatio(
-        aspectRatio: aspect,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(radius),
-          child: ColoredBox(
-            color: scheme.surfaceContainerHighest,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        value: progress,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      percent,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                    ),
-                    if (genState.isGenerating) ...[
-                      const SizedBox(height: 10),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(999),
-                        child: LinearProgressIndicator(
-                          value: progress,
-                          minHeight: 4,
-                          backgroundColor:
-                              scheme.onSurface.withValues(alpha: 0.08),
-                        ),
-                      ),
-                    ],
-                  ],
+    return ColoredBox(
+      color: scheme.surfaceContainerHighest,
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: compact ? 12 : 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: indicatorSize,
+                height: indicatorSize,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  value: progress,
                 ),
               ),
-            ),
+              SizedBox(height: compact ? 6 : 10),
+              Text(
+                percent,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: compact ? 11 : null,
+                    ),
+              ),
+              if (genState.isGenerating) ...[
+                SizedBox(height: compact ? 6 : 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: compact ? 3 : 4,
+                    backgroundColor: scheme.onSurface.withValues(alpha: 0.08),
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
       ),
     );
   }
 
-  /// Build image attachments for messages.
-  Widget _buildAttachments() {
-    final attachments = widget.message.attachments;
-    if (attachments.isEmpty) return const SizedBox.shrink();
-
-    // Separate-bubble generated pictures: edge-to-edge fill.
-    if (widget.message.isGeneratedImage &&
-        !widget.message.isAttachedGeneratedImage &&
-        !widget.message.isPendingImageGen) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 0; i < attachments.length; i++)
-            GestureDetector(
-              onTap: () => _showImagePreview(
-                attachments[i],
-                gallery: attachments,
-                initialIndex: i,
-              ),
-              child: Image.file(
-                File(attachments[i].path),
-                width: double.infinity,
-                fit: BoxFit.fitWidth,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: double.infinity,
-                  height: 160,
-                  color: AppTheme.darkBackground,
-                  child: const Icon(
-                    Icons.broken_image,
-                    color: AppTheme.textMuted,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      );
-    }
-
-    // Attach mode / regular attachments: even margins, theme radius, swipe.
-    return _buildAttachedImageStrip(attachments);
-  }
-
-  Widget _buildAttachedImageStrip(List<ChatAttachment> attachments) {
+  Widget _buildAttachedImageStrip(
+    List<ChatAttachment> attachments, {
+    int pendingCount = 0,
+    double pendingAspect = 1.0,
+  }) {
     final radius = context.appChatBubbleCornerRadius;
     final hasTextAbove = widget.message.content.trim().isNotEmpty ||
         widget.message.hasReasoning;
     const gap = 8.0;
     final topPad = hasTextAbove ? gap : 0.0;
+    final totalCount = attachments.length + pendingCount;
+    if (totalCount <= 0) return const SizedBox.shrink();
+
+    double aspectFor(ChatAttachment? attachment) {
+      if (attachment != null &&
+          attachment.width != null &&
+          attachment.height != null &&
+          attachment.height! > 0) {
+        return (attachment.width! / attachment.height!).clamp(0.55, 1.6);
+      }
+      return pendingAspect.clamp(0.55, 1.6);
+    }
 
     Widget imageTile(ChatAttachment attachment, {required int index}) {
       return GestureDetector(
@@ -4700,42 +4858,40 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
       );
     }
 
-    if (attachments.length == 1) {
-      final attachment = attachments.first;
-      final aspect = (attachment.width != null &&
-              attachment.height != null &&
-              attachment.height! > 0)
-          ? attachment.width! / attachment.height!
-          : 1.0;
-      return Padding(
-        padding: EdgeInsets.only(top: topPad),
-        child: AspectRatio(
-          aspectRatio: aspect.clamp(0.55, 1.6),
-          child: imageTile(attachment, index: 0),
+    Widget slot({required int index}) {
+      if (index < attachments.length) {
+        return AspectRatio(
+          aspectRatio: aspectFor(attachments[index]),
+          child: imageTile(attachments[index], index: index),
+        );
+      }
+      return AspectRatio(
+        aspectRatio: aspectFor(null),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: _buildPendingImageTile(compact: totalCount > 1),
         ),
       );
     }
 
+    // Single slot: keep the padded full-width aspect tile.
+    if (totalCount == 1) {
+      return Padding(
+        padding: EdgeInsets.only(top: topPad),
+        child: slot(index: 0),
+      );
+    }
+
+    // Multi: fixed-height strip so placeholders match finished tiles.
     return Padding(
       padding: EdgeInsets.only(top: topPad),
       child: SizedBox(
-        height: 168,
+        height: _attachedImageStripHeight,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
-          itemCount: attachments.length,
+          itemCount: totalCount,
           separatorBuilder: (_, __) => const SizedBox(width: gap),
-          itemBuilder: (context, index) {
-            final attachment = attachments[index];
-            final aspect = (attachment.width != null &&
-                    attachment.height != null &&
-                    attachment.height! > 0)
-                ? attachment.width! / attachment.height!
-                : 1.0;
-            return AspectRatio(
-              aspectRatio: aspect.clamp(0.55, 1.6),
-              child: imageTile(attachment, index: index),
-            );
-          },
+          itemBuilder: (context, index) => slot(index: index),
         ),
       ),
     );

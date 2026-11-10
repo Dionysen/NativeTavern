@@ -7,6 +7,65 @@ import 'package:native_tavern/data/models/world_info.dart';
 ///
 /// Pure functions - no I/O - so import fidelity is unit-testable.
 class WorldInfoImport {
+  /// Whether [json] looks like a standalone world-info / lorebook file
+  /// (SillyTavern `entries` map, NativeTavern list export) rather than a
+  /// character card JSON.
+  static bool looksLikeWorldInfoJson(Map<String, dynamic> json) {
+    final spec = json['spec']?.toString() ?? '';
+    if (spec.startsWith('chara_card')) return false;
+
+    final data = json['data'];
+    if (data is Map) {
+      // V2/V3 character card wrapper — never treat as a lorebook file.
+      if (data.containsKey('first_mes') ||
+          data.containsKey('character_book') ||
+          data.containsKey('alternate_greetings') ||
+          data.containsKey('mes_example') ||
+          data.containsKey('personality')) {
+        return false;
+      }
+    }
+
+    final entries = json['entries'];
+    if (entries is Map) {
+      if (entries.isEmpty) {
+        // Empty ST lorebook export still counts when not a character card.
+        return !_looksLikeLooseCharacterCard(json);
+      }
+      return _looksLikeWorldInfoEntry(entries.values.first);
+    }
+    if (entries is List) {
+      if (entries.isEmpty) return !_looksLikeLooseCharacterCard(json);
+      return _looksLikeWorldInfoEntry(entries.first);
+    }
+    return false;
+  }
+
+  static bool _looksLikeLooseCharacterCard(Map<String, dynamic> json) {
+    return json.containsKey('first_mes') ||
+        json.containsKey('char_greeting') ||
+        json.containsKey('char_persona') ||
+        json.containsKey('char_name') ||
+        json.containsKey('mes_example') ||
+        json.containsKey('example_dialogue') ||
+        json.containsKey('personality') ||
+        json.containsKey('scenario') ||
+        json.containsKey('world_scenario');
+  }
+
+  static bool _looksLikeWorldInfoEntry(dynamic value) {
+    if (value is! Map) return false;
+    final entry = Map<String, dynamic>.from(value);
+    final hasKeys =
+        entry.containsKey('key') || entry.containsKey('keys');
+    final hasContent = entry.containsKey('content');
+    // ST entries almost always carry uid; NT entries carry id/worldInfoId.
+    final hasEntryId = entry.containsKey('uid') ||
+        entry.containsKey('id') ||
+        entry.containsKey('worldInfoId');
+    return (hasKeys && hasContent) || (hasEntryId && (hasKeys || hasContent));
+  }
+
   /// Parse all entries from a world info book JSON.
   /// [worldInfoId] is stamped on every entry.
   static List<WorldInfoEntry> parseEntries(

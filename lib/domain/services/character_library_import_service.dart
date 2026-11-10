@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:native_tavern/data/models/character.dart';
@@ -109,43 +110,51 @@ class CharacterLibraryImportService {
       );
 
       try {
-        final character = await _decodeFile(file);
-        if (character == null) {
+        final decoded = await _decodeLibraryFile(file);
+        if (decoded == null) {
           skipped++;
           continue;
         }
 
-        final dirRelative = p.dirname(relative);
-        final segments = (dirRelative == '.' || dirRelative.isEmpty)
-            ? const <String>[]
-            : p
-                .split(dirRelative)
-                .where((s) => s.isNotEmpty && s != '.')
-                .toList(growable: false);
-        final folderId = await _folderRepository.ensureFolderPath(segments);
+        switch (decoded) {
+          case _DecodedWorldInfo(:final json):
+            await _importStandaloneWorldInfo(json, file.path);
+            succeeded++;
+          case _DecodedCharacter(:final character):
+            final dirRelative = p.dirname(relative);
+            final segments = (dirRelative == '.' || dirRelative.isEmpty)
+                ? const <String>[]
+                : p
+                    .split(dirRelative)
+                    .where((s) => s.isNotEmpty && s != '.')
+                    .toList(growable: false);
+            final folderId =
+                await _folderRepository.ensureFolderPath(segments);
 
-        final created = await _characterRepository.createCharacter(character);
-        if (folderId != null) {
-          await _folderRepository.moveCharactersToFolder(
-            [created.id],
-            folderId: folderId,
-          );
+            final created =
+                await _characterRepository.createCharacter(character);
+            if (folderId != null) {
+              await _folderRepository.moveCharactersToFolder(
+                [created.id],
+                folderId: folderId,
+              );
+            }
+
+            final embeddedRegex = parseEmbeddedRegexScripts(
+              created.extensions,
+              characterId: created.id,
+            );
+            if (embeddedRegex.isNotEmpty) {
+              await _importEmbeddedRegex(created.id, embeddedRegex);
+            }
+
+            final book = created.characterBook;
+            if (book != null && book.entries.isNotEmpty) {
+              await _importEmbeddedLorebook(created.id, book, created.name);
+            }
+
+            succeeded++;
         }
-
-        final embeddedRegex = parseEmbeddedRegexScripts(
-          created.extensions,
-          characterId: created.id,
-        );
-        if (embeddedRegex.isNotEmpty) {
-          await _importEmbeddedRegex(created.id, embeddedRegex);
-        }
-
-        final book = created.characterBook;
-        if (book != null && book.entries.isNotEmpty) {
-          await _importEmbeddedLorebook(created.id, book, created.name);
-        }
-
-        succeeded++;
       } catch (e) {
         failed++;
         errors.add('$relative: $e');
@@ -170,17 +179,71 @@ class CharacterLibraryImportService {
     );
   }
 
-  Future<Character?> _decodeFile(File file) async {
+  Future<_DecodedLibraryItem?> _decodeLibraryFile(File file) async {
     final ext = p.extension(file.path).toLowerCase();
     switch (ext) {
       case '.png':
-        return _importService.importFromPng(file.path);
+        return _DecodedCharacter(
+          await _importService.importFromPng(file.path),
+        );
       case '.charx':
-        return _importService.importFromCharX(file.path);
+        return _DecodedCharacter(
+          await _importService.importFromCharX(file.path),
+        );
       case '.json':
-        return _importService.importFromJson(await file.readAsString());
+        final raw = jsonDecode(await file.readAsString());
+        if (raw is! Map) return null;
+        final json = Map<String, dynamic>.from(raw);
+        if (WorldInfoImport.looksLikeWorldInfoJson(json)) {
+          return _DecodedWorldInfo(json);
+        }
+        return _DecodedCharacter(
+          await _importService.importFromJson(jsonEncode(json)),
+        );
       default:
         return null;
+    }
+  }
+
+  Future<void> _importStandaloneWorldInfo(
+    Map<String, dynamic> json,
+    String filePath,
+  ) async {
+    final originalData = json['originalData'];
+    final originalName = originalData is Map
+        ? originalData['name']?.toString()
+        : null;
+    final name = json['name']?.toString().trim().isNotEmpty == true
+        ? json['name'].toString().trim()
+        : (originalName?.trim().isNotEmpty == true
+            ? originalName!.trim()
+            : p.basenameWithoutExtension(filePath));
+    final description = json['description']?.toString();
+    final isGlobal = json['isGlobal'] == true;
+
+    final worldInfo = await _worldInfoRepository.createWorldInfo(
+      name: name,
+      description: description,
+      isGlobal: isGlobal,
+    );
+
+    final parsedEntries =
+        WorldInfoImport.parseEntries(json, worldInfo.id);
+    for (final entry in parsedEntries) {
+      final created = await _worldInfoRepository.addEntry(
+        worldInfoId: worldInfo.id,
+        keys: entry.keys,
+        content: entry.content,
+        secondaryKeys:
+            entry.secondaryKeys.isNotEmpty ? entry.secondaryKeys : null,
+        comment: entry.comment,
+        position: entry.position,
+        constant: entry.constant,
+        selective: entry.selective,
+        insertionOrder: entry.insertionOrder,
+        depth: entry.depth,
+      );
+      await _worldInfoRepository.updateEntry(entry.copyWith(id: created.id));
     }
   }
 
@@ -227,4 +290,18 @@ class CharacterLibraryImportService {
       await _worldInfoRepository.updateEntry(entry.copyWith(id: created.id));
     }
   }
+}
+
+sealed class _DecodedLibraryItem {
+  const _DecodedLibraryItem();
+}
+
+final class _DecodedCharacter extends _DecodedLibraryItem {
+  const _DecodedCharacter(this.character);
+  final Character character;
+}
+
+final class _DecodedWorldInfo extends _DecodedLibraryItem {
+  const _DecodedWorldInfo(this.json);
+  final Map<String, dynamic> json;
 }

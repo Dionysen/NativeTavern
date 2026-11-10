@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/native.dart';
@@ -113,5 +114,51 @@ void main() {
     final all = await characters.getAllCharacters();
     expect(all.single.name, 'Elf Scout');
     expect(await folders.folderIdForCharacter(all.single.id), child.id);
+  });
+
+  test('folder import brings in standalone world-info JSON', () async {
+    final importRoot = Directory(p.join(tempDir.path, 'mixed_import'));
+    final loreDir = Directory(p.join(importRoot.path, 'Lore'));
+    await loreDir.create(recursive: true);
+
+    await File(p.join(importRoot.path, 'Scout.json')).writeAsString(
+      jsonEncode({
+        'spec': 'chara_card_v3',
+        'spec_version': '3.0',
+        'data': {
+          'name': 'Scout',
+          'description': 'A scout',
+          'first_mes': 'Hello',
+        },
+      }),
+    );
+    await File('test/fixtures/Eldoria.json')
+        .copy(p.join(loreDir.path, 'Eldoria.json'));
+
+    final worldInfo = WorldInfoRepository(database);
+    final importLibrary = CharacterLibraryImportService(
+      importService: importService,
+      characterRepository: characters,
+      folderRepository: folders,
+      worldInfoRepository: worldInfo,
+      importEmbeddedRegex: (_, __) async {},
+    );
+
+    final result = await importLibrary.importFromDirectory(importRoot.path);
+    expect(result.errors, isEmpty, reason: result.errors.join('\n'));
+    expect(result.succeeded, 2);
+    expect(result.failed, 0);
+
+    final allCharacters = await characters.getAllCharacters();
+    expect(allCharacters.map((c) => c.name), ['Scout']);
+
+    final books = await worldInfo.getAllWorldInfos();
+    expect(books, hasLength(1));
+    expect(books.single.name, 'Eldoria');
+    expect(books.single.entries, isNotEmpty);
+    expect(
+      books.single.entries.any((e) => e.keys.contains('eldoria')),
+      isTrue,
+    );
   });
 }
