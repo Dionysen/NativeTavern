@@ -1,18 +1,20 @@
 import 'package:native_tavern/domain/services/llm_service.dart';
 
 /// Builds / assembles image prompts in the SillyTavern scene style:
-/// quality prefix + LLM Danbooru tags + fixed beauty / appearance prefixes.
+/// quality prefix + LLM Danbooru tags + short beauty polish + appearances,
+/// capped near the classic CLIP 75-token budget.
 class ImagePromptComposer {
-  static const _maxFallbackLength = 400;
+  /// Soft CLIP-style budget for the final positive prompt (SD1.5 era).
+  static const maxPromptTokens = 75;
+
+  static const _maxFallbackLength = 280;
 
   static const defaultCommonPrefix =
-      'masterpiece, best quality, very awa, absurdres, anime style, {prompt}, rating:explicit';
+      'masterpiece, best quality, anime style, {prompt}, rating:explicit';
 
-  /// Always-on beauty / body polish tags (appended after the scene tags).
+  /// Short always-on polish — keep tiny so scene/appearance keep the budget.
   static const defaultBeautyBoost =
-      'beautiful face, perfect face, detailed eyes, pretty face, gorgeous, '
-      'perfect body, beautiful proportions, attractive figure, soft skin, '
-      'elegant posture';
+      'beautiful face, detailed eyes, perfect body';
 
   static const defaultNegativePrompt =
       'worst quality, low quality, lowres, bad hands, mutated hands, extra digits, '
@@ -20,7 +22,7 @@ class ImagePromptComposer {
       'watermark, character fusion, face merge, fused faces, censored, mosaic censoring, '
       'text, logo, multiple views';
 
-  /// Instructs a fast non-thinking pass: core scene only, tags only.
+  /// Instructs a fast non-thinking pass: core scene only, few tags.
   static const defaultLlmInstruction =
       'You turn ONE character reply into a single line of Danbooru tags for anime image generation.\n'
       'Task: summarize only the most important, most representative visual moment in that reply — '
@@ -30,6 +32,7 @@ class ImagePromptComposer {
       'Ignore side chatter, minor narration, and anything that is not visually central.\n'
       'Do NOT invent hair, eyes, body type, or outfit details that the system will add separately.\n'
       'Do NOT write sentences, lists of steps, explanations, or chain-of-thought.\n'
+      'Keep it short: at most 20 comma-separated tags (prefer 8–15).\n'
       'For NSFW, use direct action tags for the core moment (kissing, sex, vaginal, doggy style, …).\n'
       'Output ONLY comma-separated Danbooru tags on one line.';
 
@@ -40,10 +43,21 @@ class ImagePromptComposer {
     return base.copyWith(
       // auto = do not enable Claude/Gemini extended thinking blocks
       reasoningEffort: ReasoningEffort.auto,
-      maxTokens: 256,
+      maxTokens: 96,
       temperature: 0.3,
       streamEnabled: false,
     );
+  }
+
+  /// Rough CLIP token estimate: underscore/space-separated words.
+  static int estimateClipTokens(String text) {
+    final normalized = text
+        .replaceAll(',', ' ')
+        .replaceAll('_', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    if (normalized.isEmpty) return 0;
+    return normalized.split(' ').length;
   }
 
   String fallbackPrompt({
@@ -99,41 +113,102 @@ class ImagePromptComposer {
     ];
   }
 
-  /// Final ComfyUI / SD prompt:
-  /// `[common prefix with {prompt}]` where prompt =
-  /// `sceneTags, beautyBoost, characterAppearance, personaAppearance`.
+  /// Final ComfyUI / SD prompt, capped to [maxPromptTokens].
+  ///
+  /// Body is packed in sections so a long scene dump cannot wipe appearance:
+  /// scene (~50%) → appearances (~40%) → beauty (remainder).
   String assembleFinalPrompt({
     required String sceneTags,
     String? commonPrefix,
     String? characterAppearance,
     String? personaAppearance,
     String? beautyBoost,
+    int maxTokens = maxPromptTokens,
   }) {
     final beauty = (beautyBoost == null || beautyBoost.trim().isEmpty)
         ? defaultBeautyBoost
         : beautyBoost.trim();
-    final parts = <String>[
-      sceneTags.trim(),
-      beauty,
-      (characterAppearance ?? '').trim(),
-      (personaAppearance ?? '').trim(),
-    ].where((part) => part.isNotEmpty).toList();
-    final body = parts.join(', ');
     final prefix = (commonPrefix == null || commonPrefix.trim().isEmpty)
         ? defaultCommonPrefix
         : commonPrefix.trim();
+
+    final prefixShellCost = prefix.contains('{prompt}')
+        ? estimateClipTokens(prefix.replaceAll('{prompt}', ' '))
+        : estimateClipTokens(prefix);
+    final bodyBudget =
+        (maxTokens - prefixShellCost).clamp(0, maxTokens).toInt();
+
+    final sceneCap = (bodyBudget * 0.5).floor().clamp(0, 40);
+    final appearanceCap = (bodyBudget * 0.4).floor().clamp(0, 28);
+
+    final scene = fitTagsToBudget(_splitTags(sceneTags), sceneCap);
+    var used = _tokensForTags(scene);
+    final taken = {for (final tag in scene) tag.toLowerCase()};
+
+    final appearances = fitTagsToBudget(
+      [
+        ..._splitTags(characterAppearance ?? ''),
+        ..._splitTags(personaAppearance ?? ''),
+      ].where((tag) => !taken.contains(tag.toLowerCase())),
+      _minInt(appearanceCap, bodyBudget - used),
+    );
+    taken.addAll(appearances.map((tag) => tag.toLowerCase()));
+    used += _tokensForTags(appearances);
+
+    final beautyTags = fitTagsToBudget(
+      _splitTags(beauty),
+      bodyBudget - used,
+    );
+
+    final body = fitTagsToBudget(
+      [...scene, ...appearances, ...beautyTags],
+      bodyBudget,
+    );
+
     if (body.isEmpty) {
-      return prefix.contains('{prompt}')
-          ? prefix
-              .replaceAll('{prompt}', '')
-              .replaceAll(RegExp(r',\s*,'), ',')
-              .trim()
-          : prefix;
+      return fitTagsToBudget(
+        _splitTags(prefix.replaceAll('{prompt}', '')),
+        maxTokens,
+      ).join(', ');
     }
-    if (prefix.contains('{prompt}')) {
-      return prefix.replaceAll('{prompt}', body);
+    final assembled = prefix.contains('{prompt}')
+        ? prefix.replaceAll('{prompt}', body.join(', '))
+        : '${_splitTags(prefix).join(', ')}, ${body.join(', ')}';
+    return fitTagsToBudget(_splitTags(assembled), maxTokens).join(', ');
+  }
+
+  static int _tokensForTags(List<String> tags) =>
+      estimateClipTokens(tags.join(', '));
+
+  static int _minInt(int a, int b) => a < b ? a : b;
+
+  /// Keeps tags in order until the CLIP-style budget is exhausted; dedupes.
+  static List<String> fitTagsToBudget(Iterable<String> tags, int maxTokens) {
+    if (maxTokens <= 0) return const [];
+    final kept = <String>[];
+    final seen = <String>{};
+    var used = 0;
+    for (final raw in tags) {
+      final tag = raw.trim();
+      if (tag.isEmpty) continue;
+      final key = tag.toLowerCase();
+      if (seen.contains(key)) continue;
+      final cost = estimateClipTokens(tag);
+      if (cost <= 0) continue;
+      if (used + cost > maxTokens) continue;
+      seen.add(key);
+      kept.add(tag);
+      used += cost;
     }
-    return '$prefix, $body';
+    return kept;
+  }
+
+  List<String> _splitTags(String text) {
+    return text
+        .split(',')
+        .map((part) => part.trim())
+        .where((part) => part.isNotEmpty)
+        .toList();
   }
 
   String normalizeModelOutput(String raw) {
@@ -157,7 +232,8 @@ class ImagePromptComposer {
         .map((line) => line.trim())
         .where((line) => line.isNotEmpty);
     text = lines.isEmpty ? '' : lines.first;
-    return text;
+    // Soft-cap verbose model dumps before final assemble.
+    return fitTagsToBudget(_splitTags(text), 40).join(', ');
   }
 
   String _cleanScene(String sceneText) {
