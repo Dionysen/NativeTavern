@@ -3297,6 +3297,30 @@
   "@localQnnOnlySnapdragonHint": {
     "description": "Hint for Local QNN provider"
   },
+  "imageGenDisplayMode": "Picture display",
+  "@imageGenDisplayMode": {
+    "description": "Setting title for how generated images appear in chat"
+  },
+  "imageGenDisplayModeHint": "How generated pictures show up in chat.",
+  "@imageGenDisplayModeHint": {
+    "description": "Subtitle for image display mode setting"
+  },
+  "imageGenDisplayModeSeparate": "Separate bubbles",
+  "@imageGenDisplayModeSeparate": {
+    "description": "Display mode: one bubble per generated image"
+  },
+  "imageGenDisplayModeSeparateHint": "Each picture is its own character message.",
+  "@imageGenDisplayModeSeparateHint": {
+    "description": "Hint for separate bubble display mode"
+  },
+  "imageGenDisplayModeAttach": "Attach to reply",
+  "@imageGenDisplayModeAttach": {
+    "description": "Display mode: append images to the reply"
+  },
+  "imageGenDisplayModeAttachHint": "Add pictures at the end of the reply. Swipe when there are several.",
+  "@imageGenDisplayModeAttachHint": {
+    "description": "Hint for attach display mode"
+  },
   "imageGenGallery": "Generation gallery",
   "@imageGenGallery": {
     "description": "Title for the image generation history gallery"

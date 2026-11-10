@@ -2333,6 +2333,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       await _attachGeneratedImagesToNewMessage(
         result,
         character: speaker ?? chatState.character,
+        sourceMessage: lastAssistant,
       );
     }
   }
@@ -2438,6 +2439,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       await _attachGeneratedImagesToNewMessage(
         result,
         character: speaker,
+        sourceMessage: source,
       );
     } catch (error) {
       if (mounted) _showCommandError('$error');
@@ -2482,26 +2484,70 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Future<void> _attachGeneratedImagesToNewMessage(
     ImageGenResult result, {
     Character? character,
+    ChatMessage? sourceMessage,
   }) async {
     final l10n = AppLocalizations.of(context);
     try {
       final attachments = await _saveGeneratedImages(result);
-      final speaker = character ?? ref.read(activeChatProvider).character;
-      await ref.read(activeChatProvider.notifier).addLocalMessage(
-        role: MessageRole.assistant,
-        content: '',
-        attachments: attachments,
-        characterId: speaker?.id,
-        characterName: speaker?.name,
-        metadata: const {
-          ChatMessage.generatedImageMetadataKey: true,
-        },
-      );
+      if (attachments.isEmpty) return;
+      final chatState = ref.read(activeChatProvider);
+      final speaker = character ?? chatState.character;
+      final displayMode = ref.read(imageGenSettingsProvider).displayMode;
+      final notifier = ref.read(activeChatProvider.notifier);
+
+      if (displayMode == ImageGenDisplayMode.attach) {
+        final attachTarget = _resolveAttachTarget(sourceMessage, chatState);
+        if (attachTarget != null) {
+          await notifier.addAttachmentsToMessage(
+            attachTarget.id,
+            attachments,
+          );
+        } else {
+          await notifier.addLocalMessage(
+            role: MessageRole.assistant,
+            content: '',
+            attachments: attachments,
+            characterId: speaker?.id,
+            characterName: speaker?.name,
+            metadata: const {
+              ChatMessage.generatedImageMetadataKey: true,
+              ChatMessage.generatedImageLayoutMetadataKey:
+                  ChatMessage.generatedImageLayoutAttach,
+            },
+          );
+        }
+      } else {
+        for (final attachment in attachments) {
+          await notifier.addLocalMessage(
+            role: MessageRole.assistant,
+            content: '',
+            attachments: [attachment],
+            characterId: speaker?.id,
+            characterName: speaker?.name,
+            metadata: const {
+              ChatMessage.generatedImageMetadataKey: true,
+            },
+          );
+        }
+      }
+
       _showSnackBar('${l10n.generationComplete} (${attachments.length})');
       _scrollToBottom(force: true);
     } catch (error) {
       _showCommandError(l10n.failedToSaveImage('$error'));
     }
+  }
+
+  ChatMessage? _resolveAttachTarget(
+    ChatMessage? sourceMessage,
+    ActiveChatState chatState,
+  ) {
+    if (sourceMessage != null &&
+        sourceMessage.role == MessageRole.assistant &&
+        !sourceMessage.isGeneratedImage) {
+      return sourceMessage;
+    }
+    return lastCharacterTextReply(chatState.messages);
   }
 
   void _showImageGenerationDialog(
@@ -2526,9 +2572,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final speaker = message.role == MessageRole.assistant
           ? character
           : chatState.character;
+      final source = message.role == MessageRole.assistant &&
+              !message.isGeneratedImage
+          ? message
+          : lastCharacterTextReply(chatState.messages);
       await _attachGeneratedImagesToNewMessage(
         result,
         character: speaker ?? chatState.character,
+        sourceMessage: source,
       );
     }
   }
@@ -3930,19 +3981,27 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     // (side-by-side layout only).
     const avatarColumnWidth = 32.0 + 8.0;
     final showOwnAvatar = isUser ? showUserAvatar : showCharacterAvatar;
+    final isGeneratedImage = widget.message.isGeneratedImage;
+    final isEdgeToEdgeGeneratedImage =
+        isGeneratedImage && !widget.message.isAttachedGeneratedImage;
+    final bubbleShape = ZephyrChatChrome.messageBubbleShape(
+      isUser: isUser,
+      radius: context.appChatBubbleCornerRadius,
+    );
     final bubble = Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
+      // Separate-bubble generated pictures fill with no inner padding.
+      padding: isEdgeToEdgeGeneratedImage
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
       decoration: _buildMessageDecoration(isUser),
       child: _isEditing
           ? _buildEditField()
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Show image attachments if available
-                if (widget.message.hasAttachments) _buildAttachments(),
                 // Show reasoning/thinking content if available
                 if (!isUser && widget.message.hasReasoning)
                   _buildReasoningSection(),
@@ -3977,9 +4036,25 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                   DataBankCitationPreview(
                     message: widget.message,
                   ),
+                // Attach-mode pictures sit at the end of the reply.
+                if (widget.message.hasAttachments) _buildAttachments(),
               ],
             ),
     );
+
+    final frostedBubble = ZephyrChatChrome.maybeFrosted(
+      sigma: widget.frostOverBackground ? bubbleBlurSigma : 0,
+      shape: bubbleShape,
+      child: bubble,
+    );
+    // Clip when frost is off so edge-to-edge generated images follow bubble shape.
+    final clippedBubble = isEdgeToEdgeGeneratedImage &&
+            !(widget.frostOverBackground && bubbleBlurSigma > 0)
+        ? ClipPath(
+            clipper: ShapeBorderClipper(shape: bubbleShape),
+            child: frostedBubble,
+          )
+        : frostedBubble;
 
     final bubbleColumn = Column(
       crossAxisAlignment:
@@ -3992,14 +4067,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
           onLongPress: _contentSelectionArmed
               ? null
               : () => _showMessageOptions(context),
-          child: ZephyrChatChrome.maybeFrosted(
-            sigma: widget.frostOverBackground ? bubbleBlurSigma : 0,
-            shape: ZephyrChatChrome.messageBubbleShape(
-              isUser: isUser,
-              radius: context.appChatBubbleCornerRadius,
-            ),
-            child: bubble,
-          ),
+          child: clippedBubble,
         ),
         if ((hasSwipes || widget.onQuickImagine != null) &&
             !widget.isGenerating)
@@ -4215,33 +4283,72 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     );
   }
 
-  /// Build image attachments grid for messages
+  /// Build image attachments for messages.
   Widget _buildAttachments() {
     final attachments = widget.message.attachments;
     if (attachments.isEmpty) return const SizedBox.shrink();
 
-    // For single image, show larger preview
-    if (attachments.length == 1) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: GestureDetector(
-          onTap: () => _showImagePreview(attachments[0]),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 250, maxHeight: 200),
+    // Separate-bubble generated pictures: edge-to-edge fill.
+    if (widget.message.isGeneratedImage &&
+        !widget.message.isAttachedGeneratedImage) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < attachments.length; i++)
+            GestureDetector(
+              onTap: () => _showImagePreview(
+                attachments[i],
+                gallery: attachments,
+                initialIndex: i,
+              ),
               child: Image.file(
-                File(attachments[0].path),
-                fit: BoxFit.cover,
+                File(attachments[i].path),
+                width: double.infinity,
+                fit: BoxFit.fitWidth,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  width: 150,
-                  height: 100,
+                  width: double.infinity,
+                  height: 160,
                   color: AppTheme.darkBackground,
                   child: const Icon(
                     Icons.broken_image,
                     color: AppTheme.textMuted,
                   ),
                 ),
+              ),
+            ),
+        ],
+      );
+    }
+
+    // Attach mode / regular attachments: even margins, theme radius, swipe.
+    return _buildAttachedImageStrip(attachments);
+  }
+
+  Widget _buildAttachedImageStrip(List<ChatAttachment> attachments) {
+    final radius = context.appChatBubbleCornerRadius;
+    final hasTextAbove = widget.message.content.trim().isNotEmpty ||
+        widget.message.hasReasoning;
+    const gap = 8.0;
+    final topPad = hasTextAbove ? gap : 0.0;
+
+    Widget imageTile(ChatAttachment attachment, {required int index}) {
+      return GestureDetector(
+        onTap: () => _showImagePreview(
+          attachment,
+          gallery: attachments,
+          initialIndex: index,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: Image.file(
+            File(attachment.path),
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              color: AppTheme.darkBackground,
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.broken_image,
+                color: AppTheme.textMuted,
               ),
             ),
           ),
@@ -4249,79 +4356,68 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
       );
     }
 
-    // For multiple images, show a grid
+    if (attachments.length == 1) {
+      final attachment = attachments.first;
+      final aspect = (attachment.width != null &&
+              attachment.height != null &&
+              attachment.height! > 0)
+          ? attachment.width! / attachment.height!
+          : 1.0;
+      return Padding(
+        padding: EdgeInsets.only(top: topPad),
+        child: AspectRatio(
+          aspectRatio: aspect.clamp(0.55, 1.6),
+          child: imageTile(attachment, index: 0),
+        ),
+      );
+    }
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Wrap(
-        spacing: 4,
-        runSpacing: 4,
-        children: attachments.map((attachment) {
-          return GestureDetector(
-            onTap: () => _showImagePreview(attachment),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                File(attachment.path),
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 80,
-                  height: 80,
-                  color: AppTheme.darkBackground,
-                  child: const Icon(
-                    Icons.broken_image,
-                    size: 20,
-                    color: AppTheme.textMuted,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
+      padding: EdgeInsets.only(top: topPad),
+      child: SizedBox(
+        height: 168,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: attachments.length,
+          separatorBuilder: (_, __) => const SizedBox(width: gap),
+          itemBuilder: (context, index) {
+            final attachment = attachments[index];
+            final aspect = (attachment.width != null &&
+                    attachment.height != null &&
+                    attachment.height! > 0)
+                ? attachment.width! / attachment.height!
+                : 1.0;
+            return AspectRatio(
+              aspectRatio: aspect.clamp(0.55, 1.6),
+              child: imageTile(attachment, index: index),
+            );
+          },
+        ),
       ),
     );
   }
 
-  /// Show full-screen image preview
-  void _showImagePreview(ChatAttachment attachment) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(16),
-        child: Stack(
-          children: [
-            Center(
-              child: InteractiveViewer(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(
-                    File(attachment.path),
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 200,
-                      height: 200,
-                      color: AppTheme.darkCard,
-                      child: const Icon(
-                        Icons.broken_image,
-                        size: 48,
-                        color: AppTheme.textMuted,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: ChromeIconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-          ],
-        ),
+  /// Show full-screen image preview (edge-to-edge on mobile).
+  void _showImagePreview(
+    ChatAttachment attachment, {
+    List<ChatAttachment>? gallery,
+    int initialIndex = 0,
+  }) {
+    final images = gallery ?? [attachment];
+    final start = initialIndex.clamp(0, images.length - 1);
+    Navigator.of(context, rootNavigator: true).push(
+      PageRouteBuilder<void>(
+        opaque: true,
+        barrierColor: Colors.black,
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return _FullscreenAttachmentViewer(
+            attachments: images,
+            initialIndex: start,
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
       ),
     );
   }
@@ -4894,6 +4990,94 @@ class _MeasureSize extends SingleChildRenderObjectWidget {
     covariant _RenderMeasureSize renderObject,
   ) {
     renderObject.onChange = onChange;
+  }
+}
+
+/// Edge-to-edge image viewer for chat attachments (mobile-friendly fullscreen).
+class _FullscreenAttachmentViewer extends StatefulWidget {
+  const _FullscreenAttachmentViewer({
+    required this.attachments,
+    this.initialIndex = 0,
+  });
+
+  final List<ChatAttachment> attachments;
+  final int initialIndex;
+
+  @override
+  State<_FullscreenAttachmentViewer> createState() =>
+      _FullscreenAttachmentViewerState();
+}
+
+class _FullscreenAttachmentViewerState extends State<_FullscreenAttachmentViewer> {
+  late final PageController _pageController;
+  late int _index;
+
+  @override
+  void initState() {
+    super.initState();
+    _index = widget.initialIndex.clamp(0, widget.attachments.length - 1);
+    _pageController = PageController(initialPage: _index);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.paddingOf(context).top;
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: widget.attachments.length,
+            onPageChanged: (i) => setState(() => _index = i),
+            itemBuilder: (context, i) {
+              final path = widget.attachments[i].path;
+              return InteractiveViewer(
+                minScale: 1,
+                maxScale: 5,
+                child: Center(
+                  child: Image.file(
+                    File(path),
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.broken_image,
+                      size: 48,
+                      color: Colors.white54,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          Positioned(
+            top: top + 4,
+            right: 8,
+            child: ChromeIconButton(
+              icon: const Icon(Icons.close, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          if (widget.attachments.length > 1)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: MediaQuery.paddingOf(context).bottom + 16,
+              child: Text(
+                '${_index + 1}/${widget.attachments.length}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white70),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 

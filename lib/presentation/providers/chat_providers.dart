@@ -1628,11 +1628,20 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     String messageId,
     ChatAttachment attachment,
   ) async {
+    await addAttachmentsToMessage(messageId, [attachment]);
+  }
+
+  /// Add several attachments to an existing message in one update.
+  Future<void> addAttachmentsToMessage(
+    String messageId,
+    List<ChatAttachment> attachments,
+  ) async {
+    if (attachments.isEmpty) return;
     final messageIndex = state.messages.indexWhere((m) => m.id == messageId);
     if (messageIndex < 0) return;
 
     final message = state.messages[messageIndex];
-    final updatedAttachments = [...message.attachments, attachment];
+    final updatedAttachments = [...message.attachments, ...attachments];
 
     final updatedMessage = message.copyWith(attachments: updatedAttachments);
 

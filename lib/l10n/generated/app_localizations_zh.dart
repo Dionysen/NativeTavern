@@ -2295,6 +2295,24 @@ class AppLocalizationsZh extends AppLocalizations {
       '本地生图适用于安卓高通设备。选择本地生图会加载模型；改回 API 生图会自动释放。';
 
   @override
+  String get imageGenDisplayMode => '图片显示方式';
+
+  @override
+  String get imageGenDisplayModeHint => '生成的图片在聊天里怎么显示。';
+
+  @override
+  String get imageGenDisplayModeSeparate => '单独气泡';
+
+  @override
+  String get imageGenDisplayModeSeparateHint => '每张图用一条角色消息显示。';
+
+  @override
+  String get imageGenDisplayModeAttach => '附带在回复里';
+
+  @override
+  String get imageGenDisplayModeAttachHint => '把图片加在回复末尾。多张时可左右滑动，点一下可全屏查看。';
+
+  @override
   String get imageGenGallery => '生图画廊';
 
   @override
@@ -9731,6 +9749,24 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String get localQnnOnlySnapdragonHint =>
       '本機生圖適用於 Android 高通裝置。選擇本機生圖會載入模型；改回 API 生圖會自動釋放。';
+
+  @override
+  String get imageGenDisplayMode => '圖片顯示方式';
+
+  @override
+  String get imageGenDisplayModeHint => '產生的圖片在聊天裡怎麼顯示。';
+
+  @override
+  String get imageGenDisplayModeSeparate => '單獨氣泡';
+
+  @override
+  String get imageGenDisplayModeSeparateHint => '每張圖用一則角色訊息顯示。';
+
+  @override
+  String get imageGenDisplayModeAttach => '附帶在回覆裡';
+
+  @override
+  String get imageGenDisplayModeAttachHint => '把圖片加在回覆末尾。多張時可左右滑動，點一下可全螢幕查看。';
 
   @override
   String get imageGenGallery => '生圖畫廊';

@@ -49,9 +49,41 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                 title: AppLocalizations.of(context)!.enableImageGeneration,
                 subtitle: AppLocalizations.of(context)!.generateImagesUsingAi,
                 value: settings.enabled,
-                showDivider: false,
                 onChanged: (value) {
                   ref.read(imageGenSettingsProvider.notifier).setEnabled(value);
+                },
+              ),
+              SettingsChoiceTile<ImageGenDisplayMode>(
+                icon: Icons.view_agenda_outlined,
+                title: AppLocalizations.of(context)!.imageGenDisplayMode,
+                subtitle: AppLocalizations.of(context)!.imageGenDisplayModeHint,
+                selected: settings.displayMode,
+                enabled: settings.enabled,
+                showDivider: false,
+                choices: [
+                  SettingsChoice(
+                    value: ImageGenDisplayMode.separateBubble,
+                    label: AppLocalizations.of(context)!
+                        .imageGenDisplayModeSeparate,
+                    subtitle: AppLocalizations.of(context)!
+                        .imageGenDisplayModeSeparateHint,
+                  ),
+                  SettingsChoice(
+                    value: ImageGenDisplayMode.attach,
+                    label:
+                        AppLocalizations.of(context)!.imageGenDisplayModeAttach,
+                    subtitle: AppLocalizations.of(context)!
+                        .imageGenDisplayModeAttachHint,
+                  ),
+                ],
+                valueLabel: settings.displayMode == ImageGenDisplayMode.attach
+                    ? AppLocalizations.of(context)!.imageGenDisplayModeAttach
+                    : AppLocalizations.of(context)!
+                        .imageGenDisplayModeSeparate,
+                onSelected: (value) {
+                  ref
+                      .read(imageGenSettingsProvider.notifier)
+                      .setDisplayMode(value);
                 },
               ),
             ],

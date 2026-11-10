@@ -199,10 +199,32 @@ enum ImageGenMode {
   const ImageGenMode(this.id, this.displayName);
 }
 
+/// How generated pictures appear in chat.
+enum ImageGenDisplayMode {
+  /// Each picture is its own character bubble.
+  separateBubble('separate_bubble'),
+
+  /// Pictures are added at the end of a reply.
+  attach('attach'),
+  ;
+
+  final String id;
+
+  const ImageGenDisplayMode(this.id);
+
+  static ImageGenDisplayMode fromId(String? id) {
+    for (final mode in ImageGenDisplayMode.values) {
+      if (mode.id == id) return mode;
+    }
+    return ImageGenDisplayMode.separateBubble;
+  }
+}
+
 /// Image Generation Settings
 class ImageGenSettings {
   final bool enabled;
   final ImageGenProvider provider;
+  final ImageGenDisplayMode displayMode;
 
   // Per-provider configurations stored as Maps
   final Map<String, String> apiKeys; // provider.id -> apiKey
@@ -247,6 +269,7 @@ class ImageGenSettings {
   const ImageGenSettings({
     this.enabled = false,
     this.provider = ImageGenProvider.openai,
+    this.displayMode = ImageGenDisplayMode.separateBubble,
     this.apiKeys = const {},
     this.apiEndpoints = const {},
     this.models = const {},
@@ -331,6 +354,7 @@ class ImageGenSettings {
   ImageGenSettings copyWith({
     bool? enabled,
     ImageGenProvider? provider,
+    ImageGenDisplayMode? displayMode,
     Map<String, String>? apiKeys,
     Map<String, String>? apiEndpoints,
     Map<String, String>? models,
@@ -357,6 +381,7 @@ class ImageGenSettings {
     return ImageGenSettings(
       enabled: enabled ?? this.enabled,
       provider: provider ?? this.provider,
+      displayMode: displayMode ?? this.displayMode,
       apiKeys: apiKeys ?? this.apiKeys,
       apiEndpoints: apiEndpoints ?? this.apiEndpoints,
       models: models ?? this.models,
@@ -417,6 +442,7 @@ class ImageGenSettings {
   Map<String, dynamic> toJson() => {
         'enabled': enabled,
         'provider': provider.id,
+        'displayMode': displayMode.id,
         'apiKeys': apiKeys,
         'apiEndpoints': apiEndpoints,
         'models': models,
@@ -476,6 +502,7 @@ class ImageGenSettings {
       provider:
           ImageGenProvider.fromId(json['provider'] as String? ?? 'openai') ??
               ImageGenProvider.openai,
+      displayMode: ImageGenDisplayMode.fromId(json['displayMode'] as String?),
       apiKeys: apiKeys,
       apiEndpoints: apiEndpoints,
       models: models,

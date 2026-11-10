@@ -4335,6 +4335,42 @@ abstract class AppLocalizations {
   /// **'On-device generation works on Android Snapdragon devices. Choosing Local QNN loads the model; switching to an API provider unloads it.'**
   String get localQnnOnlySnapdragonHint;
 
+  /// Setting title for how generated images appear in chat
+  ///
+  /// In en, this message translates to:
+  /// **'Picture display'**
+  String get imageGenDisplayMode;
+
+  /// Subtitle for image display mode setting
+  ///
+  /// In en, this message translates to:
+  /// **'How generated pictures show up in chat.'**
+  String get imageGenDisplayModeHint;
+
+  /// Display mode: one bubble per generated image
+  ///
+  /// In en, this message translates to:
+  /// **'Separate bubbles'**
+  String get imageGenDisplayModeSeparate;
+
+  /// Hint for separate bubble display mode
+  ///
+  /// In en, this message translates to:
+  /// **'Each picture is its own character message.'**
+  String get imageGenDisplayModeSeparateHint;
+
+  /// Display mode: append images to the reply
+  ///
+  /// In en, this message translates to:
+  /// **'Attach to reply'**
+  String get imageGenDisplayModeAttach;
+
+  /// Hint for attach display mode
+  ///
+  /// In en, this message translates to:
+  /// **'Add pictures at the end of the reply. Swipe when there are several.'**
+  String get imageGenDisplayModeAttachHint;
+
   /// Title for the image generation history gallery
   ///
   /// In en, this message translates to:

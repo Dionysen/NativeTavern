@@ -147,6 +147,11 @@ class ImageGenSettingsNotifier extends StateNotifier<ImageGenSettings> {
     _saveSettings();
   }
 
+  void setDisplayMode(ImageGenDisplayMode displayMode) {
+    state = state.copyWith(displayMode: displayMode);
+    _saveSettings();
+  }
+
   void setUpscaleEnabled(bool enabled) {
     state = state.copyWith(upscaleEnabled: enabled);
     _saveSettings();

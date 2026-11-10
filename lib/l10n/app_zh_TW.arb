@@ -2803,6 +2803,30 @@
   "@localQnnOnlySnapdragonHint": {
     "description": "Hint for Local QNN provider"
   },
+  "imageGenDisplayMode": "圖片顯示方式",
+  "@imageGenDisplayMode": {
+    "description": "Setting title for how generated images appear in chat"
+  },
+  "imageGenDisplayModeHint": "產生的圖片在聊天裡怎麼顯示。",
+  "@imageGenDisplayModeHint": {
+    "description": "Subtitle for image display mode setting"
+  },
+  "imageGenDisplayModeSeparate": "單獨氣泡",
+  "@imageGenDisplayModeSeparate": {
+    "description": "Display mode: one bubble per generated image"
+  },
+  "imageGenDisplayModeSeparateHint": "每張圖用一則角色訊息顯示。",
+  "@imageGenDisplayModeSeparateHint": {
+    "description": "Hint for separate bubble display mode"
+  },
+  "imageGenDisplayModeAttach": "附帶在回覆裡",
+  "@imageGenDisplayModeAttach": {
+    "description": "Display mode: append images to the reply"
+  },
+  "imageGenDisplayModeAttachHint": "把圖片加在回覆末尾。多張時可左右滑動，點一下可全螢幕查看。",
+  "@imageGenDisplayModeAttachHint": {
+    "description": "Hint for attach display mode"
+  },
   "imageGenGallery": "生圖畫廊",
   "@imageGenGallery": {
     "description": "Title for the image generation history gallery"

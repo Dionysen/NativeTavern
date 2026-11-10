@@ -198,6 +198,10 @@ class ChatMessage {
   /// of the next reply.
   static const generatedImageMetadataKey = 'generatedImage';
 
+  /// Layout for a generated-image-only bubble (`attach` vs default separate).
+  static const generatedImageLayoutMetadataKey = 'generatedImageLayout';
+  static const generatedImageLayoutAttach = 'attach';
+
   final String id;
   final String chatId;
   final MessageRole role;
@@ -249,6 +253,11 @@ class ChatMessage {
 
   /// A picture posted as the character's own reply.
   bool get isGeneratedImage => metadata[generatedImageMetadataKey] == true;
+
+  /// Generated pictures shown attached inside a padded bubble (not edge-to-edge).
+  bool get isAttachedGeneratedImage =>
+      isGeneratedImage &&
+      metadata[generatedImageLayoutMetadataKey] == generatedImageLayoutAttach;
 
   ChatMessage copyWith({
     String? id,

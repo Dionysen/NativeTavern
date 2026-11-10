@@ -2356,6 +2356,27 @@ class AppLocalizationsHi extends AppLocalizations {
       'On-device generation works on Android Snapdragon devices. Choosing Local QNN loads the model; switching to an API provider unloads it.';
 
   @override
+  String get imageGenDisplayMode => 'Picture display';
+
+  @override
+  String get imageGenDisplayModeHint =>
+      'How generated pictures show up in chat.';
+
+  @override
+  String get imageGenDisplayModeSeparate => 'Separate bubbles';
+
+  @override
+  String get imageGenDisplayModeSeparateHint =>
+      'Each picture is its own character message.';
+
+  @override
+  String get imageGenDisplayModeAttach => 'Attach to reply';
+
+  @override
+  String get imageGenDisplayModeAttachHint =>
+      'Add pictures at the end of the reply. Swipe when there are several.';
+
+  @override
   String get imageGenGallery => 'Generation gallery';
 
   @override
