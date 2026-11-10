@@ -255,6 +255,12 @@ class ImageGenSettings {
   /// Desired upscale factor (2–4). Native anime QNN always runs at 4×.
   final int upscaleScale;
 
+  /// Remembered prompt in the image-generation test box.
+  final String testPrompt;
+
+  /// After each character reply, automatically generate a picture for it.
+  final bool autoGenerateOnReply;
+
   // NovelAI specific
   final bool novelaiAnlasGuard;
   final bool novelaiSm;
@@ -285,6 +291,8 @@ class ImageGenSettings {
     this.llmImagePromptInstruction = '',
     this.upscaleEnabled = false,
     this.upscaleScale = 4,
+    this.testPrompt = '',
+    this.autoGenerateOnReply = false,
     // NovelAI
     this.novelaiAnlasGuard = true,
     this.novelaiSm = false,
@@ -370,6 +378,8 @@ class ImageGenSettings {
     String? llmImagePromptInstruction,
     bool? upscaleEnabled,
     int? upscaleScale,
+    String? testPrompt,
+    bool? autoGenerateOnReply,
     bool? novelaiAnlasGuard,
     bool? novelaiSm,
     bool? novelaiSmDyn,
@@ -400,6 +410,8 @@ class ImageGenSettings {
           llmImagePromptInstruction ?? this.llmImagePromptInstruction,
       upscaleEnabled: upscaleEnabled ?? this.upscaleEnabled,
       upscaleScale: upscaleScale ?? this.upscaleScale,
+      testPrompt: testPrompt ?? this.testPrompt,
+      autoGenerateOnReply: autoGenerateOnReply ?? this.autoGenerateOnReply,
       novelaiAnlasGuard: novelaiAnlasGuard ?? this.novelaiAnlasGuard,
       novelaiSm: novelaiSm ?? this.novelaiSm,
       novelaiSmDyn: novelaiSmDyn ?? this.novelaiSmDyn,
@@ -458,6 +470,8 @@ class ImageGenSettings {
         'llmImagePromptInstruction': llmImagePromptInstruction,
         'upscaleEnabled': upscaleEnabled,
         'upscaleScale': upscaleScale,
+        'testPrompt': testPrompt,
+        'autoGenerateOnReply': autoGenerateOnReply,
         'novelaiAnlasGuard': novelaiAnlasGuard,
         'novelaiSm': novelaiSm,
         'novelaiSmDyn': novelaiSmDyn,
@@ -519,6 +533,8 @@ class ImageGenSettings {
           json['llmImagePromptInstruction'] as String? ?? '',
       upscaleEnabled: json['upscaleEnabled'] as bool? ?? false,
       upscaleScale: (json['upscaleScale'] as int? ?? 4).clamp(2, 4),
+      testPrompt: json['testPrompt'] as String? ?? '',
+      autoGenerateOnReply: json['autoGenerateOnReply'] as bool? ?? false,
       novelaiAnlasGuard: json['novelaiAnlasGuard'] as bool? ?? true,
       novelaiSm: json['novelaiSm'] as bool? ?? false,
       novelaiSmDyn: json['novelaiSmDyn'] as bool? ?? false,

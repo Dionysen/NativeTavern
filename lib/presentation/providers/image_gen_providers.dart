@@ -152,6 +152,17 @@ class ImageGenSettingsNotifier extends StateNotifier<ImageGenSettings> {
     _saveSettings();
   }
 
+  void setAutoGenerateOnReply(bool enabled) {
+    state = state.copyWith(autoGenerateOnReply: enabled);
+    _saveSettings();
+  }
+
+  void setTestPrompt(String prompt) {
+    if (state.testPrompt == prompt) return;
+    state = state.copyWith(testPrompt: prompt);
+    _saveSettings();
+  }
+
   void setUpscaleEnabled(bool enabled) {
     state = state.copyWith(upscaleEnabled: enabled);
     _saveSettings();

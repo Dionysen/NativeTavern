@@ -4425,6 +4425,18 @@ abstract class AppLocalizations {
   /// **'Add pictures at the end of the reply. Swipe when there are several.'**
   String get imageGenDisplayModeAttachHint;
 
+  /// Setting title for auto image generation after character replies
+  ///
+  /// In en, this message translates to:
+  /// **'Auto picture after reply'**
+  String get imageGenAutoOnReply;
+
+  /// Subtitle for auto image generation after reply
+  ///
+  /// In en, this message translates to:
+  /// **'When a character finishes a reply, generate a picture for it.'**
+  String get imageGenAutoOnReplyHint;
+
   /// Title for the image generation history gallery
   ///
   /// In en, this message translates to:

@@ -2863,6 +2863,14 @@
   "@imageGenDisplayModeAttachHint": {
     "description": "Hint for attach display mode"
   },
+  "imageGenAutoOnReply": "回覆後自動生圖",
+  "@imageGenAutoOnReply": {
+    "description": "Setting title for auto image generation after character replies"
+  },
+  "imageGenAutoOnReplyHint": "角色每說完一句，就自動為這句產生圖片。",
+  "@imageGenAutoOnReplyHint": {
+    "description": "Subtitle for auto image generation after reply"
+  },
   "imageGenGallery": "生圖畫廊",
   "@imageGenGallery": {
     "description": "Title for the image generation history gallery"

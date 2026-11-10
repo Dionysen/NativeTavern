@@ -2410,6 +2410,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Add pictures at the end of the reply. Swipe when there are several.';
 
   @override
+  String get imageGenAutoOnReply => 'Auto picture after reply';
+
+  @override
+  String get imageGenAutoOnReplyHint =>
+      'When a character finishes a reply, generate a picture for it.';
+
+  @override
   String get imageGenGallery => 'Generation gallery';
 
   @override

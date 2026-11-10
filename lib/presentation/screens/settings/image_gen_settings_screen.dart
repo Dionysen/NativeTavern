@@ -60,7 +60,6 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                 subtitle: AppLocalizations.of(context)!.imageGenDisplayModeHint,
                 selected: settings.displayMode,
                 enabled: settings.enabled,
-                showDivider: false,
                 choices: [
                   SettingsChoice(
                     value: ImageGenDisplayMode.separateBubble,
@@ -86,6 +85,20 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                       .read(imageGenSettingsProvider.notifier)
                       .setDisplayMode(value);
                 },
+              ),
+              SettingsSwitchTile(
+                icon: Icons.auto_awesome,
+                title: AppLocalizations.of(context)!.imageGenAutoOnReply,
+                subtitle: AppLocalizations.of(context)!.imageGenAutoOnReplyHint,
+                value: settings.autoGenerateOnReply,
+                showDivider: false,
+                onChanged: settings.enabled
+                    ? (value) {
+                        ref
+                            .read(imageGenSettingsProvider.notifier)
+                            .setAutoGenerateOnReply(value);
+                      }
+                    : null,
               ),
             ],
           ),
@@ -1174,20 +1187,36 @@ class _ImageGenTestWidget extends ConsumerStatefulWidget {
 }
 
 class _ImageGenTestWidgetState extends ConsumerState<_ImageGenTestWidget> {
-  final _controller = TextEditingController();
+  late final TextEditingController _controller;
   bool _hasText = false;
+  bool _hydrated = false;
 
   @override
   void initState() {
     super.initState();
+    _controller = TextEditingController();
     _controller.addListener(_onTextChanged);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_hydrated) return;
+    _hydrated = true;
+    final saved = ref.read(imageGenSettingsProvider).testPrompt;
+    if (saved.isNotEmpty) {
+      _controller.text = saved;
+      _hasText = true;
+    }
+  }
+
   void _onTextChanged() {
-    final hasText = _controller.text.isNotEmpty;
+    final text = _controller.text;
+    final hasText = text.isNotEmpty;
     if (hasText != _hasText) {
       setState(() => _hasText = hasText);
     }
+    ref.read(imageGenSettingsProvider.notifier).setTestPrompt(text);
   }
 
   @override
@@ -1219,7 +1248,7 @@ class _ImageGenTestWidgetState extends ConsumerState<_ImageGenTestWidget> {
           const SizedBox(height: 12),
           ElevatedButton.icon(
             onPressed: widget.enabled &&
-                    _controller.text.isNotEmpty &&
+                    _hasText &&
                     !genState.isGenerating
                 ? () {
                     final settings = ref.read(imageGenSettingsProvider);

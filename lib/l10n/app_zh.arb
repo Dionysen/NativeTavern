@@ -2919,6 +2919,14 @@
   "@imageGenDisplayModeAttachHint": {
     "description": "Hint for attach display mode"
   },
+  "imageGenAutoOnReply": "回复后自动生图",
+  "@imageGenAutoOnReply": {
+    "description": "Setting title for auto image generation after character replies"
+  },
+  "imageGenAutoOnReplyHint": "角色每说完一句，就自动为这句生成图片。",
+  "@imageGenAutoOnReplyHint": {
+    "description": "Subtitle for auto image generation after reply"
+  },
   "imageGenGallery": "生图画廊",
   "@imageGenGallery": {
     "description": "Title for the image generation history gallery"

@@ -2340,6 +2340,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get imageGenDisplayModeAttachHint => '把图片加在回复末尾。多张时可左右滑动，点一下可全屏查看。';
 
   @override
+  String get imageGenAutoOnReply => '回复后自动生图';
+
+  @override
+  String get imageGenAutoOnReplyHint => '角色每说完一句，就自动为这句生成图片。';
+
+  @override
   String get imageGenGallery => '生图画廊';
 
   @override
@@ -9821,6 +9827,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get imageGenDisplayModeAttachHint => '把圖片加在回覆末尾。多張時可左右滑動，點一下可全螢幕查看。';
+
+  @override
+  String get imageGenAutoOnReply => '回覆後自動生圖';
+
+  @override
+  String get imageGenAutoOnReplyHint => '角色每說完一句，就自動為這句產生圖片。';
 
   @override
   String get imageGenGallery => '生圖畫廊';

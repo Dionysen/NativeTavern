@@ -124,6 +124,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final FocusNode _focusNode = FocusNode();
   bool _showInputMenu = false;
   bool _generatingQuickImage = false;
+  String? _lastAutoImageGenKey;
   bool _showChoicePanel = false;
   bool _choicePanelPinned = false;
   bool _showStatusPanel = false;
@@ -1155,6 +1156,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         _scrollToBottomImmediate();
       }
       _handleChatTTSChange(previous, next);
+      _maybeAutoGenerateImageAfterReply(previous, next);
     });
 
     return PopScope(
@@ -2316,6 +2318,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       context: context,
       builder: (context) => BookmarksListDialog(chatId: widget.chatId),
     );
+  }
+
+  void _maybeAutoGenerateImageAfterReply(
+    ActiveChatState? previous,
+    ActiveChatState next,
+  ) {
+    if (previous?.isGenerating != true || next.isGenerating) return;
+    if (next.error != null) return;
+
+    final settings = ref.read(imageGenSettingsProvider);
+    if (!settings.enabled || !settings.autoGenerateOnReply) return;
+    if (_generatingQuickImage || ref.read(imageGenStateProvider).isGenerating) {
+      return;
+    }
+
+    final prevLast =
+        previous == null ? null : lastCharacterTextReply(previous.messages);
+    final nextLast = lastCharacterTextReply(next.messages);
+    if (nextLast == null || nextLast.content.trim().isEmpty) return;
+    if (prevLast?.id == nextLast.id &&
+        prevLast?.content == nextLast.content &&
+        prevLast?.currentSwipeIndex == nextLast.currentSwipeIndex) {
+      return;
+    }
+
+    final key =
+        '${nextLast.id}:${nextLast.currentSwipeIndex}:${nextLast.content.hashCode}';
+    if (_lastAutoImageGenKey == key) return;
+    _lastAutoImageGenKey = key;
+    unawaited(_generateImageFromMessage(nextLast));
   }
 
   Future<void> _openImagineFromInput(ActiveChatState chatState) async {
