@@ -668,33 +668,18 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                                 ? theme.colorScheme.primary
                                 : null,
                           )
-                        : Wrap(
-                            spacing: 4,
-                            children: [
-                              TextButton(
+                        : (!model.custom
+                            ? TextButton(
                                 onPressed: settings.enabled
-                                    ? () => _importLocalQnnZip(
+                                    ? () => _downloadLocalQnnModel(
                                           context,
                                           ref,
-                                          modelId: model.id,
-                                          modelName: model.name,
+                                          model.id,
                                         )
                                     : null,
-                                child: Text(l10n.localQnnImportZip),
-                              ),
-                              if (!model.custom)
-                                TextButton(
-                                  onPressed: settings.enabled
-                                      ? () => _downloadLocalQnnModel(
-                                            context,
-                                            ref,
-                                            model.id,
-                                          )
-                                      : null,
-                                  child: Text(l10n.localQnnDownloadModel),
-                                ),
-                            ],
-                          ),
+                                child: Text(l10n.localQnnDownloadModel),
+                              )
+                            : null),
                     onTap: settings.enabled && model.downloaded
                         ? () {
                             ref
@@ -779,10 +764,8 @@ class ImageGenSettingsScreen extends ConsumerWidget {
 
   Future<void> _importLocalQnnZip(
     BuildContext context,
-    WidgetRef ref, {
-    String? modelId,
-    String? modelName,
-  }) async {
+    WidgetRef ref,
+  ) async {
     final plugin = ref.read(localQnnPluginProvider);
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
@@ -795,11 +778,8 @@ class ImageGenSettingsScreen extends ConsumerWidget {
       final path = picked?.files.single.path;
       if (path == null || path.isEmpty) return;
 
-      final imported = await plugin.importModelZip(
-        zipPath: path,
-        modelId: modelId,
-        modelName: modelName,
-      );
+      // Match catalog by zip name when possible (e.g. AnythingV5_qnn2.28_*.zip).
+      final imported = await plugin.importModelZip(zipPath: path);
       ref.invalidate(localQnnCatalogProvider);
       ref.read(imageGenSettingsProvider.notifier).setModel(imported.id);
       messenger.showSnackBar(

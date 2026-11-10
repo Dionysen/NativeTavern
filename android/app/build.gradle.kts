@@ -57,6 +57,14 @@ android {
             )
         }
     }
+
+    // Local Dream / QNN: ProcessBuilder must run libstable_diffusion_core.so from
+    // a real filesystem path. Legacy packaging extracts jniLibs out of the APK.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
 }
 
 kotlin {

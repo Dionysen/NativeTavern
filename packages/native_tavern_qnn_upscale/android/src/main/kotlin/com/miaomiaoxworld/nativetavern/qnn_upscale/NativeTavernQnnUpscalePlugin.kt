@@ -481,8 +481,7 @@ class NativeTavernQnnUpscalePlugin : FlutterPlugin, MethodCallHandler, EventChan
         stopGenerationBackend(emit = false)
         emitStatus(STATE_STARTING, modelId = resolvedId, modelName = resolvedName, progress = 0.05, message = "Starting engine…")
         prepareRuntimeLibs(context)
-        val executable = nativeExecutable(context)
-            ?: throw IllegalStateException("Native executable not found")
+        val executable = requireNativeExecutable(context)
         val runtimeDir = File(context.filesDir, RUNTIME_DIR)
         val command = listOf(
             executable.absolutePath,
@@ -813,8 +812,7 @@ class NativeTavernQnnUpscalePlugin : FlutterPlugin, MethodCallHandler, EventChan
     }
 
     private fun startUpscaleBackend(context: Context) {
-        val executable = nativeExecutable(context)
-            ?: throw IllegalStateException("Native upscaler executable not found")
+        val executable = requireNativeExecutable(context)
         val runtimeDir = prepareRuntimeLibs(context)
         val command = listOf(
             executable.absolutePath,
@@ -902,10 +900,56 @@ class NativeTavernQnnUpscalePlugin : FlutterPlugin, MethodCallHandler, EventChan
         return runtimeDir
     }
 
+    private fun requireNativeExecutable(context: Context): File {
+        val file = nativeExecutable(context)
+        if (file != null) return file
+        val nativeDir = context.applicationInfo.nativeLibraryDir
+        val listed = nativeDir
+            ?.let { File(it).list()?.sorted()?.joinToString() }
+            ?: "(none)"
+        throw IllegalStateException(
+            "Native executable not found ($EXECUTABLE_NAME). " +
+                "nativeLibraryDir=$nativeDir contents=[$listed]. " +
+                "Rebuild/reinstall the app so jniLibs are extracted " +
+                "(useLegacyPackaging / extractNativeLibs).",
+        )
+    }
+
     private fun nativeExecutable(context: Context): File? {
-        val nativeDir = context.applicationInfo.nativeLibraryDir ?: return null
-        val file = File(nativeDir, EXECUTABLE_NAME)
-        return if (file.exists()) file else null
+        val candidates = mutableListOf<File>()
+        context.applicationInfo.nativeLibraryDir?.let { dir ->
+            candidates += File(dir, EXECUTABLE_NAME)
+        }
+        // Fallback copy under filesDir (in case APK libs are not executable in place).
+        candidates += File(File(context.filesDir, "bin"), EXECUTABLE_NAME)
+
+        for (candidate in candidates) {
+            if (!candidate.isFile || candidate.length() <= 0L) continue
+            candidate.setReadable(true, true)
+            candidate.setExecutable(true, true)
+            if (candidate.canExecute() || candidate.exists()) {
+                return candidate
+            }
+        }
+
+        // If the library exists in nativeLibraryDir but ProcessBuilder needs a
+        // private copy, mirror it into filesDir/bin.
+        val fromNative = context.applicationInfo.nativeLibraryDir
+            ?.let { File(it, EXECUTABLE_NAME) }
+        if (fromNative != null && fromNative.isFile && fromNative.length() > 0L) {
+            val destDir = File(context.filesDir, "bin")
+            if (!destDir.exists()) destDir.mkdirs()
+            val dest = File(destDir, EXECUTABLE_NAME)
+            try {
+                fromNative.copyTo(dest, overwrite = true)
+                dest.setReadable(true, true)
+                dest.setExecutable(true, true)
+                if (dest.isFile && dest.length() > 0L) return dest
+            } catch (error: Exception) {
+                Log.w(TAG, "Failed to copy native executable: ${error.message}")
+            }
+        }
+        return null
     }
 
     private fun upscalerModelFile(context: Context): File {
