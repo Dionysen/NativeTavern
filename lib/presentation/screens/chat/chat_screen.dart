@@ -1167,7 +1167,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     await _attachGeneratedImagesToNewMessage(
       result,
-      content: layered.prompt,
       character: chatState.character,
     );
   }
@@ -2782,7 +2781,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
       await _attachGeneratedImagesToNewMessage(
         result,
-        content: sceneTags,
         character: speaker,
       );
     } catch (error) {
@@ -2827,7 +2825,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Future<void> _attachGeneratedImagesToNewMessage(
     ImageGenResult result, {
-    String? content,
     Character? character,
   }) async {
     final l10n = AppLocalizations.of(context);
@@ -2836,7 +2833,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final speaker = character ?? ref.read(activeChatProvider).character;
       await ref.read(activeChatProvider.notifier).addLocalMessage(
         role: MessageRole.assistant,
-        content: content ?? result.prompt,
+        content: '',
         attachments: attachments,
         characterId: speaker?.id,
         characterName: speaker?.name,
