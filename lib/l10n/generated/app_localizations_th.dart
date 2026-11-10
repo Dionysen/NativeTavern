@@ -2348,6 +2348,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get localQnnDownloadModel => 'Download';
 
   @override
+  String get localQnnImportZip => 'Import zip';
+
+  @override
+  String get localQnnImportZipHint =>
+      'Use a model zip you already downloaded, same style as Local Dream.';
+
+  @override
   String get localQnnNotDownloaded => 'Not downloaded';
 
   @override
@@ -2355,6 +2362,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get localQnnDownloadFailed => 'Download failed';
+
+  @override
+  String get localQnnImportComplete => 'Model imported';
+
+  @override
+  String get localQnnImportFailed => 'Import failed';
 
   @override
   String get localQnnUnavailable => 'Local generation is unavailable';

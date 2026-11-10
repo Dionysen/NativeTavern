@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -667,15 +668,32 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                                 ? theme.colorScheme.primary
                                 : null,
                           )
-                        : TextButton(
-                            onPressed: settings.enabled
-                                ? () => _downloadLocalQnnModel(
-                                      context,
-                                      ref,
-                                      model.id,
-                                    )
-                                : null,
-                            child: Text(l10n.localQnnDownloadModel),
+                        : Wrap(
+                            spacing: 4,
+                            children: [
+                              TextButton(
+                                onPressed: settings.enabled
+                                    ? () => _importLocalQnnZip(
+                                          context,
+                                          ref,
+                                          modelId: model.id,
+                                          modelName: model.name,
+                                        )
+                                    : null,
+                                child: Text(l10n.localQnnImportZip),
+                              ),
+                              if (!model.custom)
+                                TextButton(
+                                  onPressed: settings.enabled
+                                      ? () => _downloadLocalQnnModel(
+                                            context,
+                                            ref,
+                                            model.id,
+                                          )
+                                      : null,
+                                  child: Text(l10n.localQnnDownloadModel),
+                                ),
+                            ],
                           ),
                     onTap: settings.enabled && model.downloaded
                         ? () {
@@ -690,9 +708,22 @@ class ImageGenSettingsScreen extends ConsumerWidget {
           },
         ),
         Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: settings.enabled
+                  ? () => _importLocalQnnZip(context, ref)
+                  : null,
+              icon: const Icon(Icons.folder_zip_outlined),
+              label: Text(l10n.localQnnImportZip),
+            ),
+          ),
+        ),
+        Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: Text(
-            l10n.localQnnOnlySnapdragonHint,
+            '${l10n.localQnnImportZipHint}\n${l10n.localQnnOnlySnapdragonHint}',
             style: theme.textTheme.bodySmall,
           ),
         ),
@@ -742,6 +773,41 @@ class ImageGenSettingsScreen extends ConsumerWidget {
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(content: Text('${l10n.localQnnDownloadFailed}: $e')),
+      );
+    }
+  }
+
+  Future<void> _importLocalQnnZip(
+    BuildContext context,
+    WidgetRef ref, {
+    String? modelId,
+    String? modelName,
+  }) async {
+    final plugin = ref.read(localQnnPluginProvider);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final picked = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: const ['zip'],
+        withData: false,
+      );
+      final path = picked?.files.single.path;
+      if (path == null || path.isEmpty) return;
+
+      final imported = await plugin.importModelZip(
+        zipPath: path,
+        modelId: modelId,
+        modelName: modelName,
+      );
+      ref.invalidate(localQnnCatalogProvider);
+      ref.read(imageGenSettingsProvider.notifier).setModel(imported.id);
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.localQnnImportComplete)),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('${l10n.localQnnImportFailed}: $e')),
       );
     }
   }

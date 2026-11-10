@@ -4335,6 +4335,18 @@ abstract class AppLocalizations {
   /// **'Download'**
   String get localQnnDownloadModel;
 
+  /// Import Local Dream compatible model zip button
+  ///
+  /// In en, this message translates to:
+  /// **'Import zip'**
+  String get localQnnImportZip;
+
+  /// Hint for importing a local model zip
+  ///
+  /// In en, this message translates to:
+  /// **'Use a model zip you already downloaded, same style as Local Dream.'**
+  String get localQnnImportZipHint;
+
   /// Local QNN model not on disk
   ///
   /// In en, this message translates to:
@@ -4352,6 +4364,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download failed'**
   String get localQnnDownloadFailed;
+
+  /// SnackBar after importing a local model zip
+  ///
+  /// In en, this message translates to:
+  /// **'Model imported'**
+  String get localQnnImportComplete;
+
+  /// SnackBar when local model zip import fails
+  ///
+  /// In en, this message translates to:
+  /// **'Import failed'**
+  String get localQnnImportFailed;
 
   /// Local QNN unavailable title
   ///

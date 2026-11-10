@@ -2294,6 +2294,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get localQnnDownloadModel => '下载';
 
   @override
+  String get localQnnImportZip => '导入 zip';
+
+  @override
+  String get localQnnImportZipHint => '可以用已经下载好的模型 zip，用法和 Local Dream 一样。';
+
+  @override
   String get localQnnNotDownloaded => '未下载';
 
   @override
@@ -2301,6 +2307,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get localQnnDownloadFailed => '下载失败';
+
+  @override
+  String get localQnnImportComplete => '模型已导入';
+
+  @override
+  String get localQnnImportFailed => '导入失败';
 
   @override
   String get localQnnUnavailable => '本地生图不可用';
@@ -9765,6 +9777,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get localQnnDownloadModel => '下載';
 
   @override
+  String get localQnnImportZip => '匯入 zip';
+
+  @override
+  String get localQnnImportZipHint => '可以用已經下載好的模型 zip，用法和 Local Dream 一樣。';
+
+  @override
   String get localQnnNotDownloaded => '未下載';
 
   @override
@@ -9772,6 +9790,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get localQnnDownloadFailed => '下載失敗';
+
+  @override
+  String get localQnnImportComplete => '模型已匯入';
+
+  @override
+  String get localQnnImportFailed => '匯入失敗';
 
   @override
   String get localQnnUnavailable => '本機生圖不可用';

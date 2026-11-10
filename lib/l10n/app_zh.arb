@@ -2859,6 +2859,14 @@
   "@localQnnDownloadModel": {
     "description": "Download Local QNN model button"
   },
+  "localQnnImportZip": "导入 zip",
+  "@localQnnImportZip": {
+    "description": "Import Local Dream compatible model zip button"
+  },
+  "localQnnImportZipHint": "可以用已经下载好的模型 zip，用法和 Local Dream 一样。",
+  "@localQnnImportZipHint": {
+    "description": "Hint for importing a local model zip"
+  },
   "localQnnNotDownloaded": "未下载",
   "@localQnnNotDownloaded": {
     "description": "Local QNN model not on disk"
@@ -2870,6 +2878,14 @@
   "localQnnDownloadFailed": "下载失败",
   "@localQnnDownloadFailed": {
     "description": "SnackBar when Local QNN model download fails"
+  },
+  "localQnnImportComplete": "模型已导入",
+  "@localQnnImportComplete": {
+    "description": "SnackBar after importing a local model zip"
+  },
+  "localQnnImportFailed": "导入失败",
+  "@localQnnImportFailed": {
+    "description": "SnackBar when local model zip import fails"
   },
   "localQnnUnavailable": "本地生图不可用",
   "@localQnnUnavailable": {

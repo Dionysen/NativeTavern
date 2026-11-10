@@ -120,6 +120,32 @@ class NativeTavernQnnUpscalePlugin : FlutterPlugin, MethodCallHandler, EventChan
                 result.success(null)
             }
 
+            "importModelZip" -> {
+                val ctx = appContext
+                val zipPath = call.argument<String>("zipPath")
+                if (ctx == null || zipPath.isNullOrBlank()) {
+                    result.error("bad_args", "zipPath required", null)
+                    return
+                }
+                val modelId = call.argument<String>("modelId")
+                val modelName = call.argument<String>("modelName")
+                executor.execute {
+                    try {
+                        val imported = importModelZip(
+                            ctx,
+                            zipPath = zipPath,
+                            requestedModelId = modelId,
+                            requestedModelName = modelName,
+                        )
+                        runOnMain { result.success(imported) }
+                    } catch (error: Exception) {
+                        Log.e(TAG, "importModelZip failed", error)
+                        emitStatus(STATE_ERROR, message = error.message)
+                        runOnMain { result.error("import_failed", error.message, null) }
+                    }
+                }
+            }
+
             "startModel" -> {
                 val ctx = appContext
                 val modelId = call.argument<String>("modelId")
@@ -254,19 +280,51 @@ class NativeTavernQnnUpscalePlugin : FlutterPlugin, MethodCallHandler, EventChan
 
     private fun listCatalog(context: Context): List<Map<String, Any?>> {
         val suffix = chipsetSuffix(deviceSoc()) ?: "min"
-        return CATALOG.map { entry ->
+        val builtIn = CATALOG.map { entry ->
             val dir = modelDir(context, entry.id)
-            val downloaded = dir.isDirectory && (dir.listFiles()?.isNotEmpty() == true)
+            val downloaded = isModelDirReady(dir)
             mapOf(
                 "id" to entry.id,
                 "name" to entry.name,
                 "approximateSize" to entry.approximateSize,
                 "fileUri" to entry.fileUri(suffix),
                 "downloaded" to downloaded,
+                "custom" to false,
                 "defaultPrompt" to entry.defaultPrompt,
                 "defaultNegativePrompt" to entry.defaultNegativePrompt,
             )
         }
+        return builtIn + listCustomModels(context)
+    }
+
+    private fun listCustomModels(context: Context): List<Map<String, Any?>> {
+        val root = File(context.filesDir, "models")
+        if (!root.isDirectory) return emptyList()
+        val catalogIds = CATALOG.map { it.id }.toSet()
+        return root.listFiles()
+            ?.asSequence()
+            ?.filter { it.isDirectory && it.name !in catalogIds && isModelDirReady(it) }
+            ?.map { dir ->
+                mapOf(
+                    "id" to dir.name,
+                    "name" to dir.name,
+                    "approximateSize" to "—",
+                    "fileUri" to "",
+                    "downloaded" to true,
+                    "custom" to true,
+                    "defaultPrompt" to "",
+                    "defaultNegativePrompt" to "",
+                )
+            }
+            ?.toList()
+            ?: emptyList()
+    }
+
+    private fun isModelDirReady(dir: File): Boolean {
+        if (!dir.isDirectory) return false
+        return dir.listFiles()?.any { file ->
+            file.isFile && file.name != "npucustom" && !file.name.startsWith(".")
+        } == true
     }
 
     private fun downloadModel(context: Context, modelId: String) {
@@ -276,7 +334,7 @@ class NativeTavernQnnUpscalePlugin : FlutterPlugin, MethodCallHandler, EventChan
         val suffix = chipsetSuffix(deviceSoc()) ?: "min"
         val url = "https://huggingface.co/${entry.fileUri(suffix)}"
         val modelDir = modelDir(context, modelId)
-        if (modelDir.exists() && modelDir.listFiles()?.isNotEmpty() == true) {
+        if (isModelDirReady(modelDir)) {
             emitStatus(statusState, modelId = statusModelId, modelName = statusModelName, message = statusMessage)
             return
         }
@@ -292,36 +350,136 @@ class NativeTavernQnnUpscalePlugin : FlutterPlugin, MethodCallHandler, EventChan
             }
             if (cancelDownload.get()) throw InterruptedException("Download cancelled")
             emitStatus(STATE_DOWNLOADING, modelId = modelId, modelName = entry.name, progress = 0.92, message = "Extracting…")
+            installExtractedModel(zipFile, modelDir, custom = false)
+            emitStatus(STATE_IDLE, message = "Download complete")
+        } finally {
+            zipFile.delete()
             if (extractDir.exists()) extractDir.deleteRecursively()
-            extractDir.mkdirs()
+        }
+    }
+
+    /**
+     * Import a Local Dream–compatible NPU model zip already on disk.
+     * Matches built-in catalog by zip prefix when possible; otherwise installs as custom.
+     */
+    private fun importModelZip(
+        context: Context,
+        zipPath: String,
+        requestedModelId: String?,
+        requestedModelName: String?,
+    ): Map<String, Any?> {
+        val zipFile = File(zipPath)
+        if (!zipFile.isFile) {
+            throw IllegalArgumentException("Zip not found: $zipPath")
+        }
+
+        val fileName = zipFile.name
+        val matched = matchCatalogByZipName(fileName)
+        val modelId = when {
+            !requestedModelId.isNullOrBlank() -> sanitizeModelId(requestedModelId)
+            matched != null -> matched.id
+            else -> {
+                val raw = requestedModelName?.takeIf { it.isNotBlank() }
+                    ?: fileName.substringBeforeLast('.').substringBefore("_qnn")
+                sanitizeModelId(raw).ifBlank { "custom_model" }
+            }
+        }
+        val catalogEntry = CATALOG.firstOrNull { it.id == modelId }
+        val isCustom = catalogEntry == null
+        val modelName = when {
+            !requestedModelName.isNullOrBlank() -> requestedModelName.trim()
+            catalogEntry != null -> catalogEntry.name
+            matched != null -> matched.name
+            else -> modelId
+        }
+
+        emitStatus(
+            STATE_DOWNLOADING,
+            modelId = modelId,
+            modelName = modelName,
+            progress = 0.5,
+            message = "Extracting…",
+        )
+        val modelDir = modelDir(context, modelId)
+        installExtractedModel(zipFile, modelDir, custom = isCustom)
+        emitStatus(STATE_IDLE, message = "Import complete")
+
+        return mapOf(
+            "id" to modelId,
+            "name" to modelName,
+            "approximateSize" to catalogEntry?.approximateSize.orEmpty().ifBlank { "—" },
+            "fileUri" to "",
+            "downloaded" to true,
+            "custom" to isCustom,
+            "defaultPrompt" to (catalogEntry?.defaultPrompt ?: ""),
+            "defaultNegativePrompt" to (catalogEntry?.defaultNegativePrompt ?: ""),
+        )
+    }
+
+    private fun installExtractedModel(zipFile: File, modelDir: File, custom: Boolean) {
+        val extractDir = File(zipFile.parentFile ?: zipFile, "${zipFile.nameWithoutExtension}_extract")
+        if (extractDir.exists()) extractDir.deleteRecursively()
+        extractDir.mkdirs()
+        try {
             unzipFlatten(zipFile, extractDir)
             if (modelDir.exists()) modelDir.deleteRecursively()
             modelDir.mkdirs()
             extractDir.listFiles()?.forEach { file ->
                 file.renameTo(File(modelDir, file.name))
             }
-            emitStatus(STATE_IDLE, message = "Download complete")
+            if (custom) {
+                File(modelDir, "npucustom").createNewFile()
+            }
+            if (!isModelDirReady(modelDir)) {
+                modelDir.deleteRecursively()
+                throw IllegalStateException("Zip had no usable model files")
+            }
         } finally {
-            zipFile.delete()
             extractDir.deleteRecursively()
         }
     }
 
+    private fun matchCatalogByZipName(fileName: String): CatalogEntry? {
+        val base = fileName.substringAfterLast('/').substringBeforeLast('.')
+        return CATALOG.firstOrNull { entry ->
+            base.equals(entry.zipPrefix, ignoreCase = true) ||
+                base.startsWith("${entry.zipPrefix}_", ignoreCase = true)
+        }
+    }
+
+    private fun sanitizeModelId(raw: String): String {
+        return raw.replace(" ", "")
+            .replace(Regex("[^A-Za-z0-9._-]"), "")
+            .trim()
+    }
+
     // --- Generation backend -------------------------------------------------
 
-    private fun startGenerationModel(context: Context, modelId: String) {
+    private fun resolveModel(context: Context, modelId: String): Pair<String, String> {
         val entry = CATALOG.firstOrNull { it.id == modelId }
-            ?: throw IllegalArgumentException("Unknown model: $modelId")
-        val dir = modelDir(context, modelId)
-        if (!dir.isDirectory || dir.listFiles().isNullOrEmpty()) {
-            throw IllegalStateException("Model not downloaded: ${entry.name}")
+        if (entry != null) {
+            val dir = modelDir(context, modelId)
+            if (!isModelDirReady(dir)) {
+                throw IllegalStateException("Model not downloaded: ${entry.name}")
+            }
+            return entry.id to entry.name
         }
-        if (statusState == STATE_READY && statusModelId == modelId && genProcess.get()?.isAlive == true) {
-            emitStatus(STATE_READY, modelId = modelId, modelName = entry.name, progress = 1.0, message = "Ready")
+        val dir = modelDir(context, modelId)
+        if (!isModelDirReady(dir)) {
+            throw IllegalStateException("Model not downloaded: $modelId")
+        }
+        return modelId to modelId
+    }
+
+    private fun startGenerationModel(context: Context, modelId: String) {
+        val (resolvedId, resolvedName) = resolveModel(context, modelId)
+        val dir = modelDir(context, resolvedId)
+        if (statusState == STATE_READY && statusModelId == resolvedId && genProcess.get()?.isAlive == true) {
+            emitStatus(STATE_READY, modelId = resolvedId, modelName = resolvedName, progress = 1.0, message = "Ready")
             return
         }
         stopGenerationBackend(emit = false)
-        emitStatus(STATE_STARTING, modelId = modelId, modelName = entry.name, progress = 0.05, message = "Starting engine…")
+        emitStatus(STATE_STARTING, modelId = resolvedId, modelName = resolvedName, progress = 0.05, message = "Starting engine…")
         prepareRuntimeLibs(context)
         val executable = nativeExecutable(context)
             ?: throw IllegalStateException("Native executable not found")
@@ -341,7 +499,7 @@ class NativeTavernQnnUpscalePlugin : FlutterPlugin, MethodCallHandler, EventChan
             "/vendor/lib64/egl",
         ).joinToString(":")
         Log.i(TAG, "Starting gen backend: ${command.joinToString(" ")}")
-        emitStatus(STATE_LOADING, modelId = modelId, modelName = entry.name, progress = 0.2, message = "Loading into memory…")
+        emitStatus(STATE_LOADING, modelId = resolvedId, modelName = resolvedName, progress = 0.2, message = "Loading into memory…")
         val builder = ProcessBuilder(command).apply {
             directory(executable.parentFile)
             redirectErrorStream(true)
@@ -359,7 +517,7 @@ class NativeTavernQnnUpscalePlugin : FlutterPlugin, MethodCallHandler, EventChan
             }
         }, "qnn-gen-log").apply { isDaemon = true }.start()
 
-        LocalQnnBackendService.start(context, entry.name)
+        LocalQnnBackendService.start(context, resolvedName)
 
         val deadline = System.currentTimeMillis() + 180_000
         var tick = 0.2
@@ -368,13 +526,13 @@ class NativeTavernQnnUpscalePlugin : FlutterPlugin, MethodCallHandler, EventChan
                 throw IllegalStateException("Generation backend exited while loading")
             }
             if (waitForHealth(GEN_PORT, timeoutMs = 800)) {
-                statusModelId = modelId
-                statusModelName = entry.name
-                emitStatus(STATE_READY, modelId = modelId, modelName = entry.name, progress = 1.0, message = "Ready")
+                statusModelId = resolvedId
+                statusModelName = resolvedName
+                emitStatus(STATE_READY, modelId = resolvedId, modelName = resolvedName, progress = 1.0, message = "Ready")
                 return
             }
             tick = (tick + 0.03).coerceAtMost(0.95)
-            emitStatus(STATE_LOADING, modelId = modelId, modelName = entry.name, progress = tick, message = "Loading into memory…")
+            emitStatus(STATE_LOADING, modelId = resolvedId, modelName = resolvedName, progress = tick, message = "Loading into memory…")
         }
         stopGenerationBackend(emit = false)
         throw IllegalStateException("Timed out waiting for model to become ready")

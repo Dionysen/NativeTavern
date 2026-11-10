@@ -3297,6 +3297,14 @@
   "@localQnnDownloadModel": {
     "description": "Download Local QNN model button"
   },
+  "localQnnImportZip": "Import zip",
+  "@localQnnImportZip": {
+    "description": "Import Local Dream compatible model zip button"
+  },
+  "localQnnImportZipHint": "Use a model zip you already downloaded, same style as Local Dream.",
+  "@localQnnImportZipHint": {
+    "description": "Hint for importing a local model zip"
+  },
   "localQnnNotDownloaded": "Not downloaded",
   "@localQnnNotDownloaded": {
     "description": "Local QNN model not on disk"
@@ -3308,6 +3316,14 @@
   "localQnnDownloadFailed": "Download failed",
   "@localQnnDownloadFailed": {
     "description": "SnackBar when Local QNN model download fails"
+  },
+  "localQnnImportComplete": "Model imported",
+  "@localQnnImportComplete": {
+    "description": "SnackBar after importing a local model zip"
+  },
+  "localQnnImportFailed": "Import failed",
+  "@localQnnImportFailed": {
+    "description": "SnackBar when local model zip import fails"
   },
   "localQnnUnavailable": "Local generation is unavailable",
   "@localQnnUnavailable": {

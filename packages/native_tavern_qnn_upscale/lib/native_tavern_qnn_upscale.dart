@@ -45,6 +45,23 @@ class NativeTavernQnnUpscale {
     await _channel.invokeMethod<void>('downloadModel', {'modelId': modelId});
   }
 
+  /// Install a Local Dream–compatible NPU model zip already on the device.
+  Future<LocalQnnCatalogModel> importModelZip({
+    required String zipPath,
+    String? modelId,
+    String? modelName,
+  }) async {
+    final raw = await _channel.invokeMethod<Map<Object?, Object?>>(
+      'importModelZip',
+      <String, dynamic>{
+        'zipPath': zipPath,
+        if (modelId != null && modelId.isNotEmpty) 'modelId': modelId,
+        if (modelName != null && modelName.isNotEmpty) 'modelName': modelName,
+      },
+    );
+    return LocalQnnCatalogModel.fromMap(_stringKeyMap(raw));
+  }
+
   Future<void> cancelDownload() async {
     try {
       await _channel.invokeMethod<void>('cancelDownload');
@@ -187,6 +204,7 @@ class LocalQnnCatalogModel {
     required this.name,
     required this.approximateSize,
     required this.downloaded,
+    this.custom = false,
     this.defaultPrompt = '',
     this.defaultNegativePrompt = '',
   });
@@ -195,6 +213,7 @@ class LocalQnnCatalogModel {
   final String name;
   final String approximateSize;
   final bool downloaded;
+  final bool custom;
   final String defaultPrompt;
   final String defaultNegativePrompt;
 
@@ -204,6 +223,7 @@ class LocalQnnCatalogModel {
       name: map['name']?.toString() ?? '',
       approximateSize: map['approximateSize']?.toString() ?? '',
       downloaded: map['downloaded'] == true,
+      custom: map['custom'] == true,
       defaultPrompt: map['defaultPrompt']?.toString() ?? '',
       defaultNegativePrompt: map['defaultNegativePrompt']?.toString() ?? '',
     );
