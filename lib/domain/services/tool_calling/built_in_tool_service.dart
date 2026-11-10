@@ -8,6 +8,7 @@ import 'package:native_tavern/domain/models/built_in_tool.dart';
 import 'package:native_tavern/domain/models/tool_calling.dart';
 import 'package:native_tavern/domain/services/capability_registry.dart';
 import 'package:native_tavern/domain/services/image_generation_service.dart';
+import 'package:native_tavern/domain/services/image_prompt_composer.dart';
 import 'package:native_tavern/domain/services/tool_calling/tool_execution_audit_service.dart';
 import 'package:native_tavern/domain/services/variables_service.dart';
 
@@ -432,7 +433,11 @@ final class GenerateImageToolExecutor extends BuiltInToolExecutor {
   BuiltInToolDescriptor get descriptor => BuiltInToolDescriptor(
         definition: ToolDefinition(
           name: toolName,
-          description: 'Generate an image with the configured image provider.',
+          description:
+              'Generate an anime image via the configured provider (ComfyUI/NoobAI). '
+              'Pass Danbooru scene tags only: subject count, pose/action, expression, '
+              'clothing state, location, lighting. Do not write English sentences. '
+              'Quality prefix + rating are applied automatically.',
           inputSchema: const {
             'type': 'object',
             'additionalProperties': false,
@@ -496,12 +501,12 @@ final class GenerateImageToolExecutor extends BuiltInToolExecutor {
         'negative_prompt': value,
       'width': width,
       'height': height,
-      'steps': input.optionalInt('steps', minimum: 1, maximum: 150) ?? 20,
+      'steps': input.optionalInt('steps', minimum: 1, maximum: 150) ?? 16,
       'cfg_scale':
-          input.optionalDouble('cfg_scale', minimum: 0, maximum: 30) ?? 7.0,
-      'sampler': input.optionalString('sampler', maxLength: 64) ?? 'euler_a',
-      if (input.optionalString('scheduler', maxLength: 64) case final value?)
-        'scheduler': value,
+          input.optionalDouble('cfg_scale', minimum: 0, maximum: 30) ?? 4.5,
+      'sampler': input.optionalString('sampler', maxLength: 64) ?? 'euler',
+      'scheduler':
+          input.optionalString('scheduler', maxLength: 64) ?? 'normal',
       if (input.optionalString('model', maxLength: 128) case final value?)
         'model': value,
       if (input.optionalInt('seed', minimum: -1, maximum: 0x7fffffff)
@@ -543,15 +548,25 @@ final class GenerateImageToolExecutor extends BuiltInToolExecutor {
         'Image generation is not configured or enabled.',
       );
     }
+    // Polish tool prompts through the NoobAI skill assembler so raw model dumps
+    // like "1girl, 1boy, fuck" still get quality tags + dynamic rating.
+    const composer = ImagePromptComposer();
+    final rawPrompt = arguments['prompt'] as String;
+    final polishedPrompt = composer.assembleFinalPrompt(sceneTags: rawPrompt);
+    final rawNegative = arguments['negative_prompt'] as String?;
+    final polishedNegative =
+        (rawNegative != null && rawNegative.trim().isNotEmpty)
+            ? rawNegative.trim()
+            : ImagePromptComposer.defaultNegativePrompt;
     final request = ImageGenRequest(
-      prompt: arguments['prompt'] as String,
-      negativePrompt: arguments['negative_prompt'] as String?,
+      prompt: polishedPrompt,
+      negativePrompt: polishedNegative,
       width: arguments['width'] as int,
       height: arguments['height'] as int,
       steps: arguments['steps'] as int,
       cfgScale: arguments['cfg_scale'] as double,
       sampler: arguments['sampler'] as String,
-      scheduler: arguments['scheduler'] as String?,
+      scheduler: arguments['scheduler'] as String? ?? 'normal',
       model: arguments['model'] as String?,
       seed: arguments['seed'] as int?,
       batchSize: arguments['batch_size'] as int,

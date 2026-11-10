@@ -1,34 +1,23 @@
 import 'package:native_tavern/domain/services/llm_service.dart';
+import 'package:native_tavern/domain/skills/noobai_danbooru_prompt_skill.dart';
 
-/// Builds / assembles image prompts in the SillyTavern scene style:
-/// quality prefix + LLM Danbooru tags + short beauty polish + appearances,
-/// capped near the classic CLIP 75-token budget.
+/// Builds / assembles image prompts for NoobAI / Illustrious (SDXL-class):
+/// quality prefix + LLM Danbooru scene tags + appearances + dynamic rating.
 class ImagePromptComposer {
-  /// Soft CLIP-style budget for the final positive prompt (SD1.5 era).
-  static const maxPromptTokens = 75;
+  /// Soft token budget for the final positive prompt (SDXL / NoobAI).
+  /// Older SD1.5 CLIP ~75 limit was truncating useful scene detail.
+  static const maxPromptTokens = 150;
 
   static const _maxFallbackLength = 280;
 
-  static const defaultCommonPrefix =
-      'masterpiece, best quality, anime style, {prompt}, rating:explicit';
+  static const defaultCommonPrefix = NoobaiDanbooruPromptSkill.commonPrefix;
 
-  /// Short always-on polish — keep tiny so scene/appearance keep the budget.
-  static const defaultBeautyBoost =
-      'beautiful face, detailed eyes, perfect body';
+  /// Kept for backward-compatible settings; skill default is empty.
+  static const defaultBeautyBoost = NoobaiDanbooruPromptSkill.beautyBoost;
 
-  static const defaultNegativePrompt =
-      'worst quality, low quality, lowres, bad hands, mutated hands, extra digits, '
-      'bad anatomy, ugly, deformed, disfigured, asymmetric eyes, signature, username, '
-      'watermark, character fusion, face merge, fused faces, censored, mosaic censoring, '
-      'text, logo, multiple views';
+  static const defaultNegativePrompt = NoobaiDanbooruPromptSkill.negativePrompt;
 
-  static const defaultLlmInstruction =
-      'Convert the latest chat moment into ONE line of Danbooru tags for anime image generation.\n'
-      'Include: subject count (1boy, 1girl), action/pose, expression, clothing state, location, lighting.\n'
-      'Do NOT write full English sentences. Do NOT explain. Do NOT repeat fixed appearance tags.\n'
-      'Keep it short: at most 20 comma-separated tags (prefer 8–15).\n'
-      'For NSFW use explicit action tags (kissing, sex, vaginal, doggy style, missionary, etc.).\n'
-      'Output tags only, comma-separated.';
+  static const defaultLlmInstruction = NoobaiDanbooruPromptSkill.instruction;
 
   const ImagePromptComposer();
 
@@ -58,7 +47,7 @@ class ImagePromptComposer {
     if (cleaned.isEmpty) {
       return subject == null || subject.isEmpty
           ? ''
-          : '1girl, solo, looking at viewer, $subject';
+          : '1girl, solo, looking_at_viewer, $subject';
     }
     if (subject == null || subject.isEmpty) return cleaned;
     return cleaned;
@@ -93,19 +82,21 @@ class ImagePromptComposer {
       {
         'role': 'user',
         'content': [
+          'Skill: ${NoobaiDanbooruPromptSkill.id} v${NoobaiDanbooruPromptSkill.version}',
           subjectLine,
           ...appearanceBits,
           'Scene:',
           scene.isEmpty ? '(empty)' : scene,
+          'Remember: tags only; match clothing/NSFW to the scene; include subject count + pose + location + lighting.',
         ].join('\n'),
       },
     ];
   }
 
-  /// Final ComfyUI / SD prompt, capped to [maxPromptTokens].
+  /// Final ComfyUI / SD prompt, capped to [maxTokens].
   ///
-  /// Body is packed in sections so a long scene dump cannot wipe appearance:
-  /// scene (~50%) → appearances (~40%) → beauty (remainder).
+  /// Body packing: scene (~55%) → appearances (~40%) → beauty (remainder).
+  /// Rating is resolved from content unless the prefix already hard-codes one.
   String assembleFinalPrompt({
     required String sceneTags,
     String? commonPrefix,
@@ -114,30 +105,35 @@ class ImagePromptComposer {
     String? beautyBoost,
     int maxTokens = maxPromptTokens,
   }) {
-    final beauty = (beautyBoost == null || beautyBoost.trim().isEmpty)
+    final beauty = beautyBoost == null
         ? defaultBeautyBoost
         : beautyBoost.trim();
     final prefix = (commonPrefix == null || commonPrefix.trim().isEmpty)
         ? defaultCommonPrefix
         : commonPrefix.trim();
 
-    final prefixShellCost = prefix.contains('{prompt}')
-        ? estimateClipTokens(prefix.replaceAll('{prompt}', ' '))
-        : estimateClipTokens(prefix);
+    final ratingPlaceholder = prefix.contains('{rating}');
+    final prefixForCost = prefix
+        .replaceAll('{prompt}', ' ')
+        .replaceAll('{rating}', 'rating:explicit');
+    final prefixShellCost = estimateClipTokens(prefixForCost);
     final bodyBudget =
         (maxTokens - prefixShellCost).clamp(0, maxTokens).toInt();
 
-    final sceneCap = (bodyBudget * 0.5).floor().clamp(0, 40);
-    final appearanceCap = (bodyBudget * 0.4).floor().clamp(0, 28);
+    final sceneCap = (bodyBudget * 0.55).floor().clamp(0, 90);
+    final appearanceCap = (bodyBudget * 0.4).floor().clamp(0, 50);
 
-    final scene = fitTagsToBudget(_splitTags(sceneTags), sceneCap);
+    final scene = fitTagsToBudget(
+      _stripRatingTags(_splitTags(sceneTags)),
+      sceneCap,
+    );
     var used = _tokensForTags(scene);
     final taken = {for (final tag in scene) tag.toLowerCase()};
 
     final appearances = fitTagsToBudget(
       [
-        ..._splitTags(characterAppearance ?? ''),
-        ..._splitTags(personaAppearance ?? ''),
+        ..._stripRatingTags(_splitTags(characterAppearance ?? '')),
+        ..._stripRatingTags(_splitTags(personaAppearance ?? '')),
       ].where((tag) => !taken.contains(tag.toLowerCase())),
       _minInt(appearanceCap, bodyBudget - used),
     );
@@ -154,16 +150,35 @@ class ImagePromptComposer {
       bodyBudget,
     );
 
+    final rating = NoobaiDanbooruPromptSkill.resolveRatingTag(
+      [sceneTags, characterAppearance ?? '', personaAppearance ?? ''].join(', '),
+    );
+
     if (body.isEmpty) {
-      return fitTagsToBudget(
-        _splitTags(prefix.replaceAll('{prompt}', '')),
-        maxTokens,
-      ).join(', ');
+      final emptyShell = prefix
+          .replaceAll('{prompt}', '')
+          .replaceAll('{rating}', rating);
+      return fitTagsToBudget(_splitTags(emptyShell), maxTokens).join(', ');
     }
-    final assembled = prefix.contains('{prompt}')
+
+    var assembled = prefix.contains('{prompt}')
         ? prefix.replaceAll('{prompt}', body.join(', '))
         : '${_splitTags(prefix).join(', ')}, ${body.join(', ')}';
-    return fitTagsToBudget(_splitTags(assembled), maxTokens).join(', ');
+
+    if (ratingPlaceholder) {
+      assembled = assembled.replaceAll('{rating}', rating);
+    } else if (!_splitTags(assembled).any(
+      (tag) => tag.toLowerCase().startsWith('rating:'),
+    )) {
+      assembled = '$assembled, $rating';
+    }
+
+    // Drop contradictory clothing-ish leftovers is left to the LLM; we only
+    // ensure a single rating tag survives.
+    return fitTagsToBudget(
+      _dedupeRatingTags(_splitTags(assembled), preferred: rating),
+      maxTokens,
+    ).join(', ');
   }
 
   static int _tokensForTags(List<String> tags) =>
@@ -200,6 +215,31 @@ class ImagePromptComposer {
         .toList();
   }
 
+  List<String> _stripRatingTags(List<String> tags) {
+    return tags
+        .where((tag) => !tag.toLowerCase().startsWith('rating:'))
+        .toList();
+  }
+
+  List<String> _dedupeRatingTags(
+    List<String> tags, {
+    required String preferred,
+  }) {
+    final out = <String>[];
+    var sawRating = false;
+    for (final tag in tags) {
+      if (tag.toLowerCase().startsWith('rating:')) {
+        if (sawRating) continue;
+        out.add(preferred);
+        sawRating = true;
+      } else {
+        out.add(tag);
+      }
+    }
+    if (!sawRating) out.add(preferred);
+    return out;
+  }
+
   String normalizeModelOutput(String raw) {
     var text = raw.trim();
     if (text.startsWith('```')) {
@@ -221,8 +261,8 @@ class ImagePromptComposer {
         .map((line) => line.trim())
         .where((line) => line.isNotEmpty);
     text = lines.isEmpty ? '' : lines.first;
-    // Soft-cap verbose model dumps before final assemble.
-    return fitTagsToBudget(_splitTags(text), 40).join(', ');
+    // Soft-cap verbose model dumps before final assemble (SDXL budget).
+    return fitTagsToBudget(_splitTags(text), 80).join(', ');
   }
 
   String _cleanScene(String sceneText) {

@@ -553,18 +553,23 @@ class ImageGenSettings {
     );
   }
 
-  /// Sensible NoobAI / ComfyUI scene defaults (V-pred friendly, ≤~10s on M4).
+  /// Sensible NoobAI / ComfyUI scene defaults (V-pred friendly).
+  ///
+  /// Prompt quality comes from [ImagePromptComposer] / NoobAI skill;
+  /// sampling stays Euler + normal (not karras) for V-pred stability.
   ImageGenSettings withComfyUiSceneDefaults() {
     return copyWith(
-      defaultWidth: 640,
-      defaultHeight: 640,
-      defaultSteps: 8,
-      defaultCfgScale: 4.0,
+      // Portrait-friendly SDXL size; 20 steps is a better clarity floor than 16.
+      defaultWidth: 832,
+      defaultHeight: 1216,
+      defaultSteps: 20,
+      defaultCfgScale: 4.5,
       defaultSampler: 'euler',
       defaultScheduler: 'normal',
-      defaultNegativePrompt: effectiveNegativePrompt,
-      commonPromptPrefix: effectiveCommonPromptPrefix,
-      llmImagePromptInstruction: effectiveLlmImagePromptInstruction,
+      // Always refresh to the current skill defaults when switching to ComfyUI.
+      defaultNegativePrompt: ImagePromptComposer.defaultNegativePrompt,
+      commonPromptPrefix: ImagePromptComposer.defaultCommonPrefix,
+      llmImagePromptInstruction: ImagePromptComposer.defaultLlmInstruction,
     );
   }
 }
