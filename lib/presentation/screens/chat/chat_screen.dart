@@ -110,11 +110,14 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   static final Object _importRpg = Object();
+
   /// Soft pin / explicit follow threshold (Zephyr AI chat uses 72).
   static const double _followSlop = 72.0;
+
   /// Hide the jump chip once the viewport is this close to the tail.
   /// Larger than [_followSlop] so “already at the bottom” matches what users see.
   static const double _scrollToBottomButtonSlop = 160.0;
+
   /// Shared [TapRegion] group so option panels dismiss on outside tap,
   /// without treating their own toggle buttons as outside.
   static const Object _composerOptionsTapGroup = Object();
@@ -123,6 +126,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final FocusNode _focusNode = FocusNode();
   bool _showSlashSuggestions = false;
   bool _showInputMenu = false;
+  bool _generatingQuickImage = false;
   bool _showChoicePanel = false;
   bool _choicePanelPinned = false;
   bool _showStatusPanel = false;
@@ -520,8 +524,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   static const double _appBarHideScrollThreshold = 12;
 
   void _updateChatAppBarVisibilityFromScroll(ScrollNotification notification) {
-    final hideOnScroll =
-        ref.read(appSettingsProvider).hideChatAppBarOnScroll;
+    final hideOnScroll = ref.read(appSettingsProvider).hideChatAppBarOnScroll;
     if (!hideOnScroll) {
       if (!_chatAppBarVisible) {
         setState(() => _chatAppBarVisible = true);
@@ -642,11 +645,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           : const Duration(milliseconds: 220);
       _programmaticScroll = true;
       unawaited(
-        position.animateTo(
+        position
+            .animateTo(
           target,
           duration: duration,
           curve: soft ? Curves.easeOut : Curves.easeOutCubic,
-        ).whenComplete(() {
+        )
+            .whenComplete(() {
           _programmaticScroll = false;
           if (!mounted) return;
           if (generation != null && generation != _scrollToBottomGeneration) {
@@ -1095,12 +1100,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     // `/sd`, `/sd last`, `/sd story` → scene from the latest assistant message.
     if (arg.isEmpty || modeKey == 'last' || modeKey == 'story') {
       final chatState = ref.read(activeChatProvider);
-      final lastAssistant =
-          chatState.messages.reversed.cast<ChatMessage?>().firstWhere(
-                (message) => message?.role == MessageRole.assistant,
-                orElse: () => null,
-              );
-      if (lastAssistant == null || lastAssistant.content.trim().isEmpty) {
+      final lastAssistant = lastCharacterTextReply(chatState.messages);
+      if (lastAssistant == null) {
         _showCommandError(l10n.noImageGenerated);
         return;
       }
@@ -1114,7 +1115,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         autoCompose: true,
       );
       if (result != null && result.images.isNotEmpty && mounted) {
-        await _attachGeneratedImagesToNewMessage(result);
+        await _attachGeneratedImagesToNewMessage(
+          result,
+          character: chatState.characterForMessage(lastAssistant),
+        );
       }
       return;
     }
@@ -1161,18 +1165,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       return;
     }
 
-    try {
-      final attachments = await _saveGeneratedImages(result);
-      await ref.read(activeChatProvider.notifier).addLocalMessage(
-            role: MessageRole.user,
-            content: layered.prompt,
-            attachments: attachments,
-          );
-      _showSnackBar('${l10n.generationComplete} (${attachments.length})');
-      _scrollToBottom(force: true);
-    } catch (error) {
-      _showCommandError(l10n.failedToSaveImage('$error'));
-    }
+    await _attachGeneratedImagesToNewMessage(
+      result,
+      content: layered.prompt,
+      character: chatState.character,
+    );
   }
 
   Future<List<ChatAttachment>> _saveGeneratedImages(
@@ -1526,91 +1523,92 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             top: false,
             bottom: false,
             child: LayoutBuilder(builder: (context, constraints) {
-            final contentWidth = math.min(constraints.maxWidth, 900.0);
-            return Align(
-              alignment: Alignment.topCenter,
-              child: SizedBox(
-                width: contentWidth,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Column(
-                      children: [
-                        // API not configured banner
-                        if (!isConfigured) _buildApiConfigBanner(),
+              final contentWidth = math.min(constraints.maxWidth, 900.0);
+              return Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  width: contentWidth,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Column(
+                        children: [
+                          // API not configured banner
+                          if (!isConfigured) _buildApiConfigBanner(),
 
-                        // Error banner
-                        if (chatState.error != null)
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            color: Colors.red.withValues(alpha: 0.2),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.error,
-                                    color: Colors.red, size: 20),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    chatState.error!,
-                                    style: const TextStyle(color: Colors.red),
+                          // Error banner
+                          if (chatState.error != null)
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              color: Colors.red.withValues(alpha: 0.2),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.error,
+                                      color: Colors.red, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      chatState.error!,
+                                      style: const TextStyle(color: Colors.red),
+                                    ),
                                   ),
-                                ),
-                                ChromeIconButton(
-                                  icon: const Icon(Icons.close, size: 20),
-                                  onPressed: () {
-                                    // Clear error
-                                  },
+                                  ChromeIconButton(
+                                    icon: const Icon(Icons.close, size: 20),
+                                    onPressed: () {
+                                      // Clear error
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          // Messages fill the viewport; composer floats on top so
+                          // bubbles can scroll behind / under the input shell.
+                          Expanded(
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                chatState.isLoading
+                                    ? const Center(
+                                        child: CircularProgressIndicator(),
+                                      )
+                                    : _buildMessagesAreaWithScrollButton(
+                                        chatState,
+                                      ),
+                                Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  child: _MeasureSize(
+                                    onChange: _onBottomChromeSize,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (kRpgProductUiEnabled)
+                                          RpgGamePanel(
+                                            chatId: widget.chatId,
+                                            onDisable: _toggleRpgMode,
+                                          ),
+                                        ToolActivityPanel(
+                                            chatId: widget.chatId),
+                                        _buildInputArea(chatState),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-
-                        // Messages fill the viewport; composer floats on top so
-                        // bubbles can scroll behind / under the input shell.
-                        Expanded(
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              chatState.isLoading
-                                  ? const Center(
-                                      child: CircularProgressIndicator(),
-                                    )
-                                  : _buildMessagesAreaWithScrollButton(
-                                      chatState,
-                                    ),
-                              Positioned(
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                child: _MeasureSize(
-                                  onChange: _onBottomChromeSize,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (kRpgProductUiEnabled)
-                                        RpgGamePanel(
-                                          chatId: widget.chatId,
-                                          onDisable: _toggleRpgMode,
-                                        ),
-                                      ToolActivityPanel(chatId: widget.chatId),
-                                      _buildInputArea(chatState),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -1732,6 +1730,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
         if (chatState.messages.isNotEmpty &&
             chatState.messages.last.role == MessageRole.assistant &&
+            !chatState.messages.last.isGeneratedImage &&
             !chatState.isGenerating)
           ChromeIconButton(
             icon: const Icon(Icons.refresh),
@@ -1772,9 +1771,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               subtitle: Text(
                 hasAuthorNote ? l10n.enabled : l10n.disabled,
                 style: TextStyle(
-                  color: hasAuthorNote
-                      ? AppTheme.accentColor
-                      : AppTheme.textMuted,
+                  color:
+                      hasAuthorNote ? AppTheme.accentColor : AppTheme.textMuted,
                   fontSize: 12,
                 ),
               ),
@@ -2052,8 +2050,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       appSettingsProvider.select((s) => s.chatLayoutMode),
     );
     final area = _buildMessagesArea(chatState);
-    final showButton =
-        _showScrollToBottomButton && layoutMode != 'visualNovel';
+    final showButton = _showScrollToBottomButton && layoutMode != 'visualNovel';
     // Always keep the Stack so showing/hiding the chip does not rebuild the
     // message list out from under the scroll position.
     return Stack(
@@ -2077,10 +2074,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final characterId = ref.watch(activeChatProvider).character?.id;
-    final background = ref
-            .watch(effectiveBackgroundProvider(characterId))
-            .valueOrNull ??
-        ChatBackground.none;
+    final background =
+        ref.watch(effectiveBackgroundProvider(characterId)).valueOrNull ??
+            ChatBackground.none;
     final opacity = _composerShellOpacity(background);
     final fill = ZephyrChatChrome.composerFill(scheme, theme.brightness);
     final color = opacity >= 1.0 ? fill : fill.withValues(alpha: opacity);
@@ -2244,6 +2240,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         .read(activeChatProvider.notifier)
                         .swipeMessage(messageId, swipeIndex);
                   },
+                  onQuickImagine: ref.watch(imageGenSettingsProvider).enabled
+                      ? _generateImageFromMessage
+                      : null,
                 ),
               ),
             ),
@@ -2474,8 +2473,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       effectiveBackgroundProvider(chatState.character?.id),
     );
     final background = backgroundAsync.valueOrNull ?? ChatBackground.none;
-    final live2dEnabled =
-        chatState.character?.assets?.live2d?.enabled == true;
+    final live2dEnabled = chatState.character?.assets?.live2d?.enabled == true;
     final hasBackground = _hasFloatingChatStage(
       background,
       live2dEnabled: live2dEnabled,
@@ -2501,8 +2499,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         if (notification.metrics.pixels <= 160) {
           if (_scrollController.hasClients) {
             _pendingOlderScrollPixels = _scrollController.position.pixels;
-            _pendingOlderMaxExtent =
-                _scrollController.position.maxScrollExtent;
+            _pendingOlderMaxExtent = _scrollController.position.maxScrollExtent;
           }
           unawaited(
             ref.read(activeChatProvider.notifier).loadOlderMessages(),
@@ -2583,7 +2580,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             onDelete: () {
               _showDeleteConfirmation(message.id);
             },
-            onRegenerate: message.role == MessageRole.assistant
+            onRegenerate: message.role == MessageRole.assistant &&
+                    !message.isGeneratedImage
                 ? () {
                     ref
                         .read(activeChatProvider.notifier)
@@ -2608,6 +2606,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ? () {
                     _showImageGenerationDialog(message, chatState.character);
                   }
+                : null,
+            onQuickImagine: ref.watch(imageGenSettingsProvider).enabled &&
+                    message.role == MessageRole.assistant &&
+                    !message.isGeneratedImage
+                ? () => _generateImageFromMessage(message)
                 : null,
           );
         },
@@ -2656,35 +2659,191 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Future<void> _openImagineFromInput(ActiveChatState chatState) async {
     final typed = _messageController.text.trim();
-    final lastAssistant =
-        chatState.messages.reversed.cast<ChatMessage?>().firstWhere(
-              (message) => message?.role == MessageRole.assistant,
-              orElse: () => null,
-            );
+    final lastAssistant = lastCharacterTextReply(chatState.messages);
     final settings = ref.read(imageGenSettingsProvider);
+    final speaker = lastAssistant == null
+        ? chatState.character
+        : chatState.characterForMessage(lastAssistant);
     final result = await ImageGenerationDialog.show(
       context,
       basePrompt: typed.isNotEmpty ? typed : (lastAssistant?.content ?? ''),
-      characterName: chatState.character?.name,
-      characterAppearance: chatState.character?.sdAppearance,
+      characterName: speaker?.name ?? chatState.character?.name,
+      characterAppearance:
+          speaker?.sdAppearance ?? chatState.character?.sdAppearance,
       personaAppearance: settings.personaAppearancePrefix,
       mode: ImageGenMode.free,
       autoCompose: typed.isEmpty,
     );
     if (result != null && result.images.isNotEmpty && mounted) {
-      await _attachGeneratedImagesToNewMessage(result);
+      await _attachGeneratedImagesToNewMessage(
+        result,
+        character: speaker ?? chatState.character,
+      );
     }
   }
 
-  Future<void> _attachGeneratedImagesToNewMessage(ImageGenResult result) async {
+  /// One tap: picture this character line and post it as their reply.
+  Future<void> _generateImageFromMessage(ChatMessage source) async {
+    if (_generatingQuickImage) return;
+    if (source.role != MessageRole.assistant || source.isGeneratedImage) {
+      return;
+    }
+    final l10n = AppLocalizations.of(context);
+    final settings = ref.read(imageGenSettingsProvider);
+    if (!settings.enabled) {
+      _showSnackBar('${l10n.imageGeneration}: ${l10n.configureNow}');
+      return;
+    }
+
+    if (source.content.trim().isEmpty) {
+      _showSnackBar(l10n.noCharacterReplyForImage);
+      return;
+    }
+
+    setState(() => _generatingQuickImage = true);
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final route = DialogRoute<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 28,
+                height: 28,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(AppLocalizations.of(dialogContext).generating),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    unawaited(navigator.push(route));
+
+    try {
+      await WidgetsBinding.instance.endOfFrame;
+      final chatState = ref.read(activeChatProvider);
+      final speaker =
+          chatState.characterForMessage(source) ?? chatState.character;
+      final sceneTags = await _composeSceneTags(
+        sceneText: source.content,
+        settings: settings,
+        characterName: speaker?.name,
+        characterAppearance: speaker?.sdAppearance,
+      );
+      if (!mounted) return;
+      if (sceneTags.trim().isEmpty) {
+        _showCommandError(l10n.noImageGenerated);
+        return;
+      }
+
+      const composer = ImagePromptComposer();
+      final assembled = composer.assembleFinalPrompt(
+        sceneTags: sceneTags,
+        commonPrefix: settings.effectiveCommonPromptPrefix,
+        characterAppearance: speaker?.sdAppearance,
+        personaAppearance: settings.personaAppearancePrefix,
+      );
+      final availableModels = ref.read(availableModelsProvider);
+      final selectedModel = availableModels.contains(settings.model)
+          ? settings.model
+          : (availableModels.isNotEmpty
+              ? availableModels.first
+              : settings.model);
+      if (selectedModel.isNotEmpty && selectedModel != settings.model) {
+        ref.read(imageGenSettingsProvider.notifier).setModel(selectedModel);
+      }
+
+      final result = await ref.read(imageGenStateProvider.notifier).generate(
+            ImageGenRequest(
+              prompt: assembled,
+              negativePrompt: settings.effectiveNegativePrompt,
+              width: settings.defaultWidth,
+              height: settings.defaultHeight,
+              steps: settings.defaultSteps,
+              cfgScale: settings.defaultCfgScale,
+              sampler: settings.defaultSampler,
+              scheduler: settings.defaultScheduler,
+              mode: ImageGenMode.lastMessage,
+              model: selectedModel,
+            ),
+          );
+      if (!mounted) return;
+      if (result == null || result.images.isEmpty) {
+        final error = ref.read(imageGenStateProvider).error;
+        _showCommandError(error ?? l10n.noImageGenerated);
+        return;
+      }
+      await _attachGeneratedImagesToNewMessage(
+        result,
+        content: sceneTags,
+        character: speaker,
+      );
+    } catch (error) {
+      if (mounted) _showCommandError('$error');
+    } finally {
+      if (route.isActive) navigator.removeRoute(route);
+      if (mounted) setState(() => _generatingQuickImage = false);
+    }
+  }
+
+  Future<String> _composeSceneTags({
+    required String sceneText,
+    required ImageGenSettings settings,
+    String? characterName,
+    String? characterAppearance,
+  }) async {
+    const composer = ImagePromptComposer();
+    final fallback = composer.fallbackPrompt(
+      sceneText: sceneText,
+      characterName: characterName,
+    );
+    final config = ref.read(llmConfigProvider);
+    if (config.apiKey.isEmpty && config.apiUrl.isEmpty) return fallback;
+
+    try {
+      final generated = await ref.read(llmServiceProvider).generate(
+            composer.composeMessages(
+              sceneText: sceneText,
+              characterName: characterName,
+              instruction: settings.effectiveLlmImagePromptInstruction,
+              characterAppearance: characterAppearance,
+              personaAppearance: settings.personaAppearancePrefix,
+            ),
+            config,
+          );
+      final prompt = composer.normalizeModelOutput(generated);
+      return prompt.isEmpty ? fallback : prompt;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  Future<void> _attachGeneratedImagesToNewMessage(
+    ImageGenResult result, {
+    String? content,
+    Character? character,
+  }) async {
     final l10n = AppLocalizations.of(context);
     try {
       final attachments = await _saveGeneratedImages(result);
+      final speaker = character ?? ref.read(activeChatProvider).character;
       await ref.read(activeChatProvider.notifier).addLocalMessage(
-            role: MessageRole.user,
-            content: result.prompt,
-            attachments: attachments,
-          );
+        role: MessageRole.assistant,
+        content: content ?? result.prompt,
+        attachments: attachments,
+        characterId: speaker?.id,
+        characterName: speaker?.name,
+        metadata: const {
+          ChatMessage.generatedImageMetadataKey: true,
+        },
+      );
       _showSnackBar('${l10n.generationComplete} (${attachments.length})');
       _scrollToBottom(force: true);
     } catch (error) {
@@ -2710,55 +2869,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
 
     if (result != null && result.images.isNotEmpty && mounted) {
-      final l10n = AppLocalizations.of(context);
-
-      // Save each image to local storage and add as attachment to the message
-      try {
-        final appDocDir = await getApplicationDocumentsDirectory();
-        final imagesDir = Directory(p.join(appDocDir.path, 'chat_images'));
-        if (!await imagesDir.exists()) {
-          await imagesDir.create(recursive: true);
-        }
-
-        for (int i = 0; i < result.images.length; i++) {
-          final imageBytes = result.images[i];
-          final imageId = const Uuid().v4();
-          final fileName = '${imageId}.${result.format}';
-          final filePath = p.join(imagesDir.path, fileName);
-
-          // Save image to file
-          final file = File(filePath);
-          await file.writeAsBytes(imageBytes);
-
-          // Create attachment
-          final attachment = ChatAttachment(
-            id: imageId,
-            path: filePath,
-            mimeType: 'image/${result.format}',
-            sizeBytes: imageBytes.length,
-          );
-
-          // Add attachment to message
-          await ref
-              .read(activeChatProvider.notifier)
-              .addAttachmentToMessage(message.id, attachment);
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.imagesAdded(result.images.length),
-            ),
-          ),
-        );
-      } catch (e) {
-        debugPrint('Failed to save generated image: $e');
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(
-          SnackBar(content: Text(l10n.failedToSaveImage('$e'))),
-        );
-      }
+      final chatState = ref.read(activeChatProvider);
+      final speaker = message.role == MessageRole.assistant
+          ? character
+          : chatState.character;
+      await _attachGeneratedImagesToNewMessage(
+        result,
+        character: speaker ?? chatState.character,
+      );
     }
   }
 
@@ -2800,8 +2918,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
       newChatId = await notifier.createGroupChat(group);
     } else {
-      final characterId =
-          chatState.character?.id ?? chat?.characterId;
+      final characterId = chatState.character?.id ?? chat?.characterId;
       if (characterId == null || characterId.isEmpty) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -2911,8 +3028,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     bool? live2dEnabled,
   }) {
     final live2d = live2dEnabled ??
-        ref.read(activeChatProvider).character?.assets?.live2d?.enabled ==
-            true;
+        ref.read(activeChatProvider).character?.assets?.live2d?.enabled == true;
     return background.type != BackgroundType.none || live2d;
   }
 
@@ -2922,8 +3038,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     bool? live2dEnabled,
   }) {
     final live2d = live2dEnabled ??
-        ref.read(activeChatProvider).character?.assets?.live2d?.enabled ==
-            true;
+        ref.read(activeChatProvider).character?.assets?.live2d?.enabled == true;
     return background.type == BackgroundType.image || live2d;
   }
 
@@ -3050,165 +3165,168 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   sigma: composerFrostSigma,
                   shape: ZephyrChatChrome.composerShape(),
                   child: DecoratedBox(
-                  decoration: ZephyrChatChrome.composerShell(
-                    context,
-                    opacity: composerOpacity,
-                  ),
-                  child: Column(
+                    decoration: ZephyrChatChrome.composerShell(
+                      context,
+                      opacity: composerOpacity,
+                    ),
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Padding(
                           padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
                           child: MarkdownInputField(
-                        controller: _messageController,
-                        focusNode: _focusNode,
-                        maxLines: 5,
-                        minLines: 1,
-                        hintText: l10n.typeMessage,
-                        onSubmitted:
-                            isDesktop ? (_) => _sendMessage() : null,
-                        textInputAction: isDesktop
-                            ? TextInputAction.send
-                            : TextInputAction.newline,
-                        showToolbar: false,
-                          decoration:
-                              ZephyrChatChrome.composerFieldDecoration(
-                            context,
+                            controller: _messageController,
+                            focusNode: _focusNode,
+                            maxLines: 5,
+                            minLines: 1,
                             hintText: l10n.typeMessage,
+                            onSubmitted:
+                                isDesktop ? (_) => _sendMessage() : null,
+                            textInputAction: isDesktop
+                                ? TextInputAction.send
+                                : TextInputAction.newline,
+                            showToolbar: false,
+                            decoration:
+                                ZephyrChatChrome.composerFieldDecoration(
+                              context,
+                              hintText: l10n.typeMessage,
+                            ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 0, 4, 6),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            _composerOptionsTapTarget(
-                              child: ChromeIconButton(
-                                density: ChromeIconButtonDensity.compact,
-                                onPressed: () =>
-                                    _setInputMenuVisible(!_showInputMenu),
-                                tooltip: l10n.moreOptions,
-                                icon: Icon(
-                                  _showInputMenu
-                                      ? Icons.close_rounded
-                                      : Icons.tune_rounded,
-                                  size: 22,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const ContextUsageComposerButton(),
-                            const SizedBox(width: 8),
-                            ChromeIconButton(
-                              density: ChromeIconButtonDensity.compact,
-                              onPressed: () {
-                                _dismissComposerOptionPanels();
-                                _showModelThinkingDrawer();
-                              },
-                              tooltip: l10n.selectModel,
-                              icon: const Icon(
-                                Icons.smart_toy_outlined,
-                                size: 22,
-                              ),
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.translucent,
-                                onTap: _focusMessageInputAtEnd,
-                                child: const SizedBox(height: 34),
-                              ),
-                            ),
-                            ChatVoiceInputButton(
-                            controller: _messageController,
-                            onAutoSend: _sendMessage,
-                          ),
-                          _composerOptionsTapTarget(
-                            child: ChromeIconButton(
-                              density: ChromeIconButtonDensity.compact,
-                              onPressed: _onReplyChoicesButtonPressed,
-                              tooltip: l10n.showReplyChoices,
-                              isSelected: _showChoicePanel,
-                              icon: Icon(
-                                Icons.alt_route_outlined,
-                                size: 22,
-                                color: ref.watch(chatChoiceConfigProvider)
-                                        .enabled
-                                    ? null
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.38),
-                              ),
-                            ),
-                          ),
-                          _composerOptionsTapTarget(
-                            child: ChromeIconButton(
-                              density: ChromeIconButtonDensity.compact,
-                              onPressed: _onCharacterStatusButtonPressed,
-                              tooltip: l10n.showCharacterStatus,
-                              isSelected: _showStatusPanel,
-                              icon: Icon(
-                                Icons.badge_outlined,
-                                size: 22,
-                                color: ref.watch(statusBlockConfigProvider)
-                                        .enabled
-                                    ? null
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.38),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Tooltip(
-                            message: chatState.isGenerating
-                                ? l10n.stopGenerating
-                                : l10n.send,
-                            child: Material(
-                              color: scheme.primary,
-                              shape: const CircleBorder(),
-                              clipBehavior: Clip.antiAlias,
-                              child: InkWell(
-                                onTap: chatState.isGenerating
-                                    ? () => ref
-                                        .read(activeChatProvider.notifier)
-                                        .cancelGeneration()
-                                    : _sendMessage,
-                                child: SizedBox(
-                                  width: 34,
-                                  height: 34,
-                                  child: Center(
-                                    child: chatState.isGenerating
-                                        ? DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              color: scheme.onPrimary,
-                                              borderRadius:
-                                                  BorderRadius.circular(2.5),
-                                            ),
-                                            child: const SizedBox(
-                                              width: 12,
-                                              height: 12,
-                                            ),
-                                          )
-                                        : Icon(
-                                            Icons.send_rounded,
-                                            size: 18,
-                                            color: scheme.onPrimary,
-                                          ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 4, 6),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              _composerOptionsTapTarget(
+                                child: ChromeIconButton(
+                                  density: ChromeIconButtonDensity.compact,
+                                  onPressed: () =>
+                                      _setInputMenuVisible(!_showInputMenu),
+                                  tooltip: l10n.moreOptions,
+                                  icon: Icon(
+                                    _showInputMenu
+                                        ? Icons.close_rounded
+                                        : Icons.tune_rounded,
+                                    size: 22,
                                   ),
                                 ),
                               ),
-                            ),
-                            ),
-                          ],
+                              const SizedBox(width: 8),
+                              const ContextUsageComposerButton(),
+                              const SizedBox(width: 8),
+                              ChromeIconButton(
+                                density: ChromeIconButtonDensity.compact,
+                                onPressed: () {
+                                  _dismissComposerOptionPanels();
+                                  _showModelThinkingDrawer();
+                                },
+                                tooltip: l10n.selectModel,
+                                icon: const Icon(
+                                  Icons.smart_toy_outlined,
+                                  size: 22,
+                                ),
+                              ),
+                              Expanded(
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.translucent,
+                                  onTap: _focusMessageInputAtEnd,
+                                  child: const SizedBox(height: 34),
+                                ),
+                              ),
+                              ChatVoiceInputButton(
+                                controller: _messageController,
+                                onAutoSend: _sendMessage,
+                              ),
+                              _composerOptionsTapTarget(
+                                child: ChromeIconButton(
+                                  density: ChromeIconButtonDensity.compact,
+                                  onPressed: _onReplyChoicesButtonPressed,
+                                  tooltip: l10n.showReplyChoices,
+                                  isSelected: _showChoicePanel,
+                                  icon: Icon(
+                                    Icons.alt_route_outlined,
+                                    size: 22,
+                                    color: ref
+                                            .watch(chatChoiceConfigProvider)
+                                            .enabled
+                                        ? null
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.38),
+                                  ),
+                                ),
+                              ),
+                              _composerOptionsTapTarget(
+                                child: ChromeIconButton(
+                                  density: ChromeIconButtonDensity.compact,
+                                  onPressed: _onCharacterStatusButtonPressed,
+                                  tooltip: l10n.showCharacterStatus,
+                                  isSelected: _showStatusPanel,
+                                  icon: Icon(
+                                    Icons.badge_outlined,
+                                    size: 22,
+                                    color: ref
+                                            .watch(statusBlockConfigProvider)
+                                            .enabled
+                                        ? null
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.38),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Tooltip(
+                                message: chatState.isGenerating
+                                    ? l10n.stopGenerating
+                                    : l10n.send,
+                                child: Material(
+                                  color: scheme.primary,
+                                  shape: const CircleBorder(),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: InkWell(
+                                    onTap: chatState.isGenerating
+                                        ? () => ref
+                                            .read(activeChatProvider.notifier)
+                                            .cancelGeneration()
+                                        : _sendMessage,
+                                    child: SizedBox(
+                                      width: 34,
+                                      height: 34,
+                                      child: Center(
+                                        child: chatState.isGenerating
+                                            ? DecoratedBox(
+                                                decoration: BoxDecoration(
+                                                  color: scheme.onPrimary,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          2.5),
+                                                ),
+                                                child: const SizedBox(
+                                                  width: 12,
+                                                  height: 12,
+                                                ),
+                                              )
+                                            : Icon(
+                                                Icons.send_rounded,
+                                                size: 18,
+                                                color: scheme.onPrimary,
+                                              ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
                 ),
               ),
             ],
@@ -3299,7 +3417,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _inputMenuPlainIconChip(
-                    tooltip: AppLocalizations.of(context).appearanceSectionTitle,
+                    tooltip:
+                        AppLocalizations.of(context).appearanceSectionTitle,
                     icon: Icons.palette_outlined,
                     onTap: () {
                       _setInputMenuVisible(false);
@@ -4076,6 +4195,7 @@ class _MessageBubble extends ConsumerStatefulWidget {
   final VoidCallback onCreateBookmark;
   final VoidCallback onBranchChat;
   final VoidCallback? onGenerateImage;
+  final VoidCallback? onQuickImagine;
 
   const _MessageBubble({
     super.key,
@@ -4101,6 +4221,7 @@ class _MessageBubble extends ConsumerStatefulWidget {
     required this.onCreateBookmark,
     required this.onBranchChat,
     this.onGenerateImage,
+    this.onQuickImagine,
   });
 
   @override
@@ -4109,6 +4230,7 @@ class _MessageBubble extends ConsumerStatefulWidget {
 
 class _MessageBubbleState extends ConsumerState<_MessageBubble> {
   bool _isEditing = false;
+
   /// When true, touch text-selection is armed — skip outer long-press menu.
   bool _contentSelectionArmed = false;
   late TextEditingController _editController;
@@ -4132,14 +4254,12 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     final placement = widget.message.role == MessageRole.user
         ? RegexPlacement.userInput
         : RegexPlacement.aiOutput;
-    final characterId =
-        widget.character?.id ?? widget.message.characterId;
+    final characterId = widget.character?.id ?? widget.message.characterId;
     return ref.read(chatRegexFacadeProvider(characterId)).applyForDisplay(
           raw,
           placement: placement,
           depth: widget.messageDepth,
-          characterName:
-              widget.character?.name ?? widget.message.characterName,
+          characterName: widget.character?.name ?? widget.message.characterName,
         );
   }
 
@@ -4148,10 +4268,10 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     final isUser = widget.message.role == MessageRole.user;
     final hasSwipes = widget.message.swipes.length > 1;
     final rawDisplay = _rawDisplayContent();
-    final parsedStatus =
-        isUser ? null : StatusBlockParser.parse(rawDisplay);
-    final displayContent =
-        isUser ? rawDisplay : (parsedStatus?.contentWithoutStatus ?? rawDisplay);
+    final parsedStatus = isUser ? null : StatusBlockParser.parse(rawDisplay);
+    final displayContent = isUser
+        ? rawDisplay
+        : (parsedStatus?.contentWithoutStatus ?? rawDisplay);
     final embeddedStatus = isUser
         ? null
         : (parsedStatus?.snapshot ??
@@ -4171,8 +4291,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     // Keep bubbles out of the opposite avatar column when that avatar is on
     // (side-by-side layout only).
     const avatarColumnWidth = 32.0 + 8.0;
-    final showOwnAvatar =
-        isUser ? showUserAvatar : showCharacterAvatar;
+    final showOwnAvatar = isUser ? showUserAvatar : showCharacterAvatar;
     final bubble = Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
@@ -4244,58 +4363,66 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
             child: bubble,
           ),
         ),
-
-        // Swipe controls
-        if (hasSwipes && !widget.isGenerating)
+        if ((hasSwipes || widget.onQuickImagine != null) &&
+            !widget.isGenerating)
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ChromeIconButton(
-                  density: ChromeIconButtonDensity.compact,
-                  icon: const Icon(Icons.chevron_left, size: 20),
-                  onPressed: widget.message.currentSwipeIndex > 0
-                      ? () => widget.onSwipe(
-                            widget.message.currentSwipeIndex - 1,
-                          )
-                      : null,
-                ),
-                GestureDetector(
-                  // Long press opens the Swipe Picker (ST 1.17+)
-                  onLongPress: () => _openSwipePicker(context),
-                  onTap: () => _openSwipePicker(context),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      '${widget.message.currentSwipeIndex + 1}/${widget.message.swipes.length}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: AppTheme.textMuted),
+                if (hasSwipes) ...[
+                  ChromeIconButton(
+                    density: ChromeIconButtonDensity.compact,
+                    icon: const Icon(Icons.chevron_left, size: 20),
+                    onPressed: widget.message.currentSwipeIndex > 0
+                        ? () => widget.onSwipe(
+                              widget.message.currentSwipeIndex - 1,
+                            )
+                        : null,
+                  ),
+                  GestureDetector(
+                    // Long press opens the Swipe Picker (ST 1.17+)
+                    onLongPress: () => _openSwipePicker(context),
+                    onTap: () => _openSwipePicker(context),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        '${widget.message.currentSwipeIndex + 1}/${widget.message.swipes.length}',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: AppTheme.textMuted),
+                      ),
                     ),
                   ),
-                ),
-                ChromeIconButton(
-                  density: ChromeIconButtonDensity.compact,
-                  icon: const Icon(Icons.chevron_right, size: 20),
-                  onPressed: widget.message.currentSwipeIndex <
-                          widget.message.swipes.length - 1
-                      ? () => widget.onSwipe(
-                            widget.message.currentSwipeIndex + 1,
-                          )
-                      : null,
-                ),
+                  ChromeIconButton(
+                    density: ChromeIconButtonDensity.compact,
+                    icon: const Icon(Icons.chevron_right, size: 20),
+                    onPressed: widget.message.currentSwipeIndex <
+                            widget.message.swipes.length - 1
+                        ? () => widget.onSwipe(
+                              widget.message.currentSwipeIndex + 1,
+                            )
+                        : null,
+                  ),
+                ],
+                if (widget.onQuickImagine != null)
+                  ChromeIconButton(
+                    key: const Key('message-quick-imagine'),
+                    density: ChromeIconButtonDensity.compact,
+                    tooltip: AppLocalizations.of(context).imagineFromLastReply,
+                    icon: const Icon(Icons.photo_outlined, size: 20),
+                    onPressed: widget.onQuickImagine,
+                  ),
               ],
             ),
           ),
-        if (!isUser && !widget.isGenerating)
+        if (!isUser && !widget.isGenerating && !widget.message.isGeneratedImage)
           ChatTTSMessageButton(
             text: widget.message.content,
             ownerId: widget.chatId,
             sourceId: widget.message.id,
-            characterId:
-                widget.message.characterId ?? widget.character?.id,
+            characterId: widget.message.characterId ?? widget.character?.id,
           ),
         if (isUser && !_isEditing && !widget.isGenerating)
           ChromeIconButton(
@@ -4374,8 +4501,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
   }
 
   Widget _buildAvatar() {
-    final characterId =
-        widget.character?.id ?? widget.message.characterId;
+    final characterId = widget.character?.id ?? widget.message.characterId;
     final l10n = AppLocalizations.of(context);
     final avatar = widget.character?.assets?.avatarPath != null
         ? CharacterAvatarCircle(
@@ -4899,7 +5025,8 @@ class _ModelThinkingDrawerState extends ConsumerState<_ModelThinkingDrawer> {
                   if (_step == _ModelThinkingStep.effort)
                     ChromeIconButton(
                       density: ChromeIconButtonDensity.compact,
-                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      tooltip:
+                          MaterialLocalizations.of(context).backButtonTooltip,
                       onPressed: () =>
                           setState(() => _step = _ModelThinkingStep.model),
                       icon: const Icon(Icons.arrow_back_rounded, size: 22),
@@ -4980,9 +5107,7 @@ class _ModelThinkingDrawerState extends ConsumerState<_ModelThinkingDrawer> {
           for (final effort in ReasoningEffort.values)
             ListTile(
               leading: Icon(
-                effort == current
-                    ? Icons.check_circle
-                    : Icons.circle_outlined,
+                effort == current ? Icons.check_circle : Icons.circle_outlined,
                 color: effort == current
                     ? scheme.primary
                     : scheme.onSurfaceVariant,

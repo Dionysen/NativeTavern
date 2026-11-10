@@ -2269,6 +2269,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get imagine => 'Imagine';
 
   @override
+  String get imagineFromLastReply => 'Picture this reply';
+
+  @override
+  String get noCharacterReplyForImage =>
+      'No character reply to turn into a picture yet.';
+
+  @override
   String get fillImagePromptWithAi => 'Fill with AI';
 
   @override

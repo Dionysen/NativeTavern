@@ -254,7 +254,7 @@ final class StoryService {
     final startIndex = latest == null ? 0 : latest.endOrdinal + 1;
     if (startIndex >= messages.length) return false;
     final window = messages.sublist(startIndex);
-    if (window.every((message) => message.content.trim().isEmpty)) {
+    if (window.every(_isNotStoryText)) {
       return false;
     }
     return _countTurns(window) >= turnsPerChapter;
@@ -287,7 +287,7 @@ final class StoryService {
       return const StoryChapterWriteResult(skipped: true);
     }
     final remaining = messages.sublist(startIndex);
-    if (remaining.every((message) => message.content.trim().isEmpty)) {
+    if (remaining.every(_isNotStoryText)) {
       return const StoryChapterWriteResult(skipped: true);
     }
     final window =
@@ -570,11 +570,12 @@ Rules:
         'content': jsonEncode({
           'messages': [
             for (final message in window)
-              {
-                'id': message.id,
-                'role': message.role.name,
-                'content': message.content,
-              },
+              if (!message.isGeneratedImage)
+                {
+                  'id': message.id,
+                  'role': message.role.name,
+                  'content': message.content,
+                },
           ],
         }),
       },
@@ -606,11 +607,12 @@ Rules:
           'scope': scope.toJson(),
           'messages': [
             for (final message in messages)
-              {
-                'id': message.id,
-                'role': message.role.name,
-                'content': message.content,
-              },
+              if (!message.isGeneratedImage)
+                {
+                  'id': message.id,
+                  'role': message.role.name,
+                  'content': message.content,
+                },
           ],
         }),
       },
@@ -751,6 +753,7 @@ Rules:
     var sawUser = false;
     for (var i = 0; i < window.length; i++) {
       final message = window[i];
+      if (message.isGeneratedImage) continue;
       if (message.role == MessageRole.user) {
         sawUser = true;
       } else if (message.role == MessageRole.assistant && sawUser) {
@@ -769,9 +772,13 @@ Rules:
     return 'Chapter $chapterNumber';
   }
 
+  static bool _isNotStoryText(ChatMessage message) =>
+      message.isGeneratedImage || message.content.trim().isEmpty;
+
   static String _fallbackSummary(List<ChatMessage> window) {
     final parts = <String>[];
     for (final message in window) {
+      if (message.isGeneratedImage) continue;
       final content = message.content.trim();
       if (content.isEmpty) continue;
       parts.add(content);

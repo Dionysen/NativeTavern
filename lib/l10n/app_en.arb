@@ -3213,6 +3213,14 @@
   "@imagine": {
     "description": "Chat input action that opens image generation"
   },
+  "imagineFromLastReply": "Picture this reply",
+  "@imagineFromLastReply": {
+    "description": "One tap to picture the last character reply"
+  },
+  "noCharacterReplyForImage": "No character reply to turn into a picture yet.",
+  "@noCharacterReplyForImage": {
+    "description": "Shown when there is no character reply to picture"
+  },
   "fillImagePromptWithAi": "Fill with AI",
   "@fillImagePromptWithAi": {
     "description": "Ask the chat model to write an image prompt"

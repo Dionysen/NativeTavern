@@ -2235,6 +2235,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get imagine => '生图';
 
   @override
+  String get imagineFromLastReply => '用这条回复生图';
+
+  @override
+  String get noCharacterReplyForImage => '还没有可以用来生图的角色回复。';
+
+  @override
   String get fillImagePromptWithAi => 'AI 填写提示词';
 
   @override
@@ -9579,6 +9585,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get imagine => '生圖';
+
+  @override
+  String get imagineFromLastReply => '用這則回覆生圖';
+
+  @override
+  String get noCharacterReplyForImage => '還沒有可以用來生圖的角色回覆。';
 
   @override
   String get fillImagePromptWithAi => 'AI 填寫提示詞';

@@ -4227,6 +4227,18 @@ abstract class AppLocalizations {
   /// **'Imagine'**
   String get imagine;
 
+  /// One tap to picture the last character reply
+  ///
+  /// In en, this message translates to:
+  /// **'Picture this reply'**
+  String get imagineFromLastReply;
+
+  /// Shown when there is no character reply to picture
+  ///
+  /// In en, this message translates to:
+  /// **'No character reply to turn into a picture yet.'**
+  String get noCharacterReplyForImage;
+
   /// Ask the chat model to write an image prompt
   ///
   /// In en, this message translates to:

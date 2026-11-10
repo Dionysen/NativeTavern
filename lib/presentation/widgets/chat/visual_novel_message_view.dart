@@ -30,6 +30,7 @@ class VisualNovelMessageView extends ConsumerStatefulWidget {
   final bool isGenerating;
   final void Function(ChatMessage message) onLongPress;
   final void Function(int swipeIndex, String messageId) onSwipe;
+  final void Function(ChatMessage message)? onQuickImagine;
 
   const VisualNovelMessageView({
     super.key,
@@ -39,6 +40,7 @@ class VisualNovelMessageView extends ConsumerStatefulWidget {
     this.isGenerating = false,
     required this.onLongPress,
     required this.onSwipe,
+    this.onQuickImagine,
   });
 
   @override
@@ -50,6 +52,7 @@ class _VisualNovelMessageViewState
     extends ConsumerState<VisualNovelMessageView> {
   late PageController _pageController;
   int _currentIndex = 0;
+
   /// When true, touch text-selection is armed — skip outer long-press menu.
   bool _contentSelectionArmed = false;
 
@@ -250,14 +253,12 @@ class _VisualNovelMessageViewState
     final isLast =
         widget.messages.isNotEmpty && message == widget.messages.last;
     final messageIndex = widget.messages.indexWhere((m) => m.id == message.id);
-    final messageDepth = messageIndex >= 0
-        ? widget.messages.length - 1 - messageIndex
-        : 0;
+    final messageDepth =
+        messageIndex >= 0 ? widget.messages.length - 1 - messageIndex : 0;
 
     return GestureDetector(
-      onLongPress: _contentSelectionArmed
-          ? null
-          : () => widget.onLongPress(message),
+      onLongPress:
+          _contentSelectionArmed ? null : () => widget.onLongPress(message),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -289,8 +290,9 @@ class _VisualNovelMessageViewState
               ),
             if (!isUser && !isGenerating)
               DataBankCitationPreview(message: message),
-            // Swipe controls
-            if (hasSwipes && !isGenerating) _buildSwipeControls(message),
+            if ((hasSwipes || _showQuickImagine(message, isGenerating)) &&
+                !isGenerating)
+              _buildSwipeControls(message),
           ],
         ),
       ),
@@ -307,8 +309,8 @@ class _VisualNovelMessageViewState
     final placement = message.role == MessageRole.user
         ? RegexPlacement.userInput
         : RegexPlacement.aiOutput;
-    final character = widget.characterForMessage?.call(message) ??
-        widget.character;
+    final character =
+        widget.characterForMessage?.call(message) ?? widget.character;
     return ref.read(chatRegexFacadeProvider(character?.id)).applyForDisplay(
           raw,
           placement: placement,
@@ -364,8 +366,7 @@ class _VisualNovelMessageViewState
     final showUserAvatar = ref.watch(
       appSettingsProvider.select((s) => s.showUserAvatar),
     );
-    final showAvatar =
-        isUser ? showUserAvatar : showCharacterAvatar;
+    final showAvatar = isUser ? showUserAvatar : showCharacterAvatar;
 
     Widget? avatar;
     if (showAvatar) {
@@ -482,48 +483,71 @@ class _VisualNovelMessageViewState
     );
   }
 
+  bool _showQuickImagine(ChatMessage message, bool isGenerating) {
+    return widget.onQuickImagine != null &&
+        message.role == MessageRole.assistant &&
+        !message.isGeneratedImage &&
+        !isGenerating;
+  }
+
   Widget _buildSwipeControls(ChatMessage message) {
     final currentSwipeIndex = message.currentSwipeIndex;
     final totalSwipes = message.swipes.length;
+    final hasSwipes = totalSwipes > 1;
+    final showQuickImagine = widget.onQuickImagine != null &&
+        message.role == MessageRole.assistant &&
+        !message.isGeneratedImage;
 
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ChromeIconButton(
-            icon: Icon(
-              Icons.arrow_back_ios,
-              size: 16,
-              color: currentSwipeIndex > 0 ? Colors.white70 : Colors.white24,
+          if (hasSwipes) ...[
+            ChromeIconButton(
+              icon: Icon(
+                Icons.arrow_back_ios,
+                size: 16,
+                color: currentSwipeIndex > 0 ? Colors.white70 : Colors.white24,
+              ),
+              onPressed: currentSwipeIndex > 0
+                  ? () => widget.onSwipe(currentSwipeIndex - 1, message.id)
+                  : null,
             ),
-            onPressed: currentSwipeIndex > 0
-                ? () => widget.onSwipe(currentSwipeIndex - 1, message.id)
-                : null,
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white10,
-              borderRadius: BorderRadius.circular(12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${currentSwipeIndex + 1} / $totalSwipes',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
             ),
-            child: Text(
-              '${currentSwipeIndex + 1} / $totalSwipes',
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ChromeIconButton(
+              icon: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: currentSwipeIndex < totalSwipes - 1
+                    ? Colors.white70
+                    : Colors.white24,
+              ),
+              onPressed: currentSwipeIndex < totalSwipes - 1
+                  ? () => widget.onSwipe(currentSwipeIndex + 1, message.id)
+                  : null,
             ),
-          ),
-          ChromeIconButton(
-            icon: Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: currentSwipeIndex < totalSwipes - 1
-                  ? Colors.white70
-                  : Colors.white24,
+          ],
+          if (showQuickImagine)
+            ChromeIconButton(
+              tooltip: AppLocalizations.of(context).imagineFromLastReply,
+              icon: const Icon(
+                Icons.photo_outlined,
+                size: 18,
+                color: Colors.white70,
+              ),
+              onPressed: () => widget.onQuickImagine!(message),
             ),
-            onPressed: currentSwipeIndex < totalSwipes - 1
-                ? () => widget.onSwipe(currentSwipeIndex + 1, message.id)
-                : null,
-          ),
         ],
       ),
     );

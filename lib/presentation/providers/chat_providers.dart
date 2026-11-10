@@ -458,8 +458,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     if (swipes.isEmpty) {
       swipes.add(content);
     } else {
-      final swipeIndex =
-          message.currentSwipeIndex.clamp(0, swipes.length - 1);
+      final swipeIndex = message.currentSwipeIndex.clamp(0, swipes.length - 1);
       swipes[swipeIndex] = content;
     }
     final updated = List<ChatMessage>.from(state.messages);
@@ -553,8 +552,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         ),
       });
       final capped = _withReplyLengthTokenCap(config);
-      final response =
-          await _llmService.generateWithReasoning(context, capped);
+      final response = await _llmService.generateWithReasoning(context, capped);
       return response.content;
     } catch (e, stackTrace) {
       if (e is ChatGenerationCancelledException) rethrow;
@@ -1381,7 +1379,10 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     if (state.messages.isEmpty) return;
 
     final lastMessage = state.messages.last;
-    if (lastMessage.role != MessageRole.assistant) return;
+    if (lastMessage.role != MessageRole.assistant ||
+        lastMessage.isGeneratedImage) {
+      return;
+    }
 
     state = state.copyWith(isGenerating: true, error: null);
     _startGenerationSession(config, ChatGenerationMode.regenerate);
@@ -1560,8 +1561,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         clearReasoning = true;
       } else {
         updatedReasoningSwipes = next;
-        updatedReasoning =
-            newIndex < next.length ? next[newIndex] : next.last;
+        updatedReasoning = newIndex < next.length ? next[newIndex] : next.last;
       }
     }
 
@@ -1648,6 +1648,9 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     required MessageRole role,
     required String content,
     List<ChatAttachment> attachments = const [],
+    String? characterId,
+    String? characterName,
+    Map<String, dynamic> metadata = const {},
   }) async {
     final chat = state.chat;
     if (chat == null) return null;
@@ -1660,6 +1663,9 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       timestamp: DateTime.now(),
       swipes: [content],
       attachments: attachments,
+      characterId: characterId,
+      characterName: characterName,
+      metadata: metadata,
     );
     await _persistAddMessage(message);
     state = state.copyWith(messages: [...state.messages, message]);
@@ -2071,6 +2077,10 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         '📝 Using summary + ${chatMessages.length} recent messages for context',
       );
     }
+
+    // Picture replies stay in the transcript, but the text model should not
+    // see the image or its prompt.
+    chatMessages = withoutGeneratedImages(chatMessages);
 
     // Find matching World Info entries
     List<WorldInfoEntry> worldInfoEntries = [];
@@ -2694,8 +2704,11 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     final character = state.character;
     final chat = state.chat;
 
-    // Get chat messages up to (but not including) the specified index
-    final chatMessages = state.messages.sublist(0, messageIndex);
+    // Get chat messages up to (but not including) the specified index.
+    // Picture replies are left out of the text prompt.
+    final chatMessages = withoutGeneratedImages(
+      state.messages.sublist(0, messageIndex),
+    );
 
     // Find matching World Info entries
     List<WorldInfoEntry> worldInfoEntries = [];
@@ -3675,8 +3688,13 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         state.messages.last.role != MessageRole.assistant) {
       return;
     }
+    final assistantIndex = state.messages.lastIndexWhere(
+      (message) =>
+          message.role == MessageRole.assistant && !message.isGeneratedImage,
+    );
+    if (assistantIndex < 0) return;
 
-    var statusConfig = _ref.read(statusBlockConfigProvider);
+    final statusConfig = _ref.read(statusBlockConfigProvider);
     final character = state.character;
     if (character != null &&
         statusConfig.autoDisableWhenCardHasStatus &&
@@ -3687,7 +3705,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     }
     if (!statusConfig.enabled) return;
 
-    final assistant = state.messages.last;
+    final assistant = state.messages[assistantIndex];
     final userName = _statusUserDisplayName();
     final sceneHints = _statusSceneCharacterHints();
 
@@ -4079,7 +4097,8 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
       finalContent = await _enforceReplyLengthLimits(
         finalContent,
         config,
-        messageIndex: messageIndex >= 0 ? messageIndex : state.messages.length - 1,
+        messageIndex:
+            messageIndex >= 0 ? messageIndex : state.messages.length - 1,
         characterId: assistantMessage.characterId,
         characterName: assistantMessage.characterName,
       );
@@ -4295,9 +4314,7 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     if (!isPrimary && !inGroup) return;
 
     Chat? chat = state.chat;
-    if (chat != null &&
-        chat.characterId == characterId &&
-        !chat.isGroupChat) {
+    if (chat != null && chat.characterId == characterId && !chat.isGroupChat) {
       chat = await _chatRepository.getChat(chat.id) ?? chat;
     }
 
