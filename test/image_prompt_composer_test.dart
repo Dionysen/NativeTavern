@@ -25,12 +25,11 @@ void main() {
 
     expect(messages, hasLength(2));
     expect(messages.first['role'], 'system');
-    expect(messages.first['content'], contains('most important'));
-    expect(messages.first['content'], contains('Do NOT invent hair'));
+    expect(messages.first['content'], contains('Danbooru tags'));
     expect(messages.first['content'], contains('at most 20'));
     expect(messages.last['content'], contains('Mira'));
     expect(messages.last['content'], contains('1girl, silver hair'));
-    expect(messages.last['content'], contains('most important visual moment'));
+    expect(messages.last['content'], contains('Scene:'));
     expect(messages.last['content'], contains('A rainy harbor at dusk'));
   });
 
@@ -92,7 +91,7 @@ void main() {
     );
   });
 
-  test('llmConfigForCompose disables extended thinking and caps tokens', () {
+  test('llmConfigForCompose keeps user model settings, disables stream only', () {
     const base = LLMConfig(
       provider: LLMProvider.openai,
       model: 'gpt-test',
@@ -104,9 +103,10 @@ void main() {
       streamEnabled: true,
     );
     final tuned = ImagePromptComposer.llmConfigForCompose(base);
-    expect(tuned.reasoningEffort, ReasoningEffort.auto);
-    expect(tuned.maxTokens, 96);
-    expect(tuned.temperature, 0.3);
+    expect(tuned.reasoningEffort, ReasoningEffort.high);
+    expect(tuned.maxTokens, 8192);
+    expect(tuned.temperature, 1.0);
+    expect(tuned.model, 'gpt-test');
     expect(tuned.streamEnabled, isFalse);
   });
 }

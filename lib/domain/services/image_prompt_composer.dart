@@ -22,31 +22,20 @@ class ImagePromptComposer {
       'watermark, character fusion, face merge, fused faces, censored, mosaic censoring, '
       'text, logo, multiple views';
 
-  /// Instructs a fast non-thinking pass: core scene only, few tags.
   static const defaultLlmInstruction =
-      'You turn ONE character reply into a single line of Danbooru tags for anime image generation.\n'
-      'Task: summarize only the most important, most representative visual moment in that reply — '
-      'the core scene the viewer should see — not every detail of the text.\n'
-      'Extract the strongest visual features of that moment: subject count (1girl, 1boy, …), '
-      'main pose/action, key expression, clothing or body state that matters, location, lighting.\n'
-      'Ignore side chatter, minor narration, and anything that is not visually central.\n'
-      'Do NOT invent hair, eyes, body type, or outfit details that the system will add separately.\n'
-      'Do NOT write sentences, lists of steps, explanations, or chain-of-thought.\n'
+      'Convert the latest chat moment into ONE line of Danbooru tags for anime image generation.\n'
+      'Include: subject count (1boy, 1girl), action/pose, expression, clothing state, location, lighting.\n'
+      'Do NOT write full English sentences. Do NOT explain. Do NOT repeat fixed appearance tags.\n'
       'Keep it short: at most 20 comma-separated tags (prefer 8–15).\n'
-      'For NSFW, use direct action tags for the core moment (kissing, sex, vaginal, doggy style, …).\n'
-      'Output ONLY comma-separated Danbooru tags on one line.';
+      'For NSFW use explicit action tags (kissing, sex, vaginal, doggy style, missionary, etc.).\n'
+      'Output tags only, comma-separated.';
 
   const ImagePromptComposer();
 
-  /// LLM settings for prompt tagging: short answer, no extended thinking.
+  /// Prompt tagging uses the user's LLM settings (model, reasoning, samplers).
+  /// Only disable streaming — the compose UI awaits a single completion.
   static LLMConfig llmConfigForCompose(LLMConfig base) {
-    return base.copyWith(
-      // auto = do not enable Claude/Gemini extended thinking blocks
-      reasoningEffort: ReasoningEffort.auto,
-      maxTokens: 96,
-      temperature: 0.3,
-      streamEnabled: false,
-    );
+    return base.copyWith(streamEnabled: false);
   }
 
   /// Rough CLIP token estimate: underscore/space-separated words.
@@ -106,7 +95,7 @@ class ImagePromptComposer {
         'content': [
           subjectLine,
           ...appearanceBits,
-          'Summarize the single most important visual moment in this reply:',
+          'Scene:',
           scene.isEmpty ? '(empty)' : scene,
         ].join('\n'),
       },
