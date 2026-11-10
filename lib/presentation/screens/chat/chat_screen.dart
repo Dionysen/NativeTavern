@@ -2414,7 +2414,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (placeholder == null) return;
 
     setState(() => _generatingQuickImage = true);
-    _scrollToBottom(force: true);
 
     try {
       final sceneTags = await _composeSceneTags(
@@ -2536,7 +2535,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (placeholder == null) return;
 
     setState(() => _generatingQuickImage = true);
-    _scrollToBottom(force: true);
 
     try {
       final result =
@@ -2681,7 +2679,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
 
       _showSnackBar('${l10n.generationComplete} (${attachments.length})');
-      _scrollToBottom(force: true);
     } catch (error) {
       await _failImageGenPlaceholder(
         placeholder,
