@@ -2379,6 +2379,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get imageGenGalleryDeleteConfirm => '要从画廊里删除这张图吗？';
 
   @override
+  String get imageGenGalleryVersionUpscaled => '超分后';
+
+  @override
+  String get imageGenGalleryVersionOriginal => '超分前';
+
+  @override
   String get imagineFromLastReply => '用这条回复生图';
 
   @override
@@ -9866,6 +9872,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get imageGenGalleryDeleteConfirm => '要從畫廊刪除這張圖嗎？';
+
+  @override
+  String get imageGenGalleryVersionUpscaled => '超分後';
+
+  @override
+  String get imageGenGalleryVersionOriginal => '超分前';
 
   @override
   String get imagineFromLastReply => '用這則回覆生圖';

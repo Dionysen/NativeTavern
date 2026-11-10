@@ -4503,6 +4503,18 @@ abstract class AppLocalizations {
   /// **'Delete this picture from the gallery?'**
   String get imageGenGalleryDeleteConfirm;
 
+  /// Gallery toggle: show image after upscale
+  ///
+  /// In en, this message translates to:
+  /// **'Upscaled'**
+  String get imageGenGalleryVersionUpscaled;
+
+  /// Gallery toggle: show image before upscale
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get imageGenGalleryVersionOriginal;
+
   /// One tap to picture the last character reply
   ///
   /// In en, this message translates to:

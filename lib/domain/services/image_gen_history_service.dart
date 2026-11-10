@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:native_tavern/domain/services/image_generation_service.dart';
@@ -28,6 +29,9 @@ class ImageGenHistoryEntry {
     this.provider,
     this.upscaled = false,
     this.upscaleScale,
+    this.originalImagePath,
+    this.originalWidth,
+    this.originalHeight,
   });
 
   final String id;
@@ -48,6 +52,17 @@ class ImageGenHistoryEntry {
   final String? provider;
   final bool upscaled;
   final int? upscaleScale;
+
+  /// Pre-upscale image path when [upscaled] is true.
+  final String? originalImagePath;
+  final int? originalWidth;
+  final int? originalHeight;
+
+  bool get hasComparableOriginal {
+    final path = originalImagePath;
+    if (path == null || path.isEmpty) return false;
+    return File(path).existsSync();
+  }
 
   String get sizeLabel {
     if (byteSize < 1024) return '$byteSize B';
@@ -76,6 +91,9 @@ class ImageGenHistoryEntry {
         'provider': provider,
         'upscaled': upscaled,
         'upscaleScale': upscaleScale,
+        if (originalImagePath != null) 'originalImagePath': originalImagePath,
+        if (originalWidth != null) 'originalWidth': originalWidth,
+        if (originalHeight != null) 'originalHeight': originalHeight,
       };
 
   factory ImageGenHistoryEntry.fromJson(Map<String, dynamic> json) {
@@ -99,6 +117,9 @@ class ImageGenHistoryEntry {
       provider: json['provider']?.toString(),
       upscaled: json['upscaled'] == true,
       upscaleScale: (json['upscaleScale'] as num?)?.toInt(),
+      originalImagePath: json['originalImagePath']?.toString(),
+      originalWidth: (json['originalWidth'] as num?)?.toInt(),
+      originalHeight: (json['originalHeight'] as num?)?.toInt(),
     );
   }
 }
@@ -146,10 +167,15 @@ class ImageGenHistoryService {
   }
 
   /// Save each image from [result] with request parameters.
+  ///
+  /// When the result was upscaled, [sourceImages] are also saved so the gallery
+  /// can compare before/after.
   Future<List<ImageGenHistoryEntry>> record({
     required ImageGenRequest request,
     required ImageGenResult result,
     required ImageGenSettings settings,
+    List<Uint8List>? sourceImages,
+    String sourceFormat = 'png',
   }) async {
     if (result.images.isEmpty) return const [];
     final root = await _rootDir();
@@ -161,11 +187,22 @@ class ImageGenHistoryService {
         settings.defaultNegativePrompt ??
         '';
 
-    for (final bytes in result.images) {
+    for (var i = 0; i < result.images.length; i++) {
+      final bytes = result.images[i];
       final id = _uuid.v4();
       final format = result.format.isNotEmpty ? result.format : 'png';
       final imagePath = p.join(root.path, '$id.$format');
       await File(imagePath).writeAsBytes(bytes, flush: true);
+
+      String? originalImagePath;
+      if (upscaled &&
+          sourceImages != null &&
+          i < sourceImages.length &&
+          sourceImages[i].isNotEmpty) {
+        final origExt = sourceFormat.isNotEmpty ? sourceFormat : 'png';
+        originalImagePath = p.join(root.path, '${id}_original.$origExt');
+        await File(originalImagePath).writeAsBytes(sourceImages[i], flush: true);
+      }
 
       final width = upscaled && upscaleScale != null
           ? request.width * upscaleScale
@@ -193,6 +230,9 @@ class ImageGenHistoryService {
         provider: provider,
         upscaled: upscaled,
         upscaleScale: upscaleScale,
+        originalImagePath: originalImagePath,
+        originalWidth: originalImagePath != null ? request.width : null,
+        originalHeight: originalImagePath != null ? request.height : null,
       );
       await File(p.join(root.path, '$id.json'))
           .writeAsString(jsonEncode(entry.toJson()), flush: true);
@@ -212,13 +252,19 @@ class ImageGenHistoryService {
           final image = File(path);
           if (await image.exists()) await image.delete();
         }
+        final original = json['originalImagePath']?.toString();
+        if (original != null && original.isNotEmpty) {
+          final image = File(original);
+          if (await image.exists()) await image.delete();
+        }
       } catch (_) {}
       await meta.delete();
     }
     // Also remove any leftover image with this id.
     for (final file in root.listSync().whereType<File>()) {
       final name = p.basenameWithoutExtension(file.path);
-      if (name == id && !file.path.endsWith('.json')) {
+      if ((name == id || name == '${id}_original') &&
+          !file.path.endsWith('.json')) {
         await file.delete();
       }
     }

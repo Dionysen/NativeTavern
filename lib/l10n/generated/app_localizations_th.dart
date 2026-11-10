@@ -2441,6 +2441,12 @@ class AppLocalizationsTh extends AppLocalizations {
       'Delete this picture from the gallery?';
 
   @override
+  String get imageGenGalleryVersionUpscaled => 'Upscaled';
+
+  @override
+  String get imageGenGalleryVersionOriginal => 'Original';
+
+  @override
   String get imagineFromLastReply => 'Picture this reply';
 
   @override

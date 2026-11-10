@@ -109,16 +109,39 @@ class _GalleryThumb extends StatelessWidget {
   }
 }
 
-class _ImageGenGalleryDetailScreen extends ConsumerWidget {
+class _ImageGenGalleryDetailScreen extends ConsumerStatefulWidget {
   const _ImageGenGalleryDetailScreen({required this.entry});
 
   final ImageGenHistoryEntry entry;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ImageGenGalleryDetailScreen> createState() =>
+      _ImageGenGalleryDetailScreenState();
+}
+
+class _ImageGenGalleryDetailScreenState
+    extends ConsumerState<_ImageGenGalleryDetailScreen> {
+  /// When true, show the upscaled gallery image; otherwise the original.
+  bool _showUpscaled = true;
+
+  ImageGenHistoryEntry get entry => widget.entry;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final file = File(entry.imagePath);
+    final canCompare = entry.upscaled && entry.hasComparableOriginal;
+    final showingUpscaled = !canCompare || _showUpscaled;
+    final imagePath = showingUpscaled
+        ? entry.imagePath
+        : (entry.originalImagePath ?? entry.imagePath);
+    final file = File(imagePath);
+    final displayWidth = showingUpscaled
+        ? entry.width
+        : (entry.originalWidth ?? entry.width);
+    final displayHeight = showingUpscaled
+        ? entry.height
+        : (entry.originalHeight ?? entry.height);
 
     return Scaffold(
       appBar: AppBar(
@@ -127,7 +150,7 @@ class _ImageGenGalleryDetailScreen extends ConsumerWidget {
           ChromeIconButton(
             icon: const Icon(Icons.delete_outline),
             tooltip: l10n.delete,
-            onPressed: () => _confirmDelete(context, ref),
+            onPressed: () => _confirmDelete(context),
           ),
         ],
       ),
@@ -135,8 +158,8 @@ class _ImageGenGalleryDetailScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           AspectRatio(
-            aspectRatio: entry.width > 0 && entry.height > 0
-                ? entry.width / entry.height
+            aspectRatio: displayWidth > 0 && displayHeight > 0
+                ? displayWidth / displayHeight
                 : 1,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
@@ -150,6 +173,28 @@ class _ImageGenGalleryDetailScreen extends ConsumerWidget {
               ),
             ),
           ),
+          if (canCompare) ...[
+            const SizedBox(height: 12),
+            SegmentedButton<bool>(
+              segments: [
+                ButtonSegment<bool>(
+                  value: true,
+                  label: Text(l10n.imageGenGalleryVersionUpscaled),
+                  icon: const Icon(Icons.hd_outlined),
+                ),
+                ButtonSegment<bool>(
+                  value: false,
+                  label: Text(l10n.imageGenGalleryVersionOriginal),
+                  icon: const Icon(Icons.image_outlined),
+                ),
+              ],
+              selected: {_showUpscaled},
+              onSelectionChanged: (next) {
+                if (next.isEmpty) return;
+                setState(() => _showUpscaled = next.first);
+              },
+            ),
+          ],
           const SizedBox(height: 16),
           _InfoCard(
             title: l10n.imageGenGalleryInfo,
@@ -157,7 +202,7 @@ class _ImageGenGalleryDetailScreen extends ConsumerWidget {
               _InfoRow(l10n.imageGenGalleryFileSize, entry.sizeLabel),
               _InfoRow(
                 l10n.imageSize,
-                '${entry.width} × ${entry.height}',
+                '$displayWidth × $displayHeight',
               ),
               if (entry.provider != null && entry.provider!.isNotEmpty)
                 _InfoRow(l10n.provider, entry.provider!),
@@ -205,7 +250,7 @@ class _ImageGenGalleryDetailScreen extends ConsumerWidget {
         '${two(local.hour)}:${two(local.minute)}';
   }
 
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+  Future<void> _confirmDelete(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,

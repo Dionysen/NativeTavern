@@ -3409,6 +3409,14 @@
   "@imageGenGalleryDeleteConfirm": {
     "description": "Confirm deleting a gallery image"
   },
+  "imageGenGalleryVersionUpscaled": "Upscaled",
+  "@imageGenGalleryVersionUpscaled": {
+    "description": "Gallery toggle: show image after upscale"
+  },
+  "imageGenGalleryVersionOriginal": "Original",
+  "@imageGenGalleryVersionOriginal": {
+    "description": "Gallery toggle: show image before upscale"
+  },
   "imagineFromLastReply": "Picture this reply",
   "@imagineFromLastReply": {
     "description": "One tap to picture the last character reply"

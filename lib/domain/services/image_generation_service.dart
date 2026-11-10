@@ -1102,12 +1102,16 @@ class ImageGenerationService {
           generated = await _generateLocalQnn(resolvedRequest, model);
       }
       if (generated == null) return null;
+      final sourceImages = List<Uint8List>.from(generated.images);
+      final sourceFormat = generated.format;
       final finalResult = await _applyUpscaleStage(generated);
       try {
         await _history.record(
           request: resolvedRequest,
           result: finalResult,
           settings: _settings,
+          sourceImages: sourceImages,
+          sourceFormat: sourceFormat,
         );
       } catch (e, st) {
         debugPrint('Image gen history record failed: $e\n$st');

@@ -2971,6 +2971,14 @@
   "@imageGenGalleryDeleteConfirm": {
     "description": "Confirm deleting a gallery image"
   },
+  "imageGenGalleryVersionUpscaled": "超分后",
+  "@imageGenGalleryVersionUpscaled": {
+    "description": "Gallery toggle: show image after upscale"
+  },
+  "imageGenGalleryVersionOriginal": "超分前",
+  "@imageGenGalleryVersionOriginal": {
+    "description": "Gallery toggle: show image before upscale"
+  },
   "imagineFromLastReply": "用这条回复生图",
   "@imagineFromLastReply": {
     "description": "One tap to picture the last character reply"
