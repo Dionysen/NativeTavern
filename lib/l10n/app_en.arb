@@ -5359,6 +5359,40 @@
       }
     }
   },
+  "lorebooksSelected": "{count} lorebook(s) selected",
+  "@lorebooksSelected": {
+    "description": "World info multi-select app bar title",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedLorebooks": "Delete lorebooks",
+  "@deleteSelectedLorebooks": {
+    "description": "Title for bulk lorebook delete confirmation"
+  },
+  "deleteSelectedLorebooksConfirmation": "Delete {count} selected lorebooks and all their entries? This cannot be undone.",
+  "@deleteSelectedLorebooksConfirmation": {
+    "description": "Bulk lorebook delete confirmation body",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "lorebooksDeletedCount": "Deleted {count} lorebooks",
+  "@lorebooksDeletedCount": {
+    "description": "Snackbar after bulk lorebook delete",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
   "enterLorebookName": "Enter lorebook name",
   "@enterLorebookName": {
     "description": "Lorebook name hint"

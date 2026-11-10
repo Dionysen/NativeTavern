@@ -3756,6 +3756,24 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String lorebooksSelected(int count) {
+    return '已选择 $count 本世界书';
+  }
+
+  @override
+  String get deleteSelectedLorebooks => '删除世界书';
+
+  @override
+  String deleteSelectedLorebooksConfirmation(int count) {
+    return '确定删除选中的 $count 本世界书及其所有条目吗？此操作无法撤销。';
+  }
+
+  @override
+  String lorebooksDeletedCount(int count) {
+    return '已删除 $count 本世界书';
+  }
+
+  @override
   String get enterLorebookName => '输入世界书名称';
 
   @override

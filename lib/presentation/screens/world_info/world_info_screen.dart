@@ -13,7 +13,9 @@ import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/screens/world_info/world_info_entry_editor_screen.dart';
 import 'package:native_tavern/presentation/theme/native_tavern_theme.dart';
+import 'package:native_tavern/presentation/utils/destructive_confirm.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
+import 'package:native_tavern/presentation/widgets/common/intercept_pop_scope.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
@@ -54,11 +56,81 @@ class _WorldInfoScreenState extends ConsumerState<WorldInfoScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   _LorebookListScope _scopeFilter = _LorebookListScope.all;
+  bool _selectionMode = false;
+  final Set<String> _selectedIds = <String>{};
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _exitSelectionMode() {
+    setState(() {
+      _selectionMode = false;
+      _selectedIds.clear();
+    });
+  }
+
+  void _enterSelectionMode([String? worldInfoId]) {
+    setState(() {
+      _selectionMode = true;
+      _selectedIds.clear();
+      if (worldInfoId != null) {
+        _selectedIds.add(worldInfoId);
+      }
+    });
+  }
+
+  void _toggleSelection(String worldInfoId) {
+    setState(() {
+      if (_selectedIds.contains(worldInfoId)) {
+        _selectedIds.remove(worldInfoId);
+        if (_selectedIds.isEmpty) {
+          _selectionMode = false;
+        }
+      } else {
+        _selectedIds.add(worldInfoId);
+      }
+    });
+  }
+
+  void _toggleSelectAll(List<WorldInfo> visible) {
+    final visibleIds = visible.map((w) => w.id).toSet();
+    setState(() {
+      final allSelected =
+          visibleIds.isNotEmpty && visibleIds.every(_selectedIds.contains);
+      if (allSelected) {
+        _selectedIds.removeAll(visibleIds);
+        if (_selectedIds.isEmpty) {
+          _selectionMode = false;
+        }
+      } else {
+        _selectionMode = true;
+        _selectedIds.addAll(visibleIds);
+      }
+    });
+  }
+
+  Future<void> _deleteSelectedLorebooks() async {
+    if (_selectedIds.isEmpty) return;
+    final l10n = AppLocalizations.of(context);
+    final count = _selectedIds.length;
+    final confirmed = await confirmDestructiveAction(
+      context,
+      ref,
+      title: l10n.deleteSelectedLorebooks,
+      body: l10n.deleteSelectedLorebooksConfirmation(count),
+    );
+    if (!confirmed || !mounted) return;
+
+    final ids = List<String>.from(_selectedIds);
+    await ref.read(worldInfoNotifierProvider.notifier).deleteWorldInfos(ids);
+    _exitSelectionMode();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.lorebooksDeletedCount(count))),
+    );
   }
 
   @override
@@ -72,63 +144,116 @@ class _WorldInfoScreenState extends ConsumerState<WorldInfoScreen> {
     final characterNames = {
       for (final c in characters) c.id: c.name,
     };
+    final visibleForSelect = worldInfosAsync.valueOrNull == null
+        ? const <WorldInfo>[]
+        : _filterWorldInfos(worldInfosAsync.valueOrNull!);
+    final allVisibleSelected = visibleForSelect.isNotEmpty &&
+        visibleForSelect.every((w) => _selectedIds.contains(w.id));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.worldInfoLorebooks),
-        actions: spacedAppBarActions([
-          ChromeIconButton(
-            icon: const Icon(Icons.file_download),
-            tooltip: l10n.import,
-            onPressed: () => _importWorldInfo(context),
+    return InterceptPopScope(
+      canPop: !_selectionMode,
+      onIntercept: _exitSelectionMode,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: _selectionMode
+              ? ChromeIconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: l10n.cancel,
+                  onPressed: _exitSelectionMode,
+                )
+              : null,
+          title: Text(
+            _selectionMode
+                ? l10n.lorebooksSelected(_selectedIds.length)
+                : l10n.worldInfoLorebooks,
           ),
-          ChromeIconButton(
-            icon: const Icon(Icons.add),
-            tooltip: l10n.createLorebook,
-            onPressed: _showCreateDialog,
-          ),
-        ]),
-      ),
-      body: worldInfosAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('${l10n.error}: $error'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () =>
-                    ref.read(worldInfoNotifierProvider.notifier).refresh(),
-                child: Text(l10n.retry),
+          actions: spacedAppBarActions([
+            if (_selectionMode) ...[
+              ChromeIconButton(
+                icon: Icon(
+                  allVisibleSelected
+                      ? Icons.deselect
+                      : Icons.select_all,
+                ),
+                tooltip: allVisibleSelected
+                    ? l10n.deselectAllCharacters
+                    : l10n.selectAllCharacters,
+                onPressed: visibleForSelect.isEmpty
+                    ? null
+                    : () => _toggleSelectAll(visibleForSelect),
+              ),
+              if (_selectedIds.isNotEmpty)
+                ChromeIconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: l10n.delete,
+                  onPressed: _deleteSelectedLorebooks,
+                ),
+              ChromeIconButton(
+                icon: const Icon(Icons.check),
+                tooltip: l10n.done,
+                onPressed: _exitSelectionMode,
+              ),
+            ] else ...[
+              if (worldInfosAsync.valueOrNull?.isNotEmpty == true)
+                ChromeIconButton(
+                  icon: const Icon(Icons.checklist),
+                  tooltip: l10n.characterListSelectMode,
+                  onPressed: _enterSelectionMode,
+                ),
+              ChromeIconButton(
+                icon: const Icon(Icons.file_download),
+                tooltip: l10n.import,
+                onPressed: () => _importWorldInfo(context),
+              ),
+              ChromeIconButton(
+                icon: const Icon(Icons.add),
+                tooltip: l10n.createLorebook,
+                onPressed: _showCreateDialog,
               ),
             ],
-          ),
+          ]),
         ),
-        data: (worldInfos) {
-          if (worldInfos.isEmpty) {
-            return _buildEmptyState();
-          }
+        body: worldInfosAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('${l10n.error}: $error'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () =>
+                      ref.read(worldInfoNotifierProvider.notifier).refresh(),
+                  child: Text(l10n.retry),
+                ),
+              ],
+            ),
+          ),
+          data: (worldInfos) {
+            if (worldInfos.isEmpty) {
+              return _buildEmptyState();
+            }
 
-          final filtered = _filterWorldInfos(worldInfos);
-          return Column(
-            children: [
-              _buildSearchField(l10n),
-              _buildScopeFilter(l10n),
-              Expanded(
-                child: filtered.isEmpty
-                    ? _buildNoMatchesState(l10n)
-                    : _buildGroupedList(
-                        filtered,
-                        entryCounts,
-                        characterNames,
-                      ),
-              ),
-            ],
-          );
-        },
+            final filtered = _filterWorldInfos(worldInfos);
+            return Column(
+              children: [
+                _buildSearchField(l10n),
+                _buildScopeFilter(l10n),
+                Expanded(
+                  child: filtered.isEmpty
+                      ? _buildNoMatchesState(l10n)
+                      : _buildGroupedList(
+                          filtered,
+                          entryCounts,
+                          characterNames,
+                        ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -245,7 +370,22 @@ class _WorldInfoScreenState extends ConsumerState<WorldInfoScreen> {
             characterName: worldInfo.characterId == null
                 ? null
                 : characterNames[worldInfo.characterId!],
-            onTap: () => _openWorldInfo(worldInfo),
+            selectionMode: _selectionMode,
+            selected: _selectedIds.contains(worldInfo.id),
+            onTap: () {
+              if (_selectionMode) {
+                _toggleSelection(worldInfo.id);
+                return;
+              }
+              _openWorldInfo(worldInfo);
+            },
+            onLongPress: () {
+              if (_selectionMode) {
+                _toggleSelection(worldInfo.id);
+              } else {
+                _enterSelectionMode(worldInfo.id);
+              }
+            },
             onEdit: () => _showEditDialog(worldInfo),
             onDelete: () => _showDeleteConfirmation(worldInfo),
             onToggle: (enabled) {
@@ -518,7 +658,10 @@ class _WorldInfoCard extends StatelessWidget {
   final WorldInfo worldInfo;
   final int entryCount;
   final String? characterName;
+  final bool selectionMode;
+  final bool selected;
   final VoidCallback onTap;
+  final VoidCallback onLongPress;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final ValueChanged<bool> onToggle;
@@ -527,7 +670,10 @@ class _WorldInfoCard extends StatelessWidget {
     required this.worldInfo,
     required this.entryCount,
     this.characterName,
+    required this.selectionMode,
+    required this.selected,
     required this.onTap,
+    required this.onLongPress,
     required this.onEdit,
     required this.onDelete,
     required this.onToggle,
@@ -552,129 +698,144 @@ class _WorldInfoCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // Icon
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
+        child: ColoredBox(
+          color: selectionMode && selected
+              ? scheme.primary.withValues(alpha: 0.12)
+              : Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                if (selectionMode) ...[
+                  Icon(
+                    selected ? Icons.check_circle : Icons.circle_outlined,
+                    color: selected ? scheme.primary : scheme.outline,
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                // Icon
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.auto_stories, color: accent),
                 ),
-                child: Icon(Icons.auto_stories, color: accent),
-              ),
-              const SizedBox(width: 16),
+                const SizedBox(width: 16),
 
-              // Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            worldInfo.name,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                // Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              worldInfo.name,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: scopeColor.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            scopeLabel,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: scopeColor,
-                              fontWeight: FontWeight.bold,
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: scopeColor.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              scopeLabel,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: scopeColor,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      worldInfo.isGlobal
-                          ? l10n.entriesCount(entryCount)
-                          : '${l10n.entriesCount(entryCount)} · $boundLabel',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: muted,
+                        ],
                       ),
-                    ),
-                    if (worldInfo.description?.isNotEmpty == true) ...[
                       const SizedBox(height: 4),
                       Text(
-                        worldInfo.description!,
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        worldInfo.isGlobal
+                            ? l10n.entriesCount(entryCount)
+                            : '${l10n.entriesCount(entryCount)} · $boundLabel',
+                        style: theme.textTheme.bodyMedium?.copyWith(
                           color: muted,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
+                      if (worldInfo.description?.isNotEmpty == true) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          worldInfo.description!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: muted,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
 
-              // Actions
-              ThemedSwitch(
-                value: worldInfo.enabled,
-                onChanged: onToggle,
-              ),
-              AdaptiveActionMenuButton<String>(
-                icon: Icon(Icons.more_vert, color: muted),
-                title: worldInfo.name,
-                onSelected: (value) {
-                  switch (value) {
-                    case 'edit':
-                      onEdit();
-                      break;
-                    case 'export':
-                      _exportWorldInfo(context, worldInfo);
-                      break;
-                    case 'delete':
-                      onDelete();
-                      break;
-                  }
-                },
-                itemBuilder: (context) {
-                  final l10n = AppLocalizations.of(context)!;
-                  return [
-                    AdaptiveActionDrawerItem(
-                      value: 'edit',
-                      leading: const Icon(Icons.edit),
-                      title: Text(l10n.edit),
-                    ),
-                    AdaptiveActionDrawerItem(
-                      value: 'export',
-                      leading: const Icon(Icons.file_upload),
-                      title: Text(l10n.export),
-                    ),
-                    AdaptiveActionDrawerItem(
-                      value: 'delete',
-                      leading: const Icon(Icons.delete),
-                      title: Text(l10n.delete),
-                      destructive: true,
-                      showDividerAbove: true,
-                    ),
-                  ];
-                },
-              ),
-            ],
+                if (!selectionMode) ...[
+                  ThemedSwitch(
+                    value: worldInfo.enabled,
+                    onChanged: onToggle,
+                  ),
+                  AdaptiveActionMenuButton<String>(
+                    icon: Icon(Icons.more_vert, color: muted),
+                    title: worldInfo.name,
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'edit':
+                          onEdit();
+                          break;
+                        case 'export':
+                          _exportWorldInfo(context, worldInfo);
+                          break;
+                        case 'delete':
+                          onDelete();
+                          break;
+                      }
+                    },
+                    itemBuilder: (context) {
+                      final l10n = AppLocalizations.of(context)!;
+                      return [
+                        AdaptiveActionDrawerItem(
+                          value: 'edit',
+                          leading: const Icon(Icons.edit),
+                          title: Text(l10n.edit),
+                        ),
+                        AdaptiveActionDrawerItem(
+                          value: 'export',
+                          leading: const Icon(Icons.file_upload),
+                          title: Text(l10n.export),
+                        ),
+                        AdaptiveActionDrawerItem(
+                          value: 'delete',
+                          leading: const Icon(Icons.delete),
+                          title: Text(l10n.delete),
+                          destructive: true,
+                          showDividerAbove: true,
+                        ),
+                      ];
+                    },
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),

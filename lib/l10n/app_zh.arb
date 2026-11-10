@@ -4912,6 +4912,34 @@
       }
     }
   },
+  "lorebooksSelected": "已选择 {count} 本世界书",
+  "@lorebooksSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSelectedLorebooks": "删除世界书",
+  "deleteSelectedLorebooksConfirmation": "确定删除选中的 {count} 本世界书及其所有条目吗？此操作无法撤销。",
+  "@deleteSelectedLorebooksConfirmation": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "lorebooksDeletedCount": "已删除 {count} 本世界书",
+  "@lorebooksDeletedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
   "enterLorebookName": "输入世界书名称",
   "@enterLorebookName": {
     "description": "Lorebook name hint"

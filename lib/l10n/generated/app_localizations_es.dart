@@ -3878,6 +3878,24 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String lorebooksSelected(int count) {
+    return '$count lorebook(s) selected';
+  }
+
+  @override
+  String get deleteSelectedLorebooks => 'Delete lorebooks';
+
+  @override
+  String deleteSelectedLorebooksConfirmation(int count) {
+    return 'Delete $count selected lorebooks and all their entries? This cannot be undone.';
+  }
+
+  @override
+  String lorebooksDeletedCount(int count) {
+    return 'Deleted $count lorebooks';
+  }
+
+  @override
   String get enterLorebookName => 'Enter lorebook name';
 
   @override

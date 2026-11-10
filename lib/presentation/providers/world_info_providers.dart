@@ -85,6 +85,15 @@ class WorldInfoNotifier extends StateNotifier<AsyncValue<List<WorldInfo>>> {
     await _loadWorldInfos();
   }
 
+  Future<void> deleteWorldInfos(Iterable<String> ids) async {
+    final uniqueIds = ids.toSet();
+    if (uniqueIds.isEmpty) return;
+    for (final id in uniqueIds) {
+      await _repository.deleteWorldInfo(id);
+    }
+    await _loadWorldInfos();
+  }
+
   Future<WorldInfoEntry> addEntry({
     required String worldInfoId,
     required List<String> keys,

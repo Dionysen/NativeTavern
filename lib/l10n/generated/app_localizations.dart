@@ -7065,6 +7065,30 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete \"{name}\" and all its entries?'**
   String deleteLorebookConfirmation(String name);
 
+  /// World info multi-select app bar title
+  ///
+  /// In en, this message translates to:
+  /// **'{count} lorebook(s) selected'**
+  String lorebooksSelected(int count);
+
+  /// Title for bulk lorebook delete confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'Delete lorebooks'**
+  String get deleteSelectedLorebooks;
+
+  /// Bulk lorebook delete confirmation body
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {count} selected lorebooks and all their entries? This cannot be undone.'**
+  String deleteSelectedLorebooksConfirmation(int count);
+
+  /// Snackbar after bulk lorebook delete
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {count} lorebooks'**
+  String lorebooksDeletedCount(int count);
+
   /// Lorebook name hint
   ///
   /// In en, this message translates to:
