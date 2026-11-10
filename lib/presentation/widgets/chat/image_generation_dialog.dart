@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/image_generation_service.dart';
@@ -8,7 +6,14 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/image_gen_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 
-/// Dialog for generating images from message content
+/// Confirmed generation request from the dialog; chat runs it asynchronously.
+class ImageGenDialogLaunch {
+  final ImageGenRequest request;
+
+  const ImageGenDialogLaunch(this.request);
+}
+
+/// Dialog for composing an image prompt before async generation in chat.
 class ImageGenerationDialog extends ConsumerStatefulWidget {
   /// The base prompt (usually from message content)
   final String basePrompt;
@@ -42,8 +47,8 @@ class ImageGenerationDialog extends ConsumerStatefulWidget {
   ConsumerState<ImageGenerationDialog> createState() =>
       _ImageGenerationDialogState();
 
-  /// Show the dialog and return the generated image (if any)
-  static Future<ImageGenResult?> show(
+  /// Show the dialog and return a launch request (if confirmed).
+  static Future<ImageGenDialogLaunch?> show(
     BuildContext context, {
     required String basePrompt,
     String? characterName,
@@ -52,9 +57,9 @@ class ImageGenerationDialog extends ConsumerStatefulWidget {
     ImageGenMode mode = ImageGenMode.free,
     bool autoCompose = false,
   }) {
-    return showDialog<ImageGenResult>(
+    return showDialog<ImageGenDialogLaunch>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (context) => ImageGenerationDialog(
         basePrompt: basePrompt,
         characterName: characterName,
@@ -70,11 +75,8 @@ class ImageGenerationDialog extends ConsumerStatefulWidget {
 class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
   late TextEditingController _promptController;
   late TextEditingController _negativePromptController;
-  bool _isGenerating = false;
   bool _isComposingPrompt = false;
-  double _progress = 0.0;
   String? _error;
-  Uint8List? _generatedImage;
   final _composer = const ImagePromptComposer();
 
   @override
@@ -207,9 +209,7 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
                   const Spacer(),
                   TextButton.icon(
                     key: const Key('image-gen-fill-prompt'),
-                    onPressed: _isGenerating || _isComposingPrompt
-                        ? null
-                        : _fillPromptWithAi,
+                    onPressed: _isComposingPrompt ? null : _fillPromptWithAi,
                     icon: _isComposingPrompt
                         ? SizedBox(
                             width: 14,
@@ -219,7 +219,7 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
                               color: scheme.primary,
                             ),
                           )
-                        : const Icon(Icons.auto_fix_high, size: 16),
+                        : const Icon(Icons.auto_awesome, size: 16),
                     label: Text(l10n.fillImagePromptWithAi),
                   ),
                 ],
@@ -232,7 +232,7 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
                   scheme: scheme,
                   hintText: l10n.enterPromptToGenerate,
                 ),
-                enabled: !_isGenerating && !_isComposingPrompt,
+                enabled: !_isComposingPrompt,
               ),
               const SizedBox(height: 16),
               ExpansionTile(
@@ -253,26 +253,9 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
                       scheme: scheme,
                       hintText: l10n.enterTermsToAvoid,
                     ),
-                    enabled: !_isGenerating,
                   ),
                 ],
               ),
-              if (_isGenerating) ...[
-                const SizedBox(height: 16),
-                LinearProgressIndicator(
-                  value: _progress,
-                  backgroundColor: scheme.surfaceContainerHighest,
-                  color: scheme.primary,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${(_progress * 100).toInt()}%',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
               if (_error != null) ...[
                 const SizedBox(height: 16),
                 Container(
@@ -304,54 +287,22 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
                   ),
                 ),
               ],
-              if (_generatedImage != null) ...[
-                const SizedBox(height: 16),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.memory(
-                    _generatedImage!,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ],
             ],
           ),
         ),
       ),
       actions: [
         TextButton(
-          onPressed: _isGenerating ? null : () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.cancel),
         ),
-        if (_generatedImage != null)
-          FilledButton.icon(
-            onPressed: () {
-              Navigator.of(context).pop(
-                ImageGenResult(
-                  images: [_generatedImage!],
-                  prompt: _promptController.text,
-                  seed: DateTime.now().millisecondsSinceEpoch,
-                ),
-              );
-            },
-            icon: const Icon(Icons.check),
-            label: Text(l10n.save),
-          )
-        else
-          FilledButton.icon(
-            onPressed: _isGenerating || !settings.enabled ? null : _generate,
-            icon: _isGenerating
-                ? SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: scheme.onPrimary,
-                    ),
-                  )
-                : const Icon(Icons.auto_awesome),
-            label: Text(_isGenerating ? l10n.generating : l10n.generate),
-          ),
+        FilledButton.icon(
+          onPressed: _isComposingPrompt || !settings.enabled
+              ? null
+              : _confirmLaunch,
+          icon: const Icon(Icons.auto_awesome),
+          label: Text(l10n.generate),
+        ),
       ],
     );
   }
@@ -406,53 +357,32 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
     }
   }
 
-  Future<void> _generate() async {
+  void _confirmLaunch() {
     final l10n = AppLocalizations.of(context);
     final settings = ref.read(imageGenSettingsProvider);
-    final service = ref.read(imageGenServiceProvider);
+    final sceneTags = _promptController.text.trim();
+    if (sceneTags.isEmpty) {
+      setState(() => _error = l10n.enterPromptToGenerate);
+      return;
+    }
 
-    setState(() {
-      _isGenerating = true;
-      _progress = 0.0;
-      _error = null;
-      _generatedImage = null;
-    });
+    final availableModels = ref.read(availableModelsProvider);
+    final selectedModel = availableModels.contains(settings.model)
+        ? settings.model
+        : (availableModels.isNotEmpty ? availableModels.first : settings.model);
+    if (selectedModel.isNotEmpty && selectedModel != settings.model) {
+      ref.read(imageGenSettingsProvider.notifier).setModel(selectedModel);
+    }
 
-    service.onProgress = (progress) {
-      if (mounted) {
-        setState(() => _progress = progress);
-      }
-    };
+    final assembled = _composer.assembleFinalPrompt(
+      sceneTags: sceneTags,
+      commonPrefix: settings.effectiveCommonPromptPrefix,
+      characterAppearance: widget.characterAppearance,
+      personaAppearance: widget.personaAppearance,
+    );
 
-    service.onError = (error) {
-      if (mounted) {
-        setState(() {
-          _error = error;
-          _isGenerating = false;
-        });
-      }
-    };
-
-    try {
-      final availableModels = ref.read(availableModelsProvider);
-      final selectedModel = availableModels.contains(settings.model)
-          ? settings.model
-          : (availableModels.isNotEmpty
-              ? availableModels.first
-              : settings.model);
-      if (selectedModel.isNotEmpty && selectedModel != settings.model) {
-        ref.read(imageGenSettingsProvider.notifier).setModel(selectedModel);
-      }
-
-      final sceneTags = _promptController.text.trim();
-      final assembled = _composer.assembleFinalPrompt(
-        sceneTags: sceneTags,
-        commonPrefix: settings.effectiveCommonPromptPrefix,
-        characterAppearance: widget.characterAppearance,
-        personaAppearance: widget.personaAppearance,
-      );
-
-      final result = await service.generate(
+    Navigator.of(context).pop(
+      ImageGenDialogLaunch(
         ImageGenRequest(
           prompt: assembled,
           negativePrompt: _negativePromptController.text.isNotEmpty
@@ -467,29 +397,8 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
           mode: widget.mode,
           model: selectedModel,
         ),
-      );
-
-      if (mounted) {
-        if (result != null && result.images.isNotEmpty) {
-          setState(() {
-            _generatedImage = result.images.first;
-            _isGenerating = false;
-          });
-        } else {
-          setState(() {
-            _error = l10n.noImageGenerated;
-            _isGenerating = false;
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isGenerating = false;
-        });
-      }
-    }
+      ),
+    );
   }
 
   Widget _buildModelSelector(
@@ -545,15 +454,13 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
                     ),
                   );
                 }).toList(),
-                onChanged: _isGenerating
-                    ? null
-                    : (value) {
-                        if (value != null) {
-                          ref
-                              .read(imageGenSettingsProvider.notifier)
-                              .setModel(value);
-                        }
-                      },
+                onChanged: (value) {
+                  if (value != null) {
+                    ref
+                        .read(imageGenSettingsProvider.notifier)
+                        .setModel(value);
+                  }
+                },
               ),
             ),
           ),

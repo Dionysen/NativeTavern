@@ -1641,9 +1641,26 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
     if (messageIndex < 0) return;
 
     final message = state.messages[messageIndex];
-    final updatedAttachments = [...message.attachments, ...attachments];
+    await patchMessage(
+      messageId,
+      attachments: [...message.attachments, ...attachments],
+    );
+  }
 
-    final updatedMessage = message.copyWith(attachments: updatedAttachments);
+  /// Patch attachments and/or metadata on an existing message.
+  Future<void> patchMessage(
+    String messageId, {
+    List<ChatAttachment>? attachments,
+    Map<String, dynamic>? metadata,
+  }) async {
+    final messageIndex = state.messages.indexWhere((m) => m.id == messageId);
+    if (messageIndex < 0) return;
+
+    final message = state.messages[messageIndex];
+    final updatedMessage = message.copyWith(
+      attachments: attachments ?? message.attachments,
+      metadata: metadata ?? message.metadata,
+    );
 
     await _persistUpdateMessage(updatedMessage);
 

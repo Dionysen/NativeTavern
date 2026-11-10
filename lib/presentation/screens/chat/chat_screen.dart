@@ -2257,14 +2257,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             onBranchChat: () {
               unawaited(_branchChatFromMessage(message.id));
             },
-            onGenerateImage: ref.read(imageGenSettingsProvider).enabled
+            onGenerateImage: ref.read(imageGenSettingsProvider).enabled &&
+                    !message.isPendingImageGen &&
+                    !_generatingQuickImage &&
+                    !ref.watch(imageGenStateProvider).isGenerating
                 ? () {
                     _showImageGenerationDialog(message, chatState.character);
                   }
                 : null,
             onQuickImagine: ref.watch(imageGenSettingsProvider).enabled &&
                     message.role == MessageRole.assistant &&
-                    !message.isGeneratedImage
+                    !message.isGeneratedImage &&
+                    !message.isPendingImageGen &&
+                    !_generatingQuickImage &&
+                    !ref.watch(imageGenStateProvider).isGenerating
                 ? () => _generateImageFromMessage(message)
                 : null,
           );
@@ -2313,13 +2319,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Future<void> _openImagineFromInput(ActiveChatState chatState) async {
+    if (_generatingQuickImage || ref.read(imageGenStateProvider).isGenerating) {
+      return;
+    }
     final typed = _messageController.text.trim();
     final lastAssistant = lastCharacterTextReply(chatState.messages);
     final settings = ref.read(imageGenSettingsProvider);
     final speaker = lastAssistant == null
         ? chatState.character
         : chatState.characterForMessage(lastAssistant);
-    final result = await ImageGenerationDialog.show(
+    final launch = await ImageGenerationDialog.show(
       context,
       basePrompt: typed.isNotEmpty ? typed : (lastAssistant?.content ?? ''),
       characterName: speaker?.name ?? chatState.character?.name,
@@ -2329,19 +2338,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       mode: ImageGenMode.free,
       autoCompose: typed.isEmpty,
     );
-    if (result != null && result.images.isNotEmpty && mounted) {
-      await _attachGeneratedImagesToNewMessage(
-        result,
+    if (launch == null || !mounted) return;
+    unawaited(
+      _runAsyncImageGeneration(
+        request: launch.request,
         character: speaker ?? chatState.character,
         sourceMessage: lastAssistant,
-      );
-    }
+      ),
+    );
   }
 
-  /// One tap: picture this character line and post it as their reply.
+  /// One tap: picture this character line without blocking the chat UI.
   Future<void> _generateImageFromMessage(ChatMessage source) async {
-    if (_generatingQuickImage) return;
-    if (source.role != MessageRole.assistant || source.isGeneratedImage) {
+    if (_generatingQuickImage || ref.read(imageGenStateProvider).isGenerating) {
+      return;
+    }
+    if (source.role != MessageRole.assistant ||
+        source.isGeneratedImage ||
+        source.isPendingImageGen) {
       return;
     }
     final l10n = AppLocalizations.of(context);
@@ -2356,37 +2370,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       return;
     }
 
-    setState(() => _generatingQuickImage = true);
-    final navigator = Navigator.of(context, rootNavigator: true);
-    final route = DialogRoute<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => PopScope(
-        canPop: false,
-        child: AlertDialog(
-          content: Row(
-            children: [
-              const SizedBox(
-                width: 28,
-                height: 28,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(AppLocalizations.of(dialogContext).generating),
-              ),
-            ],
-          ),
-        ),
-      ),
+    final chatState = ref.read(activeChatProvider);
+    final speaker =
+        chatState.characterForMessage(source) ?? chatState.character;
+    final placeholder = await _createImageGenPlaceholder(
+      character: speaker,
+      sourceMessage: source,
+      width: settings.defaultWidth,
+      height: settings.defaultHeight,
     );
-    unawaited(navigator.push(route));
+    if (placeholder == null) return;
+
+    setState(() => _generatingQuickImage = true);
+    _scrollToBottom(force: true);
 
     try {
-      await WidgetsBinding.instance.endOfFrame;
-      final chatState = ref.read(activeChatProvider);
-      final speaker =
-          chatState.characterForMessage(source) ?? chatState.character;
       final sceneTags = await _composeSceneTags(
         sceneText: source.content,
         settings: settings,
@@ -2395,7 +2393,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       );
       if (!mounted) return;
       if (sceneTags.trim().isEmpty) {
-        _showCommandError(l10n.noImageGenerated);
+        await _failImageGenPlaceholder(
+          placeholder,
+          l10n.noImageGenerated,
+        );
         return;
       }
 
@@ -2433,18 +2434,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       if (!mounted) return;
       if (result == null || result.images.isEmpty) {
         final error = ref.read(imageGenStateProvider).error;
-        _showCommandError(error ?? l10n.noImageGenerated);
+        await _failImageGenPlaceholder(
+          placeholder,
+          error ?? l10n.noImageGenerated,
+        );
         return;
       }
-      await _attachGeneratedImagesToNewMessage(
+      await _completeImageGenPlaceholder(
+        placeholder,
         result,
         character: speaker,
-        sourceMessage: source,
       );
     } catch (error) {
-      if (mounted) _showCommandError('$error');
+      if (mounted) {
+        await _failImageGenPlaceholder(placeholder, '$error');
+      }
     } finally {
-      if (route.isActive) navigator.removeRoute(route);
       if (mounted) setState(() => _generatingQuickImage = false);
     }
   }
@@ -2481,43 +2486,155 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  Future<void> _attachGeneratedImagesToNewMessage(
-    ImageGenResult result, {
+  Future<void> _runAsyncImageGeneration({
+    required ImageGenRequest request,
     Character? character,
     ChatMessage? sourceMessage,
+  }) async {
+    if (_generatingQuickImage || ref.read(imageGenStateProvider).isGenerating) {
+      return;
+    }
+    final l10n = AppLocalizations.of(context);
+    final placeholder = await _createImageGenPlaceholder(
+      character: character,
+      sourceMessage: sourceMessage,
+      width: request.width,
+      height: request.height,
+    );
+    if (placeholder == null) return;
+
+    setState(() => _generatingQuickImage = true);
+    _scrollToBottom(force: true);
+
+    try {
+      final result =
+          await ref.read(imageGenStateProvider.notifier).generate(request);
+      if (!mounted) return;
+      if (result == null || result.images.isEmpty) {
+        final error = ref.read(imageGenStateProvider).error;
+        await _failImageGenPlaceholder(
+          placeholder,
+          error ?? l10n.noImageGenerated,
+        );
+        return;
+      }
+      await _completeImageGenPlaceholder(
+        placeholder,
+        result,
+        character: character,
+      );
+    } catch (error) {
+      if (mounted) {
+        await _failImageGenPlaceholder(placeholder, '$error');
+      }
+    } finally {
+      if (mounted) setState(() => _generatingQuickImage = false);
+    }
+  }
+
+  /// Creates an in-chat placeholder for async image generation.
+  Future<_ImageGenPlaceholder?> _createImageGenPlaceholder({
+    Character? character,
+    ChatMessage? sourceMessage,
+    required int width,
+    required int height,
+  }) async {
+    final chatState = ref.read(activeChatProvider);
+    final speaker = character ?? chatState.character;
+    final displayMode = ref.read(imageGenSettingsProvider).displayMode;
+    final notifier = ref.read(activeChatProvider.notifier);
+    final aspect = height > 0 ? width / height : 1.0;
+
+    if (displayMode == ImageGenDisplayMode.attach) {
+      final attachTarget = _resolveAttachTarget(sourceMessage, chatState);
+      if (attachTarget != null) {
+        final metadata = Map<String, dynamic>.from(attachTarget.metadata)
+          ..[ChatMessage.pendingImageGenMetadataKey] = true
+          ..[ChatMessage.pendingImageGenAspectMetadataKey] = aspect;
+        await notifier.patchMessage(attachTarget.id, metadata: metadata);
+        return _ImageGenPlaceholder(
+          messageId: attachTarget.id,
+          attachMode: true,
+          dedicatedBubble: false,
+        );
+      }
+
+      final created = await notifier.addLocalMessage(
+        role: MessageRole.assistant,
+        content: '',
+        characterId: speaker?.id,
+        characterName: speaker?.name,
+        metadata: {
+          ChatMessage.generatedImageMetadataKey: true,
+          ChatMessage.generatedImageLayoutMetadataKey:
+              ChatMessage.generatedImageLayoutAttach,
+          ChatMessage.pendingImageGenMetadataKey: true,
+          ChatMessage.pendingImageGenAspectMetadataKey: aspect,
+        },
+      );
+      if (created == null) return null;
+      return _ImageGenPlaceholder(
+        messageId: created.id,
+        attachMode: true,
+        dedicatedBubble: true,
+      );
+    }
+
+    final created = await notifier.addLocalMessage(
+      role: MessageRole.assistant,
+      content: '',
+      characterId: speaker?.id,
+      characterName: speaker?.name,
+      metadata: {
+        ChatMessage.generatedImageMetadataKey: true,
+        ChatMessage.pendingImageGenMetadataKey: true,
+        ChatMessage.pendingImageGenAspectMetadataKey: aspect,
+      },
+    );
+    if (created == null) return null;
+    return _ImageGenPlaceholder(
+      messageId: created.id,
+      attachMode: false,
+      dedicatedBubble: true,
+    );
+  }
+
+  Future<void> _completeImageGenPlaceholder(
+    _ImageGenPlaceholder placeholder,
+    ImageGenResult result, {
+    Character? character,
   }) async {
     final l10n = AppLocalizations.of(context);
     try {
       final attachments = await _saveGeneratedImages(result);
-      if (attachments.isEmpty) return;
-      final chatState = ref.read(activeChatProvider);
-      final speaker = character ?? chatState.character;
-      final displayMode = ref.read(imageGenSettingsProvider).displayMode;
-      final notifier = ref.read(activeChatProvider.notifier);
+      if (attachments.isEmpty) {
+        await _failImageGenPlaceholder(placeholder, l10n.noImageGenerated);
+        return;
+      }
 
-      if (displayMode == ImageGenDisplayMode.attach) {
-        final attachTarget = _resolveAttachTarget(sourceMessage, chatState);
-        if (attachTarget != null) {
-          await notifier.addAttachmentsToMessage(
-            attachTarget.id,
-            attachments,
-          );
-        } else {
-          await notifier.addLocalMessage(
-            role: MessageRole.assistant,
-            content: '',
-            attachments: attachments,
-            characterId: speaker?.id,
-            characterName: speaker?.name,
-            metadata: const {
-              ChatMessage.generatedImageMetadataKey: true,
-              ChatMessage.generatedImageLayoutMetadataKey:
-                  ChatMessage.generatedImageLayoutAttach,
-            },
-          );
-        }
+      final notifier = ref.read(activeChatProvider.notifier);
+      final chatState = ref.read(activeChatProvider);
+      final messageIndex =
+          chatState.messages.indexWhere((m) => m.id == placeholder.messageId);
+      if (messageIndex < 0) return;
+      final message = chatState.messages[messageIndex];
+      final cleared = _metadataWithoutPending(message.metadata);
+
+      if (placeholder.attachMode) {
+        await notifier.patchMessage(
+          placeholder.messageId,
+          attachments: [...message.attachments, ...attachments],
+          metadata: cleared,
+        );
       } else {
-        for (final attachment in attachments) {
+        // First image replaces the placeholder bubble; extras get new bubbles.
+        await notifier.patchMessage(
+          placeholder.messageId,
+          attachments: [attachments.first],
+          metadata: cleared,
+        );
+        final speaker = character ?? chatState.character;
+        for (final attachment in attachments.skip(1)) {
           await notifier.addLocalMessage(
             role: MessageRole.assistant,
             content: '',
@@ -2534,8 +2651,40 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _showSnackBar('${l10n.generationComplete} (${attachments.length})');
       _scrollToBottom(force: true);
     } catch (error) {
-      _showCommandError(l10n.failedToSaveImage('$error'));
+      await _failImageGenPlaceholder(
+        placeholder,
+        l10n.failedToSaveImage('$error'),
+      );
     }
+  }
+
+  Future<void> _failImageGenPlaceholder(
+    _ImageGenPlaceholder placeholder,
+    String error,
+  ) async {
+    final notifier = ref.read(activeChatProvider.notifier);
+    final chatState = ref.read(activeChatProvider);
+    final messageIndex =
+        chatState.messages.indexWhere((m) => m.id == placeholder.messageId);
+    if (messageIndex >= 0) {
+      final message = chatState.messages[messageIndex];
+      if (placeholder.dedicatedBubble && message.attachments.isEmpty) {
+        await notifier.deleteMessage(placeholder.messageId);
+      } else {
+        await notifier.patchMessage(
+          placeholder.messageId,
+          metadata: _metadataWithoutPending(message.metadata),
+        );
+      }
+    }
+    if (mounted) _showCommandError(error);
+  }
+
+  Map<String, dynamic> _metadataWithoutPending(Map<String, dynamic> metadata) {
+    final next = Map<String, dynamic>.from(metadata)
+      ..remove(ChatMessage.pendingImageGenMetadataKey)
+      ..remove(ChatMessage.pendingImageGenAspectMetadataKey);
+    return next;
   }
 
   ChatMessage? _resolveAttachTarget(
@@ -2554,8 +2703,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ChatMessage message,
     Character? character,
   ) async {
+    if (_generatingQuickImage || ref.read(imageGenStateProvider).isGenerating) {
+      return;
+    }
     final settings = ref.read(imageGenSettingsProvider);
-    final result = await ImageGenerationDialog.show(
+    final launch = await ImageGenerationDialog.show(
       context,
       basePrompt: message.content,
       characterName: character?.name,
@@ -2567,21 +2719,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       autoCompose: message.role == MessageRole.assistant,
     );
 
-    if (result != null && result.images.isNotEmpty && mounted) {
-      final chatState = ref.read(activeChatProvider);
-      final speaker = message.role == MessageRole.assistant
-          ? character
-          : chatState.character;
-      final source = message.role == MessageRole.assistant &&
-              !message.isGeneratedImage
-          ? message
-          : lastCharacterTextReply(chatState.messages);
-      await _attachGeneratedImagesToNewMessage(
-        result,
+    if (launch == null || !mounted) return;
+    final chatState = ref.read(activeChatProvider);
+    final speaker = message.role == MessageRole.assistant
+        ? character
+        : chatState.character;
+    final source = message.role == MessageRole.assistant &&
+            !message.isGeneratedImage
+        ? message
+        : lastCharacterTextReply(chatState.messages);
+    unawaited(
+      _runAsyncImageGeneration(
+        request: launch.request,
         character: speaker ?? chatState.character,
         sourceMessage: source,
-      );
-    }
+      ),
+    );
   }
 
   void _showCreateBookmarkDialog(String messageId, int messageIndex) async {
@@ -3982,8 +4135,10 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     const avatarColumnWidth = 32.0 + 8.0;
     final showOwnAvatar = isUser ? showUserAvatar : showCharacterAvatar;
     final isGeneratedImage = widget.message.isGeneratedImage;
-    final isEdgeToEdgeGeneratedImage =
-        isGeneratedImage && !widget.message.isAttachedGeneratedImage;
+    final isPendingImageGen = widget.message.isPendingImageGen;
+    final isEdgeToEdgeGeneratedImage = isGeneratedImage &&
+        !widget.message.isAttachedGeneratedImage &&
+        !isPendingImageGen;
     final bubbleShape = ZephyrChatChrome.messageBubbleShape(
       isUser: isUser,
       radius: context.appChatBubbleCornerRadius,
@@ -4038,6 +4193,7 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
                   ),
                 // Attach-mode pictures sit at the end of the reply.
                 if (widget.message.hasAttachments) _buildAttachments(),
+                if (isPendingImageGen) _buildImageGenPlaceholder(),
               ],
             ),
     );
@@ -4283,6 +4439,73 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
     );
   }
 
+  /// Pending image-generation tile with live progress.
+  Widget _buildImageGenPlaceholder() {
+    final genState = ref.watch(imageGenStateProvider);
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final radius = context.appChatBubbleCornerRadius;
+    final aspect = widget.message.pendingImageGenAspect.clamp(0.55, 1.6);
+    final hasContentAbove = widget.message.content.trim().isNotEmpty ||
+        widget.message.hasReasoning ||
+        widget.message.hasAttachments;
+    final progress =
+        genState.isGenerating && genState.progress > 0 ? genState.progress : null;
+    final percent = genState.isGenerating
+        ? '${(genState.progress * 100).clamp(0, 100).round()}%'
+        : l10n.generating;
+
+    return Padding(
+      padding: EdgeInsets.only(top: hasContentAbove ? 8 : 0),
+      child: AspectRatio(
+        aspectRatio: aspect,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: ColoredBox(
+            color: scheme.surfaceContainerHighest,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        value: progress,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      percent,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                    ),
+                    if (genState.isGenerating) ...[
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(999),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 4,
+                          backgroundColor:
+                              scheme.onSurface.withValues(alpha: 0.08),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Build image attachments for messages.
   Widget _buildAttachments() {
     final attachments = widget.message.attachments;
@@ -4290,7 +4513,8 @@ class _MessageBubbleState extends ConsumerState<_MessageBubble> {
 
     // Separate-bubble generated pictures: edge-to-edge fill.
     if (widget.message.isGeneratedImage &&
-        !widget.message.isAttachedGeneratedImage) {
+        !widget.message.isAttachedGeneratedImage &&
+        !widget.message.isPendingImageGen) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -4932,6 +5156,19 @@ class _ModelThinkingDrawerState extends ConsumerState<_ModelThinkingDrawer> {
       },
     );
   }
+}
+
+/// Tracks where an in-flight image generation placeholder lives.
+class _ImageGenPlaceholder {
+  final String messageId;
+  final bool attachMode;
+  final bool dedicatedBubble;
+
+  const _ImageGenPlaceholder({
+    required this.messageId,
+    required this.attachMode,
+    required this.dedicatedBubble,
+  });
 }
 
 /// Button widget for the input menu panel

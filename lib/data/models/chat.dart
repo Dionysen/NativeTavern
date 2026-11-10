@@ -202,6 +202,12 @@ class ChatMessage {
   static const generatedImageLayoutMetadataKey = 'generatedImageLayout';
   static const generatedImageLayoutAttach = 'attach';
 
+  /// True while an image is still generating for this message (placeholder).
+  static const pendingImageGenMetadataKey = 'pendingImageGen';
+
+  /// Optional aspect ratio (width/height) for the pending placeholder tile.
+  static const pendingImageGenAspectMetadataKey = 'pendingImageGenAspect';
+
   final String id;
   final String chatId;
   final MessageRole role;
@@ -258,6 +264,16 @@ class ChatMessage {
   bool get isAttachedGeneratedImage =>
       isGeneratedImage &&
       metadata[generatedImageLayoutMetadataKey] == generatedImageLayoutAttach;
+
+  /// Image generation placeholder is still running for this message.
+  bool get isPendingImageGen => metadata[pendingImageGenMetadataKey] == true;
+
+  /// Aspect ratio hint for a pending image placeholder (defaults to square).
+  double get pendingImageGenAspect {
+    final raw = metadata[pendingImageGenAspectMetadataKey];
+    if (raw is num && raw > 0) return raw.toDouble();
+    return 1.0;
+  }
 
   ChatMessage copyWith({
     String? id,
