@@ -2889,6 +2889,12 @@ abstract class AppLocalizations {
   /// **'This device can’t pick a folder. Import cards as files instead.'**
   String get characterLibraryFolderPickerUnavailable;
 
+  /// Shown when Android SAF folder import finds no supported cards
+  ///
+  /// In en, this message translates to:
+  /// **'No character card files (.png / .json / .charx) were found in that folder.'**
+  String get characterLibraryImportFolderEmpty;
+
   /// Remove folder and keep characters in the library
   ///
   /// In en, this message translates to:

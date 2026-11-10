@@ -1545,6 +1545,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Dieses Gerät kann keinen Ordner auswählen. Importiere Karten stattdessen als Dateien.';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'Ordner auflösen';
 
   @override

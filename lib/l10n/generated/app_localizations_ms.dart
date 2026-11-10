@@ -1541,6 +1541,10 @@ class AppLocalizationsMs extends AppLocalizations {
       'Peranti ini tidak boleh memilih folder. Import kad sebagai fail sebaliknya.';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'Bubarkan folder';
 
   @override

@@ -2185,9 +2185,13 @@
       "failed": { "type": "int" }
     }
   },
-  "characterLibraryFolderPickerUnavailable": "This device can’t pick a folder. Import cards as files instead.",
+  "characterLibraryFolderPickerUnavailable": "Android can’t export to a folder path here. Use quick export library pack instead.",
   "@characterLibraryFolderPickerUnavailable": {
-    "description": "Shown when directory picking is unavailable"
+    "description": "Shown when Android folder export is unavailable under scoped storage"
+  },
+  "characterLibraryImportFolderEmpty": "No character card files (.png / .json / .charx) were found in that folder.",
+  "@characterLibraryImportFolderEmpty": {
+    "description": "Shown when Android SAF folder import finds no supported cards"
   },
   "dissolveCharacterFolder": "Dissolve folder",
   "@dissolveCharacterFolder": {

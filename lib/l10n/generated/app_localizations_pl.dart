@@ -1544,6 +1544,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'To urządzenie nie może wybrać folderu. Zaimportuj karty jako pliki.';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'Rozwiąż folder';
 
   @override

@@ -1539,6 +1539,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Thiết bị này không thể chọn thư mục. Hãy nhập thẻ dưới dạng tệp.';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'Giải tán thư mục';
 
   @override

@@ -1523,6 +1523,10 @@ class AppLocalizationsJa extends AppLocalizations {
       'この端末ではフォルダを選べません。カードをファイルとしてインポートしてください。';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'フォルダを解散';
 
   @override

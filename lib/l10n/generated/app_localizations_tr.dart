@@ -1541,6 +1541,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bu cihaz klasör seçemiyor. Kartları dosya olarak içe aktarın.';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'Klasörü dağıt';
 
   @override

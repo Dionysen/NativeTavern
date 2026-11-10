@@ -1545,6 +1545,10 @@ class AppLocalizationsNl extends AppLocalizations {
       'Dit apparaat kan geen map kiezen. Importeer kaarten in plaats daarvan als bestanden.';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'Map ontbinden';
 
   @override

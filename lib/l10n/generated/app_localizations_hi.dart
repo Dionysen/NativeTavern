@@ -1540,6 +1540,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'यह डिवाइस फ़ोल्डर नहीं चुन सकता। कार्ड को फ़ाइल के रूप में आयात करें।';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'फ़ोल्डर भंग करें';
 
   @override

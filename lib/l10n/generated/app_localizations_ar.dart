@@ -1533,6 +1533,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'هذا الجهاز لا يمكنه اختيار مجلد. استورد البطاقات كملفات بدلاً من ذلك.';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'حل المجلد';
 
   @override

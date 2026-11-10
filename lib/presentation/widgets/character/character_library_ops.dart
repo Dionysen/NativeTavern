@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:native_tavern/core/services/android_saf_directory_import.dart';
 import 'package:native_tavern/domain/services/character_card_export_service.dart';
 import 'package:native_tavern/domain/services/character_library_export_service.dart';
 import 'package:native_tavern/domain/services/character_library_import_service.dart';
@@ -26,9 +27,32 @@ Future<void> importCharacterLibraryFromFolder(
   WidgetRef ref,
 ) async {
   final l10n = AppLocalizations.of(context);
-  final path = await FilePicker.platform.getDirectoryPath(
-    dialogTitle: l10n.importCharactersFromFolder,
-  );
+  String? path;
+  Directory? androidTempCopy;
+  try {
+    if (Platform.isAndroid) {
+      // file_picker getDirectoryPath cannot resolve most SAF trees to a real
+      // path on modern Android; failures become silent null ("no reaction").
+      path = await AndroidSafDirectoryImport.pickAndCopyImportTree();
+      if (path != null) {
+        androidTempCopy = Directory(path);
+      }
+    } else {
+      path = await FilePicker.platform.getDirectoryPath(
+        dialogTitle: l10n.importCharactersFromFolder,
+      );
+    }
+  } on PlatformException catch (e) {
+    if (!context.mounted) return;
+    final message = switch (e.code) {
+      'EMPTY' => l10n.characterLibraryImportFolderEmpty,
+      _ => '${l10n.error}: ${e.message ?? e.code}',
+    };
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+    return;
+  }
   if (path == null) return;
   if (!context.mounted) return;
 
@@ -120,6 +144,16 @@ Future<void> importCharacterLibraryFromFolder(
     );
   } finally {
     progress.dispose();
+    final temp = androidTempCopy;
+    if (temp != null) {
+      try {
+        if (temp.existsSync()) {
+          temp.deleteSync(recursive: true);
+        }
+      } catch (_) {
+        // Best-effort cleanup of SAF staging copy.
+      }
+    }
   }
 }
 
@@ -128,6 +162,13 @@ Future<void> exportCharacterLibraryToFolder(
   WidgetRef ref,
 ) async {
   final l10n = AppLocalizations.of(context);
+  if (Platform.isAndroid) {
+    // Same SAF path-resolution limitation as import; use the fast pack instead.
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.characterLibraryFolderPickerUnavailable)),
+    );
+    return;
+  }
   final path = await FilePicker.platform.getDirectoryPath(
     dialogTitle: l10n.exportCharacterLibrary,
   );

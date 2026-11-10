@@ -1542,6 +1542,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Perangkat ini tidak bisa memilih folder. Impor kartu sebagai file saja.';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'Bubarkan folder';
 
   @override

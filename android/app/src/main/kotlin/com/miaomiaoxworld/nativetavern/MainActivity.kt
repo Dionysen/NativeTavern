@@ -2,7 +2,9 @@ package com.miaomiaoxworld.nativetavern
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -10,16 +12,88 @@ import android.provider.MediaStore
 import android.telephony.TelephonyManager
 import android.view.Surface
 import android.view.SurfaceHolder
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.documentfile.provider.DocumentFile
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.android.FlutterSurfaceView
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.util.Locale
+import java.util.concurrent.Executors
 
 class MainActivity : FlutterActivity() {
     private val REGION_CHANNEL = "com.nativetavern/region"
     private val MEDIA_CHANNEL = "com.nativetavern/media"
+    private val SAF_CHANNEL = "com.nativetavern/saf"
+
+    private var pendingSafResult: MethodChannel.Result? = null
+    private var pendingSafExtensions: Set<String> = emptySet()
+    private val safExecutor = Executors.newSingleThreadExecutor()
+
+    /**
+     * Android scoped storage cannot give dart:io a usable directory path for
+     * most SAF trees. Copy matching files into app cache, then return that path.
+     */
+    private val openImportTree =
+        registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+            val result = pendingSafResult
+            pendingSafResult = null
+            val extensions = pendingSafExtensions
+            pendingSafExtensions = emptySet()
+            if (result == null) return@registerForActivityResult
+            if (uri == null) {
+                result.success(null)
+                return@registerForActivityResult
+            }
+            try {
+                contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
+            } catch (_: SecurityException) {
+                // Still readable for this session even if persist fails.
+            }
+            safExecutor.execute {
+                try {
+                    val dest = File(
+                        cacheDir,
+                        "library_import_${System.currentTimeMillis()}",
+                    )
+                    if (!dest.mkdirs() && !dest.isDirectory) {
+                        runOnUiThread {
+                            result.error(
+                                "COPY_FAILED",
+                                "Unable to create import cache",
+                                null,
+                            )
+                        }
+                        return@execute
+                    }
+                    val copied = copyDocumentTree(uri, dest, extensions)
+                    runOnUiThread {
+                        if (copied <= 0) {
+                            dest.deleteRecursively()
+                            result.error(
+                                "EMPTY",
+                                "No character card files found in that folder",
+                                null,
+                            )
+                        } else {
+                            result.success(dest.absolutePath)
+                        }
+                    }
+                } catch (error: Exception) {
+                    runOnUiThread {
+                        result.error(
+                            "COPY_FAILED",
+                            error.message ?: "Failed to copy folder",
+                            null,
+                        )
+                    }
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,6 +169,80 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SAF_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "pickAndCopyImportTree" -> {
+                        if (pendingSafResult != null) {
+                            result.error(
+                                "BUSY",
+                                "A folder pick is already in progress",
+                                null,
+                            )
+                            return@setMethodCallHandler
+                        }
+                        val rawExtensions =
+                            call.argument<List<String>>("extensions")
+                                ?: listOf(".png", ".json", ".charx")
+                        pendingSafExtensions = rawExtensions
+                            .map { ext ->
+                                val trimmed = ext.trim().lowercase(Locale.ROOT)
+                                if (trimmed.startsWith(".")) trimmed else ".$trimmed"
+                            }
+                            .toSet()
+                        pendingSafResult = result
+                        openImportTree.launch(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    private fun copyDocumentTree(
+        treeUri: Uri,
+        destRoot: File,
+        extensions: Set<String>,
+    ): Int {
+        val root = DocumentFile.fromTreeUri(this, treeUri) ?: return 0
+        return copyDocumentDir(root, destRoot, extensions, relative = "")
+    }
+
+    private fun copyDocumentDir(
+        dir: DocumentFile,
+        destRoot: File,
+        extensions: Set<String>,
+        relative: String,
+    ): Int {
+        var count = 0
+        for (child in dir.listFiles()) {
+            val name = child.name ?: continue
+            if (name.startsWith(".")) continue
+            val childRelative =
+                if (relative.isEmpty()) name else "$relative/$name"
+            when {
+                child.isDirectory -> {
+                    count += copyDocumentDir(
+                        child,
+                        destRoot,
+                        extensions,
+                        childRelative,
+                    )
+                }
+                child.isFile -> {
+                    val ext = name.substringAfterLast('.', missingDelimiterValue = "")
+                        .lowercase(Locale.ROOT)
+                    if (ext.isEmpty() || ".$ext" !in extensions) continue
+                    val out = File(destRoot, childRelative)
+                    out.parentFile?.mkdirs()
+                    contentResolver.openInputStream(child.uri)?.use { input ->
+                        out.outputStream().use { output -> input.copyTo(output) }
+                    } ?: continue
+                    count++
+                }
+            }
+        }
+        return count
     }
 
     /**

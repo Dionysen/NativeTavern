@@ -1534,6 +1534,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'อุปกรณ์นี้เลือกโฟลเดอร์ไม่ได้ ให้นำเข้าการ์ดเป็นไฟล์แทน';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'ยุบโฟลเดอร์';
 
   @override

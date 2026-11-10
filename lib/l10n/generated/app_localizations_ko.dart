@@ -1519,6 +1519,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '이 기기에서는 폴더를 선택할 수 없습니다. 대신 파일로 카드를 가져오세요.';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => '폴더 해체';
 
   @override

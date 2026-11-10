@@ -76,3 +76,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // SAF DocumentFile tree walk for character-library folder import.
+    implementation("androidx.documentfile:documentfile:1.0.1")
+}

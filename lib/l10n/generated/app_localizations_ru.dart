@@ -1544,6 +1544,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Это устройство не может выбрать папку. Импортируйте карточки как файлы.';
 
   @override
+  String get characterLibraryImportFolderEmpty =>
+      'No character card files (.png / .json / .charx) were found in that folder.';
+
+  @override
   String get dissolveCharacterFolder => 'Распустить папку';
 
   @override
