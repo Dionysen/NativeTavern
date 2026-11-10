@@ -453,13 +453,13 @@ class ImageGenSettings {
     );
   }
 
-  /// Sensible NoobAI / ComfyUI scene defaults (V-pred friendly).
+  /// Sensible NoobAI / ComfyUI scene defaults (V-pred friendly, ≤~10s on M4).
   ImageGenSettings withComfyUiSceneDefaults() {
     return copyWith(
-      defaultWidth: 832,
-      defaultHeight: 1216,
-      defaultSteps: 16,
-      defaultCfgScale: 4.5,
+      defaultWidth: 640,
+      defaultHeight: 640,
+      defaultSteps: 8,
+      defaultCfgScale: 4.0,
       defaultSampler: 'euler',
       defaultScheduler: 'normal',
       defaultNegativePrompt: effectiveNegativePrompt,
