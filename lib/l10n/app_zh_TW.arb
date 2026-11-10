@@ -2687,6 +2687,26 @@
   "@imageSize": {
     "description": "Image size label"
   },
+  "imageSizeWidth": "寬度",
+  "@imageSizeWidth": {
+    "description": "Image width field label"
+  },
+  "imageSizeHeight": "高度",
+  "@imageSizeHeight": {
+    "description": "Image height field label"
+  },
+  "imageSizeCustomHint": "單位是像素，範圍 256～2048。",
+  "@imageSizeCustomHint": {
+    "description": "Hint under custom image size fields"
+  },
+  "imageSizeQuickPresets": "快捷尺寸",
+  "@imageSizeQuickPresets": {
+    "description": "Section label for image size preset chips"
+  },
+  "imageSizeInvalid": "請輸入 256 到 2048 之間的整數。",
+  "@imageSizeInvalid": {
+    "description": "Validation error for custom image size"
+  },
   "steps": "步數",
   "@steps": {
     "description": "Steps label for image generation"

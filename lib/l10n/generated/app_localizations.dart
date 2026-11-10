@@ -4179,6 +4179,36 @@ abstract class AppLocalizations {
   /// **'Image Size'**
   String get imageSize;
 
+  /// Image width field label
+  ///
+  /// In en, this message translates to:
+  /// **'Width'**
+  String get imageSizeWidth;
+
+  /// Image height field label
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get imageSizeHeight;
+
+  /// Hint under custom image size fields
+  ///
+  /// In en, this message translates to:
+  /// **'Pixels, from 256 to 2048.'**
+  String get imageSizeCustomHint;
+
+  /// Section label for image size preset chips
+  ///
+  /// In en, this message translates to:
+  /// **'Quick sizes'**
+  String get imageSizeQuickPresets;
+
+  /// Validation error for custom image size
+  ///
+  /// In en, this message translates to:
+  /// **'Enter whole numbers between 256 and 2048.'**
+  String get imageSizeInvalid;
+
   /// Steps label for image generation
   ///
   /// In en, this message translates to:

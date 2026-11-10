@@ -3181,6 +3181,26 @@
   "@imageSize": {
     "description": "Image size label"
   },
+  "imageSizeWidth": "Width",
+  "@imageSizeWidth": {
+    "description": "Image width field label"
+  },
+  "imageSizeHeight": "Height",
+  "@imageSizeHeight": {
+    "description": "Image height field label"
+  },
+  "imageSizeCustomHint": "Pixels, from 256 to 2048.",
+  "@imageSizeCustomHint": {
+    "description": "Hint under custom image size fields"
+  },
+  "imageSizeQuickPresets": "Quick sizes",
+  "@imageSizeQuickPresets": {
+    "description": "Section label for image size preset chips"
+  },
+  "imageSizeInvalid": "Enter whole numbers between 256 and 2048.",
+  "@imageSizeInvalid": {
+    "description": "Validation error for custom image size"
+  },
   "steps": "Steps",
   "@steps": {
     "description": "Steps label for image generation"

@@ -150,37 +150,20 @@ class ImageGenSettingsScreen extends ConsumerWidget {
             icon: Icons.settings_outlined,
             title: AppLocalizations.of(context)!.defaultParameters,
             children: [
-              // Size presets
-              ListTile(
-                title: Text(AppLocalizations.of(context)!.imageSize),
-                subtitle: Text(
-                    '${settings.defaultWidth} × ${settings.defaultHeight}'),
-                trailing: DropdownButton<ImageAspectRatio>(
-                  value: ImageAspectRatio.presets.firstWhere(
-                    (p) =>
-                        p.width == settings.defaultWidth &&
-                        p.height == settings.defaultHeight,
-                    orElse: () => ImageAspectRatio.presets.first,
-                  ),
-                  onChanged: settings.enabled
-                      ? (value) {
-                          if (value != null) {
-                            ref
-                                .read(imageGenSettingsProvider.notifier)
-                                .setDefaultWidth(value.width);
-                            ref
-                                .read(imageGenSettingsProvider.notifier)
-                                .setDefaultHeight(value.height);
-                          }
-                        }
-                      : null,
-                  items: ImageAspectRatio.presets.map((preset) {
-                    return DropdownMenuItem(
-                      value: preset,
-                      child: Text(preset.name),
-                    );
-                  }).toList(),
+              SettingsListTile(
+                icon: Icons.aspect_ratio,
+                title: AppLocalizations.of(context)!.imageSize,
+                subtitle:
+                    '${settings.defaultWidth} × ${settings.defaultHeight}',
+                trailing: Icon(
+                  Icons.edit,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  size: 20,
                 ),
+                enabled: settings.enabled,
+                onTap: settings.enabled
+                    ? () => _showImageSizeDialog(context, ref, settings)
+                    : null,
               ),
 
               // Steps slider
@@ -908,6 +891,154 @@ class ImageGenSettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  void _showImageSizeDialog(
+    BuildContext context,
+    WidgetRef ref,
+    ImageGenSettings settings,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final widthController =
+        TextEditingController(text: '${settings.defaultWidth}');
+    final heightController =
+        TextEditingController(text: '${settings.defaultHeight}');
+    String? errorText;
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            void applyPreset(ImageAspectRatio preset) {
+              setDialogState(() {
+                widthController.text = '${preset.width}';
+                heightController.text = '${preset.height}';
+                errorText = null;
+              });
+            }
+
+            void save() {
+              final width = int.tryParse(widthController.text.trim());
+              final height = int.tryParse(heightController.text.trim());
+              if (width == null ||
+                  height == null ||
+                  width < 256 ||
+                  width > 2048 ||
+                  height < 256 ||
+                  height > 2048) {
+                setDialogState(() => errorText = l10n.imageSizeInvalid);
+                return;
+              }
+              ref.read(imageGenSettingsProvider.notifier).setDefaultSize(
+                    width: width,
+                    height: height,
+                  );
+              Navigator.pop(dialogContext);
+            }
+
+            return AlertDialog(
+              title: Text(l10n.imageSize),
+              content: SizedBox(
+                width: 360,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.imageSizeCustomHint,
+                        style: Theme.of(dialogContext).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: widthController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                labelText: l10n.imageSizeWidth,
+                                border: const OutlineInputBorder(),
+                              ),
+                              onChanged: (_) {
+                                if (errorText != null) {
+                                  setDialogState(() => errorText = null);
+                                }
+                              },
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            child: Text('×'),
+                          ),
+                          Expanded(
+                            child: TextField(
+                              controller: heightController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                labelText: l10n.imageSizeHeight,
+                                border: const OutlineInputBorder(),
+                              ),
+                              onChanged: (_) {
+                                if (errorText != null) {
+                                  setDialogState(() => errorText = null);
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (errorText != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          errorText!,
+                          style: TextStyle(
+                            color: Theme.of(dialogContext).colorScheme.error,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      Text(
+                        l10n.imageSizeQuickPresets,
+                        style: Theme.of(dialogContext).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final preset in ImageAspectRatio.presets)
+                            ActionChip(
+                              label: Text(
+                                '${preset.width}×${preset.height}',
+                              ),
+                              onPressed: () => applyPreset(preset),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text(l10n.cancel),
+                ),
+                ElevatedButton(
+                  onPressed: save,
+                  child: Text(l10n.save),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      widthController.dispose();
+      heightController.dispose();
+    });
   }
 
   void _showApiKeyDialog(

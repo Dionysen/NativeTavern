@@ -2210,6 +2210,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get imageSize => '图片尺寸';
 
   @override
+  String get imageSizeWidth => '宽度';
+
+  @override
+  String get imageSizeHeight => '高度';
+
+  @override
+  String get imageSizeCustomHint => '单位是像素，范围 256～2048。';
+
+  @override
+  String get imageSizeQuickPresets => '快捷尺寸';
+
+  @override
+  String get imageSizeInvalid => '请输入 256 到 2048 之间的整数。';
+
+  @override
   String get steps => '步数';
 
   @override
@@ -9664,6 +9679,21 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get imageSize => '圖片尺寸';
+
+  @override
+  String get imageSizeWidth => '寬度';
+
+  @override
+  String get imageSizeHeight => '高度';
+
+  @override
+  String get imageSizeCustomHint => '單位是像素，範圍 256～2048。';
+
+  @override
+  String get imageSizeQuickPresets => '快捷尺寸';
+
+  @override
+  String get imageSizeInvalid => '請輸入 256 到 2048 之間的整數。';
 
   @override
   String get steps => '步數';

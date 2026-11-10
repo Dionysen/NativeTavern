@@ -2263,6 +2263,21 @@ class AppLocalizationsTh extends AppLocalizations {
   String get imageSize => 'Image Size';
 
   @override
+  String get imageSizeWidth => 'Width';
+
+  @override
+  String get imageSizeHeight => 'Height';
+
+  @override
+  String get imageSizeCustomHint => 'Pixels, from 256 to 2048.';
+
+  @override
+  String get imageSizeQuickPresets => 'Quick sizes';
+
+  @override
+  String get imageSizeInvalid => 'Enter whole numbers between 256 and 2048.';
+
+  @override
   String get steps => 'Steps';
 
   @override

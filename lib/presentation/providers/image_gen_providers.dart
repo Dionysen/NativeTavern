@@ -210,6 +210,14 @@ class ImageGenSettingsNotifier extends StateNotifier<ImageGenSettings> {
     _saveSettings();
   }
 
+  void setDefaultSize({required int width, required int height}) {
+    state = state.copyWith(
+      defaultWidth: width.clamp(256, 2048),
+      defaultHeight: height.clamp(256, 2048),
+    );
+    _saveSettings();
+  }
+
   void setDefaultSteps(int steps) {
     state = state.copyWith(defaultSteps: steps.clamp(1, 150));
     _saveSettings();
