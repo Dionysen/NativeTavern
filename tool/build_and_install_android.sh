@@ -100,6 +100,9 @@ fi
 
 cd "$ROOT"
 
+echo "==> Patching plugin Android Gradle files (remove declarative KGP apply)"
+bash "$(dirname "$0")/patch_android_plugin_kgp.sh"
+
 echo "==> Building arm64 release APK"
 flutter build apk --split-per-abi --target-platform android-arm64
 

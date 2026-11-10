@@ -8,7 +8,6 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.3")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
     }
 }
 
@@ -20,7 +19,6 @@ rootProject.allprojects {
 }
 
 apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
 
 android {
     namespace = "com.miaomiaoxworld.nativetavern.qnn_upscale"
@@ -42,8 +40,4 @@ android {
     defaultConfig {
         minSdk = 24
     }
-}
-
-dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
 }

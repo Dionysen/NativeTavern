@@ -144,6 +144,12 @@ if ($connected -notcontains $Device) {
 
 Set-Location $Root
 
+Write-Host '==> Patching plugin Android Gradle files (remove declarative KGP apply)'
+& (Join-Path $PSScriptRoot 'patch_android_plugin_kgp.ps1')
+if ($LASTEXITCODE -ne 0) {
+  exit $LASTEXITCODE
+}
+
 Write-Host '==> Building arm64 release APK'
 & flutter build apk --split-per-abi --target-platform android-arm64
 if ($LASTEXITCODE -ne 0) {
