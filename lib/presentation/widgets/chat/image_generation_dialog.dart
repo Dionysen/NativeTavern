@@ -333,7 +333,7 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
               characterAppearance: widget.characterAppearance,
               personaAppearance: widget.personaAppearance,
             ),
-            config,
+            ImagePromptComposer.llmConfigForCompose(config),
           );
       final prompt = _composer.normalizeModelOutput(generated);
       if (!mounted) return;

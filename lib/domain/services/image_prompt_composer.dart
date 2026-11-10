@@ -1,24 +1,50 @@
+import 'package:native_tavern/domain/services/llm_service.dart';
+
 /// Builds / assembles image prompts in the SillyTavern scene style:
-/// quality prefix + LLM Danbooru tags + fixed appearance prefixes.
+/// quality prefix + LLM Danbooru tags + fixed beauty / appearance prefixes.
 class ImagePromptComposer {
   static const _maxFallbackLength = 400;
 
   static const defaultCommonPrefix =
       'masterpiece, best quality, very awa, absurdres, anime style, {prompt}, rating:explicit';
 
+  /// Always-on beauty / body polish tags (appended after the scene tags).
+  static const defaultBeautyBoost =
+      'beautiful face, perfect face, detailed eyes, pretty face, gorgeous, '
+      'perfect body, beautiful proportions, attractive figure, soft skin, '
+      'elegant posture';
+
   static const defaultNegativePrompt =
       'worst quality, low quality, lowres, bad hands, mutated hands, extra digits, '
-      'bad anatomy, signature, username, watermark, character fusion, face merge, '
-      'fused faces, censored, mosaic censoring, text, logo, multiple views';
+      'bad anatomy, ugly, deformed, disfigured, asymmetric eyes, signature, username, '
+      'watermark, character fusion, face merge, fused faces, censored, mosaic censoring, '
+      'text, logo, multiple views';
 
+  /// Instructs a fast non-thinking pass: core scene only, tags only.
   static const defaultLlmInstruction =
-      'Convert the latest chat moment into ONE line of Danbooru tags for anime image generation.\n'
-      'Include: subject count (1boy, 1girl), action/pose, expression, clothing state, location, lighting.\n'
-      'Do NOT write full English sentences. Do NOT explain. Do NOT repeat fixed appearance tags.\n'
-      'For NSFW use explicit action tags (kissing, sex, vaginal, doggy style, missionary, etc.).\n'
-      'Output tags only, comma-separated.';
+      'You turn ONE character reply into a single line of Danbooru tags for anime image generation.\n'
+      'Task: summarize only the most important, most representative visual moment in that reply — '
+      'the core scene the viewer should see — not every detail of the text.\n'
+      'Extract the strongest visual features of that moment: subject count (1girl, 1boy, …), '
+      'main pose/action, key expression, clothing or body state that matters, location, lighting.\n'
+      'Ignore side chatter, minor narration, and anything that is not visually central.\n'
+      'Do NOT invent hair, eyes, body type, or outfit details that the system will add separately.\n'
+      'Do NOT write sentences, lists of steps, explanations, or chain-of-thought.\n'
+      'For NSFW, use direct action tags for the core moment (kissing, sex, vaginal, doggy style, …).\n'
+      'Output ONLY comma-separated Danbooru tags on one line.';
 
   const ImagePromptComposer();
+
+  /// LLM settings for prompt tagging: short answer, no extended thinking.
+  static LLMConfig llmConfigForCompose(LLMConfig base) {
+    return base.copyWith(
+      // auto = do not enable Claude/Gemini extended thinking blocks
+      reasoningEffort: ReasoningEffort.auto,
+      maxTokens: 256,
+      temperature: 0.3,
+      streamEnabled: false,
+    );
+  }
 
   String fallbackPrompt({
     required String sceneText,
@@ -31,7 +57,6 @@ class ImagePromptComposer {
           ? ''
           : '1girl, solo, looking at viewer, $subject';
     }
-    // Prefer tag-like fallback; keep short.
     if (subject == null || subject.isEmpty) return cleaned;
     return cleaned;
   }
@@ -67,7 +92,7 @@ class ImagePromptComposer {
         'content': [
           subjectLine,
           ...appearanceBits,
-          'Scene:',
+          'Summarize the single most important visual moment in this reply:',
           scene.isEmpty ? '(empty)' : scene,
         ].join('\n'),
       },
@@ -76,15 +101,20 @@ class ImagePromptComposer {
 
   /// Final ComfyUI / SD prompt:
   /// `[common prefix with {prompt}]` where prompt =
-  /// `sceneTags, characterAppearance, personaAppearance`.
+  /// `sceneTags, beautyBoost, characterAppearance, personaAppearance`.
   String assembleFinalPrompt({
     required String sceneTags,
     String? commonPrefix,
     String? characterAppearance,
     String? personaAppearance,
+    String? beautyBoost,
   }) {
+    final beauty = (beautyBoost == null || beautyBoost.trim().isEmpty)
+        ? defaultBeautyBoost
+        : beautyBoost.trim();
     final parts = <String>[
       sceneTags.trim(),
+      beauty,
       (characterAppearance ?? '').trim(),
       (personaAppearance ?? '').trim(),
     ].where((part) => part.isNotEmpty).toList();
@@ -94,7 +124,10 @@ class ImagePromptComposer {
         : commonPrefix.trim();
     if (body.isEmpty) {
       return prefix.contains('{prompt}')
-          ? prefix.replaceAll('{prompt}', '').replaceAll(RegExp(r',\s*,'), ',').trim()
+          ? prefix
+              .replaceAll('{prompt}', '')
+              .replaceAll(RegExp(r',\s*,'), ',')
+              .trim()
           : prefix;
     }
     if (prefix.contains('{prompt}')) {
@@ -109,12 +142,21 @@ class ImagePromptComposer {
       text = text.replaceFirst(RegExp(r'^```[a-zA-Z]*\n?'), '');
       text = text.replaceFirst(RegExp(r'\n?```$'), '');
     }
+    // Drop leaked think / reasoning blocks from non-compliant endpoints.
+    text = text.replaceAll(
+      RegExp(
+        r'<(think|thinking|thought|reasoning)>[\s\S]*?</\1>',
+        caseSensitive: false,
+      ),
+      '',
+    );
     text = text.replaceAll('"', '').trim();
-    // Keep first line only — models sometimes add explanations.
-    final lineBreak = text.indexOf('\n');
-    if (lineBreak > 0) {
-      text = text.substring(0, lineBreak).trim();
-    }
+    // Keep first non-empty line — models sometimes add explanations.
+    final lines = text
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty);
+    text = lines.isEmpty ? '' : lines.first;
     return text;
   }
 

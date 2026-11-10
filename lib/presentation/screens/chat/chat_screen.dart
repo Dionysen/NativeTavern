@@ -2509,7 +2509,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               characterAppearance: characterAppearance,
               personaAppearance: settings.personaAppearancePrefix,
             ),
-            config,
+            ImagePromptComposer.llmConfigForCompose(config),
           );
       final prompt = composer.normalizeModelOutput(generated);
       return prompt.isEmpty ? fallback : prompt;

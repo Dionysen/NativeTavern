@@ -344,7 +344,7 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                   ),
                   decoration: const InputDecoration(
                     labelText: 'AI 写 tag 的说明',
-                    hintText: '要求只输出逗号分隔的 Danbooru tag',
+                    hintText: '提炼核心场景，只输出一行 Danbooru tag',
                     border: OutlineInputBorder(),
                     alignLabelWithHint: true,
                   ),
