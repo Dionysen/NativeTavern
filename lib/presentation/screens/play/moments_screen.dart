@@ -8,11 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:gal/gal.dart';
+import 'package:native_tavern/core/utils/image_save_utils.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/moment/moment_post.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
-import 'package:native_tavern/domain/services/moment_service.dart';
+import 'package:native_tavern/core/services/initialization_service.dart';import 'package:native_tavern/domain/services/moment_service.dart';
 import 'package:native_tavern/domain/services/moments_cover_storage.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/data/models/persona.dart';
@@ -1089,23 +1088,7 @@ class _MomentPhotoPreviewState extends State<_MomentPhotoPreview> {
     );
     if (save != true || !context.mounted) return;
     try {
-      final hasAccess = await Gal.hasAccess(toAlbum: true).timeout(
-        const Duration(seconds: 8),
-      );
-      if (!hasAccess) {
-        final granted = await Gal.requestAccess(toAlbum: true).timeout(
-          const Duration(seconds: 8),
-        );
-        if (!granted) {
-          if (context.mounted) {
-            _showFeedback(l10n.momentsPhotoSaveFailed);
-          }
-          return;
-        }
-      }
-      await Gal.putImage(widget.image.path, album: 'NativeTavern').timeout(
-        const Duration(seconds: 15),
-      );
+      await ImageSaveUtils.saveImage(widget.image.path);
       if (context.mounted) {
         _showFeedback(l10n.momentsPhotoSaved);
       }

@@ -1,8 +1,12 @@
 package com.miaomiaoxworld.nativetavern
 
+import android.content.ContentValues
 import android.content.Context
+import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.telephony.TelephonyManager
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -10,10 +14,12 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.android.FlutterSurfaceView
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import java.io.File
 import java.util.Locale
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.nativetavern/region"
+    private val REGION_CHANNEL = "com.nativetavern/region"
+    private val MEDIA_CHANNEL = "com.nativetavern/media"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,15 +60,107 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
-            when (call.method) {
-                "isChinaRegion" -> {
-                    result.success(isChinaRegion())
-                }
-                else -> {
-                    result.notImplemented()
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, REGION_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "isChinaRegion" -> result.success(isChinaRegion())
+                    else -> result.notImplemented()
                 }
             }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, MEDIA_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "saveImageToDownloads" -> {
+                        val sourcePath = call.argument<String>("sourcePath")
+                        val fileName = call.argument<String>("fileName")
+                        if (sourcePath.isNullOrBlank() || fileName.isNullOrBlank()) {
+                            result.error(
+                                "INVALID_ARGS",
+                                "sourcePath and fileName are required",
+                                null,
+                            )
+                            return@setMethodCallHandler
+                        }
+                        try {
+                            result.success(saveImageToDownloads(sourcePath, fileName))
+                        } catch (error: Exception) {
+                            result.error(
+                                "SAVE_FAILED",
+                                error.message ?: "Failed to save image",
+                                null,
+                            )
+                        }
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    /**
+     * Writes [sourcePath] into public `Download/NativeTavern/[fileName]`.
+     * Uses MediaStore on Android 10+ so scoped storage still lands in Downloads.
+     */
+    private fun saveImageToDownloads(sourcePath: String, fileName: String): String {
+        val source = File(sourcePath)
+        if (!source.exists() || !source.isFile) {
+            throw IllegalArgumentException("Source image not found")
+        }
+        val mime = mimeTypeForFileName(fileName)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, mime)
+                put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    "${Environment.DIRECTORY_DOWNLOADS}/NativeTavern",
+                )
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
+            val resolver = contentResolver
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                ?: throw IllegalStateException("Unable to create Downloads entry")
+            try {
+                resolver.openOutputStream(uri)?.use { output ->
+                    source.inputStream().use { input -> input.copyTo(output) }
+                } ?: throw IllegalStateException("Unable to open Downloads stream")
+                values.clear()
+                values.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                resolver.update(uri, values, null, null)
+                return uri.toString()
+            } catch (error: Exception) {
+                resolver.delete(uri, null, null)
+                throw error
+            }
+        }
+
+        @Suppress("DEPRECATION")
+        val downloadsRoot = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DOWNLOADS,
+        )
+        val folder = File(downloadsRoot, "NativeTavern")
+        if (!folder.exists() && !folder.mkdirs()) {
+            throw IllegalStateException("Unable to create Download/NativeTavern")
+        }
+        val dest = File(folder, fileName)
+        source.copyTo(dest, overwrite = true)
+        MediaScannerConnection.scanFile(
+            this,
+            arrayOf(dest.absolutePath),
+            arrayOf(mime),
+            null,
+        )
+        return dest.absolutePath
+    }
+
+    private fun mimeTypeForFileName(fileName: String): String {
+        val lower = fileName.lowercase(Locale.ROOT)
+        return when {
+            lower.endsWith(".jpg") || lower.endsWith(".jpeg") -> "image/jpeg"
+            lower.endsWith(".webp") -> "image/webp"
+            lower.endsWith(".gif") -> "image/gif"
+            else -> "image/png"
         }
     }
 

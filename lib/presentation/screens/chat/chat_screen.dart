@@ -16,6 +16,7 @@ import 'package:native_tavern/data/models/live2d.dart';
 import 'package:native_tavern/data/models/rpg/rpg.dart';
 import 'package:native_tavern/data/repositories/group_repository.dart';
 import 'package:native_tavern/core/flags/rpg_product_ui.dart';
+import 'package:native_tavern/core/utils/image_save_utils.dart';
 import 'package:native_tavern/core/utils/share_utils.dart';
 import 'package:native_tavern/domain/services/chat_export_service.dart';
 import 'package:native_tavern/domain/services/llm_service.dart';
@@ -5522,8 +5523,10 @@ class _FullscreenAttachmentViewer extends StatefulWidget {
 }
 
 class _FullscreenAttachmentViewerState extends State<_FullscreenAttachmentViewer> {
+  final _messengerKey = GlobalKey<ScaffoldMessengerState>();
   late final PageController _pageController;
   late int _index;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -5541,58 +5544,119 @@ class _FullscreenAttachmentViewerState extends State<_FullscreenAttachmentViewer
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          PageView.builder(
-            controller: _pageController,
-            itemCount: widget.attachments.length,
-            onPageChanged: (i) => setState(() => _index = i),
-            itemBuilder: (context, i) {
-              final path = widget.attachments[i].path;
-              return InteractiveViewer(
-                minScale: 1,
-                maxScale: 5,
-                child: Center(
-                  child: Image.file(
-                    File(path),
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.broken_image,
-                      size: 48,
-                      color: Colors.white54,
+    return ScaffoldMessenger(
+      key: _messengerKey,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            PageView.builder(
+              controller: _pageController,
+              itemCount: widget.attachments.length,
+              onPageChanged: (i) => setState(() => _index = i),
+              itemBuilder: (context, i) {
+                final path = widget.attachments[i].path;
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onLongPress: () => _showImageActions(path),
+                  child: InteractiveViewer(
+                    minScale: 1,
+                    maxScale: 5,
+                    child: Center(
+                      child: Image.file(
+                        File(path),
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(
+                          Icons.broken_image,
+                          size: 48,
+                          color: Colors.white54,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),
-          Positioned(
-            top: top + 4,
-            right: 8,
-            child: ChromeIconButton(
-              icon: const Icon(Icons.close, color: Colors.white),
-              onPressed: () => Navigator.of(context).pop(),
+                );
+              },
             ),
-          ),
-          if (widget.attachments.length > 1)
             Positioned(
-              left: 0,
-              right: 0,
-              bottom: MediaQuery.paddingOf(context).bottom + 16,
-              child: Text(
-                '${_index + 1}/${widget.attachments.length}',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white70),
+              top: top + 4,
+              right: 8,
+              child: ChromeIconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
               ),
             ),
-        ],
+            if (widget.attachments.length > 1)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: MediaQuery.paddingOf(context).bottom + 16,
+                child: Text(
+                  '${_index + 1}/${widget.attachments.length}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
+
+  Future<void> _showImageActions(String imagePath) async {
+    if (_saving) return;
+    final l10n = AppLocalizations.of(context);
+    final action = await showAdaptiveActionDrawer<_FullscreenImageAction>(
+      context: context,
+      actions: [
+        AdaptiveActionDrawerItem(
+          value: _FullscreenImageAction.save,
+          leading: const Icon(Icons.download_outlined),
+          title: Text(l10n.momentsSavePhoto),
+        ),
+      ],
+    );
+    if (action != _FullscreenImageAction.save || !mounted) return;
+    await _saveImage(imagePath);
+  }
+
+  Future<void> _saveImage(String imagePath) async {
+    if (_saving) return;
+    final l10n = AppLocalizations.of(context);
+    setState(() => _saving = true);
+    try {
+      await ImageSaveUtils.saveImage(imagePath);
+      if (!mounted) return;
+      _showFeedback(l10n.momentsPhotoSaved);
+    } catch (_) {
+      if (!mounted) return;
+      _showFeedback(l10n.momentsPhotoSaveFailed);
+    } finally {
+      if (mounted) {
+        setState(() => _saving = false);
+      } else {
+        _saving = false;
+      }
+    }
+  }
+
+  void _showFeedback(String message) {
+    final messenger = _messengerKey.currentState;
+    if (messenger == null) return;
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+          content: Text(message),
+        ),
+      );
+  }
 }
+
+enum _FullscreenImageAction { save }
 
 class _RenderMeasureSize extends RenderProxyBox {
   _RenderMeasureSize(this.onChange);
