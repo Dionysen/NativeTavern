@@ -2413,6 +2413,35 @@ class AppLocalizationsEn extends AppLocalizations {
       'When a character finishes a reply, generate a picture for it.';
 
   @override
+  String get showImageGenPanel => 'Pictures';
+
+  @override
+  String get pinImageGenPanel => 'Pin panel';
+
+  @override
+  String get unpinImageGenPanel => 'Unpin panel';
+
+  @override
+  String get imageGenPanelTitle => 'Pictures';
+
+  @override
+  String get imageGenDisabledTitle => 'Picture generation is off';
+
+  @override
+  String get imageGenDisabledHint =>
+      'Turn it on to make pictures from replies here.';
+
+  @override
+  String get openImageGenSettings => 'Open picture settings';
+
+  @override
+  String get imageGenImagesPerReply => 'Pictures per reply';
+
+  @override
+  String get imageGenImagesPerReplyHint =>
+      'Used for auto picture after reply and the generate button.';
+
+  @override
   String get imageGenGallery => 'Generation gallery';
 
   @override

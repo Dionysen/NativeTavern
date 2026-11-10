@@ -2871,6 +2871,42 @@
   "@imageGenAutoOnReplyHint": {
     "description": "Subtitle for auto image generation after reply"
   },
+  "showImageGenPanel": "生圖",
+  "@showImageGenPanel": {
+    "description": "Composer button tooltip for the image generation panel"
+  },
+  "pinImageGenPanel": "固定面板",
+  "@pinImageGenPanel": {
+    "description": "Pin the image generation composer panel"
+  },
+  "unpinImageGenPanel": "取消固定",
+  "@unpinImageGenPanel": {
+    "description": "Unpin the image generation composer panel"
+  },
+  "imageGenPanelTitle": "生圖",
+  "@imageGenPanelTitle": {
+    "description": "Title of the chat image generation panel"
+  },
+  "imageGenDisabledTitle": "生圖功能未開啟",
+  "@imageGenDisabledTitle": {
+    "description": "Title when image generation is disabled in the chat panel"
+  },
+  "imageGenDisabledHint": "打開後，就可以在這裡為回覆產生圖片。",
+  "@imageGenDisabledHint": {
+    "description": "Hint when image generation is disabled in the chat panel"
+  },
+  "openImageGenSettings": "打開生圖設定",
+  "@openImageGenSettings": {
+    "description": "Button to open full image generation settings"
+  },
+  "imageGenImagesPerReply": "每次回覆產生幾張",
+  "@imageGenImagesPerReply": {
+    "description": "How many pictures to generate for one reply"
+  },
+  "imageGenImagesPerReplyHint": "自動生圖和下面的生圖按鈕都會用這個數量。",
+  "@imageGenImagesPerReplyHint": {
+    "description": "Hint for pictures-per-reply setting"
+  },
   "imageGenGallery": "生圖畫廊",
   "@imageGenGallery": {
     "description": "Title for the image generation history gallery"

@@ -91,7 +91,6 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                 title: AppLocalizations.of(context)!.imageGenAutoOnReply,
                 subtitle: AppLocalizations.of(context)!.imageGenAutoOnReplyHint,
                 value: settings.autoGenerateOnReply,
-                showDivider: false,
                 onChanged: settings.enabled
                     ? (value) {
                         ref
@@ -99,6 +98,28 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                             .setAutoGenerateOnReply(value);
                       }
                     : null,
+              ),
+              SettingsChoiceTile<int>(
+                icon: Icons.filter_none_outlined,
+                title: AppLocalizations.of(context)!.imageGenImagesPerReply,
+                subtitle:
+                    AppLocalizations.of(context)!.imageGenImagesPerReplyHint,
+                selected: settings.imagesPerReply.clamp(1, 4),
+                enabled: settings.enabled,
+                showDivider: false,
+                choices: [
+                  for (var count = 1; count <= 4; count++)
+                    SettingsChoice(
+                      value: count,
+                      label: '$count',
+                    ),
+                ],
+                valueLabel: '${settings.imagesPerReply.clamp(1, 4)}',
+                onSelected: (value) {
+                  ref
+                      .read(imageGenSettingsProvider.notifier)
+                      .setImagesPerReply(value);
+                },
               ),
             ],
           ),

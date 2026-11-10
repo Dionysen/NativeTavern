@@ -3365,6 +3365,42 @@
   "@imageGenAutoOnReplyHint": {
     "description": "Subtitle for auto image generation after reply"
   },
+  "showImageGenPanel": "Pictures",
+  "@showImageGenPanel": {
+    "description": "Composer button tooltip for the image generation panel"
+  },
+  "pinImageGenPanel": "Pin panel",
+  "@pinImageGenPanel": {
+    "description": "Pin the image generation composer panel"
+  },
+  "unpinImageGenPanel": "Unpin panel",
+  "@unpinImageGenPanel": {
+    "description": "Unpin the image generation composer panel"
+  },
+  "imageGenPanelTitle": "Pictures",
+  "@imageGenPanelTitle": {
+    "description": "Title of the chat image generation panel"
+  },
+  "imageGenDisabledTitle": "Picture generation is off",
+  "@imageGenDisabledTitle": {
+    "description": "Title when image generation is disabled in the chat panel"
+  },
+  "imageGenDisabledHint": "Turn it on to make pictures from replies here.",
+  "@imageGenDisabledHint": {
+    "description": "Hint when image generation is disabled in the chat panel"
+  },
+  "openImageGenSettings": "Open picture settings",
+  "@openImageGenSettings": {
+    "description": "Button to open full image generation settings"
+  },
+  "imageGenImagesPerReply": "Pictures per reply",
+  "@imageGenImagesPerReply": {
+    "description": "How many pictures to generate for one reply"
+  },
+  "imageGenImagesPerReplyHint": "Used for auto picture after reply and the generate button.",
+  "@imageGenImagesPerReplyHint": {
+    "description": "Hint for pictures-per-reply setting"
+  },
   "imageGenGallery": "Generation gallery",
   "@imageGenGallery": {
     "description": "Title for the image generation history gallery"

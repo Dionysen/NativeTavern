@@ -2346,6 +2346,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get imageGenAutoOnReplyHint => '角色每说完一句，就自动为这句生成图片。';
 
   @override
+  String get showImageGenPanel => '生图';
+
+  @override
+  String get pinImageGenPanel => '固定面板';
+
+  @override
+  String get unpinImageGenPanel => '取消固定';
+
+  @override
+  String get imageGenPanelTitle => '生图';
+
+  @override
+  String get imageGenDisabledTitle => '生图功能未开启';
+
+  @override
+  String get imageGenDisabledHint => '打开后，就可以在这里为回复生成图片。';
+
+  @override
+  String get openImageGenSettings => '打开生图设置';
+
+  @override
+  String get imageGenImagesPerReply => '每次回复生成几张';
+
+  @override
+  String get imageGenImagesPerReplyHint => '自动生图和下面的生图按钮都会用这个数量。';
+
+  @override
   String get imageGenGallery => '生图画廊';
 
   @override
@@ -9839,6 +9866,33 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get imageGenAutoOnReplyHint => '角色每說完一句，就自動為這句產生圖片。';
+
+  @override
+  String get showImageGenPanel => '生圖';
+
+  @override
+  String get pinImageGenPanel => '固定面板';
+
+  @override
+  String get unpinImageGenPanel => '取消固定';
+
+  @override
+  String get imageGenPanelTitle => '生圖';
+
+  @override
+  String get imageGenDisabledTitle => '生圖功能未開啟';
+
+  @override
+  String get imageGenDisabledHint => '打開後，就可以在這裡為回覆產生圖片。';
+
+  @override
+  String get openImageGenSettings => '打開生圖設定';
+
+  @override
+  String get imageGenImagesPerReply => '每次回覆產生幾張';
+
+  @override
+  String get imageGenImagesPerReplyHint => '自動生圖和下面的生圖按鈕都會用這個數量。';
 
   @override
   String get imageGenGallery => '生圖畫廊';

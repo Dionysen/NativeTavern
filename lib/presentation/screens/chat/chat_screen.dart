@@ -58,6 +58,7 @@ import 'package:native_tavern/presentation/widgets/chat/message_content_widget.d
 import 'package:native_tavern/presentation/widgets/chat/memory_context_usage_sheet.dart';
 import 'package:native_tavern/presentation/widgets/chat/quick_reply_bar.dart';
 import 'package:native_tavern/presentation/widgets/chat/chat_choice_panel.dart';
+import 'package:native_tavern/presentation/widgets/chat/chat_image_gen_panel.dart';
 import 'package:native_tavern/presentation/widgets/chat/status_block_panel.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_scaffold.dart';
@@ -129,6 +130,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _choicePanelPinned = false;
   bool _showStatusPanel = false;
   bool _statusPanelPinned = false;
+  bool _showImageGenPanel = false;
+  bool _imageGenPanelPinned = false;
   final List<ChatAttachment> _pendingAttachments = [];
   final ImagePicker _imagePicker = ImagePicker();
   final ChatTTSAutoPlayController _ttsAutoPlayController =
@@ -261,6 +264,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       // Keep pinned auxiliary panels open while the input menu is shown.
       if (visible && !_choicePanelPinned) _showChoicePanel = false;
       if (visible && !_statusPanelPinned) _showStatusPanel = false;
+      if (visible && !_imageGenPanelPinned) _showImageGenPanel = false;
     });
   }
 
@@ -271,6 +275,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       if (visible) {
         _showInputMenu = false;
         if (!_statusPanelPinned) _showStatusPanel = false;
+        if (!_imageGenPanelPinned) _showImageGenPanel = false;
       }
     });
   }
@@ -282,6 +287,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       if (visible) {
         _showInputMenu = false;
         if (!_choicePanelPinned) _showChoicePanel = false;
+        if (!_imageGenPanelPinned) _showImageGenPanel = false;
+      }
+    });
+  }
+
+  void _setImageGenPanelVisible(bool visible) {
+    if (_showImageGenPanel == visible) return;
+    setState(() {
+      _showImageGenPanel = visible;
+      if (visible) {
+        _showInputMenu = false;
+        if (!_choicePanelPinned) _showChoicePanel = false;
+        if (!_statusPanelPinned) _showStatusPanel = false;
       }
     });
   }
@@ -294,8 +312,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     setState(() => _statusPanelPinned = !_statusPanelPinned);
   }
 
+  void _toggleImageGenPanelPinned() {
+    setState(() => _imageGenPanelPinned = !_imageGenPanelPinned);
+  }
+
   void _dismissComposerOptionPanels() {
-    if (!_showInputMenu && !_showChoicePanel && !_showStatusPanel) {
+    if (!_showInputMenu &&
+        !_showChoicePanel &&
+        !_showStatusPanel &&
+        !_showImageGenPanel) {
       return;
     }
     setState(() {
@@ -306,6 +331,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
       if (!_statusPanelPinned) {
         _showStatusPanel = false;
+      }
+      if (!_imageGenPanelPinned) {
+        _showImageGenPanel = false;
       }
     });
   }
@@ -329,6 +357,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _openCharacterStatusSettings() {
     _setStatusPanelVisible(false);
     context.openShell(AppRoutes.characterStatus);
+  }
+
+  void _openImageGenSettings() {
+    _setImageGenPanelVisible(false);
+    context.openShell(AppRoutes.imageGenSettings);
   }
 
   Future<void> _refreshReplyChoices() async {
@@ -407,6 +440,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _onCharacterStatusButtonPressed() {
     _setStatusPanelVisible(!_showStatusPanel);
+  }
+
+  void _onImageGenButtonPressed() {
+    _setImageGenPanelVisible(!_showImageGenPanel);
+  }
+
+  void _generateImageForCurrentReply() {
+    final chatState = ref.read(activeChatProvider);
+    final source = lastCharacterTextReply(chatState.messages);
+    if (source == null) {
+      _showSnackBar(AppLocalizations.of(context).noCharacterReplyForImage);
+      return;
+    }
+    unawaited(_generateImageFromMessage(source));
   }
 
   Future<void> _saveLive2DTransform(
@@ -2380,7 +2427,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  /// One tap: picture this character line without blocking the chat UI.
+  /// Picture this character line without blocking the chat UI.
+  /// Makes [ImageGenSettings.imagesPerReply] pictures (compose once, then loop).
   Future<void> _generateImageFromMessage(ChatMessage source) async {
     if (_generatingQuickImage || ref.read(imageGenStateProvider).isGenerating) {
       return;
@@ -2405,13 +2453,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final chatState = ref.read(activeChatProvider);
     final speaker =
         chatState.characterForMessage(source) ?? chatState.character;
-    final placeholder = await _createImageGenPlaceholder(
-      character: speaker,
-      sourceMessage: source,
-      width: settings.defaultWidth,
-      height: settings.defaultHeight,
-    );
-    if (placeholder == null) return;
+    final imageCount = settings.imagesPerReply.clamp(1, 4);
 
     setState(() => _generatingQuickImage = true);
 
@@ -2424,10 +2466,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       );
       if (!mounted) return;
       if (sceneTags.trim().isEmpty) {
-        await _failImageGenPlaceholder(
-          placeholder,
-          l10n.noImageGenerated,
-        );
+        _showSnackBar(l10n.noImageGenerated);
         return;
       }
 
@@ -2448,37 +2487,52 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ref.read(imageGenSettingsProvider.notifier).setModel(selectedModel);
       }
 
-      final result = await ref.read(imageGenStateProvider.notifier).generate(
-            ImageGenRequest(
-              prompt: assembled,
-              negativePrompt: settings.effectiveNegativePrompt,
-              width: settings.defaultWidth,
-              height: settings.defaultHeight,
-              steps: settings.defaultSteps,
-              cfgScale: settings.defaultCfgScale,
-              sampler: settings.defaultSampler,
-              scheduler: settings.defaultScheduler,
-              mode: ImageGenMode.lastMessage,
-              model: selectedModel,
-            ),
-          );
-      if (!mounted) return;
-      if (result == null || result.images.isEmpty) {
-        final error = ref.read(imageGenStateProvider).error;
-        await _failImageGenPlaceholder(
-          placeholder,
-          error ?? l10n.noImageGenerated,
-        );
-        return;
-      }
-      await _completeImageGenPlaceholder(
-        placeholder,
-        result,
-        character: speaker,
+      final request = ImageGenRequest(
+        prompt: assembled,
+        negativePrompt: settings.effectiveNegativePrompt,
+        width: settings.defaultWidth,
+        height: settings.defaultHeight,
+        steps: settings.defaultSteps,
+        cfgScale: settings.defaultCfgScale,
+        sampler: settings.defaultSampler,
+        scheduler: settings.defaultScheduler,
+        mode: ImageGenMode.lastMessage,
+        model: selectedModel,
       );
-    } catch (error) {
-      if (mounted) {
-        await _failImageGenPlaceholder(placeholder, '$error');
+
+      for (var i = 0; i < imageCount; i++) {
+        if (!mounted) return;
+        final placeholder = await _createImageGenPlaceholder(
+          character: speaker,
+          sourceMessage: source,
+          width: settings.defaultWidth,
+          height: settings.defaultHeight,
+        );
+        if (placeholder == null) continue;
+
+        try {
+          final result =
+              await ref.read(imageGenStateProvider.notifier).generate(request);
+          if (!mounted) return;
+          if (result == null || result.images.isEmpty) {
+            final error = ref.read(imageGenStateProvider).error;
+            await _failImageGenPlaceholder(
+              placeholder,
+              error ?? l10n.noImageGenerated,
+            );
+            break;
+          }
+          await _completeImageGenPlaceholder(
+            placeholder,
+            result,
+            character: speaker,
+          );
+        } catch (error) {
+          if (mounted) {
+            await _failImageGenPlaceholder(placeholder, '$error');
+          }
+          break;
+        }
       }
     } finally {
       if (mounted) setState(() => _generatingQuickImage = false);
@@ -2985,6 +3039,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 _buildAttachmentsPreview(),
                 const SizedBox(height: 8),
               ],
+              if (_showImageGenPanel) ...[
+                _composerOptionsDismissable(
+                  child: _composerExpansionPanel(
+                    opacity: composerOpacity,
+                    frostSigma: composerFrostSigma,
+                    child: ChatImageGenPanel(
+                      onOpenSettings: _openImageGenSettings,
+                      onGenerateForCurrentReply: _generateImageForCurrentReply,
+                      isPinned: _imageGenPanelPinned,
+                      onTogglePin: _toggleImageGenPanelPinned,
+                      isGenerating: _generatingQuickImage ||
+                          ref.watch(imageGenStateProvider).isGenerating,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
               if (_showChoicePanel) ...[
                 _composerOptionsDismissable(
                   child: _composerExpansionPanel(
@@ -3109,6 +3180,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               ChatVoiceInputButton(
                                 controller: _messageController,
                                 onAutoSend: _sendMessage,
+                              ),
+                              _composerOptionsTapTarget(
+                                child: ChromeIconButton(
+                                  density: ChromeIconButtonDensity.compact,
+                                  onPressed: _onImageGenButtonPressed,
+                                  tooltip: l10n.showImageGenPanel,
+                                  isSelected: _showImageGenPanel,
+                                  icon: Icon(
+                                    Icons.image_outlined,
+                                    size: 22,
+                                    color: ref
+                                            .watch(imageGenSettingsProvider)
+                                            .enabled
+                                        ? null
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.38),
+                                  ),
+                                ),
                               ),
                               _composerOptionsTapTarget(
                                 child: ChromeIconButton(

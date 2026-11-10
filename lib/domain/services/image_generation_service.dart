@@ -261,6 +261,9 @@ class ImageGenSettings {
   /// After each character reply, automatically generate a picture for it.
   final bool autoGenerateOnReply;
 
+  /// How many pictures to make for one reply (auto-gen and quick generate).
+  final int imagesPerReply;
+
   // NovelAI specific
   final bool novelaiAnlasGuard;
   final bool novelaiSm;
@@ -293,6 +296,7 @@ class ImageGenSettings {
     this.upscaleScale = 4,
     this.testPrompt = '',
     this.autoGenerateOnReply = false,
+    this.imagesPerReply = 1,
     // NovelAI
     this.novelaiAnlasGuard = true,
     this.novelaiSm = false,
@@ -380,6 +384,7 @@ class ImageGenSettings {
     int? upscaleScale,
     String? testPrompt,
     bool? autoGenerateOnReply,
+    int? imagesPerReply,
     bool? novelaiAnlasGuard,
     bool? novelaiSm,
     bool? novelaiSmDyn,
@@ -412,6 +417,7 @@ class ImageGenSettings {
       upscaleScale: upscaleScale ?? this.upscaleScale,
       testPrompt: testPrompt ?? this.testPrompt,
       autoGenerateOnReply: autoGenerateOnReply ?? this.autoGenerateOnReply,
+      imagesPerReply: imagesPerReply ?? this.imagesPerReply,
       novelaiAnlasGuard: novelaiAnlasGuard ?? this.novelaiAnlasGuard,
       novelaiSm: novelaiSm ?? this.novelaiSm,
       novelaiSmDyn: novelaiSmDyn ?? this.novelaiSmDyn,
@@ -472,6 +478,7 @@ class ImageGenSettings {
         'upscaleScale': upscaleScale,
         'testPrompt': testPrompt,
         'autoGenerateOnReply': autoGenerateOnReply,
+        'imagesPerReply': imagesPerReply,
         'novelaiAnlasGuard': novelaiAnlasGuard,
         'novelaiSm': novelaiSm,
         'novelaiSmDyn': novelaiSmDyn,
@@ -535,6 +542,7 @@ class ImageGenSettings {
       upscaleScale: (json['upscaleScale'] as int? ?? 4).clamp(2, 4),
       testPrompt: json['testPrompt'] as String? ?? '',
       autoGenerateOnReply: json['autoGenerateOnReply'] as bool? ?? false,
+      imagesPerReply: (json['imagesPerReply'] as int? ?? 1).clamp(1, 4),
       novelaiAnlasGuard: json['novelaiAnlasGuard'] as bool? ?? true,
       novelaiSm: json['novelaiSm'] as bool? ?? false,
       novelaiSmDyn: json['novelaiSmDyn'] as bool? ?? false,

@@ -4437,6 +4437,60 @@ abstract class AppLocalizations {
   /// **'When a character finishes a reply, generate a picture for it.'**
   String get imageGenAutoOnReplyHint;
 
+  /// Composer button tooltip for the image generation panel
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures'**
+  String get showImageGenPanel;
+
+  /// Pin the image generation composer panel
+  ///
+  /// In en, this message translates to:
+  /// **'Pin panel'**
+  String get pinImageGenPanel;
+
+  /// Unpin the image generation composer panel
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin panel'**
+  String get unpinImageGenPanel;
+
+  /// Title of the chat image generation panel
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures'**
+  String get imageGenPanelTitle;
+
+  /// Title when image generation is disabled in the chat panel
+  ///
+  /// In en, this message translates to:
+  /// **'Picture generation is off'**
+  String get imageGenDisabledTitle;
+
+  /// Hint when image generation is disabled in the chat panel
+  ///
+  /// In en, this message translates to:
+  /// **'Turn it on to make pictures from replies here.'**
+  String get imageGenDisabledHint;
+
+  /// Button to open full image generation settings
+  ///
+  /// In en, this message translates to:
+  /// **'Open picture settings'**
+  String get openImageGenSettings;
+
+  /// How many pictures to generate for one reply
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures per reply'**
+  String get imageGenImagesPerReply;
+
+  /// Hint for pictures-per-reply setting
+  ///
+  /// In en, this message translates to:
+  /// **'Used for auto picture after reply and the generate button.'**
+  String get imageGenImagesPerReplyHint;
+
   /// Title for the image generation history gallery
   ///
   /// In en, this message translates to:
