@@ -2745,6 +2745,64 @@
   "@imageUpscaleUnavailable": {
     "description": "Shown when QNN upscale cannot run"
   },
+  "localQnnModelStatus": "本機模型",
+  "@localQnnModelStatus": {
+    "description": "Section title for Local QNN load status"
+  },
+  "localQnnModelIdle": "尚未載入本機模型",
+  "@localQnnModelIdle": {
+    "description": "Local QNN idle status"
+  },
+  "localQnnModelLoading": "正在載入到記憶體…",
+  "@localQnnModelLoading": {
+    "description": "Local QNN loading status"
+  },
+  "localQnnModelDownloading": "正在下載模型…",
+  "@localQnnModelDownloading": {
+    "description": "Local QNN downloading status"
+  },
+  "localQnnModelReleasing": "正在釋放模型…",
+  "@localQnnModelReleasing": {
+    "description": "Local QNN unloading status"
+  },
+  "localQnnModelGenerating": "正在生圖…",
+  "@localQnnModelGenerating": {
+    "description": "Local QNN generating status"
+  },
+  "localQnnModelReady": "已在記憶體中：{name}",
+  "@localQnnModelReady": {
+    "description": "Local QNN ready status with model name",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anything V5.0"
+      }
+    }
+  },
+  "localQnnDownloadModel": "下載",
+  "@localQnnDownloadModel": {
+    "description": "Download Local QNN model button"
+  },
+  "localQnnNotDownloaded": "未下載",
+  "@localQnnNotDownloaded": {
+    "description": "Local QNN model not on disk"
+  },
+  "localQnnDownloadComplete": "模型已下載",
+  "@localQnnDownloadComplete": {
+    "description": "SnackBar after Local QNN model download"
+  },
+  "localQnnDownloadFailed": "下載失敗",
+  "@localQnnDownloadFailed": {
+    "description": "SnackBar when Local QNN model download fails"
+  },
+  "localQnnUnavailable": "本機生圖不可用",
+  "@localQnnUnavailable": {
+    "description": "Local QNN unavailable title"
+  },
+  "localQnnOnlySnapdragonHint": "本機生圖適用於 Android 高通裝置。選擇本機生圖會載入模型；改回 API 生圖會自動釋放。",
+  "@localQnnOnlySnapdragonHint": {
+    "description": "Hint for Local QNN provider"
+  },
   "imagineFromLastReply": "用這則回覆生圖",
   "@imagineFromLastReply": {
     "description": "One tap to picture the last character reply"

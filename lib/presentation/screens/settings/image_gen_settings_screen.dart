@@ -7,6 +7,7 @@ import 'package:native_tavern/presentation/providers/image_gen_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
+import 'package:native_tavern_qnn_upscale/native_tavern_qnn_upscale.dart';
 
 /// Screen for image generation settings
 class ImageGenSettingsScreen extends ConsumerWidget {
@@ -15,6 +16,8 @@ class ImageGenSettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(imageGenSettingsProvider);
+    // Keep Local QNN process synced with provider/model selection.
+    ref.watch(localQnnLifecycleProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -74,18 +77,19 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                   ref.read(imageGenSettingsProvider.notifier).setProvider(value);
                 },
               ),
-              SettingsListTile(
-                icon: Icons.link,
-                title: AppLocalizations.of(context)!.apiEndpoint,
-                subtitle: settings.apiEndpoint?.isNotEmpty == true
-                    ? settings.apiEndpoint!
-                    : AppLocalizations.of(context)!.notConfigured,
-                trailing: Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
-                enabled: settings.enabled,
-                onTap: settings.enabled
-                    ? () => _showEndpointDialog(context, ref, settings)
-                    : null,
-              ),
+              if (!settings.provider.isOnDeviceQnn)
+                SettingsListTile(
+                  icon: Icons.link,
+                  title: AppLocalizations.of(context)!.apiEndpoint,
+                  subtitle: settings.apiEndpoint?.isNotEmpty == true
+                      ? settings.apiEndpoint!
+                      : AppLocalizations.of(context)!.notConfigured,
+                  trailing: Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+                  enabled: settings.enabled,
+                  onTap: settings.enabled
+                      ? () => _showEndpointDialog(context, ref, settings)
+                      : null,
+                ),
               if (settings.provider.requiresApiKey)
                 SettingsListTile(
                   icon: Icons.key_outlined,
@@ -99,7 +103,10 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                       ? () => _showApiKeyDialog(context, ref, settings)
                       : null,
                 ),
-              _buildModelSelector(context, ref, settings),
+              if (!settings.provider.isOnDeviceQnn)
+                _buildModelSelector(context, ref, settings),
+              if (settings.provider.isOnDeviceQnn)
+                _buildLocalQnnSection(context, ref, settings),
             ],
           ),
 
@@ -534,6 +541,173 @@ class ImageGenSettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildLocalQnnSection(
+    BuildContext context,
+    WidgetRef ref,
+    ImageGenSettings settings,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final catalogAsync = ref.watch(localQnnCatalogProvider);
+    final statusAsync = ref.watch(localQnnBackendStatusProvider);
+    final status = statusAsync.asData?.value;
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ListTile(
+          leading: Icon(Icons.memory, color: theme.colorScheme.primary),
+          title: Text(l10n.localQnnModelStatus),
+          subtitle: Text(_localQnnStatusLabel(l10n, status)),
+        ),
+        if (status != null &&
+            (status.isLoading ||
+                status.state == 'downloading' ||
+                status.state == 'generating'))
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LinearProgressIndicator(
+                  value: status.progress,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  status.message ?? '',
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
+            ),
+          )
+        else if (status?.isReady == true)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: Text(
+              l10n.localQnnModelReady(
+                status?.modelName ??
+                    ImageGenProvider.getModelDisplayName(settings.model),
+              ),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        catalogAsync.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.all(16),
+            child: LinearProgressIndicator(),
+          ),
+          error: (e, _) => ListTile(
+            title: Text(l10n.localQnnUnavailable),
+            subtitle: Text('$e'),
+          ),
+          data: (catalog) {
+            if (catalog.isEmpty) {
+              return ListTile(
+                title: Text(l10n.localQnnUnavailable),
+                subtitle: Text(l10n.localQnnOnlySnapdragonHint),
+              );
+            }
+            return Column(
+              children: [
+                for (final model in catalog)
+                  ListTile(
+                    title: Text(model.name),
+                    subtitle: Text(
+                      model.downloaded
+                          ? model.approximateSize
+                          : '${model.approximateSize} · ${l10n.localQnnNotDownloaded}',
+                    ),
+                    selected: settings.model == model.id,
+                    trailing: model.downloaded
+                        ? Icon(
+                            settings.model == model.id
+                                ? Icons.check_circle
+                                : Icons.radio_button_unchecked,
+                            color: settings.model == model.id
+                                ? theme.colorScheme.primary
+                                : null,
+                          )
+                        : TextButton(
+                            onPressed: settings.enabled
+                                ? () => _downloadLocalQnnModel(
+                                      context,
+                                      ref,
+                                      model.id,
+                                    )
+                                : null,
+                            child: Text(l10n.localQnnDownloadModel),
+                          ),
+                    onTap: settings.enabled && model.downloaded
+                        ? () {
+                            ref
+                                .read(imageGenSettingsProvider.notifier)
+                                .setModel(model.id);
+                          }
+                        : null,
+                  ),
+              ],
+            );
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: Text(
+            l10n.localQnnOnlySnapdragonHint,
+            style: theme.textTheme.bodySmall,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _localQnnStatusLabel(
+    AppLocalizations l10n,
+    LocalQnnBackendStatus? status,
+  ) {
+    if (status == null) return l10n.localQnnModelIdle;
+    switch (status.state) {
+      case 'ready':
+        return l10n.localQnnModelReady(status.modelName ?? '');
+      case 'starting':
+      case 'loading':
+        return l10n.localQnnModelLoading;
+      case 'downloading':
+        return l10n.localQnnModelDownloading;
+      case 'stopping':
+        return l10n.localQnnModelReleasing;
+      case 'generating':
+        return l10n.localQnnModelGenerating;
+      case 'error':
+        return status.message ?? l10n.localQnnUnavailable;
+      default:
+        return l10n.localQnnModelIdle;
+    }
+  }
+
+  Future<void> _downloadLocalQnnModel(
+    BuildContext context,
+    WidgetRef ref,
+    String modelId,
+  ) async {
+    final plugin = ref.read(localQnnPluginProvider);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      await plugin.downloadModel(modelId);
+      ref.invalidate(localQnnCatalogProvider);
+      ref.read(imageGenSettingsProvider.notifier).setModel(modelId);
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.localQnnDownloadComplete)),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('${l10n.localQnnDownloadFailed}: $e')),
+      );
+    }
   }
 
   Widget _buildModelSelector(

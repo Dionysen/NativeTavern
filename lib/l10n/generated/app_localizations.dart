@@ -4257,6 +4257,84 @@ abstract class AppLocalizations {
   /// **'Upscale is not available on this device.'**
   String get imageUpscaleUnavailable;
 
+  /// Section title for Local QNN load status
+  ///
+  /// In en, this message translates to:
+  /// **'On-device model'**
+  String get localQnnModelStatus;
+
+  /// Local QNN idle status
+  ///
+  /// In en, this message translates to:
+  /// **'No local model loaded'**
+  String get localQnnModelIdle;
+
+  /// Local QNN loading status
+  ///
+  /// In en, this message translates to:
+  /// **'Loading model into memory…'**
+  String get localQnnModelLoading;
+
+  /// Local QNN downloading status
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading model…'**
+  String get localQnnModelDownloading;
+
+  /// Local QNN unloading status
+  ///
+  /// In en, this message translates to:
+  /// **'Releasing model…'**
+  String get localQnnModelReleasing;
+
+  /// Local QNN generating status
+  ///
+  /// In en, this message translates to:
+  /// **'Generating…'**
+  String get localQnnModelGenerating;
+
+  /// Local QNN ready status with model name
+  ///
+  /// In en, this message translates to:
+  /// **'Ready in memory: {name}'**
+  String localQnnModelReady(String name);
+
+  /// Download Local QNN model button
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get localQnnDownloadModel;
+
+  /// Local QNN model not on disk
+  ///
+  /// In en, this message translates to:
+  /// **'Not downloaded'**
+  String get localQnnNotDownloaded;
+
+  /// SnackBar after Local QNN model download
+  ///
+  /// In en, this message translates to:
+  /// **'Model downloaded'**
+  String get localQnnDownloadComplete;
+
+  /// SnackBar when Local QNN model download fails
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed'**
+  String get localQnnDownloadFailed;
+
+  /// Local QNN unavailable title
+  ///
+  /// In en, this message translates to:
+  /// **'Local generation is unavailable'**
+  String get localQnnUnavailable;
+
+  /// Hint for Local QNN provider
+  ///
+  /// In en, this message translates to:
+  /// **'On-device generation works on Android Snapdragon devices. Choosing Local QNN loads the model; switching to an API provider unloads it.'**
+  String get localQnnOnlySnapdragonHint;
+
   /// One tap to picture the last character reply
   ///
   /// In en, this message translates to:

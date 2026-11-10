@@ -3239,6 +3239,64 @@
   "@imageUpscaleUnavailable": {
     "description": "Shown when QNN upscale cannot run"
   },
+  "localQnnModelStatus": "On-device model",
+  "@localQnnModelStatus": {
+    "description": "Section title for Local QNN load status"
+  },
+  "localQnnModelIdle": "No local model loaded",
+  "@localQnnModelIdle": {
+    "description": "Local QNN idle status"
+  },
+  "localQnnModelLoading": "Loading model into memory…",
+  "@localQnnModelLoading": {
+    "description": "Local QNN loading status"
+  },
+  "localQnnModelDownloading": "Downloading model…",
+  "@localQnnModelDownloading": {
+    "description": "Local QNN downloading status"
+  },
+  "localQnnModelReleasing": "Releasing model…",
+  "@localQnnModelReleasing": {
+    "description": "Local QNN unloading status"
+  },
+  "localQnnModelGenerating": "Generating…",
+  "@localQnnModelGenerating": {
+    "description": "Local QNN generating status"
+  },
+  "localQnnModelReady": "Ready in memory: {name}",
+  "@localQnnModelReady": {
+    "description": "Local QNN ready status with model name",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anything V5.0"
+      }
+    }
+  },
+  "localQnnDownloadModel": "Download",
+  "@localQnnDownloadModel": {
+    "description": "Download Local QNN model button"
+  },
+  "localQnnNotDownloaded": "Not downloaded",
+  "@localQnnNotDownloaded": {
+    "description": "Local QNN model not on disk"
+  },
+  "localQnnDownloadComplete": "Model downloaded",
+  "@localQnnDownloadComplete": {
+    "description": "SnackBar after Local QNN model download"
+  },
+  "localQnnDownloadFailed": "Download failed",
+  "@localQnnDownloadFailed": {
+    "description": "SnackBar when Local QNN model download fails"
+  },
+  "localQnnUnavailable": "Local generation is unavailable",
+  "@localQnnUnavailable": {
+    "description": "Local QNN unavailable title"
+  },
+  "localQnnOnlySnapdragonHint": "On-device generation works on Android Snapdragon devices. Choosing Local QNN loads the model; switching to an API provider unloads it.",
+  "@localQnnOnlySnapdragonHint": {
+    "description": "Hint for Local QNN provider"
+  },
   "imagineFromLastReply": "Picture this reply",
   "@imagineFromLastReply": {
     "description": "One tap to picture the last character reply"

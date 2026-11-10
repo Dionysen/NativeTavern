@@ -2801,6 +2801,64 @@
   "@imageUpscaleUnavailable": {
     "description": "Shown when QNN upscale cannot run"
   },
+  "localQnnModelStatus": "本地模型",
+  "@localQnnModelStatus": {
+    "description": "Section title for Local QNN load status"
+  },
+  "localQnnModelIdle": "尚未加载本地模型",
+  "@localQnnModelIdle": {
+    "description": "Local QNN idle status"
+  },
+  "localQnnModelLoading": "正在载入到内存…",
+  "@localQnnModelLoading": {
+    "description": "Local QNN loading status"
+  },
+  "localQnnModelDownloading": "正在下载模型…",
+  "@localQnnModelDownloading": {
+    "description": "Local QNN downloading status"
+  },
+  "localQnnModelReleasing": "正在释放模型…",
+  "@localQnnModelReleasing": {
+    "description": "Local QNN unloading status"
+  },
+  "localQnnModelGenerating": "正在生图…",
+  "@localQnnModelGenerating": {
+    "description": "Local QNN generating status"
+  },
+  "localQnnModelReady": "已在内存中：{name}",
+  "@localQnnModelReady": {
+    "description": "Local QNN ready status with model name",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anything V5.0"
+      }
+    }
+  },
+  "localQnnDownloadModel": "下载",
+  "@localQnnDownloadModel": {
+    "description": "Download Local QNN model button"
+  },
+  "localQnnNotDownloaded": "未下载",
+  "@localQnnNotDownloaded": {
+    "description": "Local QNN model not on disk"
+  },
+  "localQnnDownloadComplete": "模型已下载",
+  "@localQnnDownloadComplete": {
+    "description": "SnackBar after Local QNN model download"
+  },
+  "localQnnDownloadFailed": "下载失败",
+  "@localQnnDownloadFailed": {
+    "description": "SnackBar when Local QNN model download fails"
+  },
+  "localQnnUnavailable": "本地生图不可用",
+  "@localQnnUnavailable": {
+    "description": "Local QNN unavailable title"
+  },
+  "localQnnOnlySnapdragonHint": "本地生图适用于安卓高通设备。选择本地生图会加载模型；改回 API 生图会自动释放。",
+  "@localQnnOnlySnapdragonHint": {
+    "description": "Hint for Local QNN provider"
+  },
   "imagineFromLastReply": "用这条回复生图",
   "@imagineFromLastReply": {
     "description": "One tap to picture the last character reply"

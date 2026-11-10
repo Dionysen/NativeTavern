@@ -2329,6 +2329,48 @@ class AppLocalizationsFr extends AppLocalizations {
       'Upscale is not available on this device.';
 
   @override
+  String get localQnnModelStatus => 'On-device model';
+
+  @override
+  String get localQnnModelIdle => 'No local model loaded';
+
+  @override
+  String get localQnnModelLoading => 'Loading model into memory…';
+
+  @override
+  String get localQnnModelDownloading => 'Downloading model…';
+
+  @override
+  String get localQnnModelReleasing => 'Releasing model…';
+
+  @override
+  String get localQnnModelGenerating => 'Generating…';
+
+  @override
+  String localQnnModelReady(String name) {
+    return 'Ready in memory: $name';
+  }
+
+  @override
+  String get localQnnDownloadModel => 'Download';
+
+  @override
+  String get localQnnNotDownloaded => 'Not downloaded';
+
+  @override
+  String get localQnnDownloadComplete => 'Model downloaded';
+
+  @override
+  String get localQnnDownloadFailed => 'Download failed';
+
+  @override
+  String get localQnnUnavailable => 'Local generation is unavailable';
+
+  @override
+  String get localQnnOnlySnapdragonHint =>
+      'On-device generation works on Android Snapdragon devices. Choosing Local QNN loads the model; switching to an API provider unloads it.';
+
+  @override
   String get imagineFromLastReply => 'Picture this reply';
 
   @override

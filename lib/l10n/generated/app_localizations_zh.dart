@@ -2253,6 +2253,48 @@ class AppLocalizationsZh extends AppLocalizations {
   String get imageUpscaleUnavailable => '这台设备不能使用超分辨率。';
 
   @override
+  String get localQnnModelStatus => '本地模型';
+
+  @override
+  String get localQnnModelIdle => '尚未加载本地模型';
+
+  @override
+  String get localQnnModelLoading => '正在载入到内存…';
+
+  @override
+  String get localQnnModelDownloading => '正在下载模型…';
+
+  @override
+  String get localQnnModelReleasing => '正在释放模型…';
+
+  @override
+  String get localQnnModelGenerating => '正在生图…';
+
+  @override
+  String localQnnModelReady(String name) {
+    return '已在内存中：$name';
+  }
+
+  @override
+  String get localQnnDownloadModel => '下载';
+
+  @override
+  String get localQnnNotDownloaded => '未下载';
+
+  @override
+  String get localQnnDownloadComplete => '模型已下载';
+
+  @override
+  String get localQnnDownloadFailed => '下载失败';
+
+  @override
+  String get localQnnUnavailable => '本地生图不可用';
+
+  @override
+  String get localQnnOnlySnapdragonHint =>
+      '本地生图适用于安卓高通设备。选择本地生图会加载模型；改回 API 生图会自动释放。';
+
+  @override
   String get imagineFromLastReply => '用这条回复生图';
 
   @override
@@ -9621,6 +9663,48 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get imageUpscaleUnavailable => '這台裝置無法使用超解析度。';
+
+  @override
+  String get localQnnModelStatus => '本機模型';
+
+  @override
+  String get localQnnModelIdle => '尚未載入本機模型';
+
+  @override
+  String get localQnnModelLoading => '正在載入到記憶體…';
+
+  @override
+  String get localQnnModelDownloading => '正在下載模型…';
+
+  @override
+  String get localQnnModelReleasing => '正在釋放模型…';
+
+  @override
+  String get localQnnModelGenerating => '正在生圖…';
+
+  @override
+  String localQnnModelReady(String name) {
+    return '已在記憶體中：$name';
+  }
+
+  @override
+  String get localQnnDownloadModel => '下載';
+
+  @override
+  String get localQnnNotDownloaded => '未下載';
+
+  @override
+  String get localQnnDownloadComplete => '模型已下載';
+
+  @override
+  String get localQnnDownloadFailed => '下載失敗';
+
+  @override
+  String get localQnnUnavailable => '本機生圖不可用';
+
+  @override
+  String get localQnnOnlySnapdragonHint =>
+      '本機生圖適用於 Android 高通裝置。選擇本機生圖會載入模型；改回 API 生圖會自動釋放。';
 
   @override
   String get imagineFromLastReply => '用這則回覆生圖';

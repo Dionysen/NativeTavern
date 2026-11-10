@@ -10,6 +10,7 @@ import 'package:native_tavern/domain/services/image_prompt_composer.dart';
 import 'package:native_tavern/domain/services/image_upscale/image_upscale_backend.dart';
 import 'package:native_tavern/domain/services/image_upscale/image_upscale_stage.dart';
 import 'package:native_tavern/domain/services/image_upscale/noop_image_upscale_backend.dart';
+import 'package:native_tavern_qnn_upscale/native_tavern_qnn_upscale.dart';
 
 /// Image Generation Provider types (channels, not models)
 enum ImageGenProvider {
@@ -25,6 +26,7 @@ enum ImageGenProvider {
   // Local SD backends
   automatic1111('automatic1111', 'Automatic1111', 'http://localhost:7860'),
   comfyui('comfyui', 'ComfyUI', 'http://127.0.0.1:8188'),
+  localQnn('local_qnn', 'Local QNN', ''),
   ;
 
   final String id;
@@ -53,7 +55,11 @@ enum ImageGenProvider {
   bool get isLocalProvider => [
         automatic1111,
         comfyui,
+        localQnn,
       ].contains(this);
+
+  /// On-device Snapdragon QNN generation (no HTTP endpoint / API key).
+  bool get isOnDeviceQnn => this == localQnn;
 
   /// Get default model for this provider
   String get defaultModel {
@@ -71,6 +77,8 @@ enum ImageGenProvider {
       case automatic1111:
       case comfyui:
         return '';
+      case localQnn:
+        return 'anythingv5';
     }
   }
 
@@ -81,6 +89,7 @@ enum ImageGenProvider {
         gemini,
         automatic1111,
         comfyui,
+        localQnn,
       ].contains(this);
 
   /// Get default/fallback models for this provider (used when API fetch fails)
@@ -121,6 +130,14 @@ enum ImageGenProvider {
       case automatic1111:
       case comfyui:
         return []; // Models are fetched from the local server
+      case localQnn:
+        return const [
+          'anythingv5',
+          'qteamix',
+          'cuteyukimix',
+          'absolutereality',
+          'chilloutmix',
+        ];
     }
   }
 
@@ -148,6 +165,17 @@ enum ImageGenProvider {
         return 'NAI Diffusion V3';
       case 'nai-diffusion-furry-3':
         return 'NAI Diffusion Furry V3';
+      // Local QNN
+      case 'anythingv5':
+        return 'Anything V5.0';
+      case 'qteamix':
+        return 'QteaMix';
+      case 'cuteyukimix':
+        return 'CuteYukiMix';
+      case 'absolutereality':
+        return 'Absolute Reality';
+      case 'chilloutmix':
+        return 'ChilloutMix';
       default:
         return model;
     }
@@ -595,6 +623,11 @@ class ImageGenSampler {
       case ImageGenProvider.openaiChat:
       case ImageGenProvider.gemini:
         return []; // These don't use samplers
+      case ImageGenProvider.localQnn:
+        return const [
+          ImageGenSampler(id: 'dpm', name: 'DPM'),
+          ImageGenSampler(id: 'euler_a', name: 'Euler Ancestral'),
+        ];
       default:
         return samplers;
     }
@@ -632,16 +665,19 @@ class ImageGenerationService {
   ImageGenSettings _settings = const ImageGenSettings();
   final Dio _dio;
   ImageUpscaleBackend _upscaleBackend;
+  final NativeTavernQnnUpscale _localQnn;
 
   ImageGenerationService({
     Dio? dio,
     ImageUpscaleBackend? upscaleBackend,
+    NativeTavernQnnUpscale? localQnn,
     ExternalCallAuditRepository auditRepository =
         const NoopExternalCallAuditRepository(),
     AiDataSharingConsentRepository consentRepository =
         const AllowAllAiDataSharingConsentRepository(),
   })  : _dio = dio ?? Dio(),
-        _upscaleBackend = upscaleBackend ?? const NoopImageUpscaleBackend() {
+        _upscaleBackend = upscaleBackend ?? const NoopImageUpscaleBackend(),
+        _localQnn = localQnn ?? const NativeTavernQnnUpscale() {
     _dio.interceptors.add(ExternalCallAuditInterceptor(
       repository: auditRepository,
       capabilityId: 'imageGeneration',
@@ -701,6 +737,8 @@ class ImageGenerationService {
           return await _fetchAutomatic1111Models();
         case ImageGenProvider.comfyui:
           return await _fetchComfyUIModels();
+        case ImageGenProvider.localQnn:
+          return await _fetchLocalQnnModels();
         default:
           return null;
       }
@@ -1013,6 +1051,8 @@ class ImageGenerationService {
         case ImageGenProvider.comfyui:
           generated = await _generateComfyUI(resolvedRequest,
               cancelToken: cancelToken);
+        case ImageGenProvider.localQnn:
+          generated = await _generateLocalQnn(resolvedRequest, model);
       }
       if (generated == null) return null;
       return await _applyUpscaleStage(generated);
@@ -1654,6 +1694,49 @@ class ImageGenerationService {
     final ratio = pixelCount / referencePixelCount;
 
     return math.sqrt(ratio) * magicConstant;
+  }
+
+  Future<List<String>> _fetchLocalQnnModels() async {
+    final models = await _localQnn.listModels();
+    if (models.isEmpty) return ImageGenProvider.localQnn.defaultModels;
+    return models.map((m) => m.id).toList();
+  }
+
+  /// On-device SD1.5 QNN generate. Requires the model already loaded (Ready).
+  Future<ImageGenResult?> _generateLocalQnn(
+    ImageGenRequest request,
+    String model,
+  ) async {
+    final status = await _localQnn.getBackendStatus();
+    if (!status.isReady) {
+      throw StateError(
+        'Local model is not ready yet. Open image settings and wait until '
+        'the model finishes loading (or download it first).',
+      );
+    }
+    onProgress?.call(0.05);
+    final result = await _localQnn.generate(
+      prompt: request.prompt,
+      negativePrompt:
+          request.negativePrompt ?? _settings.defaultNegativePrompt ?? '',
+      steps: request.steps,
+      cfg: request.cfgScale,
+      width: request.width,
+      height: request.height,
+      seed: request.seed,
+      scheduler: request.sampler,
+    );
+    onProgress?.call(0.95);
+    return ImageGenResult(
+      images: [result.bytes],
+      prompt: request.prompt,
+      seed: result.seed ?? -1,
+      format: result.format,
+      metadata: {
+        'provider': 'local_qnn',
+        'model': model.isNotEmpty ? model : status.modelId,
+      },
+    );
   }
 
   /// Generate image using Automatic1111 WebUI

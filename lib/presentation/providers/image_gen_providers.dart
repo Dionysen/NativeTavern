@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:native_tavern/domain/services/image_upscale/image_upscale_backen
 import 'package:native_tavern/domain/services/image_upscale/noop_image_upscale_backend.dart';
 import 'package:native_tavern/domain/services/image_upscale/qnn_anime_upscale_backend.dart';
 import 'package:native_tavern/presentation/providers/ai_data_sharing_consent_providers.dart';
+import 'package:native_tavern_qnn_upscale/native_tavern_qnn_upscale.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:native_tavern/presentation/providers/external_call_audit_providers.dart';
 
@@ -17,15 +19,76 @@ final imageUpscaleBackendProvider = Provider<ImageUpscaleBackend>((ref) {
   return const NoopImageUpscaleBackend();
 });
 
+final localQnnPluginProvider = Provider<NativeTavernQnnUpscale>((ref) {
+  return const NativeTavernQnnUpscale();
+});
+
+/// Live backend status for Local QNN (load progress / ready / releasing).
+final localQnnBackendStatusProvider =
+    StreamProvider<LocalQnnBackendStatus>((ref) async* {
+  final plugin = ref.watch(localQnnPluginProvider);
+  yield await plugin.getBackendStatus();
+  yield* plugin.backendEvents();
+});
+
+/// Catalog entries for Local QNN (download state).
+final localQnnCatalogProvider =
+    FutureProvider<List<LocalQnnCatalogModel>>((ref) async {
+  return ref.watch(localQnnPluginProvider).listModels();
+});
+
 /// Provider for image generation service
 final imageGenServiceProvider = Provider<ImageGenerationService>((ref) {
   final service = ImageGenerationService(
     auditRepository: ref.watch(externalCallAuditRepositoryProvider),
     consentRepository: ref.watch(aiDataSharingConsentRepositoryProvider),
     upscaleBackend: ref.watch(imageUpscaleBackendProvider),
+    localQnn: ref.watch(localQnnPluginProvider),
   );
   ref.onDispose(() => service.dispose());
   return service;
+});
+
+/// Keeps Local QNN process aligned with the selected image provider/model.
+final localQnnLifecycleProvider = Provider<void>((ref) {
+  final settings = ref.watch(imageGenSettingsProvider);
+  final plugin = ref.watch(localQnnPluginProvider);
+
+  Future<void> sync() async {
+    if (!kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        settings.provider == ImageGenProvider.localQnn &&
+        settings.enabled) {
+      final modelId = settings.model.isNotEmpty
+          ? settings.model
+          : ImageGenProvider.localQnn.defaultModel;
+      try {
+        final catalog = await plugin.listModels();
+        LocalQnnCatalogModel? entry;
+        for (final m in catalog) {
+          if (m.id == modelId) {
+            entry = m;
+            break;
+          }
+        }
+        if (entry == null || !entry.downloaded) {
+          return;
+        }
+        await plugin.startModel(modelId);
+      } catch (e, st) {
+        debugPrint('Local QNN startModel failed: $e\n$st');
+      }
+    } else {
+      try {
+        await plugin.stopModel();
+      } catch (e, st) {
+        debugPrint('Local QNN stopModel failed: $e\n$st');
+      }
+    }
+  }
+
+  // Fire-and-forget; status stream drives UI.
+  unawaited(sync());
 });
 
 /// Provider for image generation settings
@@ -89,6 +152,15 @@ class ImageGenSettingsNotifier extends StateNotifier<ImageGenSettings> {
     // ComfyUI / NoobAI scene defaults (V-pred friendly CFG & portrait size).
     if (provider == ImageGenProvider.comfyui) {
       next = next.withComfyUiSceneDefaults();
+    }
+    if (provider == ImageGenProvider.localQnn) {
+      next = next.copyWith(
+        defaultWidth: 512,
+        defaultHeight: 512,
+        defaultSteps: 20,
+        defaultCfgScale: 7.0,
+        defaultSampler: 'dpm',
+      );
     }
     state = next;
     _saveSettings();
