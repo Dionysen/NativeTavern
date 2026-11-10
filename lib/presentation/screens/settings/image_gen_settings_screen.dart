@@ -436,6 +436,49 @@ class ImageGenSettingsScreen extends ConsumerWidget {
               ],
             ),
 
+          SettingsSection(
+            icon: Icons.hd_outlined,
+            title: AppLocalizations.of(context)!.imageUpscaleAfterGeneration,
+            children: [
+              SettingsSwitchTile(
+                icon: Icons.photo_size_select_large_outlined,
+                title: AppLocalizations.of(context)!.imageUpscaleAfterGeneration,
+                subtitle:
+                    AppLocalizations.of(context)!.imageUpscaleAfterGenerationHint,
+                value: settings.upscaleEnabled,
+                onChanged: settings.enabled
+                    ? (value) {
+                        ref
+                            .read(imageGenSettingsProvider.notifier)
+                            .setUpscaleEnabled(value);
+                      }
+                    : null,
+              ),
+              SettingsChoiceTile<int>(
+                icon: Icons.zoom_out_map,
+                title: AppLocalizations.of(context)!.imageUpscaleScale,
+                selected: settings.upscaleScale,
+                enabled: settings.enabled && settings.upscaleEnabled,
+                choices: [
+                  for (final scale in const [2, 3, 4])
+                    SettingsChoice(
+                      value: scale,
+                      label: AppLocalizations.of(context)!
+                          .imageUpscaleScaleValue(scale),
+                    ),
+                ],
+                valueLabel: AppLocalizations.of(context)!
+                    .imageUpscaleScaleValue(settings.upscaleScale),
+                onSelected: (value) {
+                  ref
+                      .read(imageGenSettingsProvider.notifier)
+                      .setUpscaleScale(value);
+                },
+                showDivider: false,
+              ),
+            ],
+          ),
+
           // Test section
           SettingsSection(
             icon: Icons.play_arrow_outlined,

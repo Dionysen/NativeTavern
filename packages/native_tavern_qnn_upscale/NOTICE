@@ -1,0 +1,14 @@
+NativeTavern QNN Upscale
+========================
+
+This plugin adapts the Snapdragon / QNN anime upscale approach used by Local Dream
+(https://github.com/xororz/local-dream), which is licensed under Creative Commons
+Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
+
+If you ship Local Dream's native upscaler executable (`libstable_diffusion_core.so`)
+or its QNN runtime libraries under `jniLibs/` / `assets/qnnlibs/`, those components
+remain subject to Local Dream's CC BY-NC 4.0 terms. Do not redistribute them for
+commercial use without obtaining rights from the original authors.
+
+Anime upscaler weights are downloaded at runtime from Hugging Face
+(`xororz/upscaler`, Real-ESRGAN anime 6B QNN bins). Upstream model licenses apply.

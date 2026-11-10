@@ -2719,6 +2719,32 @@
   "@imagine": {
     "description": "Chat input action that opens image generation"
   },
+  "imageUpscaleAfterGeneration": "生圖後超解析度",
+  "@imageUpscaleAfterGeneration": {
+    "description": "Toggle for the post-generation upscale stage"
+  },
+  "imageUpscaleAfterGenerationHint": "在 Android 高通裝置上，產生圖片後會再放大一次。其他裝置會自動略過。",
+  "@imageUpscaleAfterGenerationHint": {
+    "description": "Hint for the post-generation upscale toggle"
+  },
+  "imageUpscaleScale": "放大倍率",
+  "@imageUpscaleScale": {
+    "description": "Label for upscale scale factor"
+  },
+  "imageUpscaleScaleValue": "{scale}×",
+  "@imageUpscaleScaleValue": {
+    "description": "Upscale factor label",
+    "placeholders": {
+      "scale": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "imageUpscaleUnavailable": "這台裝置無法使用超解析度。",
+  "@imageUpscaleUnavailable": {
+    "description": "Shown when QNN upscale cannot run"
+  },
   "imagineFromLastReply": "用這則回覆生圖",
   "@imagineFromLastReply": {
     "description": "One tap to picture the last character reply"

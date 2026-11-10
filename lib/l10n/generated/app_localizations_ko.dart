@@ -2269,6 +2269,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String get imagine => 'Imagine';
 
   @override
+  String get imageUpscaleAfterGeneration => 'Upscale after generation';
+
+  @override
+  String get imageUpscaleAfterGenerationHint =>
+      'On Android Snapdragon devices, enlarge the picture after it is generated. Other devices skip this step automatically.';
+
+  @override
+  String get imageUpscaleScale => 'Upscale size';
+
+  @override
+  String imageUpscaleScaleValue(int scale) {
+    return '$scale×';
+  }
+
+  @override
+  String get imageUpscaleUnavailable =>
+      'Upscale is not available on this device.';
+
+  @override
   String get imagineFromLastReply => 'Picture this reply';
 
   @override

@@ -1076,6 +1076,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0"
+  native_tavern_qnn_upscale:
+    dependency: "direct main"
+    description:
+      path: "packages/native_tavern_qnn_upscale"
+      relative: true
+    source: path
+    version: "0.1.0"
   objective_c:
     dependency: transitive
     description:

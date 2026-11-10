@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,9 @@ import 'package:archive/archive.dart';
 import 'package:native_tavern/domain/services/ai_data_sharing_consent_service.dart';
 import 'package:native_tavern/domain/services/external_call_audit_service.dart';
 import 'package:native_tavern/domain/services/image_prompt_composer.dart';
+import 'package:native_tavern/domain/services/image_upscale/image_upscale_backend.dart';
+import 'package:native_tavern/domain/services/image_upscale/image_upscale_stage.dart';
+import 'package:native_tavern/domain/services/image_upscale/noop_image_upscale_backend.dart';
 
 /// Image Generation Provider types (channels, not models)
 enum ImageGenProvider {
@@ -194,6 +198,12 @@ class ImageGenSettings {
   /// System instruction for LLM → Danbooru tag conversion.
   final String llmImagePromptInstruction;
 
+  /// Run the independent on-device upscale stage after generation when available.
+  final bool upscaleEnabled;
+
+  /// Desired upscale factor (2–4). Native anime QNN always runs at 4×.
+  final int upscaleScale;
+
   // NovelAI specific
   final bool novelaiAnlasGuard;
   final bool novelaiSm;
@@ -221,6 +231,8 @@ class ImageGenSettings {
     this.commonPromptPrefix = '',
     this.personaAppearancePrefix = '',
     this.llmImagePromptInstruction = '',
+    this.upscaleEnabled = false,
+    this.upscaleScale = 4,
     // NovelAI
     this.novelaiAnlasGuard = true,
     this.novelaiSm = false,
@@ -303,6 +315,8 @@ class ImageGenSettings {
     String? commonPromptPrefix,
     String? personaAppearancePrefix,
     String? llmImagePromptInstruction,
+    bool? upscaleEnabled,
+    int? upscaleScale,
     bool? novelaiAnlasGuard,
     bool? novelaiSm,
     bool? novelaiSmDyn,
@@ -330,6 +344,8 @@ class ImageGenSettings {
           personaAppearancePrefix ?? this.personaAppearancePrefix,
       llmImagePromptInstruction:
           llmImagePromptInstruction ?? this.llmImagePromptInstruction,
+      upscaleEnabled: upscaleEnabled ?? this.upscaleEnabled,
+      upscaleScale: upscaleScale ?? this.upscaleScale,
       novelaiAnlasGuard: novelaiAnlasGuard ?? this.novelaiAnlasGuard,
       novelaiSm: novelaiSm ?? this.novelaiSm,
       novelaiSmDyn: novelaiSmDyn ?? this.novelaiSmDyn,
@@ -385,6 +401,8 @@ class ImageGenSettings {
         'commonPromptPrefix': commonPromptPrefix,
         'personaAppearancePrefix': personaAppearancePrefix,
         'llmImagePromptInstruction': llmImagePromptInstruction,
+        'upscaleEnabled': upscaleEnabled,
+        'upscaleScale': upscaleScale,
         'novelaiAnlasGuard': novelaiAnlasGuard,
         'novelaiSm': novelaiSm,
         'novelaiSmDyn': novelaiSmDyn,
@@ -443,6 +461,8 @@ class ImageGenSettings {
       personaAppearancePrefix: json['personaAppearancePrefix'] as String? ?? '',
       llmImagePromptInstruction:
           json['llmImagePromptInstruction'] as String? ?? '',
+      upscaleEnabled: json['upscaleEnabled'] as bool? ?? false,
+      upscaleScale: (json['upscaleScale'] as int? ?? 4).clamp(2, 4),
       novelaiAnlasGuard: json['novelaiAnlasGuard'] as bool? ?? true,
       novelaiSm: json['novelaiSm'] as bool? ?? false,
       novelaiSmDyn: json['novelaiSmDyn'] as bool? ?? false,
@@ -611,14 +631,17 @@ class ImageAspectRatio {
 class ImageGenerationService {
   ImageGenSettings _settings = const ImageGenSettings();
   final Dio _dio;
+  ImageUpscaleBackend _upscaleBackend;
 
   ImageGenerationService({
     Dio? dio,
+    ImageUpscaleBackend? upscaleBackend,
     ExternalCallAuditRepository auditRepository =
         const NoopExternalCallAuditRepository(),
     AiDataSharingConsentRepository consentRepository =
         const AllowAllAiDataSharingConsentRepository(),
-  }) : _dio = dio ?? Dio() {
+  })  : _dio = dio ?? Dio(),
+        _upscaleBackend = upscaleBackend ?? const NoopImageUpscaleBackend() {
     _dio.interceptors.add(ExternalCallAuditInterceptor(
       repository: auditRepository,
       capabilityId: 'imageGeneration',
@@ -646,6 +669,13 @@ class ImageGenerationService {
   void updateSettings(ImageGenSettings settings) {
     _settings = settings;
   }
+
+  /// Swap the platform upscale backend (e.g. Android Qualcomm).
+  void setUpscaleBackend(ImageUpscaleBackend backend) {
+    _upscaleBackend = backend;
+  }
+
+  ImageUpscaleBackend get upscaleBackend => _upscaleBackend;
 
   /// Fetch available models from the provider's API
   /// Returns null if the provider doesn't support fetching or if the request fails
@@ -954,41 +984,69 @@ class ImageGenerationService {
       debugPrint('  Size: ${request.width}x${request.height}');
       debugPrint('  Endpoint provider: ${_settings.provider.id}');
 
+      final ImageGenResult? generated;
       switch (_settings.provider) {
         case ImageGenProvider.openai:
-          return await _generateOpenAI(resolvedRequest, model,
+          generated = await _generateOpenAI(resolvedRequest, model,
               cancelToken: cancelToken);
         case ImageGenProvider.openaiChat:
-          return await _generateOpenAIChat(
+          generated = await _generateOpenAIChat(
             resolvedRequest,
             model,
             cancelToken: cancelToken,
           );
         case ImageGenProvider.gemini:
-          return await _generateGemini(resolvedRequest, model,
+          generated = await _generateGemini(resolvedRequest, model,
               cancelToken: cancelToken);
         case ImageGenProvider.novelai:
-          return await _generateNovelAI(resolvedRequest, model,
+          generated = await _generateNovelAI(resolvedRequest, model,
               cancelToken: cancelToken);
         case ImageGenProvider.pollinations:
-          return await _generatePollinations(
+          generated = await _generatePollinations(
             resolvedRequest,
             model,
             cancelToken: cancelToken,
           );
         case ImageGenProvider.automatic1111:
-          return await _generateAutomatic1111(resolvedRequest,
+          generated = await _generateAutomatic1111(resolvedRequest,
               cancelToken: cancelToken);
         case ImageGenProvider.comfyui:
-          return await _generateComfyUI(resolvedRequest,
+          generated = await _generateComfyUI(resolvedRequest,
               cancelToken: cancelToken);
       }
+      if (generated == null) return null;
+      return await _applyUpscaleStage(generated);
     } catch (error, stack) {
       debugPrint('Image generation error: $error');
       debugPrint('$stack');
       onError?.call(error.toString());
       return null;
     }
+  }
+
+  /// Independent post-generation upscale; never fails the overall generate call.
+  Future<ImageGenResult> _applyUpscaleStage(ImageGenResult result) async {
+    final staged = await ImageUpscaleStage(
+      backend: _upscaleBackend,
+      onProgress: onProgress,
+    ).apply(
+      images: result.images,
+      enabled: _settings.upscaleEnabled,
+      targetScale: _settings.upscaleScale,
+    );
+    if (!staged.didUpscale) return result;
+    return ImageGenResult(
+      images: staged.images,
+      imageUrls: result.imageUrls,
+      prompt: result.prompt,
+      seed: result.seed,
+      format: 'jpg',
+      metadata: {
+        ...?result.metadata,
+        'upscaled': true,
+        'upscaleScale': staged.scale,
+      },
+    );
   }
 
   /// Generate image using Pollinations (free, no API key)
@@ -1986,6 +2044,7 @@ class ImageGenerationService {
 
   void dispose() {
     _dio.close();
+    unawaited(_upscaleBackend.dispose());
   }
 }
 

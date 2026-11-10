@@ -2235,6 +2235,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get imagine => '生图';
 
   @override
+  String get imageUpscaleAfterGeneration => '生图后超分辨率';
+
+  @override
+  String get imageUpscaleAfterGenerationHint =>
+      '在安卓高通设备上，生成图片后会再放大一遍。其他设备会自动跳过。';
+
+  @override
+  String get imageUpscaleScale => '放大倍率';
+
+  @override
+  String imageUpscaleScaleValue(int scale) {
+    return '$scale×';
+  }
+
+  @override
+  String get imageUpscaleUnavailable => '这台设备不能使用超分辨率。';
+
+  @override
   String get imagineFromLastReply => '用这条回复生图';
 
   @override
@@ -9585,6 +9603,24 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get imagine => '生圖';
+
+  @override
+  String get imageUpscaleAfterGeneration => '生圖後超解析度';
+
+  @override
+  String get imageUpscaleAfterGenerationHint =>
+      '在 Android 高通裝置上，產生圖片後會再放大一次。其他裝置會自動略過。';
+
+  @override
+  String get imageUpscaleScale => '放大倍率';
+
+  @override
+  String imageUpscaleScaleValue(int scale) {
+    return '$scale×';
+  }
+
+  @override
+  String get imageUpscaleUnavailable => '這台裝置無法使用超解析度。';
 
   @override
   String get imagineFromLastReply => '用這則回覆生圖';

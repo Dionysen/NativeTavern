@@ -4227,6 +4227,36 @@ abstract class AppLocalizations {
   /// **'Imagine'**
   String get imagine;
 
+  /// Toggle for the post-generation upscale stage
+  ///
+  /// In en, this message translates to:
+  /// **'Upscale after generation'**
+  String get imageUpscaleAfterGeneration;
+
+  /// Hint for the post-generation upscale toggle
+  ///
+  /// In en, this message translates to:
+  /// **'On Android Snapdragon devices, enlarge the picture after it is generated. Other devices skip this step automatically.'**
+  String get imageUpscaleAfterGenerationHint;
+
+  /// Label for upscale scale factor
+  ///
+  /// In en, this message translates to:
+  /// **'Upscale size'**
+  String get imageUpscaleScale;
+
+  /// Upscale factor label
+  ///
+  /// In en, this message translates to:
+  /// **'{scale}×'**
+  String imageUpscaleScaleValue(int scale);
+
+  /// Shown when QNN upscale cannot run
+  ///
+  /// In en, this message translates to:
+  /// **'Upscale is not available on this device.'**
+  String get imageUpscaleUnavailable;
+
   /// One tap to picture the last character reply
   ///
   /// In en, this message translates to:

@@ -2,15 +2,27 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/image_generation_service.dart';
+import 'package:native_tavern/domain/services/image_upscale/image_upscale_backend.dart';
+import 'package:native_tavern/domain/services/image_upscale/noop_image_upscale_backend.dart';
+import 'package:native_tavern/domain/services/image_upscale/qnn_anime_upscale_backend.dart';
 import 'package:native_tavern/presentation/providers/ai_data_sharing_consent_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:native_tavern/presentation/providers/external_call_audit_providers.dart';
+
+/// Platform upscale backend (Android Snapdragon QNN, otherwise noop).
+final imageUpscaleBackendProvider = Provider<ImageUpscaleBackend>((ref) {
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    return QnnAnimeUpscaleBackend();
+  }
+  return const NoopImageUpscaleBackend();
+});
 
 /// Provider for image generation service
 final imageGenServiceProvider = Provider<ImageGenerationService>((ref) {
   final service = ImageGenerationService(
     auditRepository: ref.watch(externalCallAuditRepositoryProvider),
     consentRepository: ref.watch(aiDataSharingConsentRepositoryProvider),
+    upscaleBackend: ref.watch(imageUpscaleBackendProvider),
   );
   ref.onDispose(() => service.dispose());
   return service;
@@ -58,6 +70,16 @@ class ImageGenSettingsNotifier extends StateNotifier<ImageGenSettings> {
 
   void setEnabled(bool enabled) {
     state = state.copyWith(enabled: enabled);
+    _saveSettings();
+  }
+
+  void setUpscaleEnabled(bool enabled) {
+    state = state.copyWith(upscaleEnabled: enabled);
+    _saveSettings();
+  }
+
+  void setUpscaleScale(int scale) {
+    state = state.copyWith(upscaleScale: scale.clamp(2, 4));
     _saveSettings();
   }
 
