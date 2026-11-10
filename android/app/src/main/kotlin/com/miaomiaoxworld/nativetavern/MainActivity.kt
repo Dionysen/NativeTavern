@@ -1,5 +1,6 @@
 package com.miaomiaoxworld.nativetavern
 
+import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -12,7 +13,6 @@ import android.provider.MediaStore
 import android.telephony.TelephonyManager
 import android.view.Surface
 import android.view.SurfaceHolder
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.documentfile.provider.DocumentFile
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.android.FlutterSurfaceView
@@ -26,78 +26,84 @@ class MainActivity : FlutterActivity() {
     private val REGION_CHANNEL = "com.nativetavern/region"
     private val MEDIA_CHANNEL = "com.nativetavern/media"
     private val SAF_CHANNEL = "com.nativetavern/saf"
+    private val REQUEST_IMPORT_TREE = 0x51AF
 
     private var pendingSafResult: MethodChannel.Result? = null
     private var pendingSafExtensions: Set<String> = emptySet()
     private val safExecutor = Executors.newSingleThreadExecutor()
 
-    /**
-     * Android scoped storage cannot give dart:io a usable directory path for
-     * most SAF trees. Copy matching files into app cache, then return that path.
-     */
-    private val openImportTree =
-        registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-            val result = pendingSafResult
-            pendingSafResult = null
-            val extensions = pendingSafExtensions
-            pendingSafExtensions = emptySet()
-            if (result == null) return@registerForActivityResult
-            if (uri == null) {
-                result.success(null)
-                return@registerForActivityResult
-            }
-            try {
-                contentResolver.takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
-                )
-            } catch (_: SecurityException) {
-                // Still readable for this session even if persist fails.
-            }
-            safExecutor.execute {
-                try {
-                    val dest = File(
-                        cacheDir,
-                        "library_import_${System.currentTimeMillis()}",
-                    )
-                    if (!dest.mkdirs() && !dest.isDirectory) {
-                        runOnUiThread {
-                            result.error(
-                                "COPY_FAILED",
-                                "Unable to create import cache",
-                                null,
-                            )
-                        }
-                        return@execute
-                    }
-                    val copied = copyDocumentTree(uri, dest, extensions)
-                    runOnUiThread {
-                        if (copied <= 0) {
-                            dest.deleteRecursively()
-                            result.error(
-                                "EMPTY",
-                                "No character card files found in that folder",
-                                null,
-                            )
-                        } else {
-                            result.success(dest.absolutePath)
-                        }
-                    }
-                } catch (error: Exception) {
-                    runOnUiThread {
-                        result.error(
-                            "COPY_FAILED",
-                            error.message ?: "Failed to copy folder",
-                            null,
-                        )
-                    }
-                }
-            }
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestHighestRefreshRate()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != REQUEST_IMPORT_TREE) return
+
+        val result = pendingSafResult
+        pendingSafResult = null
+        val extensions = pendingSafExtensions
+        pendingSafExtensions = emptySet()
+        if (result == null) return
+
+        if (resultCode != Activity.RESULT_OK || data?.data == null) {
+            result.success(null)
+            return
+        }
+
+        val uri = data.data!!
+        val takeFlags = data.flags and
+            (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        try {
+            contentResolver.takePersistableUriPermission(
+                uri,
+                takeFlags and Intent.FLAG_GRANT_READ_URI_PERMISSION,
+            )
+        } catch (_: SecurityException) {
+            // Still readable for this session even if persist fails.
+        }
+
+        safExecutor.execute {
+            try {
+                val dest = File(
+                    cacheDir,
+                    "library_import_${System.currentTimeMillis()}",
+                )
+                if (!dest.mkdirs() && !dest.isDirectory) {
+                    runOnUiThread {
+                        result.error(
+                            "COPY_FAILED",
+                            "Unable to create import cache",
+                            null,
+                        )
+                    }
+                    return@execute
+                }
+                val copied = copyDocumentTree(uri, dest, extensions)
+                runOnUiThread {
+                    if (copied <= 0) {
+                        dest.deleteRecursively()
+                        result.error(
+                            "EMPTY",
+                            "No character card files found in that folder",
+                            null,
+                        )
+                    } else {
+                        result.success(dest.absolutePath)
+                    }
+                }
+            } catch (error: Exception) {
+                runOnUiThread {
+                    result.error(
+                        "COPY_FAILED",
+                        error.message ?: "Failed to copy folder",
+                        null,
+                    )
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -192,7 +198,14 @@ class MainActivity : FlutterActivity() {
                             }
                             .toSet()
                         pendingSafResult = result
-                        openImportTree.launch(null)
+                        // FlutterActivity is a plain Activity, so use the
+                        // classic tree picker instead of Activity Result APIs.
+                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                        }
+                        @Suppress("DEPRECATION")
+                        startActivityForResult(intent, REQUEST_IMPORT_TREE)
                     }
                     else -> result.notImplemented()
                 }
