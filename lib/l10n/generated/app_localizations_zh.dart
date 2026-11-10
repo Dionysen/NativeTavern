@@ -2229,7 +2229,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aboutImageGenerationDescription =>
-      '使用 AI 模型生成图片。可在聊天中使用 /imagine 命令，或在角色编辑器中生成角色肖像。';
+      '用 AI 生成图片。可在聊天里点生图，或在角色编辑器里生成角色肖像。';
 
   @override
   String get imagine => '生图';
@@ -2295,6 +2295,39 @@ class AppLocalizationsZh extends AppLocalizations {
       '本地生图适用于安卓高通设备。选择本地生图会加载模型；改回 API 生图会自动释放。';
 
   @override
+  String get imageGenGallery => '生图画廊';
+
+  @override
+  String get imageGenGalleryHint => '查看之前生成的图片，以及提示词和参数。';
+
+  @override
+  String get imageGenGalleryEmpty => '还没有生成过的图片。在聊天或测试里生一张后，再回来看。';
+
+  @override
+  String get imageGenGalleryDetail => '图片详情';
+
+  @override
+  String get imageGenGalleryInfo => '生成信息';
+
+  @override
+  String get imageGenGalleryFileSize => '文件大小';
+
+  @override
+  String get imageGenGalleryPositivePrompt => '正向提示词';
+
+  @override
+  String get imageGenGalleryNegativePrompt => '反向提示词';
+
+  @override
+  String get imageGenGalleryCreatedAt => '生成时间';
+
+  @override
+  String get imageGenGalleryScheduler => '调度器';
+
+  @override
+  String get imageGenGalleryDeleteConfirm => '要从画廊里删除这张图吗？';
+
+  @override
   String get imagineFromLastReply => '用这条回复生图';
 
   @override
@@ -2302,13 +2335,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get fillImagePromptWithAi => 'AI 填写提示词';
-
-  @override
-  String get imagineCommand => '/imagine 命令';
-
-  @override
-  String get imagineCommandUsage =>
-      '用法：/imagine <提示词> [--width N] [--height N] [--steps N] [--cfg N] [--seed N]';
 
   @override
   String get stableDiffusion => 'Stable Diffusion';
@@ -9641,7 +9667,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get aboutImageGenerationDescription =>
-      '使用 AI 模型產生圖片。可在聊天中使用 /imagine 命令，或在角色編輯器中產生角色肖像。';
+      '用 AI 產生圖片。可在聊天裡點生圖，或在角色編輯器裡產生角色肖像。';
 
   @override
   String get imagine => '生圖';
@@ -9707,6 +9733,39 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
       '本機生圖適用於 Android 高通裝置。選擇本機生圖會載入模型；改回 API 生圖會自動釋放。';
 
   @override
+  String get imageGenGallery => '生圖畫廊';
+
+  @override
+  String get imageGenGalleryHint => '查看先前產生的圖片，以及提示詞與參數。';
+
+  @override
+  String get imageGenGalleryEmpty => '還沒有產生過的圖片。在聊天或測試裡生一張後，再回來查看。';
+
+  @override
+  String get imageGenGalleryDetail => '圖片詳情';
+
+  @override
+  String get imageGenGalleryInfo => '產生資訊';
+
+  @override
+  String get imageGenGalleryFileSize => '檔案大小';
+
+  @override
+  String get imageGenGalleryPositivePrompt => '正向提示詞';
+
+  @override
+  String get imageGenGalleryNegativePrompt => '反向提示詞';
+
+  @override
+  String get imageGenGalleryCreatedAt => '產生時間';
+
+  @override
+  String get imageGenGalleryScheduler => '排程器';
+
+  @override
+  String get imageGenGalleryDeleteConfirm => '要從畫廊刪除這張圖嗎？';
+
+  @override
   String get imagineFromLastReply => '用這則回覆生圖';
 
   @override
@@ -9714,13 +9773,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get fillImagePromptWithAi => 'AI 填寫提示詞';
-
-  @override
-  String get imagineCommand => '/imagine 命令';
-
-  @override
-  String get imagineCommandUsage =>
-      '用法：/imagine <提示詞> [--width N] [--height N] [--steps N] [--cfg N] [--seed N]';
 
   @override
   String get stableDiffusion => 'Stable Diffusion';

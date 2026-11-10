@@ -348,6 +348,7 @@ class SettingsListTile extends StatelessWidget {
     this.onLongPress,
     this.showDivider = true,
     this.enabled = true,
+    this.maxSubtitleLines = 3,
   });
 
   static const double iconSize = SettingsTileMetrics.iconSize;
@@ -360,6 +361,7 @@ class SettingsListTile extends StatelessWidget {
   final VoidCallback? onLongPress;
   final bool showDivider;
   final bool enabled;
+  final int maxSubtitleLines;
 
   @override
   Widget build(BuildContext context) {
@@ -372,6 +374,7 @@ class SettingsListTile extends StatelessWidget {
       onLongPress: onLongPress,
       showDivider: showDivider,
       enabled: enabled,
+      maxSubtitleLines: maxSubtitleLines,
     );
   }
 }

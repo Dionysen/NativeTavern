@@ -7,6 +7,7 @@ import 'package:archive/archive.dart';
 import 'package:native_tavern/domain/services/ai_data_sharing_consent_service.dart';
 import 'package:native_tavern/domain/services/external_call_audit_service.dart';
 import 'package:native_tavern/domain/services/image_prompt_composer.dart';
+import 'package:native_tavern/domain/services/image_gen_history_service.dart';
 import 'package:native_tavern/domain/services/image_upscale/image_upscale_backend.dart';
 import 'package:native_tavern/domain/services/image_upscale/image_upscale_stage.dart';
 import 'package:native_tavern/domain/services/image_upscale/noop_image_upscale_backend.dart';
@@ -666,18 +667,21 @@ class ImageGenerationService {
   final Dio _dio;
   ImageUpscaleBackend _upscaleBackend;
   final NativeTavernQnnUpscale _localQnn;
+  final ImageGenHistoryService _history;
 
   ImageGenerationService({
     Dio? dio,
     ImageUpscaleBackend? upscaleBackend,
     NativeTavernQnnUpscale? localQnn,
+    ImageGenHistoryService? history,
     ExternalCallAuditRepository auditRepository =
         const NoopExternalCallAuditRepository(),
     AiDataSharingConsentRepository consentRepository =
         const AllowAllAiDataSharingConsentRepository(),
   })  : _dio = dio ?? Dio(),
         _upscaleBackend = upscaleBackend ?? const NoopImageUpscaleBackend(),
-        _localQnn = localQnn ?? const NativeTavernQnnUpscale() {
+        _localQnn = localQnn ?? const NativeTavernQnnUpscale(),
+        _history = history ?? ImageGenHistoryService() {
     _dio.interceptors.add(ExternalCallAuditInterceptor(
       repository: auditRepository,
       capabilityId: 'imageGeneration',
@@ -1055,7 +1059,17 @@ class ImageGenerationService {
           generated = await _generateLocalQnn(resolvedRequest, model);
       }
       if (generated == null) return null;
-      return await _applyUpscaleStage(generated);
+      final finalResult = await _applyUpscaleStage(generated);
+      try {
+        await _history.record(
+          request: resolvedRequest,
+          result: finalResult,
+          settings: _settings,
+        );
+      } catch (e, st) {
+        debugPrint('Image gen history record failed: $e\n$st');
+      }
+      return finalResult;
     } catch (error, stack) {
       debugPrint('Image generation error: $error');
       debugPrint('$stack');
@@ -1063,6 +1077,8 @@ class ImageGenerationService {
       return null;
     }
   }
+
+  ImageGenHistoryService get history => _history;
 
   /// Independent post-generation upscale; never fails the overall generate call.
   Future<ImageGenResult> _applyUpscaleStage(ImageGenResult result) async {
@@ -2067,63 +2083,6 @@ class ImageGenerationService {
       'low quality, blurry, distorted, deformed, ugly, bad anatomy, '
       'bad proportions, extra limbs, mutated hands, poorly drawn face, '
       'watermark, text, signature';
-
-  /// Parse /imagine command
-  ImageGenRequest? parseImagineCommand(String command) {
-    // Format: /imagine <prompt> [--width N] [--height N] [--steps N] [--cfg N] [--seed N]
-    if (!command.startsWith('/imagine ')) return null;
-
-    var prompt = command.substring(9).trim();
-    int width = _settings.defaultWidth;
-    int height = _settings.defaultHeight;
-    int steps = _settings.defaultSteps;
-    double cfgScale = _settings.defaultCfgScale;
-    int? seed;
-
-    // Parse optional parameters
-    final widthMatch = RegExp(r'--width\s+(\d+)').firstMatch(prompt);
-    if (widthMatch != null) {
-      width = int.parse(widthMatch.group(1)!);
-      prompt = prompt.replaceFirst(widthMatch.group(0)!, '').trim();
-    }
-
-    final heightMatch = RegExp(r'--height\s+(\d+)').firstMatch(prompt);
-    if (heightMatch != null) {
-      height = int.parse(heightMatch.group(1)!);
-      prompt = prompt.replaceFirst(heightMatch.group(0)!, '').trim();
-    }
-
-    final stepsMatch = RegExp(r'--steps\s+(\d+)').firstMatch(prompt);
-    if (stepsMatch != null) {
-      steps = int.parse(stepsMatch.group(1)!);
-      prompt = prompt.replaceFirst(stepsMatch.group(0)!, '').trim();
-    }
-
-    final cfgMatch = RegExp(r'--cfg\s+([\d.]+)').firstMatch(prompt);
-    if (cfgMatch != null) {
-      cfgScale = double.parse(cfgMatch.group(1)!);
-      prompt = prompt.replaceFirst(cfgMatch.group(0)!, '').trim();
-    }
-
-    final seedMatch = RegExp(r'--seed\s+(\d+)').firstMatch(prompt);
-    if (seedMatch != null) {
-      seed = int.parse(seedMatch.group(1)!);
-      prompt = prompt.replaceFirst(seedMatch.group(0)!, '').trim();
-    }
-
-    if (prompt.isEmpty) return null;
-
-    return ImageGenRequest(
-      prompt: prompt,
-      negativePrompt: _settings.defaultNegativePrompt,
-      width: width,
-      height: height,
-      steps: steps,
-      cfgScale: cfgScale,
-      sampler: _settings.defaultSampler,
-      seed: seed,
-    );
-  }
 
   void dispose() {
     _dio.close();

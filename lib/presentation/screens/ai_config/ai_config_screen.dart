@@ -708,6 +708,7 @@ class _ModelTileState extends ConsumerState<_ModelTile> {
       icon: Icons.memory,
       title: AppLocalizations.of(context)!.model,
       subtitle: _subtitleText(config, modelFetchState),
+      maxSubtitleLines: 1,
       trailing: modelFetchState.status == ModelFetchStatus.loading
           ? const SizedBox(
               width: 20,

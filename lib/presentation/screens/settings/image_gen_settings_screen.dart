@@ -4,6 +4,7 @@ import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dar
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/image_generation_service.dart';
 import 'package:native_tavern/presentation/providers/image_gen_providers.dart';
+import 'package:native_tavern/presentation/screens/settings/image_gen_gallery_screen.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/settings/settings_widgets.dart';
@@ -486,6 +487,30 @@ class ImageGenSettingsScreen extends ConsumerWidget {
             ],
           ),
 
+          SettingsSection(
+            icon: Icons.photo_library_outlined,
+            title: AppLocalizations.of(context)!.imageGenGallery,
+            children: [
+              SettingsListTile(
+                icon: Icons.collections_outlined,
+                title: AppLocalizations.of(context)!.imageGenGallery,
+                subtitle: AppLocalizations.of(context)!.imageGenGalleryHint,
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                showDivider: false,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const ImageGenGalleryScreen(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+
           // Test section
           SettingsSection(
             icon: Icons.play_arrow_outlined,
@@ -504,14 +529,10 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                 title: AppLocalizations.of(context)!.aboutImageGeneration,
                 subtitle: AppLocalizations.of(context)!
                     .aboutImageGenerationDescription,
-              ),
-              SettingsListTile(
-                icon: Icons.terminal,
-                title: AppLocalizations.of(context)!.imagineCommand,
-                subtitle: AppLocalizations.of(context)!.imagineCommandUsage,
                 showDivider: settings.provider == ImageGenProvider.automatic1111 ||
                     settings.provider == ImageGenProvider.openai ||
-                    settings.provider == ImageGenProvider.openaiChat,
+                    settings.provider == ImageGenProvider.openaiChat ||
+                    settings.provider == ImageGenProvider.localQnn,
               ),
               if (settings.provider == ImageGenProvider.automatic1111)
                 SettingsListTile(
@@ -714,66 +735,143 @@ class ImageGenSettingsScreen extends ConsumerWidget {
       BuildContext context, WidgetRef ref, ImageGenSettings settings) {
     final availableModels = ref.watch(availableModelsProvider);
     final fetchedState = ref.watch(fetchedModelsProvider);
-    final supportsFetching = settings.provider.supportsFetchingModels;
-
-    // Determine the current model value
+    final l10n = AppLocalizations.of(context)!;
     final currentModel = availableModels.contains(settings.model)
         ? settings.model
         : (availableModels.isNotEmpty
             ? availableModels.first
             : settings.provider.defaultModel);
+    final displayName = currentModel.isEmpty
+        ? l10n.notSet
+        : ImageGenProvider.getModelDisplayName(currentModel);
+    final subtitle = fetchedState.isLoading
+        ? l10n.fetchingModels
+        : (fetchedState.error != null
+            ? l10n.errorFetchingModels
+            : displayName);
 
-    return ListTile(
-      title: Text(AppLocalizations.of(context)!.model),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(ImageGenProvider.getModelDisplayName(currentModel)),
-          if (fetchedState.error != null)
-            Text(
-              AppLocalizations.of(context).errorFetchingModels,
-              style: const TextStyle(color: Colors.orange, fontSize: 12),
+    return SettingsListTile(
+      icon: Icons.memory,
+      title: l10n.model,
+      subtitle: subtitle,
+      maxSubtitleLines: 1,
+      enabled: settings.enabled,
+      trailing: fetchedState.isLoading
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Icon(
+              Icons.arrow_drop_down,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-        ],
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (supportsFetching)
-            ChromeIconButton(
-              icon: fetchedState.isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.refresh, size: 20),
-              tooltip: AppLocalizations.of(context).refreshModels,
-              onPressed: settings.enabled && !fetchedState.isLoading
-                  ? () => ref.read(fetchedModelsProvider.notifier).fetchModels()
-                  : null,
-            ),
-          DropdownButton<String>(
-            value: availableModels.contains(currentModel) ? currentModel : null,
-            hint: Text(currentModel),
-            onChanged: settings.enabled
-                ? (value) {
-                    if (value != null) {
-                      ref
-                          .read(imageGenSettingsProvider.notifier)
-                          .setModel(value);
-                    }
-                  }
-                : null,
-            items: availableModels.map((model) {
-              return DropdownMenuItem(
-                value: model,
-                child: Text(
-                  ImageGenProvider.getModelDisplayName(model),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              );
-            }).toList(),
+      onTap: !settings.enabled || fetchedState.isLoading
+          ? null
+          : () => _showImageModelPicker(
+                context,
+                ref,
+                settings,
+                availableModels,
+                currentModel,
+              ),
+    );
+  }
+
+  void _showImageModelPicker(
+    BuildContext context,
+    WidgetRef ref,
+    ImageGenSettings settings,
+    List<String> availableModels,
+    String currentModel,
+  ) {
+    if (availableModels.isNotEmpty) {
+      _showImageModelListSheet(
+        context,
+        ref,
+        availableModels,
+        currentModel,
+      );
+      return;
+    }
+    _showImageModelManualDialog(context, ref, currentModel);
+  }
+
+  void _showImageModelListSheet(
+    BuildContext context,
+    WidgetRef ref,
+    List<String> models,
+    String selectedModel,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.4,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (_, scrollController) {
+            return _ImageModelSelectionSheet(
+              models: models,
+              selectedModel: selectedModel,
+              scrollController: scrollController,
+              onModelSelected: (model) {
+                ref.read(imageGenSettingsProvider.notifier).setModel(model);
+                Navigator.pop(sheetContext);
+              },
+              onRefresh: () {
+                Navigator.pop(sheetContext);
+                ref.read(fetchedModelsProvider.notifier).fetchModels();
+              },
+              onManualEntry: () {
+                Navigator.pop(sheetContext);
+                _showImageModelManualDialog(context, ref, selectedModel);
+              },
+              title: l10n.selectModelCount(models.length),
+              refreshTooltip: l10n.refreshModels,
+              manualTooltip: l10n.enterManually,
+              searchHint: l10n.searchModels,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showImageModelManualDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String currentModel,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = TextEditingController(text: currentModel);
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.enterModelName),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: l10n.modelName,
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              ref
+                  .read(imageGenSettingsProvider.notifier)
+                  .setModel(controller.text.trim());
+              Navigator.pop(dialogContext);
+            },
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -1109,6 +1207,145 @@ class _ImageGenTestWidgetState extends ConsumerState<_ImageGenTestWidget> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ImageModelSelectionSheet extends StatefulWidget {
+  const _ImageModelSelectionSheet({
+    required this.models,
+    required this.selectedModel,
+    required this.scrollController,
+    required this.onModelSelected,
+    required this.onRefresh,
+    required this.onManualEntry,
+    required this.title,
+    required this.refreshTooltip,
+    required this.manualTooltip,
+    required this.searchHint,
+  });
+
+  final List<String> models;
+  final String selectedModel;
+  final ScrollController scrollController;
+  final void Function(String model) onModelSelected;
+  final VoidCallback onRefresh;
+  final VoidCallback onManualEntry;
+  final String title;
+  final String refreshTooltip;
+  final String manualTooltip;
+  final String searchHint;
+
+  @override
+  State<_ImageModelSelectionSheet> createState() =>
+      _ImageModelSelectionSheetState();
+}
+
+class _ImageModelSelectionSheetState extends State<_ImageModelSelectionSheet> {
+  final TextEditingController _searchController = TextEditingController();
+  late List<String> _filteredModels;
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredModels = widget.models;
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      if (query.isEmpty) {
+        _filteredModels = widget.models;
+      } else {
+        _filteredModels = widget.models
+            .where((model) {
+              final id = model.toLowerCase();
+              final label =
+                  ImageGenProvider.getModelDisplayName(model).toLowerCase();
+              return id.contains(query) || label.contains(query);
+            })
+            .toList();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return SafeArea(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ChromeIconButton(
+                  icon: const Icon(Icons.refresh),
+                  tooltip: widget.refreshTooltip,
+                  onPressed: widget.onRefresh,
+                ),
+                ChromeIconButton(
+                  icon: const Icon(Icons.edit),
+                  tooltip: widget.manualTooltip,
+                  onPressed: widget.onManualEntry,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: widget.searchHint,
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? ChromeIconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: _searchController.clear,
+                      )
+                    : null,
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              controller: widget.scrollController,
+              itemCount: _filteredModels.length,
+              itemBuilder: (context, index) {
+                final model = _filteredModels[index];
+                final selected = model == widget.selectedModel;
+                return ListTile(
+                  title: Text(ImageGenProvider.getModelDisplayName(model)),
+                  subtitle: Text(model),
+                  selected: selected,
+                  trailing: selected
+                      ? Icon(Icons.check, color: scheme.primary)
+                      : null,
+                  onTap: () => widget.onModelSelected(model),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

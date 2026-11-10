@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:native_tavern/domain/services/image_gen_history_service.dart';
 import 'package:native_tavern/domain/services/image_generation_service.dart';
 import 'package:native_tavern/domain/services/image_upscale/image_upscale_backend.dart';
 import 'package:native_tavern/domain/services/image_upscale/noop_image_upscale_backend.dart';
@@ -21,6 +22,15 @@ final imageUpscaleBackendProvider = Provider<ImageUpscaleBackend>((ref) {
 
 final localQnnPluginProvider = Provider<NativeTavernQnnUpscale>((ref) {
   return const NativeTavernQnnUpscale();
+});
+
+final imageGenHistoryServiceProvider = Provider<ImageGenHistoryService>((ref) {
+  return ImageGenHistoryService();
+});
+
+final imageGenHistoryProvider =
+    FutureProvider.autoDispose<List<ImageGenHistoryEntry>>((ref) async {
+  return ref.watch(imageGenHistoryServiceProvider).listEntries();
 });
 
 /// Live backend status for Local QNN (load progress / ready / releasing).
@@ -44,6 +54,7 @@ final imageGenServiceProvider = Provider<ImageGenerationService>((ref) {
     consentRepository: ref.watch(aiDataSharingConsentRepositoryProvider),
     upscaleBackend: ref.watch(imageUpscaleBackendProvider),
     localQnn: ref.watch(localQnnPluginProvider),
+    history: ref.watch(imageGenHistoryServiceProvider),
   );
   ref.onDispose(() => service.dispose());
   return service;
@@ -407,13 +418,6 @@ final generateImageProvider =
   return (ImageGenRequest request) async {
     return ref.read(imageGenStateProvider.notifier).generate(request);
   };
-});
-
-/// Provider for parsing /imagine command
-final parseImagineCommandProvider =
-    Provider<ImageGenRequest? Function(String)>((ref) {
-  final service = ref.watch(imageGenServiceProvider);
-  return service.parseImagineCommand;
 });
 
 /// Provider for extracting image URLs from text (base feature for all channels)

@@ -2359,6 +2359,42 @@ class AppLocalizationsId extends AppLocalizations {
       'On-device generation works on Android Snapdragon devices. Choosing Local QNN loads the model; switching to an API provider unloads it.';
 
   @override
+  String get imageGenGallery => 'Generation gallery';
+
+  @override
+  String get imageGenGalleryHint =>
+      'Browse pictures you generated earlier and their prompts.';
+
+  @override
+  String get imageGenGalleryEmpty =>
+      'No generated pictures yet. Create one from chat or the test section, then come back here.';
+
+  @override
+  String get imageGenGalleryDetail => 'Picture details';
+
+  @override
+  String get imageGenGalleryInfo => 'Generation info';
+
+  @override
+  String get imageGenGalleryFileSize => 'File size';
+
+  @override
+  String get imageGenGalleryPositivePrompt => 'Prompt';
+
+  @override
+  String get imageGenGalleryNegativePrompt => 'Negative prompt';
+
+  @override
+  String get imageGenGalleryCreatedAt => 'Created';
+
+  @override
+  String get imageGenGalleryScheduler => 'Scheduler';
+
+  @override
+  String get imageGenGalleryDeleteConfirm =>
+      'Delete this picture from the gallery?';
+
+  @override
   String get imagineFromLastReply => 'Picture this reply';
 
   @override
@@ -2367,13 +2403,6 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get fillImagePromptWithAi => 'Fill with AI';
-
-  @override
-  String get imagineCommand => '/imagine Command';
-
-  @override
-  String get imagineCommandUsage =>
-      'Usage: /imagine <prompt> [--width N] [--height N] [--steps N] [--cfg N] [--seed N]';
 
   @override
   String get stableDiffusion => 'Stable Diffusion';

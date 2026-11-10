@@ -3205,7 +3205,7 @@
   "@aboutImageGeneration": {
     "description": "About image generation label"
   },
-  "aboutImageGenerationDescription": "Generate images using AI models. Use the /imagine command in chat or generate character portraits from the character editor.",
+  "aboutImageGenerationDescription": "Generate images with AI. Use Imagine in chat, or make character portraits in the character editor.",
   "@aboutImageGenerationDescription": {
     "description": "About image generation description"
   },
@@ -3297,6 +3297,50 @@
   "@localQnnOnlySnapdragonHint": {
     "description": "Hint for Local QNN provider"
   },
+  "imageGenGallery": "Generation gallery",
+  "@imageGenGallery": {
+    "description": "Title for the image generation history gallery"
+  },
+  "imageGenGalleryHint": "Browse pictures you generated earlier and their prompts.",
+  "@imageGenGalleryHint": {
+    "description": "Subtitle for gallery entry in image settings"
+  },
+  "imageGenGalleryEmpty": "No generated pictures yet. Create one from chat or the test section, then come back here.",
+  "@imageGenGalleryEmpty": {
+    "description": "Empty state for image generation gallery"
+  },
+  "imageGenGalleryDetail": "Picture details",
+  "@imageGenGalleryDetail": {
+    "description": "Detail screen title for a gallery item"
+  },
+  "imageGenGalleryInfo": "Generation info",
+  "@imageGenGalleryInfo": {
+    "description": "Section title for size and params"
+  },
+  "imageGenGalleryFileSize": "File size",
+  "@imageGenGalleryFileSize": {
+    "description": "Label for image file byte size"
+  },
+  "imageGenGalleryPositivePrompt": "Prompt",
+  "@imageGenGalleryPositivePrompt": {
+    "description": "Positive prompt label in gallery detail"
+  },
+  "imageGenGalleryNegativePrompt": "Negative prompt",
+  "@imageGenGalleryNegativePrompt": {
+    "description": "Negative prompt label in gallery detail"
+  },
+  "imageGenGalleryCreatedAt": "Created",
+  "@imageGenGalleryCreatedAt": {
+    "description": "Timestamp label in gallery detail"
+  },
+  "imageGenGalleryScheduler": "Scheduler",
+  "@imageGenGalleryScheduler": {
+    "description": "Scheduler label in gallery detail"
+  },
+  "imageGenGalleryDeleteConfirm": "Delete this picture from the gallery?",
+  "@imageGenGalleryDeleteConfirm": {
+    "description": "Confirm deleting a gallery image"
+  },
   "imagineFromLastReply": "Picture this reply",
   "@imagineFromLastReply": {
     "description": "One tap to picture the last character reply"
@@ -3308,14 +3352,6 @@
   "fillImagePromptWithAi": "Fill with AI",
   "@fillImagePromptWithAi": {
     "description": "Ask the chat model to write an image prompt"
-  },
-  "imagineCommand": "/imagine Command",
-  "@imagineCommand": {
-    "description": "Imagine command label"
-  },
-  "imagineCommandUsage": "Usage: /imagine <prompt> [--width N] [--height N] [--steps N] [--cfg N] [--seed N]",
-  "@imagineCommandUsage": {
-    "description": "Imagine command usage"
   },
   "stableDiffusion": "Stable Diffusion",
   "@stableDiffusion": {

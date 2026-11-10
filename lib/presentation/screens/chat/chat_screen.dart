@@ -21,7 +21,6 @@ import 'package:native_tavern/domain/services/chat_export_service.dart';
 import 'package:native_tavern/domain/services/llm_service.dart';
 import 'package:native_tavern/domain/services/markdown_hotkey_service.dart';
 import 'package:native_tavern/domain/services/rpg_scenario_package_service.dart';
-import 'package:native_tavern/domain/services/slash_command_service.dart';
 import 'package:native_tavern/domain/services/tts_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/controllers/chat_tts_autoplay_controller.dart';
@@ -65,7 +64,6 @@ import 'package:native_tavern/presentation/widgets/common/adaptive_scaffold.dart
 import 'package:native_tavern/presentation/widgets/play/ai_play_feature_gate.dart';
 import 'package:native_tavern/presentation/widgets/chat/markdown_input_field.dart';
 import 'package:native_tavern/presentation/widgets/chat/reasoning_widget.dart';
-import 'package:native_tavern/presentation/widgets/chat/slash_command_suggestions.dart';
 import 'package:native_tavern/presentation/widgets/chat/context_usage_indicator.dart';
 import 'package:native_tavern/presentation/providers/context_usage_providers.dart';
 import 'package:native_tavern/presentation/providers/image_gen_providers.dart';
@@ -124,7 +122,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ChatTailScrollController _scrollController = ChatTailScrollController();
   final FocusNode _focusNode = FocusNode();
-  bool _showSlashSuggestions = false;
   bool _showInputMenu = false;
   bool _generatingQuickImage = false;
   bool _showChoicePanel = false;
@@ -196,16 +193,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
     });
 
-    // Listen for text changes to show/hide slash command suggestions
-    _messageController.addListener(_onTextChanged);
-  }
-
-  void _onTextChanged() {
-    final text = _messageController.text;
-    final shouldShow = text.startsWith('/') && !text.contains(' ');
-    if (shouldShow != _showSlashSuggestions) {
-      setState(() => _showSlashSuggestions = shouldShow);
-    }
   }
 
   @override
@@ -307,10 +294,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   void _dismissComposerOptionPanels() {
-    if (!_showInputMenu &&
-        !_showChoicePanel &&
-        !_showStatusPanel &&
-        !_showSlashSuggestions) {
+    if (!_showInputMenu && !_showChoicePanel && !_showStatusPanel) {
       return;
     }
     setState(() {
@@ -322,7 +306,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       if (!_statusPanelPinned) {
         _showStatusPanel = false;
       }
-      _showSlashSuggestions = false;
     });
   }
 
@@ -402,11 +385,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
 
-    if (trimmed.startsWith('/')) {
-      await _handleSlashCommand(trimmed);
-      return;
-    }
-
     final config = ref.read(llmConfigProvider);
     if (!_isApiConfigured(config)) {
       _showApiConfigurationDialog();
@@ -415,7 +393,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     _messageController.clear();
     setState(() {
-      _showSlashSuggestions = false;
       _pendingAttachments.clear();
     });
     _focusNode.unfocus();
@@ -450,7 +427,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   void dispose() {
     unawaited(_stopTts(ownerId: widget.chatId));
-    _messageController.removeListener(_onTextChanged);
     _messageController.dispose();
     _scrollController.removeListener(_syncScrollToBottomButton);
     _scrollController.dispose();
@@ -773,12 +749,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     // Allow sending if there's content OR attachments
     if (content.isEmpty && !hasAttachments) return;
 
-    // Check if it's a slash command (only if no attachments)
-    if (content.startsWith('/') && !hasAttachments) {
-      await _handleSlashCommand(content);
-      return;
-    }
-
     final config = ref.read(llmConfigProvider);
 
     // Check if API is configured
@@ -792,7 +762,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     _messageController.clear();
     setState(() {
-      _showSlashSuggestions = false;
       _pendingAttachments.clear();
     });
 
@@ -929,248 +898,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         .enable(result.scenario!);
   }
 
-  Future<void> _handleSlashCommand(String input) async {
-    final slashService = ref.read(slashCommandServiceProvider);
-    final result = slashService.parse(input);
-
-    if (!result.isCommand) {
-      // Not a command, send as regular message
-      final config = ref.read(llmConfigProvider);
-      if (!_isApiConfigured(config)) {
-        _showApiConfigurationDialog();
-        return;
-      }
-      _messageController.clear();
-      setState(() => _showSlashSuggestions = false);
-
-      // Hide keyboard on mobile platforms
-      _focusNode.unfocus();
-
-      _scrollToBottom(force: true);
-      await ref.read(activeChatProvider.notifier).sendMessage(input, config);
-      return;
-    }
-
-    if (result.error != null) {
-      _showCommandError(result.error!);
-      return;
-    }
-
-    final command = result.command!;
-    final argument = result.argument;
-
-    _messageController.clear();
-    setState(() => _showSlashSuggestions = false);
-
-    // Hide keyboard on mobile platforms
-    _focusNode.unfocus();
-
-    await _executeCommand(command, argument);
-  }
-
-  Future<void> _executeCommand(SlashCommand command, String? argument) async {
-    final l10n = AppLocalizations.of(context);
-    final config = ref.read(llmConfigProvider);
-    final chatNotifier = ref.read(activeChatProvider.notifier);
-    final chatState = ref.read(activeChatProvider);
-
-    switch (command.name) {
-      case 'continue':
-        if (!_isApiConfigured(config)) {
-          _showApiConfigurationDialog();
-          return;
-        }
-        _scrollToBottom(force: true);
-        await chatNotifier.continueGeneration(config);
-        break;
-
-      case 'regenerate':
-        if (!_isApiConfigured(config)) {
-          _showApiConfigurationDialog();
-          return;
-        }
-        _scrollToBottom(force: true);
-        await chatNotifier.regenerateLastMessage(config);
-        break;
-
-      case 'swipe':
-        _handleSwipeCommand(argument);
-        break;
-
-      case 'persona':
-        context.go('/personas');
-        break;
-
-      case 'sys':
-        if (argument != null && argument.isNotEmpty) {
-          // Send as system/narrator message
-          _showSystemMessage(argument);
-        }
-        break;
-
-      case 'bg':
-        context.openShell(AppRoutes.backgroundSettings);
-        break;
-
-      case 'impersonate':
-        await _handleImpersonate();
-        break;
-
-      case 'imagine':
-        await _handleImagineCommand(argument);
-        break;
-
-      case 'delswipe':
-        if (chatState.messages.isNotEmpty) {
-          final lastMessage = chatState.messages.last;
-          if (lastMessage.swipes.length > 1) {
-            await chatNotifier.deleteSwipe(
-              lastMessage.id,
-              lastMessage.currentSwipeIndex,
-            );
-            if (mounted) {
-              _showSnackBar(AppLocalizations.of(context)!.swipeDeleted);
-            }
-          } else {
-            _showSnackBar(AppLocalizations.of(context)!.noAlternateSwipes);
-          }
-        }
-        break;
-
-      case 'help':
-        _showHelpDialog(argument);
-        break;
-
-      case 'clear':
-        _showClearConfirmation();
-        break;
-
-      case 'edit':
-        if (argument != null &&
-            argument.isNotEmpty &&
-            chatState.messages.isNotEmpty) {
-          final lastMessage = chatState.messages.last;
-          await chatNotifier.editMessage(lastMessage.id, argument);
-        }
-        break;
-
-      case 'delete':
-        if (chatState.messages.isNotEmpty) {
-          final count = int.tryParse(argument ?? '1') ?? 1;
-          for (var i = 0; i < count && chatState.messages.isNotEmpty; i++) {
-            final lastMessage = ref.read(activeChatProvider).messages.last;
-            await chatNotifier.deleteMessage(lastMessage.id);
-          }
-        }
-        break;
-
-      case 'bookmark':
-        if (chatState.messages.isNotEmpty) {
-          final lastMessage = chatState.messages.last;
-          final lastIndex = chatState.messages.length - 1;
-          _showCreateBookmarkDialog(lastMessage.id, lastIndex);
-        }
-        break;
-
-      case 'note':
-        if (argument != null && argument.isNotEmpty) {
-          await chatNotifier.updateAuthorNoteSettings(
-            chatId: widget.chatId,
-            content: argument,
-            enabled: true,
-          );
-          _showSnackBar(l10n.authorsNoteUpdated);
-        } else {
-          showAuthorNoteDialog(context, widget.chatId);
-        }
-        break;
-    }
-  }
-
-  Future<void> _handleImagineCommand(String? argument) async {
-    final l10n = AppLocalizations.of(context);
-    final settings = ref.read(imageGenSettingsProvider);
-    if (!settings.enabled) {
-      _showSnackBar('${l10n.imageGeneration}: ${l10n.configureNow}');
-      return;
-    }
-
-    final arg = (argument ?? '').trim();
-    final modeKey = arg.toLowerCase();
-    // `/sd`, `/sd last`, `/sd story` → scene from the latest assistant message.
-    if (arg.isEmpty || modeKey == 'last' || modeKey == 'story') {
-      final chatState = ref.read(activeChatProvider);
-      final lastAssistant = lastCharacterTextReply(chatState.messages);
-      if (lastAssistant == null) {
-        _showCommandError(l10n.noImageGenerated);
-        return;
-      }
-      final result = await ImageGenerationDialog.show(
-        context,
-        basePrompt: lastAssistant.content,
-        characterName: chatState.character?.name,
-        characterAppearance: chatState.character?.sdAppearance,
-        personaAppearance: settings.personaAppearancePrefix,
-        mode: ImageGenMode.lastMessage,
-        autoCompose: true,
-      );
-      if (result != null && result.images.isNotEmpty && mounted) {
-        await _attachGeneratedImagesToNewMessage(
-          result,
-          character: chatState.characterForMessage(lastAssistant),
-        );
-      }
-      return;
-    }
-
-    final request = ref.read(parseImagineCommandProvider)(
-      '/imagine $arg',
-    );
-    if (request == null) {
-      _showCommandError(SlashCommands.imagine.usage);
-      return;
-    }
-
-    final chatState = ref.read(activeChatProvider);
-    const composer = ImagePromptComposer();
-    final assembled = composer.assembleFinalPrompt(
-      sceneTags: request.prompt,
-      commonPrefix: settings.effectiveCommonPromptPrefix,
-      characterAppearance: chatState.character?.sdAppearance,
-      personaAppearance: settings.personaAppearancePrefix,
-    );
-    final layered = ImageGenRequest(
-      prompt: assembled,
-      negativePrompt:
-          request.negativePrompt ?? settings.effectiveNegativePrompt,
-      width: request.width,
-      height: request.height,
-      steps: request.steps,
-      cfgScale: request.cfgScale,
-      sampler: request.sampler,
-      scheduler: request.scheduler,
-      model: request.model ?? settings.model,
-      seed: request.seed,
-      batchSize: request.batchSize,
-      mode: request.mode,
-    );
-
-    _showSnackBar(l10n.imageGeneration);
-    final result =
-        await ref.read(imageGenStateProvider.notifier).generate(layered);
-    if (!mounted) return;
-    if (result == null || result.images.isEmpty) {
-      final error = ref.read(imageGenStateProvider).error;
-      _showCommandError(error ?? l10n.noImageGenerated);
-      return;
-    }
-
-    await _attachGeneratedImagesToNewMessage(
-      result,
-      character: chatState.character,
-    );
-  }
-
   Future<List<ChatAttachment>> _saveGeneratedImages(
     ImageGenResult result,
   ) async {
@@ -1196,70 +923,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       );
     }
     return attachments;
-  }
-
-  void _handleSwipeCommand(String? argument) {
-    final l10n = AppLocalizations.of(context);
-    final chatState = ref.read(activeChatProvider);
-    if (chatState.messages.isEmpty) return;
-
-    final lastMessage = chatState.messages.last;
-    if (lastMessage.swipes.length <= 1) {
-      _showSnackBar(l10n.noSwipesAvailable);
-      return;
-    }
-
-    int newIndex = lastMessage.currentSwipeIndex;
-
-    if (argument == null || argument.isEmpty || argument == 'right') {
-      newIndex = (newIndex + 1) % lastMessage.swipes.length;
-    } else if (argument == 'left') {
-      newIndex = (newIndex - 1 + lastMessage.swipes.length) %
-          lastMessage.swipes.length;
-    } else {
-      final parsed = int.tryParse(argument);
-      if (parsed != null &&
-          parsed >= 1 &&
-          parsed <= lastMessage.swipes.length) {
-        newIndex = parsed - 1;
-      }
-    }
-
-    ref
-        .read(activeChatProvider.notifier)
-        .swipeMessage(lastMessage.id, newIndex);
-  }
-
-  void _showSystemMessage(String content) {
-    final l10n = AppLocalizations.of(context);
-    // For now, just show a snackbar. In the future, this could inject a system message
-    _showSnackBar('${l10n.system}: $content');
-  }
-
-  void _showHelpDialog(String? commandName) {
-    if (commandName != null && commandName.isNotEmpty) {
-      final slashService = ref.read(slashCommandServiceProvider);
-      final l10n = AppLocalizations.of(context);
-      final help = slashService.getCommandHelp(commandName);
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('/$commandName'),
-          content: Text(help),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.close),
-            ),
-          ],
-        ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => const SlashCommandHelpDialog(),
-      );
-    }
   }
 
   void _showCommandError(String error) {
@@ -1413,13 +1076,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         duration: const Duration(milliseconds: 1600),
       ),
     );
-  }
-
-  void _onSlashCommandSelected(SlashCommand command) {
-    // Fill in the command with a space for argument
-    _messageController.text = '/${command.name} ';
-    setState(() => _showSlashSuggestions = false);
-    _focusMessageInputAtEnd();
   }
 
   void _focusMessageInputAtEnd() {
@@ -3122,21 +2778,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       onRefresh: _refreshCharacterStatus,
                       isPinned: _statusPanelPinned,
                       onTogglePin: _toggleStatusPanelPinned,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-              if (_showSlashSuggestions) ...[
-                _composerOptionsDismissable(
-                  child: _composerExpansionPanel(
-                    opacity: composerOpacity,
-                    frostSigma: composerFrostSigma,
-                    child: SlashCommandSuggestions(
-                      input: _messageController.text,
-                      onSelect: _onSlashCommandSelected,
-                      onDismiss: () =>
-                          setState(() => _showSlashSuggestions = false),
                     ),
                   ),
                 ),

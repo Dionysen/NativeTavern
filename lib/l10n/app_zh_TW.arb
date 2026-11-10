@@ -2711,7 +2711,7 @@
   "@aboutImageGeneration": {
     "description": "About image generation label"
   },
-  "aboutImageGenerationDescription": "使用 AI 模型產生圖片。可在聊天中使用 /imagine 命令，或在角色編輯器中產生角色肖像。",
+  "aboutImageGenerationDescription": "用 AI 產生圖片。可在聊天裡點生圖，或在角色編輯器裡產生角色肖像。",
   "@aboutImageGenerationDescription": {
     "description": "About image generation description"
   },
@@ -2803,6 +2803,50 @@
   "@localQnnOnlySnapdragonHint": {
     "description": "Hint for Local QNN provider"
   },
+  "imageGenGallery": "生圖畫廊",
+  "@imageGenGallery": {
+    "description": "Title for the image generation history gallery"
+  },
+  "imageGenGalleryHint": "查看先前產生的圖片，以及提示詞與參數。",
+  "@imageGenGalleryHint": {
+    "description": "Subtitle for gallery entry in image settings"
+  },
+  "imageGenGalleryEmpty": "還沒有產生過的圖片。在聊天或測試裡生一張後，再回來查看。",
+  "@imageGenGalleryEmpty": {
+    "description": "Empty state for image generation gallery"
+  },
+  "imageGenGalleryDetail": "圖片詳情",
+  "@imageGenGalleryDetail": {
+    "description": "Detail screen title for a gallery item"
+  },
+  "imageGenGalleryInfo": "產生資訊",
+  "@imageGenGalleryInfo": {
+    "description": "Section title for size and params"
+  },
+  "imageGenGalleryFileSize": "檔案大小",
+  "@imageGenGalleryFileSize": {
+    "description": "Label for image file byte size"
+  },
+  "imageGenGalleryPositivePrompt": "正向提示詞",
+  "@imageGenGalleryPositivePrompt": {
+    "description": "Positive prompt label in gallery detail"
+  },
+  "imageGenGalleryNegativePrompt": "反向提示詞",
+  "@imageGenGalleryNegativePrompt": {
+    "description": "Negative prompt label in gallery detail"
+  },
+  "imageGenGalleryCreatedAt": "產生時間",
+  "@imageGenGalleryCreatedAt": {
+    "description": "Timestamp label in gallery detail"
+  },
+  "imageGenGalleryScheduler": "排程器",
+  "@imageGenGalleryScheduler": {
+    "description": "Scheduler label in gallery detail"
+  },
+  "imageGenGalleryDeleteConfirm": "要從畫廊刪除這張圖嗎？",
+  "@imageGenGalleryDeleteConfirm": {
+    "description": "Confirm deleting a gallery image"
+  },
   "imagineFromLastReply": "用這則回覆生圖",
   "@imagineFromLastReply": {
     "description": "One tap to picture the last character reply"
@@ -2814,14 +2858,6 @@
   "fillImagePromptWithAi": "AI 填寫提示詞",
   "@fillImagePromptWithAi": {
     "description": "Ask the chat model to write an image prompt"
-  },
-  "imagineCommand": "/imagine 命令",
-  "@imagineCommand": {
-    "description": "Imagine command label"
-  },
-  "imagineCommandUsage": "用法：/imagine <提示詞> [--width N] [--height N] [--steps N] [--cfg N] [--seed N]",
-  "@imagineCommandUsage": {
-    "description": "Imagine command usage"
   },
   "stableDiffusion": "Stable Diffusion",
   "@stableDiffusion": {

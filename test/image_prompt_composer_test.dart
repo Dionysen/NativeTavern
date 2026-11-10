@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:native_tavern/domain/services/image_prompt_composer.dart';
-import 'package:native_tavern/domain/services/image_generation_service.dart';
-import 'package:native_tavern/domain/services/slash_command_service.dart';
 
 void main() {
   const composer = ImagePromptComposer();
@@ -56,31 +54,5 @@ void main() {
       ),
       '1girl, sitting, cafe',
     );
-  });
-
-  test('/sd last is accepted as an imagine alias without a free prompt', () {
-    final parsed = SlashCommandService().parse('/sd last');
-    expect(parsed.command, SlashCommands.imagine);
-    expect(parsed.argument, 'last');
-
-    final bare = SlashCommandService().parse('/sd');
-    expect(bare.command, SlashCommands.imagine);
-    expect(bare.argument, isNull);
-  });
-
-  test('/imagine still parses prompt options for the existing chat handler', () {
-    final parsed = SlashCommandService().parse(
-      '/imagine rainy harbor --width 768 --height 1024',
-    );
-    expect(parsed.command, SlashCommands.imagine);
-    expect(parsed.argument, 'rainy harbor --width 768 --height 1024');
-
-    final request = ImageGenerationService().parseImagineCommand(
-      '/imagine rainy harbor --width 768 --height 1024',
-    );
-    expect(request, isNotNull);
-    expect(request!.prompt, 'rainy harbor');
-    expect(request.width, 768);
-    expect(request.height, 1024);
   });
 }

@@ -4218,7 +4218,7 @@ abstract class AppLocalizations {
   /// About image generation description
   ///
   /// In en, this message translates to:
-  /// **'Generate images using AI models. Use the /imagine command in chat or generate character portraits from the character editor.'**
+  /// **'Generate images with AI. Use Imagine in chat, or make character portraits in the character editor.'**
   String get aboutImageGenerationDescription;
 
   /// Chat input action that opens image generation
@@ -4335,6 +4335,72 @@ abstract class AppLocalizations {
   /// **'On-device generation works on Android Snapdragon devices. Choosing Local QNN loads the model; switching to an API provider unloads it.'**
   String get localQnnOnlySnapdragonHint;
 
+  /// Title for the image generation history gallery
+  ///
+  /// In en, this message translates to:
+  /// **'Generation gallery'**
+  String get imageGenGallery;
+
+  /// Subtitle for gallery entry in image settings
+  ///
+  /// In en, this message translates to:
+  /// **'Browse pictures you generated earlier and their prompts.'**
+  String get imageGenGalleryHint;
+
+  /// Empty state for image generation gallery
+  ///
+  /// In en, this message translates to:
+  /// **'No generated pictures yet. Create one from chat or the test section, then come back here.'**
+  String get imageGenGalleryEmpty;
+
+  /// Detail screen title for a gallery item
+  ///
+  /// In en, this message translates to:
+  /// **'Picture details'**
+  String get imageGenGalleryDetail;
+
+  /// Section title for size and params
+  ///
+  /// In en, this message translates to:
+  /// **'Generation info'**
+  String get imageGenGalleryInfo;
+
+  /// Label for image file byte size
+  ///
+  /// In en, this message translates to:
+  /// **'File size'**
+  String get imageGenGalleryFileSize;
+
+  /// Positive prompt label in gallery detail
+  ///
+  /// In en, this message translates to:
+  /// **'Prompt'**
+  String get imageGenGalleryPositivePrompt;
+
+  /// Negative prompt label in gallery detail
+  ///
+  /// In en, this message translates to:
+  /// **'Negative prompt'**
+  String get imageGenGalleryNegativePrompt;
+
+  /// Timestamp label in gallery detail
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get imageGenGalleryCreatedAt;
+
+  /// Scheduler label in gallery detail
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduler'**
+  String get imageGenGalleryScheduler;
+
+  /// Confirm deleting a gallery image
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this picture from the gallery?'**
+  String get imageGenGalleryDeleteConfirm;
+
   /// One tap to picture the last character reply
   ///
   /// In en, this message translates to:
@@ -4352,18 +4418,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fill with AI'**
   String get fillImagePromptWithAi;
-
-  /// Imagine command label
-  ///
-  /// In en, this message translates to:
-  /// **'/imagine Command'**
-  String get imagineCommand;
-
-  /// Imagine command usage
-  ///
-  /// In en, this message translates to:
-  /// **'Usage: /imagine <prompt> [--width N] [--height N] [--steps N] [--cfg N] [--seed N]'**
-  String get imagineCommandUsage;
 
   /// Stable Diffusion label
   ///
