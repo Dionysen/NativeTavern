@@ -2883,10 +2883,10 @@ abstract class AppLocalizations {
   /// **'Exported {succeeded}. Failed {failed}.'**
   String characterLibraryExportSummary(int succeeded, int failed);
 
-  /// Shown when directory picking is unavailable
+  /// Shown when Android folder export is unavailable under scoped storage
   ///
   /// In en, this message translates to:
-  /// **'This device can’t pick a folder. Import cards as files instead.'**
+  /// **'Android can’t export to a folder path here. Use quick export library pack instead.'**
   String get characterLibraryFolderPickerUnavailable;
 
   /// Shown when Android SAF folder import finds no supported cards

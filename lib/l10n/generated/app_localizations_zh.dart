@@ -1503,11 +1503,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get characterLibraryFolderPickerUnavailable => '当前设备无法选择文件夹，请改用文件导入。';
+  String get characterLibraryFolderPickerUnavailable =>
+      '当前安卓无法直接写入所选文件夹，请改用「快速导出角色库包」。';
 
   @override
   String get characterLibraryImportFolderEmpty =>
-      'No character card files (.png / .json / .charx) were found in that folder.';
+      '该文件夹里没有找到角色卡文件（.png / .json / .charx）。';
 
   @override
   String get dissolveCharacterFolder => '解散文件夹';

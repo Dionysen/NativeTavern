@@ -1539,7 +1539,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get characterLibraryFolderPickerUnavailable =>
-      'This device can’t pick a folder. Import cards as files instead.';
+      'Android can’t export to a folder path here. Use quick export library pack instead.';
 
   @override
   String get characterLibraryImportFolderEmpty =>
