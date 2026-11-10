@@ -2324,6 +2324,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ActiveChatState? previous,
     ActiveChatState next,
   ) {
+    // Fire on the generating true→false edge only. Streamed replies usually
+    // already have their final text in state before isGenerating flips, so
+    // requiring a content diff vs `previous` permanently skips auto-gen.
     if (previous?.isGenerating != true || next.isGenerating) return;
     if (next.error != null) return;
 
@@ -2333,13 +2336,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       return;
     }
 
-    final prevLast =
-        previous == null ? null : lastCharacterTextReply(previous.messages);
     final nextLast = lastCharacterTextReply(next.messages);
-    if (nextLast == null || nextLast.content.trim().isEmpty) return;
-    if (prevLast?.id == nextLast.id &&
-        prevLast?.content == nextLast.content &&
-        prevLast?.currentSwipeIndex == nextLast.currentSwipeIndex) {
+    if (nextLast == null ||
+        nextLast.content.trim().isEmpty ||
+        nextLast.isPendingImageGen) {
       return;
     }
 
