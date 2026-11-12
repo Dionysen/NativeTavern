@@ -51,6 +51,7 @@ import 'package:native_tavern/presentation/screens/tags/tags_screen.dart';
 import 'package:native_tavern/presentation/providers/moments_compose_draft_provider.dart';
 import 'package:native_tavern/presentation/widgets/common/app_shell.dart';
 import 'package:native_tavern/presentation/widgets/common/master_detail_branch.dart';
+import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/presentation/router/shell_stack_page.dart';
 
 /// Route paths
@@ -727,7 +728,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final to = state.uri.queryParameters['to'];
           if (to == null || to.isEmpty) return const SizedBox.shrink();
-          return buildBottomStackPage(to);
+          return BottomStackSideNavMigrator(
+            target: to,
+            child: buildBottomStackPage(to),
+          );
         },
       ),
       GoRoute(

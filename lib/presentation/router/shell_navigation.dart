@@ -35,3 +35,60 @@ extension ShellTabNavigation on BuildContext {
     push(location, extra: extra);
   }
 }
+
+/// Moves a bottom-nav root overlay into the shell when the window grows wide
+/// enough for the side rail (chat list | detail, etc.).
+///
+/// Without this, `/stack?to=/chat/...` keeps covering the shell until popped.
+class BottomStackSideNavMigrator extends StatefulWidget {
+  const BottomStackSideNavMigrator({
+    super.key,
+    required this.target,
+    required this.child,
+  });
+
+  /// Shell-owned location originally opened via [AppRoutes.bottomStackLocation].
+  final String target;
+  final Widget child;
+
+  @override
+  State<BottomStackSideNavMigrator> createState() =>
+      _BottomStackSideNavMigratorState();
+}
+
+class _BottomStackSideNavMigratorState
+    extends State<BottomStackSideNavMigrator> {
+  bool _migrateQueued = false;
+
+  void _queueMigrateIfNeeded() {
+    if (!usesSideNavigation(context) || _migrateQueued) return;
+    _migrateQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _migrateQueued = false;
+      if (!mounted || !usesSideNavigation(context)) return;
+      context.go(widget.target);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _queueMigrateIfNeeded();
+  }
+
+  @override
+  void didUpdateWidget(covariant BottomStackSideNavMigrator oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.target != widget.target) {
+      _queueMigrateIfNeeded();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Width changes update [MediaQuery] without always hitting
+    // [didChangeDependencies]; re-check here so resize migrates live.
+    _queueMigrateIfNeeded();
+    return widget.child;
+  }
+}

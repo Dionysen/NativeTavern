@@ -156,6 +156,77 @@ void main() {
     expect(find.text('DETAIL'), findsNothing);
   });
 
+  testWidgets('bottom stack migrates into shell when widening to side nav',
+      (tester) async {
+    tester.view.physicalSize = const Size(390, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    late StatefulNavigationShell shell;
+    final router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: AppRoutes.stackPath,
+          builder: (context, state) {
+            final to = state.uri.queryParameters['to']!;
+            return BottomStackSideNavMigrator(
+              target: to,
+              child: Text('STACK $to'),
+            );
+          },
+        ),
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            shell = navigationShell;
+            return navigationShell;
+          },
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/',
+                  builder: (_, __) => const Text('HOME'),
+                ),
+                GoRoute(
+                  path: '/chat/:id',
+                  builder: (_, state) => Text('CHAT ${state.pathParameters['id']}'),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/characters',
+                  builder: (_, __) => const Text('CHARS'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpAndSettle();
+
+    router.push(AppRoutes.bottomStackLocation('/chat/42'));
+    await tester.pumpAndSettle();
+    expect(find.text('STACK /chat/42'), findsOneWidget);
+    expect(find.text('CHAT 42'), findsNothing);
+
+    tester.view.physicalSize = const Size(1200, 800);
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(find.text('CHAT 42'), findsOneWidget);
+    expect(find.text('STACK /chat/42'), findsNothing);
+    expect(shell.currentIndex, 0);
+    expect(router.canPop(), isFalse);
+  });
+
   testWidgets('side nav character open switches to the characters tab',
       (tester) async {
     tester.view.physicalSize = const Size(1200, 800);
