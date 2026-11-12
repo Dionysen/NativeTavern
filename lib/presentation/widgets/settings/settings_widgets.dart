@@ -285,18 +285,11 @@ class SettingsControlTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: titleStyle,
-                              ),
-                            ),
-                            if (titleExtras != null) ...titleExtras!,
-                          ],
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: titleStyle,
                         ),
                         if (subtitle != null && subtitle!.isNotEmpty) ...[
                           const SizedBox(height: 3),
@@ -310,14 +303,21 @@ class SettingsControlTile extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (trailing != null) ...[
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: trailing!,
-                      ),
+                  if (titleExtras != null && titleExtras!.isNotEmpty) ...[
+                    const SizedBox(width: 4),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 4,
+                      children: titleExtras!,
                     ),
+                  ],
+                  if (trailing != null) ...[
+                    SizedBox(
+                      width: titleExtras != null && titleExtras!.isNotEmpty
+                          ? 2
+                          : 8,
+                    ),
+                    trailing!,
                   ],
                 ],
               ),

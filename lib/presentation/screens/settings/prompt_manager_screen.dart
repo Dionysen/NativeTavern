@@ -987,102 +987,14 @@ class _PromptSectionTile extends StatelessWidget {
       description = _promptSectionDescription(section.type, l10n);
     }
 
-    IconData typeIcon;
-    if (section.isCustom) {
-      typeIcon = Icons.code;
-    } else {
-      switch (section.type) {
-        case PromptSectionType.systemPrompt:
-          typeIcon = Icons.settings_system_daydream;
-          break;
-        case PromptSectionType.persona:
-          typeIcon = Icons.person;
-          break;
-        case PromptSectionType.characterDescription:
-        case PromptSectionType.characterPersonality:
-          typeIcon = Icons.face;
-          break;
-        case PromptSectionType.characterScenario:
-          typeIcon = Icons.landscape;
-          break;
-        case PromptSectionType.exampleMessages:
-          typeIcon = Icons.chat_bubble_outline;
-          break;
-        case PromptSectionType.worldInfo:
-        case PromptSectionType.worldInfoAfter:
-          typeIcon = Icons.public;
-          break;
-        case PromptSectionType.authorNote:
-          typeIcon = Icons.note;
-          break;
-        case PromptSectionType.postHistoryInstructions:
-          typeIcon = Icons.history;
-          break;
-        case PromptSectionType.nsfw:
-          typeIcon = Icons.warning;
-          break;
-        case PromptSectionType.chatHistory:
-          typeIcon = Icons.forum;
-          break;
-        case PromptSectionType.enhanceDefinitions:
-          typeIcon = Icons.auto_fix_high;
-          break;
-        default:
-          typeIcon = Icons.text_snippet;
-      }
-    }
-
     final enabled = section.enabled;
-    final primary = colorScheme.primary;
-    final secondary = colorScheme.secondary;
     final muted = colorScheme.onSurfaceVariant;
-    final accent = section.isCustom ? secondary : primary;
-
-    final titleExtras = <Widget>[
-      if (section.isCustom)
-        Container(
-          margin: const EdgeInsets.only(left: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: secondary.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            l10n.customPrompt,
-            style: TextStyle(
-              fontSize: 10,
-              color: enabled ? secondary : muted,
-            ),
-          ),
-        ),
-      if (section.isEditable && !section.isCustom)
-        Padding(
-          padding: const EdgeInsets.only(left: 4),
-          child: Icon(
-            Icons.edit_note,
-            size: 16,
-            color: enabled ? primary : muted,
-          ),
-        ),
-      if (section.isCharacterOwned)
-        Padding(
-          padding: const EdgeInsets.only(left: 4),
-          child: Icon(
-            Icons.badge_outlined,
-            size: 16,
-            color: enabled ? muted : muted.withValues(alpha: 0.4),
-          ),
-        ),
-    ];
 
     return SettingsControlTile(
       dragIndex: index,
-      icon: typeIcon,
-      iconColor: enabled ? accent : muted,
       title: displayName,
       subtitle: description,
       maxSubtitleLines: 1,
-      titleExtras: titleExtras.isEmpty ? null : titleExtras,
       enabled: enabled,
       showDivider: showDivider,
       onTap: onEdit != null && enabled ? onEdit : null,
