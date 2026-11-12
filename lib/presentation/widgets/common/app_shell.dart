@@ -152,9 +152,23 @@ class AppShell extends ConsumerWidget {
               ],
             ),
             bottomNavigationBar: showBottomNav
-                ? _AppNavigation(
-                    vertical: false,
-                    navigationShell: navigationShell,
+                ? Builder(
+                    builder: (context) {
+                      // Traffic-light inset is for top chrome only. NavigationBar
+                      // also reads padding.left and would leave a dead gap.
+                      final media = MediaQuery.of(context);
+                      final nav = _AppNavigation(
+                        vertical: false,
+                        navigationShell: navigationShell,
+                      );
+                      if (!clearTrafficLights) return nav;
+                      return MediaQuery(
+                        data: media.copyWith(
+                          padding: media.padding.copyWith(left: 0),
+                        ),
+                        child: nav,
+                      );
+                    },
                   )
                 : null,
           );
