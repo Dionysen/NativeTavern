@@ -244,6 +244,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                         state: state,
                         hubPath: AppRoutes.home,
                         child: ChatScreen(
+                          key: ValueKey(id),
                           chatId: id,
                           initialMessageId: state.uri.queryParameters['message'],
                           initialDraft: state.uri.queryParameters['draft'],

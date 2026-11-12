@@ -183,34 +183,50 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     // gated by distanceFromEnd <= 1 inside ChatTailScrollPosition.
     _scrollController.followTail = () => !_userInteractingWithScroll;
     _scrollController.addListener(_syncScrollToBottomButton);
-    // Load chat and bookmarks when screen opens
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      ref.read(activeChatProvider.notifier).loadChat(widget.chatId);
-      ref.read(bookmarkNotifierProvider.notifier).loadBookmarks(widget.chatId);
-      ref.read(rpgChatProvider(widget.chatId).notifier).load();
-      // Refresh context usage to ensure fresh calculation
-      // This handles cases where world info was updated while not in chat
-      refreshContextUsageProviders(ref);
-      final draft = widget.initialDraft?.trim();
-      if (draft != null && draft.isNotEmpty) {
-        _messageController.text = draft;
-      }
-    });
-
+    _scheduleChatLoad(applyInitialDraft: true);
   }
 
   @override
   void didUpdateWidget(covariant ChatScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.chatId != widget.chatId ||
-        oldWidget.initialMessageId != widget.initialMessageId) {
-      _initialMessageJumpScheduled = false;
-      _highlightedMessageId = null;
-      _messageKeys.clear();
-      _chatAppBarVisible = true;
-      _appBarScrollAccumulator = 0;
+    if (oldWidget.chatId == widget.chatId &&
+        oldWidget.initialMessageId == widget.initialMessageId) {
+      return;
     }
+    _initialMessageJumpScheduled = false;
+    _highlightedMessageId = null;
+    _messageKeys.clear();
+    _chatAppBarVisible = true;
+    _appBarScrollAccumulator = 0;
+    // Side nav uses go_router.go; the chat pageKey is the route pattern, so the
+    // same State is reused when only :id changes and must reload explicitly.
+    if (oldWidget.chatId != widget.chatId) {
+      _pendingAttachments.clear();
+      _messageController.clear();
+      _showInputMenu = false;
+      _showChoicePanel = false;
+      _showStatusPanel = false;
+      _showImageGenPanel = false;
+      _scheduleChatLoad(applyInitialDraft: true);
+    }
+  }
+
+  void _scheduleChatLoad({required bool applyInitialDraft}) {
+    final chatId = widget.chatId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || widget.chatId != chatId) return;
+      ref.read(activeChatProvider.notifier).loadChat(chatId);
+      ref.read(bookmarkNotifierProvider.notifier).loadBookmarks(chatId);
+      ref.read(rpgChatProvider(chatId).notifier).load();
+      // Refresh context usage to ensure fresh calculation
+      // This handles cases where world info was updated while not in chat
+      refreshContextUsageProviders(ref);
+      if (!applyInitialDraft) return;
+      final draft = widget.initialDraft?.trim();
+      if (draft != null && draft.isNotEmpty) {
+        _messageController.text = draft;
+      }
+    });
   }
 
   void _scheduleInitialMessageJump(List<ChatMessage> messages) {

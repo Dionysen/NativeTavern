@@ -46,6 +46,7 @@ Widget buildBottomStackPage(String location) {
   final chatId = RegExp(r'^/chat/([^/]+)$').firstMatch(path)?.group(1);
   if (chatId != null) {
     return ChatScreen(
+      key: ValueKey(chatId),
       chatId: chatId,
       initialMessageId: query['message'],
       initialDraft: query['draft'],
