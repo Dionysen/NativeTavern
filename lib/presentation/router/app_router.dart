@@ -42,6 +42,7 @@ import 'package:native_tavern/presentation/screens/ai_config/ai_config_screen.da
 import 'package:native_tavern/presentation/screens/import/import_screen.dart';
 import 'package:native_tavern/presentation/screens/personas/personas_screen.dart';
 import 'package:native_tavern/presentation/screens/world_info/world_info_screen.dart';
+import 'package:native_tavern/presentation/screens/play/moments_compose_screen.dart';
 import 'package:native_tavern/presentation/screens/play/moments_screen.dart';
 import 'package:native_tavern/presentation/screens/play/play_hub_screen.dart';
 import 'package:native_tavern/presentation/screens/play/story_screen.dart';

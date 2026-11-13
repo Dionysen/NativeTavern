@@ -18,6 +18,45 @@ Color contextUsageLevelColor(ContextUsageLevel level) {
   }
 }
 
+String formatContextTokenCount(int count) {
+  if (count >= 1000000) {
+    return '${(count / 1000000).toStringAsFixed(1)}M';
+  }
+  if (count >= 1000) {
+    return '${(count / 1000).toStringAsFixed(1)}K';
+  }
+  return count.toString();
+}
+
+Color contextUsageComponentColor(String name) {
+  final nameLower = name.toLowerCase();
+  if (nameLower.contains('prompt section')) return Colors.blueGrey;
+  if (nameLower.contains('system')) return Colors.blue;
+  if (nameLower.contains('character') || nameLower.contains('description')) {
+    return Colors.purple;
+  }
+  if (nameLower.contains('personality')) return Colors.deepPurple;
+  if (nameLower.contains('scenario')) return Colors.indigo;
+  if (nameLower.contains('persona')) return Colors.teal;
+  if (nameLower.contains('world') || nameLower.contains('lore')) {
+    return Colors.orange;
+  }
+  if (nameLower.contains('author')) return Colors.pink;
+  if (nameLower.contains('example')) return Colors.brown;
+  if (nameLower.contains('post-history') || nameLower.contains('jailbreak')) {
+    return Colors.red;
+  }
+  if (nameLower.contains('nsfw')) return Colors.redAccent;
+  if (nameLower.contains('chat') || nameLower.contains('history')) {
+    return Colors.green;
+  }
+  if (nameLower.contains('summar')) return Colors.indigo;
+  if (nameLower.contains('user')) return Colors.cyan;
+  if (nameLower.contains('assistant')) return Colors.amber;
+  if (nameLower.contains('custom')) return Colors.deepOrange;
+  return Colors.blueGrey;
+}
+
 void showContextUsageDialog(BuildContext context) {
   showDialog<void>(
     context: context,
@@ -99,7 +138,7 @@ class ContextUsageIndicator extends ConsumerWidget {
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
-        onTap: () => _showDetailedUsageDialog(context, ref),
+        onTap: () => showContextUsageDialog(context),
         borderRadius: BorderRadius.circular(12),
         child: indicator,
       ),
@@ -108,13 +147,13 @@ class ContextUsageIndicator extends ConsumerWidget {
 
   Widget _buildCompactIndicator(BuildContext context, ContextUsage usage) {
     final percentage = usage.usagePercentage;
-    final color = _getUsageColor(usage.level);
+    final color = contextUsageLevelColor(usage.level);
     final scheme = Theme.of(context).colorScheme;
     final trackColor = scheme.surfaceContainerHighest;
-    final labelColor =
-        borderlessCompact ? scheme.onSurfaceVariant : color;
-    final mutedLabel =
-        borderlessCompact ? scheme.onSurfaceVariant.withValues(alpha: 0.85) : color.withOpacity(0.8);
+    final labelColor = borderlessCompact ? scheme.onSurfaceVariant : color;
+    final mutedLabel = borderlessCompact
+        ? scheme.onSurfaceVariant.withValues(alpha: 0.85)
+        : color.withValues(alpha: 0.8);
 
     final content = Row(
       mainAxisSize: MainAxisSize.min,
@@ -140,7 +179,7 @@ class ContextUsageIndicator extends ConsumerWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          '${_formatTokenCount(usage.totalTokens)} / ${_formatTokenCount(usage.maxContext)}',
+          '${formatContextTokenCount(usage.totalTokens)} / ${formatContextTokenCount(usage.maxContext)}',
           style: TextStyle(
             fontSize: 11,
             color: labelColor,
@@ -171,31 +210,15 @@ class ContextUsageIndicator extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
       child: content,
     );
-  }
-
-  Color _getUsageColor(ContextUsageLevel level) =>
-      contextUsageLevelColor(level);
-
-  String _formatTokenCount(int count) {
-    if (count >= 1000000) {
-      return '${(count / 1000000).toStringAsFixed(1)}M';
-    } else if (count >= 1000) {
-      return '${(count / 1000).toStringAsFixed(1)}K';
-    }
-    return count.toString();
-  }
-
-  void _showDetailedUsageDialog(BuildContext context, WidgetRef ref) {
-    showContextUsageDialog(context);
   }
 }
 
@@ -231,7 +254,7 @@ class ContextUsageDialog extends ConsumerWidget {
         children: [
           Icon(
             Icons.analytics,
-            color: _getUsageColor(usage.level),
+            color: contextUsageLevelColor(usage.level),
           ),
           const SizedBox(width: 8),
           Text(
@@ -288,7 +311,7 @@ class ContextUsageDialog extends ConsumerWidget {
 
   Widget _buildOverallUsageBar(BuildContext context, ContextUsage usage) {
     final percentage = usage.usagePercentage;
-    final color = _getUsageColor(usage.level);
+    final color = contextUsageLevelColor(usage.level);
     final trackColor = Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return Column(
@@ -319,7 +342,7 @@ class ContextUsageDialog extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.2),
+                  color: Colors.red.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
@@ -354,21 +377,21 @@ class ContextUsageDialog extends ConsumerWidget {
           _buildSummaryRow(
             context,
             l10n.totalTokens,
-            _formatTokenCount(usage.totalTokens),
+            formatContextTokenCount(usage.totalTokens),
             scheme.onSurface,
           ),
           const SizedBox(height: 8),
           _buildSummaryRow(
             context,
             l10n.maxContext,
-            _formatTokenCount(usage.maxContext),
+            formatContextTokenCount(usage.maxContext),
             scheme.onSurfaceVariant,
           ),
           const SizedBox(height: 8),
           _buildSummaryRow(
             context,
             l10n.remaining,
-            _formatTokenCount(usage.remainingTokens),
+            formatContextTokenCount(usage.remainingTokens),
             usage.remainingTokens > 0 ? Colors.green : Colors.red,
           ),
         ],
@@ -412,7 +435,8 @@ class ContextUsageDialog extends ConsumerWidget {
   ) {
     final scheme = Theme.of(context).colorScheme;
     final percentage = component.getPercentage(usage.maxContext);
-    final hasChildren = component.children != null && component.children!.isNotEmpty;
+    final hasChildren =
+        component.children != null && component.children!.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,7 +463,7 @@ class ContextUsageDialog extends ConsumerWidget {
                 ),
               ),
               Text(
-                '${_formatTokenCount(component.tokenCount)} (${percentage.toStringAsFixed(1)}%)',
+                '${formatContextTokenCount(component.tokenCount)} (${percentage.toStringAsFixed(1)}%)',
                 style: TextStyle(
                   color: scheme.onSurfaceVariant,
                   fontSize: 12,
@@ -456,7 +480,7 @@ class ContextUsageDialog extends ConsumerWidget {
             minHeight: 3,
             backgroundColor: scheme.surfaceContainerHighest,
             valueColor: AlwaysStoppedAnimation<Color>(
-              _getComponentColor(component.name),
+              contextUsageComponentColor(component.name),
             ),
           ),
         ),
@@ -488,7 +512,8 @@ class ContextUsageDialog extends ConsumerWidget {
             width: 8,
             height: 8,
             decoration: BoxDecoration(
-              color: _getComponentColor(component.name).withOpacity(0.5),
+              color: contextUsageComponentColor(component.name)
+                  .withValues(alpha: 0.5),
               shape: BoxShape.circle,
             ),
           ),
@@ -503,7 +528,7 @@ class ContextUsageDialog extends ConsumerWidget {
             ),
           ),
           Text(
-            '${_formatTokenCount(component.tokenCount)} (${percentage.toStringAsFixed(1)}%)',
+            '${formatContextTokenCount(component.tokenCount)} (${percentage.toStringAsFixed(1)}%)',
             style: TextStyle(
               color: muted,
               fontSize: 11,
@@ -512,57 +537,5 @@ class ContextUsageDialog extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  Color _getUsageColor(ContextUsageLevel level) {
-    switch (level) {
-      case ContextUsageLevel.low:
-        return Colors.green;
-      case ContextUsageLevel.medium:
-        return Colors.amber;
-      case ContextUsageLevel.high:
-        return Colors.orange;
-      case ContextUsageLevel.critical:
-        return Colors.red;
-    }
-  }
-
-  Color _getComponentColor(String name) {
-    // Assign consistent colors to component types
-    final nameLower = name.toLowerCase();
-    if (nameLower.contains('prompt section')) return Colors.blueGrey;
-    if (nameLower.contains('system')) return Colors.blue;
-    if (nameLower.contains('character') || nameLower.contains('description')) {
-      return Colors.purple;
-    }
-    if (nameLower.contains('personality')) return Colors.deepPurple;
-    if (nameLower.contains('scenario')) return Colors.indigo;
-    if (nameLower.contains('persona')) return Colors.teal;
-    if (nameLower.contains('world') || nameLower.contains('lore')) {
-      return Colors.orange;
-    }
-    if (nameLower.contains('author')) return Colors.pink;
-    if (nameLower.contains('example')) return Colors.brown;
-    if (nameLower.contains('post-history') || nameLower.contains('jailbreak')) {
-      return Colors.red;
-    }
-    if (nameLower.contains('nsfw')) return Colors.redAccent;
-    if (nameLower.contains('chat') || nameLower.contains('history')) {
-      return Colors.green;
-    }
-    if (nameLower.contains('summar')) return Colors.indigo;
-    if (nameLower.contains('user')) return Colors.cyan;
-    if (nameLower.contains('assistant')) return Colors.amber;
-    if (nameLower.contains('custom')) return Colors.deepOrange;
-    return Colors.blueGrey;
-  }
-
-  String _formatTokenCount(int count) {
-    if (count >= 1000000) {
-      return '${(count / 1000000).toStringAsFixed(1)}M';
-    } else if (count >= 1000) {
-      return '${(count / 1000).toStringAsFixed(1)}K';
-    }
-    return count.toString();
   }
 }

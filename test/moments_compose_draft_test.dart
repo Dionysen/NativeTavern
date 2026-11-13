@@ -6,7 +6,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/moments_compose_draft_provider.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
-import 'package:native_tavern/presentation/screens/play/moments_screen.dart';
+import 'package:native_tavern/presentation/screens/play/moments_compose_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

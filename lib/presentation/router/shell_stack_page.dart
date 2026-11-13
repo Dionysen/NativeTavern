@@ -4,6 +4,7 @@ import 'package:native_tavern/presentation/screens/character/character_detail_sc
 import 'package:native_tavern/presentation/screens/chat/chat_screen.dart';
 import 'package:native_tavern/presentation/screens/data_bank/data_bank_screen.dart';
 import 'package:native_tavern/presentation/screens/personas/personas_screen.dart';
+import 'package:native_tavern/presentation/screens/play/moments_compose_screen.dart';
 import 'package:native_tavern/presentation/screens/play/moments_screen.dart';
 import 'package:native_tavern/presentation/screens/play/story_screen.dart';
 import 'package:native_tavern/presentation/screens/rpg/rpg_scenario_editor_screen.dart';

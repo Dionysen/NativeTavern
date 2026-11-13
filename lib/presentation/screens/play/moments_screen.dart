@@ -5,19 +5,19 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:native_tavern/core/services/initialization_service.dart';
 import 'package:native_tavern/core/utils/image_save_utils.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/moment/moment_post.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';import 'package:native_tavern/domain/services/moment_service.dart';
+import 'package:native_tavern/domain/services/moment_service.dart';
+import 'package:native_tavern/presentation/screens/play/moments_palette.dart';
 import 'package:native_tavern/domain/services/moments_cover_storage.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/data/models/persona.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
-import 'package:native_tavern/presentation/providers/moments_compose_draft_provider.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
@@ -42,8 +42,8 @@ class MomentsScreen extends ConsumerWidget {
     final characters =
         ref.watch(characterListProvider).asData?.value ?? const <Character>[];
     final persona = ref.watch(activePersonaProvider).asData?.value;
-    final selfName = _personaName(persona, l10n.momentsAuthorMe);
-    final palette = _MomentsPalette.of(context);
+    final selfName = momentsPersonaName(persona, l10n.momentsAuthorMe);
+    final palette = MomentsPalette.of(context);
     final topInset = MediaQuery.paddingOf(context).top;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -89,7 +89,8 @@ class MomentsScreen extends ConsumerWidget {
                     palette: palette,
                     topInset: topInset,
                     initialCoverPath: coverPath,
-                    onCompose: () => context.openShell(AppRoutes.playMomentsCompose),
+                    onCompose: () =>
+                        context.openShell(AppRoutes.playMomentsCompose),
                   );
                 },
               ),
@@ -122,7 +123,7 @@ class _MomentsEnabledFeed extends ConsumerStatefulWidget {
   final List<Character> characters;
   final Persona? persona;
   final String selfName;
-  final _MomentsPalette palette;
+  final MomentsPalette palette;
   final double topInset;
   final String? initialCoverPath;
   final VoidCallback onCompose;
@@ -252,7 +253,7 @@ class _MomentsEnabledFeedState extends ConsumerState<_MomentsEnabledFeed>
             backgroundColor: widget.palette.cell,
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.transparent,
-            foregroundColor: Colors.white,
+            foregroundColor: widget.palette.text,
             title: Text(l10n.moments),
             expandedHeight: _headerHeight,
             toolbarHeight: kToolbarHeight,
@@ -323,8 +324,8 @@ class _MomentsEnabledFeedState extends ConsumerState<_MomentsEnabledFeed>
                         child: TextButton(
                           key: const Key('moments-change-cover'),
                           style: TextButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.black45,
+                            foregroundColor: MomentsPalette.onMedia,
+                            backgroundColor: MomentsPalette.mediaScrim,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 8,
@@ -376,10 +377,9 @@ class _MomentsEnabledFeedState extends ConsumerState<_MomentsEnabledFeed>
 }
 
 class _CoverBackground extends StatelessWidget {
-  const _CoverBackground({
-    required this.height,
-    this.imagePath,
-  })  : expandable = false;
+  const _CoverBackground({required this.height})
+      : expandable = false,
+        imagePath = null;
 
   const _CoverBackground.expandable({this.imagePath})
       : height = 0,
@@ -389,23 +389,14 @@ class _CoverBackground extends StatelessWidget {
   final bool expandable;
   final String? imagePath;
 
-  static const _defaultGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [
-      Color(0xFF2B3340),
-      Color(0xFF6B5344),
-      Color(0xFF8A6A4A),
-    ],
-  );
-
   @override
   Widget build(BuildContext context) {
-    final hasImage =
-        imagePath != null && imagePath!.isNotEmpty && File(imagePath!).existsSync();
+    final hasImage = imagePath != null &&
+        imagePath!.isNotEmpty &&
+        File(imagePath!).existsSync();
     final cover = DecoratedBox(
       decoration: BoxDecoration(
-        gradient: hasImage ? null : _defaultGradient,
+        gradient: hasImage ? null : MomentsPalette.coverGradient,
         image: hasImage
             ? DecorationImage(
                 image: FileImage(File(imagePath!)),
@@ -442,18 +433,18 @@ class _ProfileNameAndAvatar extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Padding(
-          padding: EdgeInsets.only(
+          padding: const EdgeInsets.only(
             right: 10,
             bottom: MomentsScreen._profileOverlap + 6,
           ),
           child: Text(
             selfName,
             style: const TextStyle(
-              color: Colors.white,
+              color: MomentsPalette.onMedia,
               fontSize: 17,
               fontWeight: FontWeight.w600,
               shadows: [
-                Shadow(color: Colors.black54, blurRadius: 8),
+                Shadow(color: MomentsPalette.mediaShadow, blurRadius: 8),
               ],
             ),
           ),
@@ -463,7 +454,7 @@ class _ProfileNameAndAvatar extends StatelessWidget {
           size: MomentsScreen._profileAvatarSize,
           radius: 6,
           imagePath: selfAvatarPath,
-          border: Border.all(color: Colors.white, width: 1.5),
+          border: Border.all(color: MomentsPalette.onMedia, width: 1.5),
         ),
       ],
     );
@@ -484,7 +475,7 @@ class _DisabledCoverWithProfile extends StatelessWidget {
   final double topInset;
   final String selfName;
   final String? selfAvatarPath;
-  final _MomentsPalette palette;
+  final MomentsPalette palette;
   final VoidCallback? onBack;
 
   @override
@@ -498,7 +489,7 @@ class _DisabledCoverWithProfile extends StatelessWidget {
             _CoverBackground(height: coverHeight + topInset),
             ColoredBox(
               color: palette.cell,
-              child: SizedBox(height: MomentsScreen._profileOverlap),
+              child: const SizedBox(height: MomentsScreen._profileOverlap),
             ),
           ],
         ),
@@ -506,8 +497,11 @@ class _DisabledCoverWithProfile extends StatelessWidget {
           top: topInset + 4,
           left: 4,
           child: ChromeIconButton(
-            icon: const Icon(Icons.arrow_back_ios_new,
-                size: 18, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              size: 18,
+              color: MomentsPalette.onMedia,
+            ),
             onPressed: onBack,
           ),
         ),
@@ -541,7 +535,7 @@ class _MomentRow extends ConsumerStatefulWidget {
   final Character? character;
   final Persona? persona;
   final String selfName;
-  final _MomentsPalette palette;
+  final MomentsPalette palette;
 
   @override
   ConsumerState<_MomentRow> createState() => _MomentRowState();
@@ -643,7 +637,8 @@ class _MomentRowState extends ConsumerState<_MomentRow> {
                         },
                       ),
                       const SizedBox(width: 8),
-                      ChromeIconButton(density: ChromeIconButtonDensity.compact, 
+                      ChromeIconButton(
+                        density: ChromeIconButtonDensity.compact,
                         key: Key('moment-like-${post.id}'),
                         tooltip: 'Like',
                         icon: Icon(
@@ -652,7 +647,7 @@ class _MomentRowState extends ConsumerState<_MomentRow> {
                               : Icons.favorite_border,
                           size: 18,
                           color: widget.item.likedByViewer
-                              ? Colors.redAccent
+                              ? MomentsPalette.liked
                               : palette.time,
                         ),
                         onPressed: () async {
@@ -700,7 +695,7 @@ class _CommentButton extends ConsumerWidget {
 
   final MomentPost post;
   final String authorName;
-  final _MomentsPalette palette;
+  final MomentsPalette palette;
   final ValueChanged<MomentComment> onPosted;
 
   @override
@@ -713,10 +708,10 @@ class _CommentButton extends ConsumerWidget {
         key: Key('moment-comment-${post.id}'),
         borderRadius: BorderRadius.circular(3),
         onTap: () => _promptComment(context, ref, l10n),
-        child: const SizedBox(
+        child: SizedBox(
           width: 32,
           height: 20,
-          child: Icon(Icons.more_horiz, size: 18, color: Color(0xFF576B95)),
+          child: Icon(Icons.more_horiz, size: 18, color: palette.name),
         ),
       ),
     );
@@ -732,7 +727,7 @@ class _CommentButton extends ConsumerWidget {
     final origin = box.localToGlobal(Offset.zero);
     final selected = await showMenu<String>(
       context: context,
-      color: const Color(0xFF4C4C4C),
+      color: MomentsPalette.menu,
       position: RelativeRect.fromLTRB(
         origin.dx - 88,
         origin.dy - 6,
@@ -745,7 +740,10 @@ class _CommentButton extends ConsumerWidget {
           height: 36,
           child: Text(
             l10n.momentsComment,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
+            style: const TextStyle(
+              color: MomentsPalette.onMedia,
+              fontSize: 14,
+            ),
           ),
         ),
       ],
@@ -792,7 +790,7 @@ class _CommentBox extends StatelessWidget {
 
   final String postId;
   final List<MomentComment> comments;
-  final _MomentsPalette palette;
+  final MomentsPalette palette;
   final VoidCallback onChanged;
 
   @override
@@ -831,7 +829,7 @@ class _CommentLine extends StatelessWidget {
 
   final String postId;
   final MomentComment comment;
-  final _MomentsPalette palette;
+  final MomentsPalette palette;
   final VoidCallback onChanged;
 
   @override
@@ -1032,7 +1030,7 @@ class _MomentPhoto extends StatelessWidget {
   Future<void> _openPreview(BuildContext context, File image) {
     return showDialog<void>(
       context: context,
-      barrierColor: Colors.black,
+      barrierColor: MomentsPalette.viewer,
       builder: (_) => _MomentPhotoPreview(image: image),
     );
   }
@@ -1056,7 +1054,7 @@ class _MomentPhotoPreviewState extends State<_MomentPhotoPreview> {
     return ScaffoldMessenger(
       key: _messengerKey,
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: MomentsPalette.viewer,
         body: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => Navigator.pop(context),
@@ -1160,7 +1158,7 @@ class _SquareAvatar extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(radius),
           border: border,
-          color: const Color(0xFFB7C4D6),
+          color: MomentsPalette.avatarFill,
         ),
         child: Padding(
           padding: EdgeInsets.all(borderWidth),
@@ -1184,205 +1182,16 @@ class _Initial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: const Color(0xFF8FA4C2),
+      color: MomentsPalette.avatarInitial,
       child: Center(
         child: Text(
           text,
           style: const TextStyle(
-            color: Colors.white,
+            color: MomentsPalette.onMedia,
             fontWeight: FontWeight.w600,
             fontSize: 18,
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Full-page moments composer. Owned by go_router so play-hub switches can
-/// replace it (auto-cancel) instead of stacking above the shell child.
-class MomentsComposeScreen extends ConsumerStatefulWidget {
-  const MomentsComposeScreen({super.key});
-
-  @override
-  ConsumerState<MomentsComposeScreen> createState() =>
-      _MomentsComposeScreenState();
-}
-
-class _MomentsComposeScreenState extends ConsumerState<MomentsComposeScreen> {
-  late final TextEditingController _controller;
-  String? _imagePath;
-
-  @override
-  void initState() {
-    super.initState();
-    final draft = ref.read(momentsComposeDraftProvider);
-    _controller = TextEditingController(text: draft?.body ?? '');
-    _imagePath = draft?.imagePath;
-    // Drop a stale file path that no longer exists on disk.
-    final path = _imagePath;
-    if (path != null && path.isNotEmpty && !File(path).existsSync()) {
-      _imagePath = null;
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  bool get _hasContent =>
-      _controller.text.trim().isNotEmpty ||
-      (_imagePath != null && _imagePath!.isNotEmpty);
-
-  bool get _canSend => _hasContent;
-
-  /// Keep the single draft slot in sync while editing so leave guards
-  /// ([confirmMomentsComposeLeave] / [GoRoute.onExit]) see current content.
-  void _syncDraftSlot() {
-    final drafts = ref.read(momentsComposeDraftProvider.notifier);
-    if (_hasContent) {
-      drafts.save(body: _controller.text, imagePath: _imagePath);
-    } else {
-      drafts.clear();
-    }
-  }
-
-  void _leave() {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go(AppRoutes.playMoments);
-    }
-  }
-
-  Future<void> _submit() async {
-    if (!_canSend) return;
-    final l10n = AppLocalizations.of(context);
-    final persona = ref.read(activePersonaProvider).asData?.value;
-    final selfName = _personaName(persona, l10n.momentsAuthorMe);
-    final service = ref.read(momentServiceProvider);
-
-    // Clear first so onExit does not re-prompt after a successful publish.
-    await ref.read(momentsComposeDraftProvider.notifier).clear();
-
-    final imagePath = _imagePath == null
-        ? null
-        : await service.importImage(_imagePath!);
-    await service.publishPlayerPost(
-      body: _controller.text.trim(),
-      imagePath: imagePath,
-      authorName: selfName,
-    );
-    ref.invalidate(pagedMomentFeedProvider);
-    if (mounted) _leave();
-  }
-
-  Future<void> _pickPhoto() async {
-    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (image == null || !mounted) return;
-    setState(() => _imagePath = image.path);
-    _syncDraftSlot();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final palette = _MomentsPalette.of(context);
-    // Leave confirmation (cancel / back / hub switches) is owned by
-    // GoRoute.onExit → confirmMomentsComposeLeave.
-    return Scaffold(
-      backgroundColor: palette.cell,
-      body: Column(
-        children: [
-          SafeArea(
-            bottom: false,
-            child: SizedBox(
-              width: MediaQuery.sizeOf(context).width,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
-                child: Row(
-                  children: [
-                    TextButton(
-                      onPressed: _leave,
-                      child: Text(l10n.cancel),
-                    ),
-                    const Spacer(),
-                    FilledButton(
-                      key: const Key('moments-compose-send'),
-                      onPressed: _canSend ? _submit : null,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF07C160),
-                        disabledBackgroundColor:
-                            const Color(0xFF07C160).withValues(alpha: 0.35),
-                        foregroundColor: Colors.white,
-                        disabledForegroundColor:
-                            Colors.white.withValues(alpha: 0.7),
-                      ),
-                      child: Text(l10n.momentsCompose),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-              children: [
-                TextField(
-                  key: const Key('moments-compose-body'),
-                  controller: _controller,
-                  maxLines: 6,
-                  onChanged: (_) {
-                    setState(() {});
-                    _syncDraftSlot();
-                  },
-                  decoration: InputDecoration(
-                    hintText: l10n.momentsComposeHint,
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    filled: false,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: _imagePath == null
-                      ? InkWell(
-                          key: const Key('moments-compose-photo'),
-                          onTap: _pickPhoto,
-                          child: Container(
-                            width: 96,
-                            height: 96,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: palette.divider),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                            child:
-                                Icon(Icons.add, size: 36, color: palette.time),
-                          ),
-                        )
-                      : GestureDetector(
-                          key: const Key('moments-compose-photo'),
-                          onTap: _pickPhoto,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(2),
-                            child: Image.file(
-                              File(_imagePath!),
-                              width: 96,
-                              height: 96,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1409,27 +1218,6 @@ class _CenteredMessage extends StatelessWidget {
   }
 }
 
-class _MomentsPalette {
-  const _MomentsPalette._({required this.dark});
-
-  factory _MomentsPalette.of(BuildContext context) {
-    return _MomentsPalette._(
-      dark: Theme.of(context).brightness == Brightness.dark,
-    );
-  }
-
-  final bool dark;
-
-  Color get page => dark ? const Color(0xFF111111) : const Color(0xFFEDEDED);
-  Color get cell => dark ? const Color(0xFF191919) : Colors.white;
-  Color get name => const Color(0xFF576B95);
-  Color get text => dark ? const Color(0xFFEDEDED) : const Color(0xFF111111);
-  Color get time => const Color(0xFF888888);
-  Color get commentBox =>
-      dark ? const Color(0xFF2A2A2A) : const Color(0xFFF7F7F7);
-  Color get divider => dark ? const Color(0xFF2C2C2C) : const Color(0xFFE5E5E5);
-}
-
 class _CoverGrainPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -1447,12 +1235,6 @@ class _CoverGrainPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-String _personaName(Persona? persona, String fallback) {
-  final name = persona?.name.trim();
-  if (name == null || name.isEmpty) return fallback;
-  return name;
 }
 
 @visibleForTesting

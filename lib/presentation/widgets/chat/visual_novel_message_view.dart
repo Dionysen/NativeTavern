@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:native_tavern/data/models/chat.dart';
 import 'package:native_tavern/data/models/character.dart';
@@ -13,7 +12,6 @@ import 'package:native_tavern/presentation/providers/background_providers.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
-import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/widgets/chat/message_content_widget.dart';
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
@@ -128,7 +126,9 @@ class _VisualNovelMessageViewState
           ChromeIconButton(
             icon: Icon(
               Icons.chevron_left,
-              color: _currentIndex > 0 ? Colors.white : Colors.white38,
+              color: _currentIndex > 0
+                  ? _VnChrome.onStage
+                  : _VnChrome.onStageDisabled,
             ),
             onPressed: _currentIndex > 0
                 ? () {
@@ -143,13 +143,13 @@ class _VisualNovelMessageViewState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.black38,
+              color: _VnChrome.scrim,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               '${_currentIndex + 1} / ${widget.messages.length}',
               style: const TextStyle(
-                color: Colors.white,
+                color: _VnChrome.onStage,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
@@ -160,8 +160,8 @@ class _VisualNovelMessageViewState
             icon: Icon(
               Icons.chevron_right,
               color: _currentIndex < widget.messages.length - 1
-                  ? Colors.white
-                  : Colors.white38,
+                  ? _VnChrome.onStage
+                  : _VnChrome.onStageDisabled,
             ),
             onPressed: _currentIndex < widget.messages.length - 1
                 ? () {
@@ -360,6 +360,7 @@ class _VisualNovelMessageViewState
         widget.characterForMessage?.call(message) ?? widget.character;
     final characterId = character?.id ?? message.characterId;
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final showCharacterAvatar = ref.watch(
       appSettingsProvider.select((s) => s.showCharacterAvatar),
     );
@@ -376,12 +377,11 @@ class _VisualNovelMessageViewState
           radius: 18,
           errorBuilder: (_, __, ___) => CircleAvatar(
             radius: 18,
-            backgroundColor: AppTheme.accentColor.withValues(alpha: 0.3),
-            child: const Icon(Icons.person, size: 18, color: Colors.white),
+            backgroundColor: scheme.primary.withValues(alpha: 0.3),
+            child: const Icon(Icons.person, size: 18, color: _VnChrome.onStage),
           ),
         );
       } else if (isUser) {
-        final scheme = Theme.of(context).colorScheme;
         final personaPath =
             ref.watch(activePersonaProvider).valueOrNull?.avatarPath;
         Widget userFallback() => CircleAvatar(
@@ -399,8 +399,9 @@ class _VisualNovelMessageViewState
       } else {
         avatar = CircleAvatar(
           radius: 18,
-          backgroundColor: AppTheme.accentColor.withValues(alpha: 0.3),
-          child: const Icon(Icons.smart_toy, size: 18, color: Colors.white),
+          backgroundColor: scheme.primary.withValues(alpha: 0.3),
+          child:
+              const Icon(Icons.smart_toy, size: 18, color: _VnChrome.onStage),
         );
       }
 
@@ -425,7 +426,7 @@ class _VisualNovelMessageViewState
         Text(
           isUser ? 'You' : (character?.name ?? 'AI'),
           style: TextStyle(
-            color: isUser ? AppTheme.accentColor : Colors.amber,
+            color: isUser ? scheme.primary : scheme.tertiary,
             fontSize: 15,
             fontWeight: FontWeight.bold,
           ),
@@ -441,11 +442,11 @@ class _VisualNovelMessageViewState
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: Colors.greenAccent,
+                color: scheme.primary,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.greenAccent.withValues(alpha: 0.5),
+                    color: scheme.primary.withValues(alpha: 0.5),
                     blurRadius: 6,
                   ),
                 ],
@@ -472,8 +473,8 @@ class _VisualNovelMessageViewState
               child: Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(
-                  color: Colors.white,
+                decoration: const BoxDecoration(
+                  color: _VnChrome.onStage,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -508,7 +509,9 @@ class _VisualNovelMessageViewState
               icon: Icon(
                 Icons.arrow_back_ios,
                 size: 16,
-                color: currentSwipeIndex > 0 ? Colors.white70 : Colors.white24,
+                color: currentSwipeIndex > 0
+                    ? _VnChrome.onStageMuted
+                    : _VnChrome.onStageFaint,
               ),
               onPressed: currentSwipeIndex > 0
                   ? () => widget.onSwipe(currentSwipeIndex - 1, message.id)
@@ -517,12 +520,13 @@ class _VisualNovelMessageViewState
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white10,
+                color: _VnChrome.chip,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 '${currentSwipeIndex + 1} / $totalSwipes',
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                style: const TextStyle(
+                    color: _VnChrome.onStageMuted, fontSize: 12),
               ),
             ),
             ChromeIconButton(
@@ -530,8 +534,8 @@ class _VisualNovelMessageViewState
                 Icons.arrow_forward_ios,
                 size: 16,
                 color: currentSwipeIndex < totalSwipes - 1
-                    ? Colors.white70
-                    : Colors.white24,
+                    ? _VnChrome.onStageMuted
+                    : _VnChrome.onStageFaint,
               ),
               onPressed: currentSwipeIndex < totalSwipes - 1
                   ? () => widget.onSwipe(currentSwipeIndex + 1, message.id)
@@ -544,7 +548,7 @@ class _VisualNovelMessageViewState
               icon: const Icon(
                 Icons.photo_outlined,
                 size: 18,
-                color: Colors.white70,
+                color: _VnChrome.onStageMuted,
               ),
               onPressed: () => widget.onQuickImagine!(message),
             ),
@@ -552,4 +556,15 @@ class _VisualNovelMessageViewState
       ),
     );
   }
+}
+
+/// Foreground colors for the darkened novel stage. They stay light because the
+/// panel is always blended toward black, independent of the page theme.
+abstract final class _VnChrome {
+  static const onStage = Color(0xFFFFFFFF);
+  static const onStageMuted = Color(0xB3FFFFFF);
+  static const onStageDisabled = Color(0x62FFFFFF);
+  static const onStageFaint = Color(0x3DFFFFFF);
+  static const chip = Color(0x1AFFFFFF);
+  static const scrim = Color(0x61000000);
 }

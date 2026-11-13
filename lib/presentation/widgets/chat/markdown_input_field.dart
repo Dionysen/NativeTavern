@@ -1,9 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:native_tavern/domain/services/markdown_hotkey_service.dart';
+import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/theme/zephyr_chat_chrome.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
-import 'package:native_tavern/l10n/generated/app_localizations.dart';
+
+IconData _markdownFormatIcon(MarkdownFormat format) {
+  switch (format) {
+    case MarkdownFormat.bold:
+      return Icons.format_bold;
+    case MarkdownFormat.italic:
+      return Icons.format_italic;
+    case MarkdownFormat.underline:
+      return Icons.format_underline;
+    case MarkdownFormat.strikethrough:
+      return Icons.format_strikethrough;
+    case MarkdownFormat.inlineCode:
+      return Icons.code;
+    case MarkdownFormat.codeBlock:
+      return Icons.integration_instructions;
+    case MarkdownFormat.link:
+      return Icons.link;
+    case MarkdownFormat.quote:
+      return Icons.format_quote;
+    case MarkdownFormat.heading1:
+    case MarkdownFormat.heading2:
+    case MarkdownFormat.heading3:
+      return Icons.title;
+    case MarkdownFormat.bulletList:
+      return Icons.format_list_bulleted;
+    case MarkdownFormat.numberedList:
+      return Icons.format_list_numbered;
+    case MarkdownFormat.horizontalRule:
+      return Icons.horizontal_rule;
+  }
+}
 
 /// A text input field with markdown formatting support
 ///
@@ -244,7 +274,7 @@ class _ToolbarButton extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Icon(
-            format.icon,
+            _markdownFormatIcon(format),
             size: 18,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -427,7 +457,7 @@ class MarkdownToolbar extends StatelessWidget {
       value: format,
       child: Row(
         children: [
-          Icon(format.icon, size: 18),
+          Icon(_markdownFormatIcon(format), size: 18),
           const SizedBox(width: 12),
           Text(_markdownFormatName(format, l10n)),
           if (format.shortcutHint != null) ...[
