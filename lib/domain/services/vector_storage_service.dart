@@ -236,9 +236,9 @@ class VectorStorageService {
       }
 
       chunks.add(text.substring(start, end).trim());
-      start = end - overlap;
-      if (start < 0) start = 0;
-      if (start >= text.length) break;
+      final next = end - overlap;
+      if (next <= start) break;
+      start = next;
     }
 
     return chunks.where((c) => c.isNotEmpty).toList();
