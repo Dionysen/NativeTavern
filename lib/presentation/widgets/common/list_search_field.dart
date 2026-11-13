@@ -9,17 +9,19 @@ class ListSearchField extends StatelessWidget {
     this.controller,
     this.onChanged,
     this.suffix,
+    this.padding = const EdgeInsets.fromLTRB(12, 8, 12, 8),
   });
 
   final String hintText;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
   final Widget? suffix;
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      padding: padding,
       child: SizedBox(
         height: ChromeControls.fieldHeight,
         child: TextField(

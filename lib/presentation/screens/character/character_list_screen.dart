@@ -535,11 +535,6 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                     tooltip: l10n.import,
                     onPressed: () => context.push(AppRoutes.import_),
                   ),
-                  ChromeIconButton(
-                    icon: const Icon(Icons.add),
-                    tooltip: l10n.createCharacter,
-                    onPressed: () => context.push(AppRoutes.characterCreate),
-                  ),
                   AdaptiveActionMenuButton<String>(
                     tooltip: l10n.moreOptions,
                     title: l10n.characterLibraryManage,
@@ -651,6 +646,13 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                 ),
               ],
             ),
+            floatingActionButton: selectionMode
+                ? null
+                : FloatingActionButton(
+                    onPressed: () => context.push(AppRoutes.characterCreate),
+                    tooltip: l10n.createCharacter,
+                    child: const Icon(Icons.add),
+                  ),
         );
       },
     );
@@ -877,39 +879,51 @@ class _SearchBar extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final sortActive = sortOption != CharacterSortOption.modifiedAtDesc;
 
+    final suffixActions = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (showFolderScopeToggle)
+          ChromeIconButton(
+            density: ChromeIconButtonDensity.compact,
+            icon: Icon(
+              searchEntireLibrary ? Icons.public : Icons.folder_outlined,
+            ),
+            isSelected: searchEntireLibrary,
+            tooltip: searchEntireLibrary
+                ? l10n.characterSearchScopeGlobal
+                : l10n.characterSearchScopeFolder,
+            onPressed: onToggleSearchScope,
+          ),
+        ChromeIconButton(
+          density: ChromeIconButtonDensity.compact,
+          icon: const Icon(Icons.sort),
+          isSelected: sortActive,
+          tooltip: l10n.sortBy,
+          onPressed: onOpenSort,
+        ),
+        ChromeIconButton(
+          density: ChromeIconButtonDensity.compact,
+          icon: const Icon(Icons.filter_list),
+          isSelected: tagFilterActive,
+          tooltip: l10n.filterByTags,
+          onPressed: onOpenTagFilter,
+        ),
+      ],
+    );
+
     return ListSearchField(
       hintText: l10n.searchCharacters,
       onChanged: onChanged,
-      suffix: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (showFolderScopeToggle)
-            ChromeIconButton(
-              density: ChromeIconButtonDensity.compact,
-              icon: Icon(
-                searchEntireLibrary ? Icons.public : Icons.folder_outlined,
-              ),
-              isSelected: searchEntireLibrary,
-              tooltip: searchEntireLibrary
-                  ? l10n.characterSearchScopeGlobal
-                  : l10n.characterSearchScopeFolder,
-              onPressed: onToggleSearchScope,
-            ),
-          ChromeIconButton(
-            density: ChromeIconButtonDensity.compact,
-            icon: const Icon(Icons.sort),
-            isSelected: sortActive,
-            tooltip: l10n.sortBy,
-            onPressed: onOpenSort,
-          ),
-          ChromeIconButton(
-            density: ChromeIconButtonDensity.compact,
-            icon: const Icon(Icons.filter_list),
-            isSelected: tagFilterActive,
-            tooltip: l10n.filterByTags,
-            onPressed: onOpenTagFilter,
-          ),
-        ],
+      padding: const EdgeInsets.fromLTRB(
+        kCharacterBrowseHorizontalInset,
+        8,
+        kCharacterBrowseHorizontalInset,
+        8,
+      ),
+      suffix: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const ClampingScrollPhysics(),
+        child: suffixActions,
       ),
     );
   }
@@ -941,11 +955,23 @@ class _CharacterGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-        builder: (context, constraints) => GridView.builder(
+        builder: (context, constraints) {
+          final contentWidth = _characterBrowseContentWidth(constraints.maxWidth);
+          return GridView.builder(
               key: const PageStorageKey<String>('character-browse-grid'),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(
+                kCharacterBrowseHorizontalInset,
+                16,
+                kCharacterBrowseHorizontalInset,
+                16,
+              ),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: _gridColumns(constraints.maxWidth, 160, 12),
+                crossAxisCount: _gridColumns(
+                  viewportWidth: constraints.maxWidth,
+                  contentWidth: contentWidth,
+                  minimumTileWidth: 160,
+                  spacing: 12,
+                ),
                 childAspectRatio: 0.7,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
@@ -977,7 +1003,8 @@ class _CharacterGridView extends StatelessWidget {
                   ),
                 );
               },
-            ));
+            );
+        });
   }
 }
 
@@ -1010,7 +1037,9 @@ class _CharacterListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.builder(
       key: const PageStorageKey<String>('character-browse-list'),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kCharacterBrowseHorizontalInset,
+      ),
       itemCount: _itemCount,
       itemBuilder: (context, index) {
         if (index < folders.length) {
@@ -1078,7 +1107,9 @@ class _CharacterSimpleListView extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return ListView.builder(
       key: const PageStorageKey<String>('character-browse-simple-list'),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kCharacterBrowseHorizontalInset,
+      ),
       itemCount: _itemCount,
       itemExtent: itemExtent,
       itemBuilder: (context, index) {
@@ -1283,11 +1314,23 @@ class _CharacterCompactGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-        builder: (context, constraints) => GridView.builder(
+        builder: (context, constraints) {
+          final contentWidth = _characterBrowseContentWidth(constraints.maxWidth);
+          return GridView.builder(
               key: const PageStorageKey<String>('character-browse-compact-grid'),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(
+                kCharacterBrowseHorizontalInset,
+                16,
+                kCharacterBrowseHorizontalInset,
+                16,
+              ),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: _gridColumns(constraints.maxWidth, 110, 8),
+                crossAxisCount: _gridColumns(
+                  viewportWidth: constraints.maxWidth,
+                  contentWidth: contentWidth,
+                  minimumTileWidth: 110,
+                  spacing: 8,
+                ),
                 childAspectRatio: 0.65,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
@@ -1320,16 +1363,30 @@ class _CharacterCompactGridView extends StatelessWidget {
                   ),
                 );
               },
-            ));
+            );
+        });
   }
 }
 
-int _gridColumns(double width, double minimumTileWidth, double spacing) {
-  var count = ((width - 32 + spacing) / (minimumTileWidth + spacing))
-      .floor()
-      .clamp(1, 12);
+double _characterBrowseContentWidth(double viewportWidth) {
+  final inset = kCharacterBrowseHorizontalInset * 2;
+  return (viewportWidth - inset).clamp(0.0, double.infinity);
+}
+
+int _gridColumns({
+  required double viewportWidth,
+  required double contentWidth,
+  required double minimumTileWidth,
+  required double spacing,
+}) {
+  if (contentWidth <= 0) return 1;
+  var count =
+      ((contentWidth + spacing) / (minimumTileWidth + spacing)).floor().clamp(
+    1,
+    12,
+  );
   // Wider containers use symmetric columns, without identifying a device.
-  if (width >= 600 && count > 1 && count.isOdd) count--;
+  if (viewportWidth >= 600 && count > 1 && count.isOdd) count--;
   return count;
 }
 
@@ -1520,28 +1577,15 @@ class _EmptyState extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ZephyrChatChrome.withComposerShadow(
-                context: context,
-                child: ElevatedButton.icon(
-                  onPressed: () => context.push(AppRoutes.characterCreate),
-                  icon: const Icon(Icons.add),
-                  label: Text(l10n.createCharacter),
-                ),
-              ),
-              const SizedBox(width: 16),
-              ZephyrChatChrome.withComposerShadow(
-                context: context,
-                child: OutlinedButton.icon(
-                  onPressed: () => context.push(AppRoutes.import_),
-                  icon: const Icon(Icons.file_download),
-                  label: Text(l10n.import),
-                ),
-              ),
-            ],
+          ZephyrChatChrome.withComposerShadow(
+            context: context,
+            child: OutlinedButton.icon(
+              onPressed: () => context.push(AppRoutes.import_),
+              icon: const Icon(Icons.file_download),
+              label: Text(l10n.import),
+            ),
           ),
+          const SizedBox(height: 80),
         ],
       ),
     );

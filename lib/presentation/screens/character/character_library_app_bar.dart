@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:native_tavern/data/models/character_folder.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
+/// Horizontal inset shared by breadcrumb, search, and character browse lists.
+const double kCharacterBrowseHorizontalInset = 16;
+
 /// Horizontal breadcrumb under the AppBar title while browsing folders.
 class CharacterLibraryBreadcrumb extends StatelessWidget {
   const CharacterLibraryBreadcrumb({
@@ -32,7 +35,8 @@ class CharacterLibraryBreadcrumb extends StatelessWidget {
       height: 32,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding:
+            const EdgeInsets.symmetric(horizontal: kCharacterBrowseHorizontalInset),
         children: [
           TextButton(
             style: TextButton.styleFrom(
