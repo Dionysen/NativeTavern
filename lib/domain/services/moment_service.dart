@@ -158,26 +158,30 @@ final class MomentService {
     int limit = 24,
     int offset = 0,
   }) async {
-    if (offset == 0) await rehomeMispostedReplies();
     final posts = await _visiblePosts(
       await _moments.listPage(limit: limit, offset: offset),
     );
     return _loadFeedItems(posts);
   }
 
+  /// Maintenance pass; safe to run after the feed is visible.
+  Future<int> runDeferredFeedMaintenance() => rehomeMispostedReplies();
+
   Future<List<MomentFeedItem>> _loadFeedItems(List<MomentPost> posts) async {
-    final items = <MomentFeedItem>[];
-    for (final post in posts) {
-      items.add(
+    if (posts.isEmpty) return const [];
+    final ids = posts.map((post) => post.id).toList(growable: false);
+    final commentsByPost = await _moments.listCommentsByPostIds(ids);
+    final likesByPost = await _moments.likeCountsByPostIds(ids);
+    final likedIds = await _moments.likedPostIdsAmong(ids, userAuthorId);
+    return [
+      for (final post in posts)
         MomentFeedItem(
           post: post,
-          comments: await _moments.listComments(post.id),
-          likeCount: await _moments.likeCount(post.id),
-          likedByViewer: await _moments.hasLiked(post.id, userAuthorId),
+          comments: commentsByPost[post.id] ?? const [],
+          likeCount: likesByPost[post.id] ?? 0,
+          likedByViewer: likedIds.contains(post.id),
         ),
-      );
-    }
-    return items;
+    ];
   }
 
   Future<MomentPost> publishPlayerPost({
@@ -530,9 +534,7 @@ final class MomentService {
   Future<List<MomentPost>> _visiblePosts(List<MomentPost> posts) async {
     final characters = _characters;
     if (characters == null) return posts;
-    final activeIds = (await characters.getAllCharacters())
-        .map((character) => character.id)
-        .toSet();
+    final activeIds = await characters.activeCharacterIds();
     return posts
         .where((post) =>
             post.origin != MomentPostOrigin.character ||

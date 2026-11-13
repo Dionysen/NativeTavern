@@ -24,11 +24,24 @@ abstract interface class MomentRepository {
 
   Future<List<MomentComment>> listComments(String postId);
 
+  /// Batch load for feed pages. Keys are post ids present in [postIds].
+  Future<Map<String, List<MomentComment>>> listCommentsByPostIds(
+    List<String> postIds,
+  );
+
   Future<void> deleteComment(String commentId);
 
   Future<bool> toggleLike(String postId, String authorId, {DateTime? at});
 
   Future<int> likeCount(String postId);
 
+  Future<Map<String, int>> likeCountsByPostIds(List<String> postIds);
+
   Future<bool> hasLiked(String postId, String authorId);
+
+  /// Post ids in [postIds] that [authorId] has liked.
+  Future<Set<String>> likedPostIdsAmong(
+    List<String> postIds,
+    String authorId,
+  );
 }

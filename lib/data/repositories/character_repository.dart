@@ -38,6 +38,18 @@ class CharacterRepository {
     return rows.where((row) => !row.isDeleted).map(_characterFromRow).toList();
   }
 
+  /// Active character ids only (for lightweight feed filtering).
+  Future<Set<String>> activeCharacterIds() async {
+    final rows = await (_db.selectOnly(_db.characters)
+          ..addColumns([_db.characters.id])
+          ..where(_db.characters.isDeleted.equals(false)))
+        .get();
+    return {
+      for (final row in rows)
+        if (row.read(_db.characters.id) != null) row.read(_db.characters.id)!,
+    };
+  }
+
   /// Load characters by id (skips missing / soft-deleted).
   Future<List<models.Character>> getCharactersByIds(
     Iterable<String> ids,

@@ -92,6 +92,28 @@ class DriftMomentRepository implements MomentRepository {
   }
 
   @override
+  Future<Map<String, List<MomentComment>>> listCommentsByPostIds(
+    List<String> postIds,
+  ) async {
+    if (postIds.isEmpty) return const {};
+    final unique = postIds.toSet().toList(growable: false);
+    final rows = await (_database.select(_database.momentComments)
+          ..where((table) => table.postId.isIn(unique))
+          ..orderBy([
+            (table) => OrderingTerm.asc(table.postId),
+            (table) => OrderingTerm.asc(table.createdAt),
+          ]))
+        .get();
+    final grouped = <String, List<MomentComment>>{};
+    for (final row in rows) {
+      grouped
+          .putIfAbsent(row.postId, () => <MomentComment>[])
+          .add(_toComment(row));
+    }
+    return grouped;
+  }
+
+  @override
   Future<void> deleteComment(String commentId) async {
     await (_database.delete(_database.momentComments)
           ..where((table) => table.id.equals(commentId)))
@@ -133,12 +155,50 @@ class DriftMomentRepository implements MomentRepository {
   }
 
   @override
+  Future<Map<String, int>> likeCountsByPostIds(List<String> postIds) async {
+    if (postIds.isEmpty) return const {};
+    final unique = postIds.toSet().toList(growable: false);
+    final rows = await (_database.selectOnly(_database.momentPostLikes)
+          ..addColumns([
+            _database.momentPostLikes.postId,
+            _database.momentPostLikes.authorId.count(),
+          ])
+          ..where(_database.momentPostLikes.postId.isIn(unique))
+          ..groupBy([_database.momentPostLikes.postId]))
+        .get();
+    return {
+      for (final row in rows)
+        row.read(_database.momentPostLikes.postId)!:
+            row.read(_database.momentPostLikes.authorId.count()) ?? 0,
+    };
+  }
+
+  @override
   Future<bool> hasLiked(String postId, String authorId) async {
     final row = await (_database.select(_database.momentPostLikes)
           ..where((table) =>
               table.postId.equals(postId) & table.authorId.equals(authorId)))
         .getSingleOrNull();
     return row != null;
+  }
+
+  @override
+  Future<Set<String>> likedPostIdsAmong(
+    List<String> postIds,
+    String authorId,
+  ) async {
+    if (postIds.isEmpty) return const {};
+    final unique = postIds.toSet().toList(growable: false);
+    final rows = await (_database.selectOnly(_database.momentPostLikes)
+          ..addColumns([_database.momentPostLikes.postId])
+          ..where(_database.momentPostLikes.postId.isIn(unique) &
+              _database.momentPostLikes.authorId.equals(authorId)))
+        .get();
+    return {
+      for (final row in rows)
+        if (row.read(_database.momentPostLikes.postId) != null)
+          row.read(_database.momentPostLikes.postId)!,
+    };
   }
 
   JoinedSelectStatement<HasResultSet, dynamic> _feedQuery({

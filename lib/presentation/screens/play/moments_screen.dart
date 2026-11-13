@@ -16,7 +16,6 @@ import 'package:native_tavern/presentation/screens/play/moments_palette.dart';
 import 'package:native_tavern/domain/services/moments_cover_storage.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/data/models/persona.dart';
-import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
@@ -40,7 +39,7 @@ class MomentsScreen extends ConsumerWidget {
     final settings = ref.watch(appSettingsProvider);
     final feed = ref.watch(pagedMomentFeedProvider);
     final characters =
-        ref.watch(characterListProvider).asData?.value ?? const <Character>[];
+        ref.watch(momentFeedAuthorsProvider).valueOrNull ?? const <Character>[];
     final persona = ref.watch(activePersonaProvider).asData?.value;
     final selfName = momentsPersonaName(persona, l10n.momentsAuthorMe);
     final palette = MomentsPalette.of(context);
@@ -70,29 +69,16 @@ class MomentsScreen extends ConsumerWidget {
                   ),
                 ],
               )
-            : feed.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, _) => _CenteredMessage(error.toString()),
-                data: (items) {
-                  final dataPath = ref.read(dataPathProvider);
-                  final coverPath = persona?.id == null
-                      ? null
-                      : MomentsCoverStorage.existingCoverPathSync(
-                          dataPath,
-                          persona!.id,
-                        );
-                  return _MomentsEnabledFeed(
-                    items: items,
-                    characters: characters,
-                    persona: persona,
-                    selfName: selfName,
-                    palette: palette,
-                    topInset: topInset,
-                    initialCoverPath: coverPath,
-                    onCompose: () =>
-                        context.openShell(AppRoutes.playMomentsCompose),
-                  );
-                },
+            : _MomentsEnabledFeed(
+                items: feed.items,
+                initialLoading: feed.initialLoading,
+                loadError: feed.error,
+                characters: characters,
+                persona: persona,
+                selfName: selfName,
+                palette: palette,
+                topInset: topInset,
+                onCompose: () => context.openShell(AppRoutes.playMomentsCompose),
               ),
       ),
     );
@@ -110,22 +96,24 @@ class MomentsScreen extends ConsumerWidget {
 class _MomentsEnabledFeed extends ConsumerStatefulWidget {
   const _MomentsEnabledFeed({
     required this.items,
+    required this.initialLoading,
+    required this.loadError,
     required this.characters,
     required this.persona,
     required this.selfName,
     required this.palette,
     required this.topInset,
-    required this.initialCoverPath,
     required this.onCompose,
   });
 
   final List<MomentFeedItem> items;
+  final bool initialLoading;
+  final Object? loadError;
   final List<Character> characters;
   final Persona? persona;
   final String selfName;
   final MomentsPalette palette;
   final double topInset;
-  final String? initialCoverPath;
   final VoidCallback onCompose;
 
   @override
@@ -154,18 +142,32 @@ class _MomentsEnabledFeedState extends ConsumerState<_MomentsEnabledFeed>
       curve: Curves.easeInOut,
     );
     _coverExpandController.addListener(() => setState(() {}));
-    _coverImagePath = widget.initialCoverPath;
     _loadedPersonaId = widget.persona?.id;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _resolveCoverPath());
+  }
+
+  Future<void> _resolveCoverPath() async {
+    final personaId = widget.persona?.id;
+    if (personaId == null) {
+      if (mounted) setState(() => _coverImagePath = null);
+      return;
+    }
+    final dataPath = ref.read(dataPathProvider);
+    final path = await Future<String?>(() => MomentsCoverStorage.existingCoverPathSync(
+          dataPath,
+          personaId,
+        ));
+    if (!mounted || _loadedPersonaId != widget.persona?.id) return;
+    setState(() => _coverImagePath = path);
   }
 
   @override
   void didUpdateWidget(covariant _MomentsEnabledFeed oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.persona?.id != widget.persona?.id ||
-        oldWidget.initialCoverPath != widget.initialCoverPath) {
+    if (oldWidget.persona?.id != widget.persona?.id) {
       _coverExpandController.reverse();
-      _coverImagePath = widget.initialCoverPath;
       _loadedPersonaId = widget.persona?.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _resolveCoverPath());
     }
   }
 
@@ -342,7 +344,22 @@ class _MomentsEnabledFeedState extends ConsumerState<_MomentsEnabledFeed>
               ),
             ),
           ),
-          if (widget.items.isEmpty)
+          if (widget.initialLoading && widget.items.isEmpty)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            )
+          else if (widget.loadError != null && widget.items.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _CenteredMessage(
+                widget.loadError.toString(),
+                color: widget.palette.time,
+              ),
+            )
+          else if (widget.items.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
               child: _CenteredMessage(
@@ -391,21 +408,16 @@ class _CoverBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasImage = imagePath != null &&
-        imagePath!.isNotEmpty &&
-        File(imagePath!).existsSync();
-    final cover = DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: hasImage ? null : MomentsPalette.coverGradient,
-        image: hasImage
-            ? DecorationImage(
-                image: FileImage(File(imagePath!)),
-                fit: BoxFit.cover,
-              )
-            : null,
-      ),
-      child: hasImage ? null : CustomPaint(painter: _CoverGrainPainter()),
-    );
+    final hasImage = imagePath != null && imagePath!.isNotEmpty;
+    final cover = hasImage
+        ? Image.file(
+            File(imagePath!),
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+            errorBuilder: (_, __, ___) => _defaultCoverSurface(),
+          )
+        : _defaultCoverSurface();
     if (expandable) {
       return SizedBox(width: double.infinity, child: cover);
     }
@@ -413,6 +425,13 @@ class _CoverBackground extends StatelessWidget {
       height: height,
       width: double.infinity,
       child: cover,
+    );
+  }
+
+  Widget _defaultCoverSurface() {
+    return DecoratedBox(
+      decoration: const BoxDecoration(gradient: MomentsPalette.coverGradient),
+      child: CustomPaint(painter: _CoverGrainPainter()),
     );
   }
 }
@@ -1012,16 +1031,18 @@ class _MomentPhoto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final image = File(path);
-    if (!image.existsSync()) {
-      return const SizedBox.shrink();
-    }
     return GestureDetector(
       onTap: () => _openPreview(context, image),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(2),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 184, maxHeight: 184),
-          child: Image.file(image, key: photoKey, fit: BoxFit.cover),
+          child: Image.file(
+            image,
+            key: photoKey,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          ),
         ),
       ),
     );
