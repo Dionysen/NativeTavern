@@ -10,6 +10,7 @@ import 'package:native_tavern/presentation/providers/moments_compose_draft_provi
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/screens/play/moments_palette.dart';
+import 'package:native_tavern/presentation/widgets/common/desktop_caption.dart';
 
 /// Full-page moments composer. Owned by go_router so play-hub switches can
 /// replace it instead of stacking above the shell child.
@@ -96,37 +97,37 @@ class _MomentsComposeScreenState extends ConsumerState<MomentsComposeScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final palette = MomentsPalette.of(context);
+    final captionActive = DesktopCaptionScope.isActive(context);
+    final topInset = captionActive
+        ? DesktopCaptionScope.titleBarHeightOf(context)
+        : MediaQuery.paddingOf(context).top;
+
     return Scaffold(
       backgroundColor: palette.cell,
       body: Column(
         children: [
-          SafeArea(
-            bottom: false,
-            child: SizedBox(
-              width: MediaQuery.sizeOf(context).width,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
-                child: Row(
-                  children: [
-                    TextButton(
-                      onPressed: _leave,
-                      child: Text(l10n.cancel),
-                    ),
-                    const Spacer(),
-                    FilledButton(
-                      key: const Key('moments-compose-send'),
-                      onPressed: _hasContent ? _submit : null,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: MomentsPalette.send,
-                        disabledBackgroundColor: MomentsPalette.sendDisabled,
-                        foregroundColor: MomentsPalette.onMedia,
-                        disabledForegroundColor: MomentsPalette.onSendDisabled,
-                      ),
-                      child: Text(l10n.momentsCompose),
-                    ),
-                  ],
+          SizedBox(height: topInset),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+            child: Row(
+              children: [
+                TextButton(
+                  onPressed: _leave,
+                  child: Text(l10n.cancel),
                 ),
-              ),
+                const Spacer(),
+                FilledButton(
+                  key: const Key('moments-compose-send'),
+                  onPressed: _hasContent ? _submit : null,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MomentsPalette.send,
+                    disabledBackgroundColor: MomentsPalette.sendDisabled,
+                    foregroundColor: MomentsPalette.onMedia,
+                    disabledForegroundColor: MomentsPalette.onSendDisabled,
+                  ),
+                  child: Text(l10n.momentsCompose),
+                ),
+              ],
             ),
           ),
           Expanded(
