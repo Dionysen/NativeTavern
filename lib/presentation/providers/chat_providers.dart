@@ -28,6 +28,7 @@ import 'package:native_tavern/domain/services/chat_generation_pipeline.dart';
 import 'package:native_tavern/domain/services/reply_length_policy.dart';
 import 'package:native_tavern/domain/services/tokenizer_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/providers/active_chat_message_edits.dart';
 import 'package:native_tavern/presentation/providers/chat_extension_providers.dart';
 import 'package:native_tavern/presentation/providers/data_bank_providers.dart';
 import 'package:native_tavern/presentation/providers/group_providers.dart';
@@ -192,6 +193,25 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
         _generationPipeline = generationPipeline,
         _ref = ref,
         super(const ActiveChatState());
+
+  late final ActiveChatMessageEdits _messageEdits = ActiveChatMessageEdits(
+    readMessages: () => state.messages,
+    characterName: () => state.character?.name,
+    writeMessages: (messages) => state = state.copyWith(messages: messages),
+    persistUpdate: _persistUpdateMessage,
+    persistDelete: _persistDeleteMessage,
+    persistEditedContent: (content, {required role, required characterName}) {
+      final placement = role == MessageRole.user
+          ? RegexPlacement.userInput
+          : RegexPlacement.aiOutput;
+      return _regexFacade().applyForPersist(
+        content,
+        placement: placement,
+        isEdit: true,
+        characterName: characterName,
+      );
+    },
+  );
 
   AppLocalizations get _l10n {
     final requestedLocale =
@@ -1508,166 +1528,46 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
   }
 
   /// Swipe to a different response variant
-  Future<void> swipeMessage(String messageId, int swipeIndex) async {
-    final messageIndex = state.messages.indexWhere((m) => m.id == messageId);
-    if (messageIndex < 0) return;
-
-    final message = state.messages[messageIndex];
-    if (swipeIndex < 0 || swipeIndex >= message.swipes.length) return;
-
-    final updatedMessage = message.copyWith(
-      content: message.swipes[swipeIndex],
-      currentSwipeIndex: swipeIndex,
-    );
-
-    await _persistUpdateMessage(updatedMessage);
-
-    final updatedMessages = List<ChatMessage>.from(state.messages);
-    updatedMessages[messageIndex] = updatedMessage;
-    state = state.copyWith(messages: updatedMessages);
-  }
+  Future<void> swipeMessage(String messageId, int swipeIndex) =>
+      _messageEdits.swipe(messageId, swipeIndex);
 
   /// Delete a single swipe from a message (Swipe Picker)
-  /// Keeps at least one swipe; adjusts the current index if needed
-  Future<void> deleteSwipe(String messageId, int swipeIndex) async {
-    final messageIndex = state.messages.indexWhere((m) => m.id == messageId);
-    if (messageIndex < 0) return;
-
-    final message = state.messages[messageIndex];
-    if (message.swipes.length <= 1) return;
-    if (swipeIndex < 0 || swipeIndex >= message.swipes.length) return;
-
-    final updatedSwipes = List<String>.from(message.swipes)
-      ..removeAt(swipeIndex);
-
-    var newIndex = message.currentSwipeIndex;
-    if (newIndex >= updatedSwipes.length) {
-      newIndex = updatedSwipes.length - 1;
-    } else if (swipeIndex < newIndex) {
-      newIndex--;
-    }
-
-    List<String>? updatedReasoningSwipes = message.reasoningSwipes;
-    String? updatedReasoning = message.reasoning;
-    var clearReasoning = false;
-    if (message.reasoningSwipes != null) {
-      final next = List<String>.from(message.reasoningSwipes!);
-      if (swipeIndex < next.length) {
-        next.removeAt(swipeIndex);
-      }
-      if (next.isEmpty) {
-        updatedReasoningSwipes = null;
-        updatedReasoning = null;
-        clearReasoning = true;
-      } else {
-        updatedReasoningSwipes = next;
-        updatedReasoning = newIndex < next.length ? next[newIndex] : next.last;
-      }
-    }
-
-    final updatedMessage = message.copyWith(
-      content: updatedSwipes[newIndex],
-      swipes: updatedSwipes,
-      currentSwipeIndex: newIndex,
-      clearReasoning: clearReasoning,
-      reasoning: updatedReasoning,
-      reasoningSwipes: updatedReasoningSwipes,
-      metadata: removeDataBankContextMetadataAt(
-        metadata: message.metadata,
-        swipeIndex: swipeIndex,
-      ),
-    );
-
-    await _persistUpdateMessage(updatedMessage);
-
-    final updatedMessages = List<ChatMessage>.from(state.messages);
-    updatedMessages[messageIndex] = updatedMessage;
-    state = state.copyWith(messages: updatedMessages);
-  }
+  Future<void> deleteSwipe(String messageId, int swipeIndex) =>
+      _messageEdits.deleteSwipe(messageId, swipeIndex);
 
   /// Edit a message
-  Future<void> editMessage(String messageId, String newContent) async {
-    final messageIndex = state.messages.indexWhere((m) => m.id == messageId);
-    if (messageIndex < 0) return;
-
-    final message = state.messages[messageIndex];
-    final placement = message.role == MessageRole.user
-        ? RegexPlacement.userInput
-        : RegexPlacement.aiOutput;
-    final persistedContent = _regexFacade().applyForPersist(
-      newContent,
-      placement: placement,
-      isEdit: true,
-      characterName: state.character?.name ?? message.characterName,
-    );
-    final updatedSwipes = List<String>.from(message.swipes);
-    updatedSwipes[message.currentSwipeIndex] = persistedContent;
-
-    final updatedMessage = message.copyWith(
-      content: persistedContent,
-      swipes: updatedSwipes,
-    );
-
-    await _persistUpdateMessage(updatedMessage);
-
-    final updatedMessages = List<ChatMessage>.from(state.messages);
-    updatedMessages[messageIndex] = updatedMessage;
-    state = state.copyWith(messages: updatedMessages);
-  }
+  Future<void> editMessage(String messageId, String newContent) =>
+      _messageEdits.edit(messageId, newContent);
 
   /// Delete a message
-  Future<void> deleteMessage(String messageId) async {
-    await _persistDeleteMessage(messageId);
-    state = state.copyWith(
-      messages: state.messages.where((m) => m.id != messageId).toList(),
-    );
-  }
+  Future<void> deleteMessage(String messageId) =>
+      _messageEdits.delete(messageId);
 
   /// Add an attachment to an existing message
   Future<void> addAttachmentToMessage(
     String messageId,
     ChatAttachment attachment,
-  ) async {
-    await addAttachmentsToMessage(messageId, [attachment]);
-  }
+  ) =>
+      _messageEdits.addAttachments(messageId, [attachment]);
 
   /// Add several attachments to an existing message in one update.
   Future<void> addAttachmentsToMessage(
     String messageId,
     List<ChatAttachment> attachments,
-  ) async {
-    if (attachments.isEmpty) return;
-    final messageIndex = state.messages.indexWhere((m) => m.id == messageId);
-    if (messageIndex < 0) return;
-
-    final message = state.messages[messageIndex];
-    await patchMessage(
-      messageId,
-      attachments: [...message.attachments, ...attachments],
-    );
-  }
+  ) =>
+      _messageEdits.addAttachments(messageId, attachments);
 
   /// Patch attachments and/or metadata on an existing message.
   Future<void> patchMessage(
     String messageId, {
     List<ChatAttachment>? attachments,
     Map<String, dynamic>? metadata,
-  }) async {
-    final messageIndex = state.messages.indexWhere((m) => m.id == messageId);
-    if (messageIndex < 0) return;
-
-    final message = state.messages[messageIndex];
-    final updatedMessage = message.copyWith(
-      attachments: attachments ?? message.attachments,
-      metadata: metadata ?? message.metadata,
-    );
-
-    await _persistUpdateMessage(updatedMessage);
-
-    final updatedMessages = List<ChatMessage>.from(state.messages);
-    updatedMessages[messageIndex] = updatedMessage;
-    state = state.copyWith(messages: updatedMessages);
-  }
+  }) =>
+      _messageEdits.patch(
+        messageId,
+        attachments: attachments,
+        metadata: metadata,
+      );
 
   /// Currently loaded chat id, if any.
   String? get activeChatId => state.chat?.id;
@@ -1772,18 +1672,8 @@ class ActiveChatNotifier extends StateNotifier<ActiveChatState> {
   }
 
   /// Delete a message and all messages after it
-  Future<void> deleteMessageAndAfter(String messageId) async {
-    final messageIndex = state.messages.indexWhere((m) => m.id == messageId);
-    if (messageIndex < 0) return;
-
-    // Delete all messages from this index onwards
-    final messagesToDelete = state.messages.sublist(messageIndex);
-    for (final msg in messagesToDelete) {
-      await _persistDeleteMessage(msg.id);
-    }
-
-    state = state.copyWith(messages: state.messages.sublist(0, messageIndex));
-  }
+  Future<void> deleteMessageAndAfter(String messageId) =>
+      _messageEdits.deleteFrom(messageId);
 
   /// Regenerate a specific assistant message (adds new swipe)
   Future<void> regenerateMessage(String messageId, LLMConfig config) async {
