@@ -244,7 +244,7 @@ final class StorageCleanupReceipt implements StorageCleanupTransaction {
 }
 
 final class StorageGovernanceService implements StorageGovernanceOperations {
-  static const defaultQuotaBytes = 2 * 1024 * 1024 * 1024;
+  static const defaultQuotaBytes = 20 * 1024 * 1024 * 1024;
   static const defaultOrphanGracePeriod = Duration(hours: 24);
   static const defaultTransientGracePeriod = Duration(hours: 1);
 
