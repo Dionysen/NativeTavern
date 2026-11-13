@@ -455,12 +455,12 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
           // SD appearance tags for ComfyUI / image generation
           TextFormField(
             controller: _sdAppearanceController,
-            decoration: const InputDecoration(
-              labelText: '出图外貌标签',
-              hintText: '固定外貌，例如 1girl, silver hair, blue eyes, black dress',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.sdAppearanceTags,
+              hintText: AppLocalizations.of(context)!.sdAppearanceTagsHint,
+              border: const OutlineInputBorder(),
               alignLabelWithHint: true,
-              helperText: '出图时自动带上；不要写剧情动作',
+              helperText: AppLocalizations.of(context)!.sdAppearanceTagsHelper,
             ),
             maxLines: 3,
           ),

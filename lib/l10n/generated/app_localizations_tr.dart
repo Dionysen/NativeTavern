@@ -7872,4 +7872,46 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get noMatchingChats => 'No matching chats';
+
+  @override
+  String get scenePromptLayers => 'Scene prompt layers';
+
+  @override
+  String get qualityPrefix => 'Quality prefix';
+
+  @override
+  String qualityPrefixHint(String prompt) {
+    return 'Use the $prompt token to wrap scene tags';
+  }
+
+  @override
+  String get personaAppearanceTags => 'Protagonist appearance tags';
+
+  @override
+  String get personaAppearanceTagsHint =>
+      'e.g. 1boy, short black hair, brown eyes';
+
+  @override
+  String get aiTagInstruction => 'AI tag-writing instructions';
+
+  @override
+  String get aiTagInstructionHint =>
+      'Extract the core scene; output one line of Danbooru tags only';
+
+  @override
+  String get sdAppearanceTags => 'Image generation appearance tags';
+
+  @override
+  String get sdAppearanceTagsHint =>
+      'Fixed appearance, e.g. 1girl, silver hair, blue eyes, black dress';
+
+  @override
+  String get sdAppearanceTagsHelper =>
+      'Added automatically when generating images; do not write plot or actions';
+
+  @override
+  String get providerSiliconFlow => 'SiliconFlow';
+
+  @override
+  String get providerZai => 'Z.AI';
 }

@@ -624,7 +624,7 @@ class _MomentRowState extends ConsumerState<_MomentRow> {
                   Row(
                     children: [
                       Text(
-                        formatMomentTime(post.createdAt, l10n.localeName),
+                        formatMomentTime(post.createdAt, l10n),
                         style: TextStyle(color: palette.time, fontSize: 13),
                       ),
                       const Spacer(),
@@ -1238,14 +1238,13 @@ class _CoverGrainPainter extends CustomPainter {
 }
 
 @visibleForTesting
-String formatMomentTime(DateTime createdAt, String localeName) {
+String formatMomentTime(DateTime createdAt, AppLocalizations l10n) {
   final now = DateTime.now();
   final local = createdAt.toLocal();
   final delta = now.difference(local);
-  final zh = localeName.startsWith('zh');
-  if (delta.inMinutes < 1) return zh ? '刚刚' : 'Just now';
+  if (delta.inMinutes < 1) return l10n.justNow;
   if (delta.inHours < 1) {
-    return zh ? '${delta.inMinutes}分钟前' : '${delta.inMinutes}m ago';
+    return l10n.minutesAgo(delta.inMinutes);
   }
   if (now.year == local.year &&
       now.month == local.month &&
@@ -1258,7 +1257,7 @@ String formatMomentTime(DateTime createdAt, String localeName) {
   if (yesterday.year == local.year &&
       yesterday.month == local.month &&
       yesterday.day == local.day) {
-    return zh ? '昨天' : 'Yesterday';
+    return l10n.yesterday;
   }
   return '${local.month}/${local.day}';
 }

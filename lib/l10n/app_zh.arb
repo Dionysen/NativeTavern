@@ -7801,5 +7801,59 @@
   "noMatchingChats": "没有匹配的聊天",
   "@noMatchingChats": {
     "description": "Empty state when the chat list search has no hits"
+  },
+  "scenePromptLayers": "场景提示词",
+  "@scenePromptLayers": {
+    "description": "Settings section title for layered scene prompt configuration"
+  },
+  "qualityPrefix": "质量前缀",
+  "@qualityPrefix": {
+    "description": "Label for the image gen quality prefix field"
+  },
+  "qualityPrefixHint": "可用 {prompt} 包住场景标签",
+  "@qualityPrefixHint": {
+    "description": "Hint for the quality prefix field",
+    "placeholders": {
+      "prompt": {
+        "type": "String",
+        "example": "{prompt}"
+      }
+    }
+  },
+  "personaAppearanceTags": "主角外貌标签",
+  "@personaAppearanceTags": {
+    "description": "Label for the persona appearance tags field"
+  },
+  "personaAppearanceTagsHint": "例如 1boy, short black hair, brown eyes",
+  "@personaAppearanceTagsHint": {
+    "description": "Hint for the persona appearance tags field"
+  },
+  "aiTagInstruction": "AI 写 tag 的说明",
+  "@aiTagInstruction": {
+    "description": "Label for the LLM image prompt instruction field"
+  },
+  "aiTagInstructionHint": "提炼核心场景，只输出一行 Danbooru tag",
+  "@aiTagInstructionHint": {
+    "description": "Hint for the AI tag instruction field"
+  },
+  "sdAppearanceTags": "出图外貌标签",
+  "@sdAppearanceTags": {
+    "description": "Label for the SD appearance tags field in character editor"
+  },
+  "sdAppearanceTagsHint": "固定外貌，例如 1girl, silver hair, blue eyes, black dress",
+  "@sdAppearanceTagsHint": {
+    "description": "Hint for the SD appearance tags field"
+  },
+  "sdAppearanceTagsHelper": "出图时自动带上；不要写剧情动作",
+  "@sdAppearanceTagsHelper": {
+    "description": "Helper text for the SD appearance tags field"
+  },
+  "providerSiliconFlow": "SiliconFlow (硅基流动)",
+  "@providerSiliconFlow": {
+    "description": "Display name for the SiliconFlow LLM provider"
+  },
+  "providerZai": "Z.AI (智谱 GLM)",
+  "@providerZai": {
+    "description": "Display name for the Z.AI LLM provider"
   }
 }

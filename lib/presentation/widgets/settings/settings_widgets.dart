@@ -305,10 +305,12 @@ class SettingsControlTile extends StatelessWidget {
                   ),
                   if (titleExtras != null && titleExtras!.isNotEmpty) ...[
                     const SizedBox(width: 4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 4,
-                      children: titleExtras!,
+                    Flexible(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 4,
+                        children: titleExtras!,
+                      ),
                     ),
                   ],
                   if (trailing != null) ...[

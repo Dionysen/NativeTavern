@@ -8264,5 +8264,59 @@
   "noMatchingChats": "No matching chats",
   "@noMatchingChats": {
     "description": "Empty state when the chat list search has no hits"
+  },
+  "scenePromptLayers": "Scene prompt layers",
+  "@scenePromptLayers": {
+    "description": "Settings section title for layered scene prompt configuration"
+  },
+  "qualityPrefix": "Quality prefix",
+  "@qualityPrefix": {
+    "description": "Label for the image gen quality prefix field"
+  },
+  "qualityPrefixHint": "Use the {prompt} token to wrap scene tags",
+  "@qualityPrefixHint": {
+    "description": "Hint for the quality prefix field",
+    "placeholders": {
+      "prompt": {
+        "type": "String",
+        "example": "{prompt}"
+      }
+    }
+  },
+  "personaAppearanceTags": "Protagonist appearance tags",
+  "@personaAppearanceTags": {
+    "description": "Label for the persona appearance tags field"
+  },
+  "personaAppearanceTagsHint": "e.g. 1boy, short black hair, brown eyes",
+  "@personaAppearanceTagsHint": {
+    "description": "Hint for the persona appearance tags field"
+  },
+  "aiTagInstruction": "AI tag-writing instructions",
+  "@aiTagInstruction": {
+    "description": "Label for the LLM image prompt instruction field"
+  },
+  "aiTagInstructionHint": "Extract the core scene; output one line of Danbooru tags only",
+  "@aiTagInstructionHint": {
+    "description": "Hint for the AI tag instruction field"
+  },
+  "sdAppearanceTags": "Image generation appearance tags",
+  "@sdAppearanceTags": {
+    "description": "Label for the SD appearance tags field in character editor"
+  },
+  "sdAppearanceTagsHint": "Fixed appearance, e.g. 1girl, silver hair, blue eyes, black dress",
+  "@sdAppearanceTagsHint": {
+    "description": "Hint for the SD appearance tags field"
+  },
+  "sdAppearanceTagsHelper": "Added automatically when generating images; do not write plot or actions",
+  "@sdAppearanceTagsHelper": {
+    "description": "Helper text for the SD appearance tags field"
+  },
+  "providerSiliconFlow": "SiliconFlow",
+  "@providerSiliconFlow": {
+    "description": "Display name for the SiliconFlow LLM provider"
+  },
+  "providerZai": "Z.AI",
+  "@providerZai": {
+    "description": "Display name for the Z.AI LLM provider"
   }
 }

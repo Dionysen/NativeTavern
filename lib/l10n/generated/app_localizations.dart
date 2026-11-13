@@ -13924,6 +13924,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No matching chats'**
   String get noMatchingChats;
+
+  /// Settings section title for layered scene prompt configuration
+  ///
+  /// In en, this message translates to:
+  /// **'Scene prompt layers'**
+  String get scenePromptLayers;
+
+  /// Label for the image gen quality prefix field
+  ///
+  /// In en, this message translates to:
+  /// **'Quality prefix'**
+  String get qualityPrefix;
+
+  /// Hint for the quality prefix field
+  ///
+  /// In en, this message translates to:
+  /// **'Use the {prompt} token to wrap scene tags'**
+  String qualityPrefixHint(String prompt);
+
+  /// Label for the persona appearance tags field
+  ///
+  /// In en, this message translates to:
+  /// **'Protagonist appearance tags'**
+  String get personaAppearanceTags;
+
+  /// Hint for the persona appearance tags field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 1boy, short black hair, brown eyes'**
+  String get personaAppearanceTagsHint;
+
+  /// Label for the LLM image prompt instruction field
+  ///
+  /// In en, this message translates to:
+  /// **'AI tag-writing instructions'**
+  String get aiTagInstruction;
+
+  /// Hint for the AI tag instruction field
+  ///
+  /// In en, this message translates to:
+  /// **'Extract the core scene; output one line of Danbooru tags only'**
+  String get aiTagInstructionHint;
+
+  /// Label for the SD appearance tags field in character editor
+  ///
+  /// In en, this message translates to:
+  /// **'Image generation appearance tags'**
+  String get sdAppearanceTags;
+
+  /// Hint for the SD appearance tags field
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed appearance, e.g. 1girl, silver hair, blue eyes, black dress'**
+  String get sdAppearanceTagsHint;
+
+  /// Helper text for the SD appearance tags field
+  ///
+  /// In en, this message translates to:
+  /// **'Added automatically when generating images; do not write plot or actions'**
+  String get sdAppearanceTagsHelper;
+
+  /// Display name for the SiliconFlow LLM provider
+  ///
+  /// In en, this message translates to:
+  /// **'SiliconFlow'**
+  String get providerSiliconFlow;
+
+  /// Display name for the Z.AI LLM provider
+  ///
+  /// In en, this message translates to:
+  /// **'Z.AI'**
+  String get providerZai;
 }
 
 class _AppLocalizationsDelegate

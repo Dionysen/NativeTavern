@@ -285,7 +285,7 @@ class ImageGenSettingsScreen extends ConsumerWidget {
           // Scene prompt layers (SillyTavern-style)
           SettingsSection(
             icon: Icons.layers_outlined,
-            title: '场景提示词',
+            title: AppLocalizations.of(context)!.scenePromptLayers,
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -295,9 +295,9 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                         ? settings.effectiveCommonPromptPrefix
                         : settings.commonPromptPrefix,
                   ),
-                  decoration: const InputDecoration(
-                    labelText: '质量前缀',
-                    hintText: '可用 {prompt} 包住场景标签',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.qualityPrefix,
+                    hintText: AppLocalizations.of(context)!.qualityPrefixHint('{prompt}'),
                     border: OutlineInputBorder(),
                     alignLabelWithHint: true,
                   ),
@@ -316,9 +316,9 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                   controller: TextEditingController(
                     text: settings.personaAppearancePrefix,
                   ),
-                  decoration: const InputDecoration(
-                    labelText: '主角外貌标签',
-                    hintText: '例如 1boy, short black hair, brown eyes',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.personaAppearanceTags,
+                    hintText: AppLocalizations.of(context)!.personaAppearanceTagsHint,
                     border: OutlineInputBorder(),
                     alignLabelWithHint: true,
                   ),
@@ -363,9 +363,9 @@ class ImageGenSettingsScreen extends ConsumerWidget {
                         ? settings.effectiveLlmImagePromptInstruction
                         : settings.llmImagePromptInstruction,
                   ),
-                  decoration: const InputDecoration(
-                    labelText: 'AI 写 tag 的说明',
-                    hintText: '提炼核心场景，只输出一行 Danbooru tag',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.aiTagInstruction,
+                    hintText: AppLocalizations.of(context)!.aiTagInstructionHint,
                     border: OutlineInputBorder(),
                     alignLabelWithHint: true,
                   ),

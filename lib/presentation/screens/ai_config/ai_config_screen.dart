@@ -347,7 +347,7 @@ class _LLMProviderTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final config = ref.watch(llmConfigProvider);
-    final providerName = _providerName(config.provider);
+    final providerName = _providerName(context, config.provider);
 
     return SettingsValueTile(
       icon: Icons.cloud,
@@ -369,7 +369,7 @@ class _LLMProviderTile extends ConsumerWidget {
     );
   }
 
-  String _providerName(LLMProvider provider) {
+  String _providerName(BuildContext context, LLMProvider provider) {
     switch (provider) {
       case LLMProvider.openai:
         return 'OAI Compatible';
@@ -388,11 +388,11 @@ class _LLMProviderTile extends ConsumerWidget {
       case LLMProvider.qwen:
         return 'Qwen (Alibaba)';
       case LLMProvider.siliconFlow:
-        return 'SiliconFlow (硅基流动)';
+        return AppLocalizations.of(context)!.providerSiliconFlow;
       case LLMProvider.moonshot:
         return 'Moonshot (Kimi)';
       case LLMProvider.zai:
-        return 'Z.AI (智谱 GLM)';
+        return AppLocalizations.of(context)!.providerZai;
       case LLMProvider.miniMax:
         return 'MiniMax';
       case LLMProvider.openAICompatible:
@@ -463,7 +463,7 @@ class _LLMProviderTile extends ConsumerWidget {
                   controller: scrollController,
                   children: availableProviders
                       .map((provider) => RadioListTile<LLMProvider>(
-                            title: Text(_providerName(provider)),
+                            title: Text(_providerName(context, provider)),
                             subtitle: Text(_providerDescription(provider)),
                             value: provider,
                             groupValue: config.provider,

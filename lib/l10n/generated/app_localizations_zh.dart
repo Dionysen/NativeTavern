@@ -7553,6 +7553,46 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get noMatchingChats => '没有匹配的聊天';
+
+  @override
+  String get scenePromptLayers => '场景提示词';
+
+  @override
+  String get qualityPrefix => '质量前缀';
+
+  @override
+  String qualityPrefixHint(String prompt) {
+    return '可用 $prompt 包住场景标签';
+  }
+
+  @override
+  String get personaAppearanceTags => '主角外貌标签';
+
+  @override
+  String get personaAppearanceTagsHint =>
+      '例如 1boy, short black hair, brown eyes';
+
+  @override
+  String get aiTagInstruction => 'AI 写 tag 的说明';
+
+  @override
+  String get aiTagInstructionHint => '提炼核心场景，只输出一行 Danbooru tag';
+
+  @override
+  String get sdAppearanceTags => '出图外貌标签';
+
+  @override
+  String get sdAppearanceTagsHint =>
+      '固定外貌，例如 1girl, silver hair, blue eyes, black dress';
+
+  @override
+  String get sdAppearanceTagsHelper => '出图时自动带上；不要写剧情动作';
+
+  @override
+  String get providerSiliconFlow => 'SiliconFlow (硅基流动)';
+
+  @override
+  String get providerZai => 'Z.AI (智谱 GLM)';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -15077,4 +15117,44 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get noMatchingChats => '沒有相符的聊天';
+
+  @override
+  String get scenePromptLayers => '場景提示詞';
+
+  @override
+  String get qualityPrefix => '品質前綴';
+
+  @override
+  String qualityPrefixHint(String prompt) {
+    return '可用 $prompt 包住場景標籤';
+  }
+
+  @override
+  String get personaAppearanceTags => '主角外貌標籤';
+
+  @override
+  String get personaAppearanceTagsHint =>
+      '例如 1boy, short black hair, brown eyes';
+
+  @override
+  String get aiTagInstruction => 'AI 寫 tag 的說明';
+
+  @override
+  String get aiTagInstructionHint => '提煉核心場景，只輸出一行 Danbooru tag';
+
+  @override
+  String get sdAppearanceTags => '出圖外貌標籤';
+
+  @override
+  String get sdAppearanceTagsHint =>
+      '固定外貌，例如 1girl, silver hair, blue eyes, black dress';
+
+  @override
+  String get sdAppearanceTagsHelper => '出圖時自動帶上；不要寫劇情動作';
+
+  @override
+  String get providerSiliconFlow => 'SiliconFlow (矽基流動)';
+
+  @override
+  String get providerZai => 'Z.AI (智譜 GLM)';
 }
