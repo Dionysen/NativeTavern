@@ -319,7 +319,13 @@ class SettingsControlTile extends StatelessWidget {
                           ? 2
                           : 8,
                     ),
-                    trailing!,
+                    Flexible(
+                      fit: FlexFit.loose,
+                      child: Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: trailing!,
+                      ),
+                    ),
                   ],
                 ],
               ),
