@@ -74,10 +74,6 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
   static const _channel = MethodChannel('native_tavern/window');
   static const _dragSlop = 4.0;
 
-  final _minimizeKey = GlobalKey();
-  final _maximizeKey = GlobalKey();
-  final _closeKey = GlobalKey();
-
   bool _active = false;
   bool _maximized = false;
   double _titleBarHeight = kToolbarHeight;
@@ -129,7 +125,6 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
       }
       if (!mounted) return;
       setState(() => _active = true);
-      if (_windows) _scheduleReport();
     } on MissingPluginException {
       // Widget tests and runners without the caption hook keep the system bar.
     } catch (_) {}
@@ -154,40 +149,6 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
     } catch (_) {
       _leadingInset = DesktopCaptionMetrics.macOSTrafficLightInset;
     }
-  }
-
-  void _scheduleReport() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _active) _reportButtons();
-    });
-  }
-
-  Future<void> _reportButtons() async {
-    List<double>? rect(GlobalKey key) {
-      final box = key.currentContext?.findRenderObject() as RenderBox?;
-      if (box == null || !box.attached || !box.hasSize) return null;
-      final topLeft = box.localToGlobal(Offset.zero);
-      final dpr = MediaQuery.devicePixelRatioOf(context);
-      final size = box.size;
-      return [
-        topLeft.dx * dpr,
-        topLeft.dy * dpr,
-        (topLeft.dx + size.width) * dpr,
-        (topLeft.dy + size.height) * dpr,
-      ];
-    }
-
-    final minimize = rect(_minimizeKey);
-    final maximize = rect(_maximizeKey);
-    final close = rect(_closeKey);
-    if (minimize == null || maximize == null || close == null) return;
-    try {
-      await _channel.invokeMethod<void>('setCaptionButtons', {
-        'min': minimize,
-        'max': maximize,
-        'close': close,
-      });
-    } catch (_) {}
   }
 
   bool _onControl(Offset global) {
@@ -314,12 +275,8 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
                 top: 0,
                 right: 0,
                 child: _CaptionButtons(
-                  minimizeKey: _minimizeKey,
-                  maximizeKey: _maximizeKey,
-                  closeKey: _closeKey,
                   maximized: _maximized,
                   height: _titleBarHeight,
-                  onReport: _scheduleReport,
                   onMinimize: () => _invoke('minimize'),
                   onMaximize: () => _invoke('toggleMaximize'),
                   onClose: () => _invoke('close'),
@@ -332,45 +289,20 @@ class _DesktopCaptionHostState extends State<DesktopCaptionHost> {
   }
 }
 
-class _CaptionButtons extends StatefulWidget {
+class _CaptionButtons extends StatelessWidget {
   const _CaptionButtons({
-    required this.minimizeKey,
-    required this.maximizeKey,
-    required this.closeKey,
     required this.maximized,
     required this.height,
-    required this.onReport,
     required this.onMinimize,
     required this.onMaximize,
     required this.onClose,
   });
 
-  final GlobalKey minimizeKey;
-  final GlobalKey maximizeKey;
-  final GlobalKey closeKey;
   final bool maximized;
   final double height;
-  final VoidCallback onReport;
   final VoidCallback onMinimize;
   final VoidCallback onMaximize;
   final VoidCallback onClose;
-
-  @override
-  State<_CaptionButtons> createState() => _CaptionButtonsState();
-}
-
-class _CaptionButtonsState extends State<_CaptionButtons> {
-  @override
-  void initState() {
-    super.initState();
-    widget.onReport();
-  }
-
-  @override
-  void didUpdateWidget(covariant _CaptionButtons oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    widget.onReport();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -383,33 +315,30 @@ class _CaptionButtonsState extends State<_CaptionButtons> {
         mainAxisSize: MainAxisSize.min,
         children: [
           _CaptionButton(
-            buttonKey: widget.minimizeKey,
             icon: Icons.remove,
             tooltip:
                 _captionLabel(context, hans: '最小化', hant: '最小化', en: 'Minimize'),
             color: color,
-            height: widget.height,
-            onPressed: widget.onMinimize,
+            height: height,
+            onPressed: onMinimize,
           ),
           _CaptionButton(
-            buttonKey: widget.maximizeKey,
-            icon: widget.maximized ? Icons.filter_none : Icons.crop_square,
-            tooltip: widget.maximized
+            icon: maximized ? Icons.filter_none : Icons.crop_square,
+            tooltip: maximized
                 ? _captionLabel(context, hans: '还原', hant: '還原', en: 'Restore')
                 : _captionLabel(
                     context, hans: '最大化', hant: '最大化', en: 'Maximize'),
             color: color,
-            height: widget.height,
-            onPressed: widget.onMaximize,
+            height: height,
+            onPressed: onMaximize,
           ),
           _CaptionButton(
-            buttonKey: widget.closeKey,
             icon: Icons.close,
             tooltip:
                 _captionLabel(context, hans: '关闭', hant: '關閉', en: 'Close'),
             color: color,
-            height: widget.height,
-            onPressed: widget.onClose,
+            height: height,
+            onPressed: onClose,
           ),
         ],
       ),
@@ -419,7 +348,6 @@ class _CaptionButtonsState extends State<_CaptionButtons> {
 
 class _CaptionButton extends StatelessWidget {
   const _CaptionButton({
-    required this.buttonKey,
     required this.icon,
     required this.tooltip,
     required this.color,
@@ -427,7 +355,6 @@ class _CaptionButton extends StatelessWidget {
     required this.onPressed,
   });
 
-  final GlobalKey buttonKey;
   final IconData icon;
   final String tooltip;
   final Color color;
@@ -440,7 +367,6 @@ class _CaptionButton extends StatelessWidget {
       button: true,
       label: tooltip,
       child: SizedBox(
-        key: buttonKey,
         width: DesktopCaptionMetrics.buttonWidth,
         height: height,
         child: InkWell(

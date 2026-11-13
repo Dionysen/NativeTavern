@@ -43,11 +43,6 @@ class FlutterWindow : public Win32Window {
   std::unique_ptr<flutter::FlutterViewController> flutter_controller_;
   std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> channel_;
 
-  RECT minimize_rect_{};
-  RECT maximize_rect_{};
-  RECT close_rect_{};
-  bool caption_rects_valid_ = false;
-
   HWND child_hwnd_ = nullptr;
   WNDPROC original_child_proc_ = nullptr;
   bool zoomed_ = false;

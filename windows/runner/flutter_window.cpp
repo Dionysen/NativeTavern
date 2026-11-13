@@ -1,6 +1,5 @@
 #include "flutter_window.h"
 
-#include <cmath>
 #include <optional>
 
 #include <dwmapi.h>
@@ -18,35 +17,6 @@ namespace {
 FlutterWindow* g_caption_window = nullptr;
 
 constexpr DWORD kRoundedCorners = 2;  // DWMWCP_ROUND
-
-LONG ReadCoordinate(const flutter::EncodableValue& value) {
-  if (const auto* number = std::get_if<double>(&value)) {
-    return static_cast<LONG>(std::lround(*number));
-  }
-  if (const auto* number = std::get_if<int32_t>(&value)) {
-    return *number;
-  }
-  if (const auto* number = std::get_if<int64_t>(&value)) {
-    return static_cast<LONG>(*number);
-  }
-  return 0;
-}
-
-bool ReadRect(const flutter::EncodableMap& map, const char* key, RECT* out) {
-  const auto it = map.find(flutter::EncodableValue(std::string(key)));
-  if (it == map.end()) {
-    return false;
-  }
-  const auto* list = std::get_if<flutter::EncodableList>(&it->second);
-  if (list == nullptr || list->size() != 4) {
-    return false;
-  }
-  out->left = ReadCoordinate((*list)[0]);
-  out->top = ReadCoordinate((*list)[1]);
-  out->right = ReadCoordinate((*list)[2]);
-  out->bottom = ReadCoordinate((*list)[3]);
-  return out->right > out->left && out->bottom > out->top;
-}
 
 }  // namespace
 
@@ -191,14 +161,8 @@ LRESULT FlutterWindow::CaptionHitTest(LPARAM lparam) {
     if (top) return HTTOP;
     if (bottom) return HTBOTTOM;
   }
-  if (!caption_rects_valid_) {
-    return HTCLIENT;
-  }
-  POINT client = pt;
-  ScreenToClient(root, &client);
-  if (PtInRect(&close_rect_, client)) return HTCLOSE;
-  if (PtInRect(&maximize_rect_, client)) return HTMAXBUTTON;
-  if (PtInRect(&minimize_rect_, client)) return HTMINBUTTON;
+  // Caption buttons (min/max/close) are Flutter widgets. Returning
+  // HT*BUTTON here makes Windows draw native button chrome over them.
   return HTCLIENT;
 }
 
@@ -277,23 +241,6 @@ void FlutterWindow::HandleWindowMethod(
     HWND hwnd = GetHandle();
     if (hwnd != nullptr) {
       PostMessage(hwnd, WM_CLOSE, 0, 0);
-    }
-    result->Success();
-    return;
-  }
-  if (method == "setCaptionButtons") {
-    const auto* args = call.arguments();
-    const auto* map =
-        args == nullptr ? nullptr : std::get_if<flutter::EncodableMap>(args);
-    RECT minimize{};
-    RECT maximize{};
-    RECT close{};
-    if (map != nullptr && ReadRect(*map, "min", &minimize) &&
-        ReadRect(*map, "max", &maximize) && ReadRect(*map, "close", &close)) {
-      minimize_rect_ = minimize;
-      maximize_rect_ = maximize;
-      close_rect_ = close;
-      caption_rects_valid_ = true;
     }
     result->Success();
     return;
