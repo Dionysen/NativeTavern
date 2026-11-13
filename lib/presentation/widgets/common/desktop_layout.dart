@@ -17,8 +17,11 @@ abstract final class DesktopLayout {
   /// Hairline between rail and content when three-pane chrome is on.
   static const double railDividerWidth = 1;
 
-  static const double primaryPaneMinWidth = 280;
-  static const double secondaryPaneMinWidth = 360;
+  /// Floor for a full-width content column in single-pane (rail + one stack).
+  static const double singlePaneContentMinWidth = 360;
+
+  static const double primaryPaneMinWidth = singlePaneContentMinWidth;
+  static const double secondaryPaneMinWidth = singlePaneContentMinWidth;
   static const double primaryPaneDefaultWidth = 400;
 
   /// Draggable hit target between primary and secondary.
