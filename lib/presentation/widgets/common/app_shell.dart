@@ -9,6 +9,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/app_viewport.dart';
 import 'package:native_tavern/presentation/widgets/common/desktop_caption.dart';
 import 'package:native_tavern/presentation/widgets/common/desktop_layout.dart';
+import 'package:native_tavern/presentation/widgets/common/desktop_shell_persona_avatar.dart';
 import 'package:native_tavern/presentation/widgets/common/intercept_pop_scope.dart';
 
 /// Main navigation follows the system's bar edge or the available width.
@@ -118,6 +119,9 @@ class AppShell extends ConsumerWidget {
                           child: _AppNavigation(
                             vertical: true,
                             navigationShell: navigationShell,
+                            showCaptionPersonaAvatar:
+                                desktopThreePaneChrome && captionActive,
+                            railOnLeadingEdge: true,
                           ),
                         )
                       : null,
@@ -145,6 +149,9 @@ class AppShell extends ConsumerWidget {
                           child: _AppNavigation(
                             vertical: true,
                             navigationShell: navigationShell,
+                            showCaptionPersonaAvatar:
+                                desktopThreePaneChrome && captionActive,
+                            railOnLeadingEdge: false,
                           ),
                         )
                       : null,
@@ -192,10 +199,14 @@ class _AppNavigation extends StatelessWidget {
   const _AppNavigation({
     required this.vertical,
     required this.navigationShell,
+    this.showCaptionPersonaAvatar = false,
+    this.railOnLeadingEdge = true,
   });
 
   final bool vertical;
   final StatefulNavigationShell? navigationShell;
+  final bool showCaptionPersonaAvatar;
+  final bool railOnLeadingEdge;
 
   int _calculateSelectedIndex(BuildContext context) {
     if (navigationShell != null) {
@@ -295,7 +306,15 @@ class _AppNavigation extends StatelessWidget {
         child: Column(
           children: [
             if (captionActive)
-              SizedBox(height: DesktopCaptionScope.titleBarHeightOf(context)),
+              showCaptionPersonaAvatar
+                  ? DesktopShellPersonaAvatar(
+                      titleBarHeight:
+                          DesktopCaptionScope.titleBarHeightOf(context),
+                      railOnLeadingEdge: railOnLeadingEdge,
+                    )
+                  : SizedBox(
+                      height: DesktopCaptionScope.titleBarHeightOf(context),
+                    ),
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) => SingleChildScrollView(
