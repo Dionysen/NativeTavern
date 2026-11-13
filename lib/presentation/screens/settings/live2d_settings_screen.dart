@@ -11,6 +11,7 @@ import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/domain/services/live2d_service.dart';
 import 'package:native_tavern/domain/services/live2d_import_service.dart';
 import 'package:native_tavern/domain/services/live2d_model_lifecycle_service.dart';
+import 'package:native_tavern/presentation/providers/live2d_providers.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';

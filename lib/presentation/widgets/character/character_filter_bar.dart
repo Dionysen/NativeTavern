@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import '../../../data/models/tag.dart';
+import '../../theme/tag_colors.dart';
 import '../../providers/character_filter_providers.dart';
 import '../../providers/tag_providers.dart';
 import '../../screens/tags/tags_screen.dart';

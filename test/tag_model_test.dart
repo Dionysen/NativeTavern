@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:native_tavern/data/models/tag.dart';
+import 'package:native_tavern/presentation/theme/tag_colors.dart';
 
 void main() {
   group('Tag', () {
@@ -27,7 +28,7 @@ void main() {
     });
 
     test('colorToHex drops the alpha byte and json keeps the stored string', () {
-      expect(Tag.colorToHex(const Color(0xFFE57373)), '#E57373');
+      expect(TagColors.colorToHex(const Color(0xFFE57373)), '#E57373');
 
       final tag = Tag(
         id: 't1',

@@ -15,7 +15,7 @@ import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/presentation/providers/character_folder_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/regex_providers.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/screens/import/import_screen.dart';
 import 'package:path/path.dart' as p;

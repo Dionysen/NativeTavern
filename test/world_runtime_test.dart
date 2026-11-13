@@ -13,7 +13,7 @@ import 'package:native_tavern/domain/services/world_runtime.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:native_tavern/data/repositories/chat_repository.dart';
 import 'package:native_tavern/data/repositories/world_info_repository.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';

@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/core/utils/path_utils.dart';
 import 'package:native_tavern/data/database/database.dart';
 import 'package:native_tavern/data/models/character.dart' as models;
@@ -8,16 +7,6 @@ import 'package:native_tavern/data/repositories/world_info_repository.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
-
-/// Provider for database
-final databaseProvider = Provider<AppDatabase>((ref) {
-  throw UnimplementedError('Must be overridden in ProviderScope');
-});
-
-/// Root directory for user-managed NativeTavern data.
-final dataPathProvider = Provider<String>((ref) {
-  throw UnimplementedError('Must be overridden in ProviderScope');
-});
 
 /// Initialization data returned after startup
 class InitializationData {

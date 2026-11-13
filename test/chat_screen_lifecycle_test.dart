@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:native_tavern/data/database/database.dart';
 import 'package:native_tavern/data/models/character.dart' as models;
 import 'package:native_tavern/data/repositories/character_repository.dart';

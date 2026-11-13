@@ -12,6 +12,7 @@ import 'package:native_tavern/domain/services/import_service.dart';
 import 'package:native_tavern/domain/services/character_regex_import_service.dart';
 import 'package:native_tavern/domain/services/live2d_import_service.dart';
 import 'package:native_tavern/domain/services/live2d_service.dart';
+import 'package:native_tavern/presentation/providers/live2d_providers.dart';
 import 'package:native_tavern/domain/services/url_import_service.dart';
 import 'package:native_tavern/domain/services/world_info_import.dart';
 import 'package:native_tavern/presentation/providers/world_info_providers.dart';

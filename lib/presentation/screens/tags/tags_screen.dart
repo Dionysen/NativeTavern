@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/tag.dart';
+import 'package:native_tavern/presentation/theme/tag_colors.dart';
 import 'package:native_tavern/presentation/providers/tag_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_action_drawer.dart';
@@ -454,7 +455,7 @@ class _TagEditDialogState extends State<_TagEditDialog> {
     try {
       await widget.onSave(
         name,
-        Tag.colorToHex(_selectedColor),
+        TagColors.colorToHex(_selectedColor),
         _iconController.text.isEmpty ? null : _iconController.text,
       );
       if (mounted) {

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:native_tavern/domain/services/backup_service.dart';
 import 'package:native_tavern/domain/services/cloud_backup_service.dart';
 import 'package:native_tavern/domain/services/database_backup_service.dart';

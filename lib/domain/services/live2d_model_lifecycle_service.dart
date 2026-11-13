@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/live2d.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
@@ -215,11 +214,3 @@ class Live2DModelLifecycleService {
     return left.length == right.length && left.containsAll(right);
   }
 }
-
-final live2DModelLifecycleServiceProvider =
-    Provider<Live2DModelLifecycleService>((ref) {
-  return Live2DModelLifecycleService(
-    characterRepository: ref.watch(characterRepositoryProvider),
-    importService: ref.watch(live2DImportServiceProvider),
-  );
-});

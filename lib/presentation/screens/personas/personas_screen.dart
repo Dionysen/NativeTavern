@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:native_tavern/data/models/persona.dart';
 import 'package:native_tavern/data/models/tag.dart';
+import 'package:native_tavern/presentation/theme/tag_colors.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/screens/personas/persona_editor_screen.dart';
 import 'package:path_provider/path_provider.dart';

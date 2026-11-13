@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/presentation/router/shell_navigation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:native_tavern/core/utils/image_save_utils.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/moment/moment_post.dart';

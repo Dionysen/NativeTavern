@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
 import 'package:native_tavern/data/models/live2d.dart';
 import 'package:native_tavern/domain/services/spine_runtime_service.dart';
 import 'package:path/path.dart' as p;
@@ -399,7 +397,3 @@ class Live2DService {
     return baseName.replaceAll('_', ' ');
   }
 }
-
-final live2DServiceProvider = Provider<Live2DService>((ref) {
-  return Live2DService(dataPath: ref.watch(dataPathProvider));
-});

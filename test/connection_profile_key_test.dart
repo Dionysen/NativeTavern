@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:native_tavern/data/database/database.dart';
 import 'package:native_tavern/domain/services/llm_service.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';

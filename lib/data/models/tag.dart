@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 /// Tag model for categorizing characters
 class Tag {
   final String id;
@@ -50,28 +48,6 @@ class Tag {
             : DateTime.now(),
       );
 
-  /// Get the color as a Flutter Color object
-  Color get colorValue {
-    if (color == null || color!.isEmpty) {
-      return Colors.grey;
-    }
-    try {
-      final hex = color!.replaceFirst('#', '');
-      if (hex.length == 6) {
-        return Color(int.parse('FF$hex', radix: 16));
-      } else if (hex.length == 8) {
-        return Color(int.parse(hex, radix: 16));
-      }
-    } catch (_) {}
-    return Colors.grey;
-  }
-
-  /// Convert a Color to hex string
-  static String colorToHex(Color color) {
-    final argb = color.toARGB32();
-    return '#${argb.toRadixString(16).substring(2).toUpperCase()}';
-  }
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -82,38 +58,4 @@ class Tag {
 
   @override
   String toString() => 'Tag(id: $id, name: $name, color: $color)';
-}
-
-/// Predefined tag colors for quick selection
-class TagColors {
-  static const List<Color> presetColors = [
-    Color(0xFFE57373), // Red
-    Color(0xFFFF8A65), // Deep Orange
-    Color(0xFFFFB74D), // Orange
-    Color(0xFFFFD54F), // Amber
-    Color(0xFFFFF176), // Yellow
-    Color(0xFFDCE775), // Lime
-    Color(0xFFAED581), // Light Green
-    Color(0xFF81C784), // Green
-    Color(0xFF4DB6AC), // Teal
-    Color(0xFF4DD0E1), // Cyan
-    Color(0xFF4FC3F7), // Light Blue
-    Color(0xFF64B5F6), // Blue
-    Color(0xFF7986CB), // Indigo
-    Color(0xFF9575CD), // Deep Purple
-    Color(0xFFBA68C8), // Purple
-    Color(0xFFF06292), // Pink
-    Color(0xFF90A4AE), // Blue Grey
-    Color(0xFFA1887F), // Brown
-  ];
-
-  static Color getRandomColor() {
-    return presetColors[DateTime.now().millisecond % presetColors.length];
-  }
-
-  /// Stable color for a free-form label (e.g. character.tags strings).
-  static Color forLabel(String label) {
-    if (label.isEmpty) return presetColors.last;
-    return presetColors[label.hashCode.abs() % presetColors.length];
-  }
 }

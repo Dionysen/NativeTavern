@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:native_tavern/domain/models/mcp.dart';
 import 'package:native_tavern/domain/repositories/mcp_repository.dart';
 import 'package:native_tavern/domain/services/mcp/mcp_client_manager.dart';

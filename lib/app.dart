@@ -7,7 +7,7 @@ import 'package:native_tavern/presentation/providers/theme_providers.dart';
 import 'package:native_tavern/presentation/providers/locale_provider.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
-import 'package:native_tavern/domain/services/debug_log_service.dart';
+import 'package:native_tavern/presentation/providers/debug_log_providers.dart';
 import 'package:native_tavern/presentation/widgets/debug_log_overlay.dart';
 import 'package:native_tavern/presentation/widgets/privacy/ai_data_sharing_consent_gate.dart';
 import 'package:native_tavern/presentation/widgets/common/app_viewport.dart';

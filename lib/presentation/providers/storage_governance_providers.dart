@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:native_tavern/data/models/live2d.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/data/repositories/chat_repository.dart';

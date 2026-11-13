@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:native_tavern/app.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:native_tavern/core/services/initialization_service.dart';
 import 'package:native_tavern/data/repositories/character_folder_repository.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';

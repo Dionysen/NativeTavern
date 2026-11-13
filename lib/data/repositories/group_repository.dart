@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/database/database.dart' hide Group;
 import 'package:native_tavern/data/database/database.dart' as db;
 import 'package:native_tavern/data/models/group.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:uuid/uuid.dart';
 
 /// Provider for group repository

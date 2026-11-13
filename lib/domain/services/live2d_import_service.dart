@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
 import 'package:native_tavern/data/models/live2d.dart';
 import 'package:native_tavern/domain/services/live2d_service.dart';
 import 'package:path/path.dart' as p;
@@ -756,10 +754,3 @@ class Live2DImportService {
     return value.replaceAll(RegExp(r'[_-]+'), ' ').trim();
   }
 }
-
-final live2DImportServiceProvider = Provider<Live2DImportService>((ref) {
-  return Live2DImportService(
-    dataPath: ref.watch(dataPathProvider),
-    modelService: ref.watch(live2DServiceProvider),
-  );
-});

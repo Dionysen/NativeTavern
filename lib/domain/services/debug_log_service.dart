@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Log entry model
 class LogEntry {
@@ -176,22 +175,3 @@ class DebugLogService {
     _logController.close();
   }
 }
-
-/// Provider for debug log service
-final debugLogServiceProvider = Provider<DebugLogService>((ref) {
-  return DebugLogService();
-});
-
-/// Provider for log entries stream
-final logEntriesStreamProvider = StreamProvider<LogEntry>((ref) {
-  final service = ref.watch(debugLogServiceProvider);
-  return service.logStream;
-});
-
-/// Provider for all current logs
-final currentLogsProvider = Provider<List<LogEntry>>((ref) {
-  // Watch the stream to trigger rebuilds
-  ref.watch(logEntriesStreamProvider);
-  final service = ref.watch(debugLogServiceProvider);
-  return service.logs;
-});

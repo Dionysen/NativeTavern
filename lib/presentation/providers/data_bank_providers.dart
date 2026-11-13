@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:native_tavern/data/models/data_bank_context.dart';
 import 'package:native_tavern/data/repositories/drift_data_bank_repository.dart';
 import 'package:native_tavern/domain/repositories/data_bank_repository.dart';

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/tag.dart';
+import 'package:native_tavern/presentation/theme/tag_colors.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/data/models/character_folder.dart';
 import 'package:native_tavern/presentation/providers/character_folder_providers.dart';

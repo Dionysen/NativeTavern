@@ -8,7 +8,7 @@ import 'package:native_tavern/domain/services/chat_summarization_service.dart';
 import 'package:native_tavern/domain/services/tokenizer_service.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:native_tavern/data/database/database.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 
 /// Log a message to the console
 void _log(String message, {String? error, StackTrace? stackTrace}) {

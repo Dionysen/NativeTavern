@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:native_tavern/core/services/initialization_service.dart';
+import 'package:native_tavern/core/app_scope.dart';
 import 'package:native_tavern/data/models/rpg/rpg.dart';
 import 'package:native_tavern/data/repositories/drift_rpg_persistence_repository.dart';
 import 'package:native_tavern/domain/repositories/rpg_persistence_repository.dart';

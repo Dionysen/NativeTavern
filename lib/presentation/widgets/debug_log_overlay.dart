@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/debug_log_service.dart';
+import 'package:native_tavern/presentation/providers/debug_log_providers.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/chrome_icon_button.dart';
 
