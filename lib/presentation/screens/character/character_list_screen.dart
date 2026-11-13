@@ -158,6 +158,10 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
         await importCharacterLibraryFastPack(context, ref);
       case 'export_fast_pack':
         await exportCharacterLibraryFastPack(context, ref);
+      case 'display_mode':
+        await _showViewModePicker();
+      case 'avatar_shape':
+        await _showAvatarShapePicker();
       case 'rename_folder':
         if (currentFolder != null) {
           await renameCharacterFolder(context, ref, currentFolder);
@@ -344,6 +348,39 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
         .setViewMode(selected);
   }
 
+  Future<void> _showAvatarShapePicker() async {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final current = ref.read(characterBrowseDisplayPrefsProvider).avatarShape;
+    final selected = await showAdaptiveActionDrawer<CharacterAvatarShape>(
+      context: context,
+      title: l10n.showCharacterAvatarTitle,
+      actions: [
+        for (final shape in CharacterAvatarShape.values)
+          AdaptiveActionDrawerItem(
+            value: shape,
+            leading: Icon(
+              shape.icon,
+              color: shape == current ? scheme.primary : null,
+            ),
+            title: Text(
+              shape.getDisplayName(l10n),
+              style: shape == current
+                  ? TextStyle(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w600,
+                    )
+                  : null,
+            ),
+          ),
+      ],
+    );
+    if (selected == null || !mounted) return;
+    await ref
+        .read(characterBrowseDisplayPrefsProvider.notifier)
+        .setAvatarShape(selected);
+  }
+
   Future<void> _showSortPicker(CharacterSortOption current) async {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
@@ -517,19 +554,6 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                     onPressed: _exitSelectionMode,
                   ),
                 ] else ...[
-                  if (viewMode == CharacterViewMode.list)
-                    ChromeIconButton(
-                      icon: Icon(avatarShape.icon),
-                      onPressed: () => ref
-                          .read(characterBrowseDisplayPrefsProvider.notifier)
-                          .cycleAvatarShape(),
-                      tooltip: avatarShape.getDisplayName(l10n),
-                    ),
-                  ChromeIconButton(
-                    icon: Icon(viewMode.icon),
-                    onPressed: _showViewModePicker,
-                    tooltip: l10n.characterDisplayMode,
-                  ),
                   ChromeIconButton(
                     icon: const Icon(Icons.file_download_outlined),
                     tooltip: l10n.import,
@@ -540,7 +564,21 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                     title: l10n.characterLibraryManage,
                     itemBuilder: (context) => [
                       AdaptiveActionDrawerItem(
+                        value: 'display_mode',
+                        leading: Icon(viewMode.icon),
+                        title: Text(l10n.characterDisplayMode),
+                        subtitle: Text(viewMode.getDisplayName(l10n)),
+                      ),
+                      if (viewMode == CharacterViewMode.list)
+                        AdaptiveActionDrawerItem(
+                          value: 'avatar_shape',
+                          leading: Icon(avatarShape.icon),
+                          title: Text(l10n.showCharacterAvatarTitle),
+                          subtitle: Text(avatarShape.getDisplayName(l10n)),
+                        ),
+                      AdaptiveActionDrawerItem(
                         value: 'create_folder',
+                        showDividerAbove: true,
                         leading: const Icon(Icons.create_new_folder_outlined),
                         title: Text(l10n.createCharacterFolder),
                       ),
